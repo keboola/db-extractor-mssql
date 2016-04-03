@@ -1,0 +1,18 @@
+parameters:
+    tables:
+        -
+            id: 0
+            name: escaping
+            query: SELECT * FROM escaping
+            outputTable: in.c-main.escaping
+            incremental: false
+            primaryKey: null
+            enabled: true
+        -
+            id: 1
+            name: sales
+            query: SELECT * FROM sales
+            outputTable: in.c-main.sales
+            incremental: false
+            primaryKey: null
+            enabled: true

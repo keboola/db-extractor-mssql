@@ -1,0 +1,19 @@
+app:
+  build: .
+  volumes:
+    - .:/code
+  working_dir: /code
+  entrypoint: "./phpunit.sh"
+  tty: true
+  stdin_open: true
+  environment:
+    MSSQL_DB_HOST: mssql
+    MSSQL_DB_PORT: 1433
+    MSSQL_DB_USER: sa
+    MSSQL_DB_PASSWORD:
+    MSSQL_DB_DATABASE: test
+  links:
+    - mssql
+
+mssql:
+  image: rsmoorthy/mssql
