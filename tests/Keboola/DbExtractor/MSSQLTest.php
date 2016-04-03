@@ -185,8 +185,8 @@ class MSSQLTest extends ExtractorTest
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
 		$this->createTextTable($csv1);
 
-//		$csv2 = new CsvFile($this->dataDir . '/mssql/escaping.csv');
-//		$this->createTextTable($csv2);
+		$csv2 = new CsvFile($this->dataDir . '/mssql/escaping.csv');
+		$this->createTextTable($csv2);
 
 		$result = $this->app->run();
 
@@ -198,12 +198,12 @@ class MSSQLTest extends ExtractorTest
 		$this->assertFileEquals((string) $csv1, $outputCsvFile);
 
 
-//		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][1] . '.csv';
-//
-//		$this->assertEquals('ok', $result['status']);
-//		$this->assertFileExists($outputCsvFile);
-//		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][1] . '.csv.manifest');
-//		$this->assertFileEquals((string) $csv2, $outputCsvFile);
+		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][1] . '.csv';
+
+		$this->assertEquals('ok', $result['status']);
+		$this->assertFileExists($outputCsvFile);
+		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][1] . '.csv.manifest');
+		$this->assertFileEquals((string) $csv2, $outputCsvFile);
 	}
 
 }
