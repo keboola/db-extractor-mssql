@@ -2,11 +2,9 @@ FROM quay.io/keboola/docker-base-php56:0.0.2
 MAINTAINER Erik Zigo <erik.zigo@keboola.com>
 
 RUN yum -y --enablerepo=epel,remi,remi-php56 install php-mssql
-#RUN yum -y --enablerepo=epel,remi,remi-php56 install php-odbc
 
-#ADD driver/odbc.ini /etc/odbc.ini
-#ENV ODBCINI /etc/odbc.ini
-
+# MSSQL
+ADD mssql/freetds.conf /etc/freetds.conf
 
 WORKDIR /home
 
