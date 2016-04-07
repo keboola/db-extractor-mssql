@@ -22,9 +22,9 @@ mssql:
     - "1433:1433"
 
 sshproxy:
-  build: ./vendor/keboola/db-extractor-common/tests/env/sshproxy
+  build: ./tests/env/sshproxy
   volumes:
-      - ./vendor/keboola/db-extractor-common/tests/env/sshproxy:/code
+      - ./tests/env/sshproxy:/code
   working_dir: /code
   ports:
     - "2222:22"
