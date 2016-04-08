@@ -6,7 +6,6 @@
 namespace Keboola\DbExtractor;
 
 use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Configuration\MSSSQLConfigDefinition;
 use Keboola\DbExtractor\Test\ExtractorTest;
 
 class MSSQLTest extends ExtractorTest
@@ -179,51 +178,6 @@ class MSSQLTest extends ExtractorTest
 	public function testRun()
 	{
 		$config = $this->getConfig('mssql');
-		$app = new Application($config);
-
-
-		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-		$this->createTextTable($csv1);
-
-		$csv2 = new CsvFile($this->dataDir . '/mssql/escaping.csv');
-		$this->createTextTable($csv2);
-
-
-		$result = $app->run();
-
-
-		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
-
-		$this->assertEquals('ok', $result['status']);
-		$this->assertFileExists($outputCsvFile);
-		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
-		$this->assertFileEquals((string) $csv1, $outputCsvFile);
-
-
-		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][1] . '.csv';
-
-		$this->assertEquals('ok', $result['status']);
-		$this->assertFileExists($outputCsvFile);
-		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][1] . '.csv.manifest');
-		$this->assertFileEquals((string) $csv2, $outputCsvFile);
-	}
-
-	public function testRunWithSSH()
-	{
-		$config = $this->getConfig('mssql');
-		$config['parameters']['db']['ssh'] = [
-			'enabled' => true,
-			'keys' => [
-				'#private' => $this->getEnv('mssql', 'DB_SSH_KEY_PRIVATE'),
-				'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
-			],
-			'user' => 'root',
-			'sshHost' => 'sshproxy',
-			'localPort' => '1111',
-			'remoteHost' => 'mssql',
-			'remotePort' => '1433',
-		];
-
 		$app = new Application($config);
 
 
