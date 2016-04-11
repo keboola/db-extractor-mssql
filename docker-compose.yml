@@ -13,9 +13,20 @@ app:
     MSSQL_DB_PASSWORD:
     MSSQL_DB_DATABASE: test
   links:
+    - sshproxy
     - mssql
 
 mssql:
   image: rsmoorthy/mssql
   ports:
     - "1433:1433"
+
+sshproxy:
+  build: ./tests/env/sshproxy
+  volumes:
+      - ./tests/env/sshproxy:/code
+  working_dir: /code
+  ports:
+    - "2222:22"
+  links:
+    - mssql
