@@ -25,7 +25,7 @@ class MSSQLTest extends ExtractorTest
 		$dbConfig = $config['parameters']['db'];
 
 		$dsn = sprintf(
-			"dblib:host=%s;port=%d;dbname=%s;charset=UTF-8",
+			"dblib:host=%s:%d;dbname=%s;charset=UTF-8",
 			$dbConfig['host'],
 			$dbConfig['port'],
 			$dbConfig['database']
@@ -184,8 +184,39 @@ class MSSQLTest extends ExtractorTest
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
 		$this->createTextTable($csv1);
 
-//		$csv2 = new CsvFile($this->dataDir . '/mssql/escaping.csv');
-//		$this->createTextTable($csv2);
+
+		$result = $app->run();
+
+
+		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
+
+		$this->assertEquals('ok', $result['status']);
+		$this->assertFileExists($outputCsvFile);
+		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
+		$this->assertFileEquals((string) $csv1, $outputCsvFile);
+	}
+	
+	public function testRunWithSSH()
+	{
+		$config = $this->getConfig('mssql');
+		$config['parameters']['db']['ssh'] = [
+			'enabled' => true,
+			'keys' => [
+				'#private' => $this->getEnv('mssql', 'DB_SSH_KEY_PRIVATE'),
+				'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
+			],
+			'user' => 'root',
+			'sshHost' => 'sshproxy',
+			'localPort' => '1234',
+			'remoteHost' => 'mssql',
+			'remotePort' => '1433',
+		];
+
+		$app = new Application($config);
+
+
+		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+		$this->createTextTable($csv1);
 
 
 		$result = $app->run();
@@ -197,13 +228,5 @@ class MSSQLTest extends ExtractorTest
 		$this->assertFileExists($outputCsvFile);
 		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
 		$this->assertFileEquals((string) $csv1, $outputCsvFile);
-
-
-//		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][1] . '.csv';
-//
-//		$this->assertEquals('ok', $result['status']);
-//		$this->assertFileExists($outputCsvFile);
-//		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][1] . '.csv.manifest');
-//		$this->assertFileEquals((string) $csv2, $outputCsvFile);
 	}
 }

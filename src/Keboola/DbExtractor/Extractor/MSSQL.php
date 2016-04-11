@@ -26,7 +26,7 @@ class MSSQL extends Extractor
 
 		$port = isset($params['port']) ? $params['port'] : '1433';
 		$dsn = sprintf(
-			"dblib:host=%s;port=%d;dbname=%s;charset=UTF-8",
+			"dblib:host=%s:%d;dbname=%s;charset=UTF-8",
 			$params['host'],
 			$port,
 			$params['database']//,
