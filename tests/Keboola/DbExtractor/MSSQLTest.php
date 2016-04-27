@@ -7,6 +7,7 @@ namespace Keboola\DbExtractor;
 
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Test\ExtractorTest;
+use Symfony\Component\Yaml\Yaml;
 
 class MSSQLTest extends ExtractorTest
 {
@@ -41,8 +42,16 @@ class MSSQLTest extends ExtractorTest
 	 */
 	public function getConfig($driver = 'mssql')
 	{
-		$config = parent::getConfig($driver);
-		$config['extractor_class'] = 'MSSQL';
+		$config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
+		$config['parameters']['data_dir'] = $this->dataDir;
+
+		$config['parameters']['db']['user'] = $this->getEnv($driver, 'DB_USER', true);
+		$config['parameters']['db']['password'] = $this->getEnv($driver, 'DB_PASSWORD');
+		$config['parameters']['db']['host'] = $this->getEnv($driver, 'DB_HOST');
+		$config['parameters']['db']['port'] = $this->getEnv($driver, 'DB_PORT');
+		$config['parameters']['db']['database'] = $this->getEnv($driver, 'DB_DATABASE');
+
+		$config['parameters']['extractor_class'] = 'MSSQL';
 		return $config;
 	}
 
@@ -207,7 +216,7 @@ class MSSQLTest extends ExtractorTest
 			],
 			'user' => 'root',
 			'sshHost' => 'sshproxy',
-			'localPort' => '1234',
+//			'localPort' => '1234',
 			'remoteHost' => 'mssql',
 			'remotePort' => '1433',
 		];
