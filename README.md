@@ -1,5 +1,8 @@
 # MS SQL DB Extractor
 
+[![Build Status](https://travis-ci.org/keboola/db-extractor-mssql.svg?branch=master)](https://travis-ci.org/keboola/db-extractor-mssql)
+
+
     {
       "db": {
         "driver": "mssql",
