@@ -3,8 +3,7 @@
  * @package ex-db-mssql
  * @author Erik Zigo <erik.zigo@keboola.com>
  */
-use Keboola\DbExtractor\Application;
-use Keboola\DbExtractor\Configuration\MSSSQLConfigDefinition;
+use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
 use Symfony\Component\Yaml\Yaml;
@@ -21,11 +20,15 @@ try {
 	}
 
 	$config = Yaml::parse(file_get_contents($arguments["data"] . "/config.yml"));
-	$config['data_dir'] = $arguments['data'];
-	$config['extractor_class'] = 'MSSQL';
 
-	$app = new Application($config);
-	$app->setConfigDefinition(new MSSSQLConfigDefinition());
+
+	$app = new MSSQLApplication(
+		Yaml::parse(
+			file_get_contents($arguments["data"] . "/config.yml")
+		),
+		$arguments["data"]
+	);
+
 	$app->run();
 
 } catch(UserException $e) {

@@ -187,7 +187,8 @@ class MSSQLTest extends ExtractorTest
 	public function testRun()
 	{
 		$config = $this->getConfig('mssql');
-		$app = new Application($config);
+
+		$app = $this->createApplication($config);
 
 
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
@@ -221,7 +222,7 @@ class MSSQLTest extends ExtractorTest
 			'remotePort' => '1433',
 		];
 
-		$app = new Application($config);
+		$app = $this->createApplication($config);
 
 
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
@@ -237,5 +238,16 @@ class MSSQLTest extends ExtractorTest
 		$this->assertFileExists($outputCsvFile);
 		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
 		$this->assertFileEquals((string) $csv1, $outputCsvFile);
+	}
+
+	/**
+	 * @param array $config
+	 * @return MSSQLApplication
+	 */
+	public function createApplication(array $config)
+	{
+		$app = new MSSQLApplication($config, $this->dataDir);
+
+		return $app;
 	}
 }
