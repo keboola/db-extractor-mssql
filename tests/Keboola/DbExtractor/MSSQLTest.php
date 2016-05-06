@@ -184,6 +184,32 @@ class MSSQLTest extends ExtractorTest
 		return $linesCount;
 	}
 
+	public function testCredentials()
+	{
+		$config = $this->getConfig('mssql');
+		$config['action'] = 'testConnection';
+		unset($config['parameters']['tables']);
+
+		$app = $this->createApplication($config);
+		$result = $app->run();
+
+		$this->assertArrayHasKey('status', $result);
+		$this->assertEquals('ok', $result['status']);
+	}
+
+	public function testRunWithoutTables()
+	{
+		$config = $this->getConfig('mssql');
+
+		unset($config['parameters']['tables']);
+
+		$app = $this->createApplication($config);
+		$result = $app->run();
+
+		$this->assertArrayHasKey('status', $result);
+		$this->assertEquals('ok', $result['status']);
+	}
+
 	public function testRun()
 	{
 		$config = $this->getConfig('mssql');
@@ -205,7 +231,34 @@ class MSSQLTest extends ExtractorTest
 		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
 		$this->assertFileEquals((string) $csv1, $outputCsvFile);
 	}
-	
+
+	public function testCredentialsWithSSH()
+	{
+		$config = $this->getConfig('mssql');
+		$config['action'] = 'testConnection';
+
+		$config['parameters']['db']['ssh'] = [
+			'enabled' => true,
+			'keys' => [
+				'#private' => $this->getEnv('mssql', 'DB_SSH_KEY_PRIVATE'),
+				'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
+			],
+			'user' => 'root',
+			'sshHost' => 'sshproxy',
+			'remoteHost' => 'mssql',
+			'remotePort' => '1433',
+			'localPort' => '1235',
+		];
+
+		unset($config['parameters']['tables']);
+
+		$app = $this->createApplication($config);
+		$result = $app->run();
+
+		$this->assertArrayHasKey('status', $result);
+		$this->assertEquals('ok', $result['status']);
+	}
+
 	public function testRunWithSSH()
 	{
 		$config = $this->getConfig('mssql');
@@ -217,9 +270,9 @@ class MSSQLTest extends ExtractorTest
 			],
 			'user' => 'root',
 			'sshHost' => 'sshproxy',
-//			'localPort' => '1234',
 			'remoteHost' => 'mssql',
 			'remotePort' => '1433',
+			'localPort' => '1234',
 		];
 
 		$app = $this->createApplication($config);

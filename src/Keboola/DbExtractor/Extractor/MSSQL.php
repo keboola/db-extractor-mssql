@@ -20,7 +20,7 @@ class MSSQL extends Extractor
 		// check params
 		if (isset($params['#password'])) {
 	            $params['password'] = $params['#password'];
-	        }
+		}
 		
 		foreach (['host', 'database', 'user', 'password'] as $r) {
 			if (!array_key_exists($r, $params)) {
@@ -45,5 +45,10 @@ class MSSQL extends Extractor
 	public function getConnection()
 	{
 		return $this->db;
+	}
+
+	public function testConnection()
+	{
+		$this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
 	}
 }
