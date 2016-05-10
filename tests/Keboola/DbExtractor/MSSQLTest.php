@@ -194,7 +194,7 @@ class MSSQLTest extends ExtractorTest
 		$result = $app->run();
 
 		$this->assertArrayHasKey('status', $result);
-		$this->assertEquals('ok', $result['status']);
+		$this->assertEquals('success', $result['status']);
 	}
 
 	public function testRunWithoutTables()
@@ -207,7 +207,7 @@ class MSSQLTest extends ExtractorTest
 		$result = $app->run();
 
 		$this->assertArrayHasKey('status', $result);
-		$this->assertEquals('ok', $result['status']);
+		$this->assertEquals('success', $result['status']);
 	}
 
 	public function testRun()
@@ -226,7 +226,7 @@ class MSSQLTest extends ExtractorTest
 
 		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
 
-		$this->assertEquals('ok', $result['status']);
+		$this->assertEquals('success', $result['status']);
 		$this->assertFileExists($outputCsvFile);
 		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
 		$this->assertFileEquals((string) $csv1, $outputCsvFile);
@@ -256,7 +256,7 @@ class MSSQLTest extends ExtractorTest
 		$result = $app->run();
 
 		$this->assertArrayHasKey('status', $result);
-		$this->assertEquals('ok', $result['status']);
+		$this->assertEquals('success', $result['status']);
 	}
 
 	public function testRunWithSSH()
@@ -287,7 +287,7 @@ class MSSQLTest extends ExtractorTest
 
 		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
 
-		$this->assertEquals('ok', $result['status']);
+		$this->assertEquals('success', $result['status']);
 		$this->assertFileExists($outputCsvFile);
 		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
 		$this->assertFileEquals((string) $csv1, $outputCsvFile);
