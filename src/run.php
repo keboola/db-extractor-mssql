@@ -19,14 +19,11 @@ $logger = new \Keboola\DbExtractor\Logger(APP_NAME);
 
 try {
 	$runAction = true;
-
 	$arguments = getopt("d::", ["data::"]);
 	if (!isset($arguments["data"])) {
 		throw new UserException('Data folder not set.');
 	}
-
 	$config = Yaml::parse(file_get_contents($arguments["data"] . "/config.yml"));
-
 
 	$app = new MSSQLApplication(
 		Yaml::parse(
