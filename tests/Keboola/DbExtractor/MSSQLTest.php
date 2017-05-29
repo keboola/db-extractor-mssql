@@ -85,34 +85,34 @@ class MSSQLTest extends ExtractorTest
 		));
 
 		$sql = sprintf(
-            'CREATE TABLE %s (%s)',
-            $tableName,
-            implode(
-                ', ',
-                array_map(function ($column) {
-                    return $column . ' varchar(255) NULL';
-                }, $file->getHeader())
-            ),
-            $tableName
-        );
+			'CREATE TABLE %s (%s)',
+			$tableName,
+			implode(
+				', ',
+				array_map(function ($column) {
+					return $column . ' varchar(255) NULL';
+				}, $file->getHeader())
+			),
+			$tableName
+		);
 
 		$this->pdo->exec($sql);
 
-        // create the primary key if supplied
-        if ($primaryKey && is_array($primaryKey) && !empty($primaryKey)) {
-            
-            foreach ($primaryKey as $pk) {
-                $sql = sprintf("ALTER TABLE %s ALTER COLUMN %s varchar(64) NOT NULL", $tableName, $pk);
-                $this->pdo->exec($sql);
-            }
+		// create the primary key if supplied
+		if ($primaryKey && is_array($primaryKey) && !empty($primaryKey)) {
 
-            $sql = sprintf(
-                'ALTER TABLE %s ADD PRIMARY KEY (%s)',
-                $tableName,
-                implode(',', $primaryKey)
-            );
-            $this->pdo->exec($sql);
-        }
+			foreach ($primaryKey as $pk) {
+				$sql = sprintf("ALTER TABLE %s ALTER COLUMN %s varchar(64) NOT NULL", $tableName, $pk);
+				$this->pdo->exec($sql);
+			}
+
+			$sql = sprintf(
+				'ALTER TABLE %s ADD PRIMARY KEY (%s)',
+				$tableName,
+				implode(',', $primaryKey)
+			);
+			$this->pdo->exec($sql);
+		}
 
 		$file->next();
 
