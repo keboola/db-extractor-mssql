@@ -74,7 +74,7 @@ class MSSQLTest extends ExtractorTest
 	 *
 	 * @param CsvFile $file
 	 */
-	private function createTextTable(CsvFile $file)
+	private function createTextTable(CsvFile $file, $primaryKey = null)
 	{
 		$tableName = $this->generateTableName($file);
 
@@ -84,17 +84,35 @@ class MSSQLTest extends ExtractorTest
 			$tableName
 		));
 
-		$this->pdo->exec(sprintf(
-			'CREATE TABLE %s (%s)',
-			$tableName,
-			implode(
-				', ',
-				array_map(function ($column) {
-					return $column . ' text NULL';
-				}, $file->getHeader())
-			),
-			$tableName
-		));
+		$sql = sprintf(
+            'CREATE TABLE %s (%s)',
+            $tableName,
+            implode(
+                ', ',
+                array_map(function ($column) {
+                    return $column . ' varchar(255) NULL';
+                }, $file->getHeader())
+            ),
+            $tableName
+        );
+
+		$this->pdo->exec($sql);
+
+        // create the primary key if supplied
+        if ($primaryKey && is_array($primaryKey) && !empty($primaryKey)) {
+            
+            foreach ($primaryKey as $pk) {
+                $sql = sprintf("ALTER TABLE %s ALTER COLUMN %s varchar(64) NOT NULL", $tableName, $pk);
+                $this->pdo->exec($sql);
+            }
+
+            $sql = sprintf(
+                'ALTER TABLE %s ADD PRIMARY KEY (%s)',
+                $tableName,
+                implode(',', $primaryKey)
+            );
+            $this->pdo->exec($sql);
+        }
 
 		$file->next();
 
@@ -216,13 +234,12 @@ class MSSQLTest extends ExtractorTest
 
 		$app = $this->createApplication($config);
 
-
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-		$this->createTextTable($csv1);
 
+		// set createdat as PK
+		$this->createTextTable($csv1, ['createdat']);
 
 		$result = $app->run();
-
 
 		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
 
@@ -279,7 +296,7 @@ class MSSQLTest extends ExtractorTest
 
 
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-		$this->createTextTable($csv1);
+		$this->createTextTable($csv1, ['createdat']);
 
 
 		$result = $app->run();
@@ -293,7 +310,53 @@ class MSSQLTest extends ExtractorTest
 		$this->assertFileEquals((string) $csv1, $outputCsvFile);
 	}
 
-	/**
+    public function testGetTables()
+    {
+        $config = $this->getConfig();
+        $config['action'] = 'getTables';
+
+        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+        $this->createTextTable($csv1, ['createdat']);
+
+        $app = new Application($config);
+        $result = $app->run();
+
+        $this->assertArrayHasKey('status', $result);
+        $this->assertArrayHasKey('tables', $result);
+        $this->assertEquals('success', $result['status']);
+        $this->assertCount(1, $result['tables']);
+        $this->assertArrayHasKey('name', $result['tables'][0]);
+        $this->assertEquals("sales", $result['tables'][0]['name']);
+        $this->assertArrayHasKey('columns', $result['tables'][0]);
+        $this->assertCount(12, $result['tables'][0]['columns']);
+        $this->assertArrayHasKey('name', $result['tables'][0]['columns'][0]);
+        $this->assertEquals("usergender", $result['tables'][0]['columns'][0]['name']);
+        $this->assertArrayHasKey('type', $result['tables'][0]['columns'][0]);
+        $this->assertEquals("varchar", $result['tables'][0]['columns'][0]['type']);
+        $this->assertArrayHasKey('length', $result['tables'][0]['columns'][0]);
+        $this->assertEquals(255, $result['tables'][0]['columns'][0]['length']);
+        $this->assertArrayHasKey('nullable', $result['tables'][0]['columns'][0]);
+        $this->assertTrue($result['tables'][0]['columns'][0]['nullable']);
+        $this->assertArrayHasKey('default', $result['tables'][0]['columns'][0]);
+        $this->assertNull($result['tables'][0]['columns'][0]['default']);
+        $this->assertArrayHasKey('primaryKey', $result['tables'][0]['columns'][0]);
+        $this->assertFalse($result['tables'][0]['columns'][0]['primaryKey']);
+
+        // note the column fetch is ordered by ordinal_position so the assertion of column index must hold.
+        // also, mssql ordinal_position is 1 based
+        $this->assertArrayHasKey('ordinalPosition', $result['tables'][0]['columns'][6]);
+        $this->assertEquals(7, $result['tables'][0]['columns'][6]['ordinalPosition']);
+
+        // check that the primary key is set
+        $this->assertEquals('createdat', $result['tables'][0]['columns'][5]['name']);
+        $this->assertArrayHasKey('primaryKey', $result['tables'][0]['columns'][5]);
+        // PK cannot be nullable
+        $this->assertEquals(64, $result['tables'][0]['columns'][5]['length']);
+        $this->assertFalse($result['tables'][0]['columns'][5]['nullable']);
+        $this->assertTrue($result['tables'][0]['columns'][5]['primaryKey']);
+    }
+
+    /**
 	 * @param array $config
 	 * @return MSSQLApplication
 	 */
