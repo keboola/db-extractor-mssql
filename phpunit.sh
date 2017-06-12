@@ -34,6 +34,7 @@ export MSSQL_DB_SSH_KEY_PUBLIC="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC2tGpPt3qr
 composer selfupdate
 composer install -n
 
-waitforservices
+# wait for mssql start
+sleep 15
 
 ./vendor/bin/phpunit "$@"
