@@ -71,9 +71,13 @@ abstract class AbstractMSSQLTest extends ExtractorTest
      *
      * @param CsvFile $file
      */
-    protected function createTextTable(CsvFile $file, $primaryKey = null)
+    protected function createTextTable(CsvFile $file, $primaryKey = null, $overrideTableName = null)
     {
-        $tableName = $this->generateTableName($file);
+        if (!$overrideTableName) {
+            $tableName = $this->generateTableName($file);
+        } else {
+            $tableName = $overrideTableName;
+        }
 
         $this->pdo->exec(sprintf(
             'IF OBJECT_ID(\'%s\', \'U\') IS NOT NULL DROP TABLE %s',
@@ -206,7 +210,14 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     public function createApplication(array $config)
     {
         $app = new MSSQLApplication($config, $this->dataDir);
-
         return $app;
+    }
+
+    public function tableExists($tableName) {
+        $res = $this->pdo->query(sprintf(
+            "SELECT * FROM information_schema.tables WHERE TABLE_NAME = %s",
+            $this->pdo->quote($tableName)
+        ));
+        return !($res->rowCount() === 0);
     }
 }

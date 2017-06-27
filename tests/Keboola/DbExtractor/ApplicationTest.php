@@ -8,11 +8,6 @@ use Symfony\Component\Yaml\Yaml;
 
 class ApplicationTest extends AbstractMSSQLTest
 {
-    public function setUp()
-    {
-        parent::setUp();
-    }
-
     public function testTestConnectionAction()
     {
         $config = $this->getConfig('mssql');
@@ -37,7 +32,9 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($manifestFile);
 
         // create the table in the DB
-        $this->createTextTable(new CsvFile($this->dataDir . "/mssql/sales.csv"));
+        if (!$this->tableExists("sales")) {
+            $this->createTextTable(new CsvFile($this->dataDir . "/mssql/sales.csv"), ['createdat']);
+        }
 
         $config = $this->getConfig('mssql');
         @unlink($this->dataDir . '/config.yml');
@@ -47,6 +44,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
+        var_dump($process->getErrorOutput());
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals("", $process->getErrorOutput());
 
@@ -65,6 +63,8 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
+        var_dump($process->getErrorOutput());
+        var_dump($process->getOutput());
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals("", $process->getErrorOutput());
         $this->assertJson($process->getOutput());

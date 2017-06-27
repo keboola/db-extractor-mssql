@@ -46,7 +46,9 @@ class MSSQLTest extends AbstractMSSQLTest
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
 
 		// set createdat as PK
-		$this->createTextTable($csv1, ['createdat']);
+		if (!$this->tableExists("sales")) {
+            $this->createTextTable($csv1, ['createdat']);
+        }
 
 		$result = $app->run();
 
@@ -103,10 +105,11 @@ class MSSQLTest extends AbstractMSSQLTest
 
 		$app = $this->createApplication($config);
 
-
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-		$this->createTextTable($csv1, ['createdat']);
 
+        if (!$this->tableExists("sales")) {
+            $this->createTextTable($csv1, ['createdat']);
+        }
 
 		$result = $app->run();
 
@@ -125,7 +128,19 @@ class MSSQLTest extends AbstractMSSQLTest
         $config['action'] = 'getTables';
 
         $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-        $this->createTextTable($csv1, ['createdat']);
+        if (!$this->tableExists("sales")) {
+            $this->createTextTable($csv1, ['createdat']);
+        }
+        if (!$this->tableExists("sales2")) {
+            $this->createTextTable($csv1, null, "sales2");
+        }
+
+        // drop the t1 demo table if it exists
+        $this->pdo->exec("DROP TABLE IF EXISTS 't1'");
+
+        // set up a foreign key relationship
+        $this->pdo->exec("ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL");
+        $this->pdo->exec("ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)");
 
         $app = new Application($config);
         $result = $app->run();
@@ -134,34 +149,57 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
         $this->assertCount(2, $result['tables']);
-        $this->assertArrayHasKey('name', $result['tables'][0]);
-        $this->assertEquals("sales", $result['tables'][0]['name']);
-        $this->assertArrayHasKey('columns', $result['tables'][0]);
-        $this->assertCount(12, $result['tables'][0]['columns']);
-        $this->assertArrayHasKey('name', $result['tables'][0]['columns'][0]);
-        $this->assertEquals("usergender", $result['tables'][0]['columns'][0]['name']);
-        $this->assertArrayHasKey('type', $result['tables'][0]['columns'][0]);
-        $this->assertEquals("varchar", $result['tables'][0]['columns'][0]['type']);
-        $this->assertArrayHasKey('length', $result['tables'][0]['columns'][0]);
-        $this->assertEquals(255, $result['tables'][0]['columns'][0]['length']);
-        $this->assertArrayHasKey('nullable', $result['tables'][0]['columns'][0]);
-        $this->assertTrue($result['tables'][0]['columns'][0]['nullable']);
-        $this->assertArrayHasKey('default', $result['tables'][0]['columns'][0]);
-        $this->assertNull($result['tables'][0]['columns'][0]['default']);
-        $this->assertArrayHasKey('primaryKey', $result['tables'][0]['columns'][0]);
-        $this->assertFalse($result['tables'][0]['columns'][0]['primaryKey']);
+        foreach ($result['tables'] as $table) {
+            $this->assertArrayHasKey('name', $table);
+            $this->assertArrayHasKey('schema', $table);
+            $this->assertArrayHasKey('type', $table);
+            $this->assertArrayHasKey('rowCount', $table);
+            $this->assertArrayHasKey('columns', $table);
 
-        // note the column fetch is ordered by ordinal_position so the assertion of column index must hold.
-        // also, mssql ordinal_position is 1 based
-        $this->assertArrayHasKey('ordinalPosition', $result['tables'][0]['columns'][6]);
-        $this->assertEquals(7, $result['tables'][0]['columns'][6]['ordinalPosition']);
-
-        // check that the primary key is set
-        $this->assertEquals('createdat', $result['tables'][0]['columns'][5]['name']);
-        $this->assertArrayHasKey('primaryKey', $result['tables'][0]['columns'][5]);
-        // PK cannot be nullable
-        $this->assertEquals(64, $result['tables'][0]['columns'][5]['length']);
-        $this->assertFalse($result['tables'][0]['columns'][5]['nullable']);
-        $this->assertTrue($result['tables'][0]['columns'][5]['primaryKey']);
+            $this->assertEquals('test', $table['schema']);
+            $this->assertEquals('BASE TABLE', $table['type']);
+            $this->assertCount(12, $table['columns']);
+            foreach ($table['columns'] as $i => $column) {
+                $this->assertArrayHasKey('name', $column);
+                $this->assertArrayHasKey('type', $column);
+                $this->assertArrayHasKey('length', $column);
+                $this->assertArrayHasKey('default', $column);
+                $this->assertArrayHasKey('nullable', $column);
+                $this->assertArrayHasKey('primaryKey', $column);
+                $this->assertArrayHasKey('foreignKey', $column);
+                $this->assertArrayHasKey('uniqueKey', $column);
+                $this->assertArrayHasKey('ordinalPosition', $column);
+                // values
+                $this->assertEquals("text", $column['type']);
+                $this->assertEquals($i + 1, $column['ordinalPosition']);
+                if ($column['name'] === 'createdat') {
+                    $this->assertArrayHasKey('constraintName', $column);
+                    $this->assertEquals(60, $column['length']);
+                    $this->assertFalse($column['nullable']);
+                    if ($table['name'] === 'sales') {
+                        $this->assertTrue($column['primaryKey']);
+                        $this->assertFalse($column['foreignKey']);
+                        $this->assertFalse($column['uniqueKey']);
+                    } else {
+                        $this->assertFalse($column['primaryKey']);
+                        $this->assertTrue($column['foreignKey']);
+                        $this->assertFalse($column['uniqueKey']);
+                        $this->assertArrayHasKey('foreignKeyRefSchema', $column);
+                        $this->assertArrayHasKey('foreignKeyRefSchema', $column);
+                        $this->assertArrayHasKey('foreignKeyRefSchema', $column);
+                        $this->assertEquals($column['foreignKeyRefSchema'], "dbo");
+                        $this->assertEquals($column['foreignKeyRefTable'], "sales");
+                        $this->assertEquals($column['foreignKeyRefColumn'], "createdat");
+                    }
+                } else {
+                    $this->assertEquals(65535, $column['length']);
+                    $this->assertTrue($column['nullable']);
+                    $this->assertNull($column['default']);
+                    $this->assertFalse($column['primaryKey']);
+                    $this->assertFalse($column['foreignKey']);
+                    $this->assertFalse($column['uniqueKey']);
+                }
+            }
+        }
     }
 }
