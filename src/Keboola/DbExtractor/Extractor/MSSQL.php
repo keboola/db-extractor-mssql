@@ -80,7 +80,8 @@ class MSSQL extends Extractor
     {
         $tabledef = [
             'name' => $table['TABLE_NAME'],
-            'schema' => (isset($table['TABLE_CATALOG'])) ? $table['TABLE_CATALOG'] : null,
+            'catalog' => (isset($table['TABLE_CATALOG'])) ? $table['TABLE_CATALOG'] : null,
+            'schema' => (isset($table['TABLE_SCHEMA'])) ? $table['TABLE_SCHEMA'] : null,
             'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : null
         ];
 

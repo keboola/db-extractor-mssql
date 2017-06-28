@@ -19,18 +19,53 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             define('APP_NAME', 'ex-db-mssql');
         }
 
-        $config = $this->getConfig('mssql');
-        $dbConfig = $config['parameters']['db'];
+        $this->makeConnection();
 
-        $dsn = sprintf(
-            "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
-            $dbConfig['host'],
-            $dbConfig['port'],
-            $dbConfig['database']
-        );
+        $this->setupTables();
+    }
 
-        $this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password']);
-        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+    private function makeConnection()
+    {
+        if (!$this->pdo) {
+            $options = [
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+            ];
+
+            $config = $this->getConfig('mssql');
+            $dbConfig = $config['parameters']['db'];
+
+            $dsn = sprintf(
+                "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
+                $dbConfig['host'],
+                $dbConfig['port'],
+                $dbConfig['database']
+            );
+
+            $this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password'], $options);
+        }
+    }
+
+    private function setupTables()
+    {
+        $res = $this->pdo->query("SELECT * FROM information_schema.tables where TABLE_TYPE='BASE TABLE'");
+
+        $arr = $res->fetchAll();
+
+        if (count($arr) > 1) {
+            // tables already present
+            return;
+        }
+
+        $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
+        $this->createTextTable($csv1, ['createdat']);
+        $this->createTextTable($csv1, null, "sales2");
+        // drop the t1 demo table if it exists
+        $this->pdo->exec("IF OBJECT_ID('t1', 'U') IS NOT NULL DROP TABLE t1");
+
+        // set up a foreign key relationship
+        $this->pdo->exec("ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL");
+        $this->pdo->exec("ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)");
     }
 
     /**
@@ -79,11 +114,13 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             $tableName = $overrideTableName;
         }
 
-        $this->pdo->exec(sprintf(
-            'IF OBJECT_ID(\'%s\', \'U\') IS NOT NULL DROP TABLE %s',
-            $tableName,
+        $sql = sprintf(
+            'IF OBJECT_ID(%s, \'U\') IS NOT NULL DROP TABLE %s',
+            $this->pdo->quote($tableName),
             $tableName
-        ));
+        );
+
+        $this->pdo->exec($sql);
 
         $sql = sprintf(
             'CREATE TABLE %s (%s)',

@@ -45,11 +45,6 @@ class MSSQLTest extends AbstractMSSQLTest
 
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
 
-		// set createdat as PK
-		if (!$this->tableExists("sales")) {
-            $this->createTextTable($csv1, ['createdat']);
-        }
-
 		$result = $app->run();
 
 		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
@@ -107,12 +102,7 @@ class MSSQLTest extends AbstractMSSQLTest
 
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
 
-        if (!$this->tableExists("sales")) {
-            $this->createTextTable($csv1, ['createdat']);
-        }
-
 		$result = $app->run();
-
 
 		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
 
@@ -127,21 +117,6 @@ class MSSQLTest extends AbstractMSSQLTest
         $config = $this->getConfig();
         $config['action'] = 'getTables';
 
-        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-        if (!$this->tableExists("sales")) {
-            $this->createTextTable($csv1, ['createdat']);
-        }
-        if (!$this->tableExists("sales2")) {
-            $this->createTextTable($csv1, null, "sales2");
-        }
-
-        // drop the t1 demo table if it exists
-        $this->pdo->exec("DROP TABLE IF EXISTS 't1'");
-
-        // set up a foreign key relationship
-        $this->pdo->exec("ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL");
-        $this->pdo->exec("ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)");
-
         $app = new Application($config);
         $result = $app->run();
 
@@ -153,10 +128,10 @@ class MSSQLTest extends AbstractMSSQLTest
             $this->assertArrayHasKey('name', $table);
             $this->assertArrayHasKey('schema', $table);
             $this->assertArrayHasKey('type', $table);
-            $this->assertArrayHasKey('rowCount', $table);
             $this->assertArrayHasKey('columns', $table);
 
-            $this->assertEquals('test', $table['schema']);
+            $this->assertEquals('test', $table['catalog']);
+            $this->assertEquals('dbo', $table['schema']);
             $this->assertEquals('BASE TABLE', $table['type']);
             $this->assertCount(12, $table['columns']);
             foreach ($table['columns'] as $i => $column) {
@@ -170,11 +145,11 @@ class MSSQLTest extends AbstractMSSQLTest
                 $this->assertArrayHasKey('uniqueKey', $column);
                 $this->assertArrayHasKey('ordinalPosition', $column);
                 // values
-                $this->assertEquals("text", $column['type']);
+                $this->assertEquals("varchar", $column['type']);
                 $this->assertEquals($i + 1, $column['ordinalPosition']);
                 if ($column['name'] === 'createdat') {
                     $this->assertArrayHasKey('constraintName', $column);
-                    $this->assertEquals(60, $column['length']);
+                    $this->assertEquals(64, $column['length']);
                     $this->assertFalse($column['nullable']);
                     if ($table['name'] === 'sales') {
                         $this->assertTrue($column['primaryKey']);
@@ -192,7 +167,7 @@ class MSSQLTest extends AbstractMSSQLTest
                         $this->assertEquals($column['foreignKeyRefColumn'], "createdat");
                     }
                 } else {
-                    $this->assertEquals(65535, $column['length']);
+                    $this->assertEquals(255, $column['length']);
                     $this->assertTrue($column['nullable']);
                     $this->assertNull($column['default']);
                     $this->assertFalse($column['primaryKey']);

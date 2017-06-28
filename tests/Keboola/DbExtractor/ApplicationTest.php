@@ -31,11 +31,6 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($outputCsvFile);
         @unlink($manifestFile);
 
-        // create the table in the DB
-        if (!$this->tableExists("sales")) {
-            $this->createTextTable(new CsvFile($this->dataDir . "/mssql/sales.csv"), ['createdat']);
-        }
-
         $config = $this->getConfig('mssql');
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
@@ -44,7 +39,6 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
-        var_dump($process->getErrorOutput());
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals("", $process->getErrorOutput());
 
@@ -63,8 +57,6 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
-        var_dump($process->getErrorOutput());
-        var_dump($process->getOutput());
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals("", $process->getErrorOutput());
         $this->assertJson($process->getOutput());
