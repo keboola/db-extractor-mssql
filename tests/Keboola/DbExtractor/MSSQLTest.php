@@ -177,4 +177,81 @@ class MSSQLTest extends AbstractMSSQLTest
             }
         }
     }
+
+    public function testManifestMetadata()
+    {
+        $config = $this->getConfig();
+
+        $config['parameters']['tables'][0]['columns'] = ["usergender","usercity","usersentiment","zipcode", "createdat"];
+        $config['parameters']['tables'][0]['table'] = 'sales';
+        $config['parameters']['tables'][0]['query'] = "SELECT usergender, usercity, usersentiment, zipcode FROM sales";
+        // use just 1 table
+        unset($config['parameters']['tables'][1]);
+
+        $app = new Application($config);
+
+        $result = $app->run();
+
+        $outputManifest = Yaml::parse(
+            file_get_contents($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest')
+        );
+
+        $this->assertArrayHasKey('destination', $outputManifest);
+        $this->assertArrayHasKey('incremental', $outputManifest);
+        $this->assertArrayHasKey('metadata', $outputManifest);
+        foreach ($outputManifest['metadata'] as $i => $metadata) {
+            $this->assertArrayHasKey('key', $metadata);
+            $this->assertArrayHasKey('value', $metadata);
+            switch ($metadata['key']) {
+                case 'KBC.name':
+                    $this->assertEquals('sales', $metadata['value']);
+                    break;
+                case 'KBC.catalog':
+                    $this->assertEquals('test', $metadata['value']);
+                    break;
+                case 'KBC.schema':
+                    $this->assertEquals('dbo', $metadata['value']);
+                    break;
+                case 'KBC.type':
+                    $this->assertEquals('BASE TABLE', $metadata['value']);
+                    break;
+                default:
+                    $this->fail('Unknown table metadata key: ' . $metadata['key']);
+            }
+        }
+        $this->assertArrayHasKey('column_metadata', $outputManifest);
+        $this->assertCount(5, $outputManifest['column_metadata']);
+        foreach ($outputManifest['column_metadata']['createdat'] as $metadata) {
+            $this->assertArrayHasKey('key', $metadata);
+            $this->assertArrayHasKey('value', $metadata);
+            switch ($metadata['key']) {
+                case 'KBC.datatype.type':
+                    $this->assertEquals('varchar', $metadata['value']);
+                    break;
+                case 'KBC.datatype.basetype':
+                    $this->assertEquals('STRING', $metadata['value']);
+                    break;
+                case 'KBC.datatype.nullable':
+                    $this->assertFalse($metadata['value']);
+                    break;
+                case 'KBC.datatype.default':
+                    $this->assertNull($metadata['value']);
+                    break;
+                case 'KBC.datatype.length':
+                    $this->assertEquals('64', $metadata['value']);
+                    break;
+                case 'KBC.primaryKey':
+                    $this->assertTrue($metadata['value']);
+                    break;
+                case 'KBC.ordinalPosition':
+                    $this->assertGreaterThan(1, $metadata['value']);
+                    break;
+                case 'KBC.uniqueKey':
+                    $this->assertFalse($metadata['value']);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
 }
