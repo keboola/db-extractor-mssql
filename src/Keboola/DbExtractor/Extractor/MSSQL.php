@@ -33,11 +33,10 @@ class MSSQL extends Extractor
 			"dblib:host=%s:%d;dbname=%s;charset=UTF-8",
 			$params['host'],
 			$port,
-			$params['database']//,
+			$params['database']
 		);
 
 		$pdo = new \PDO($dsn, $params['user'], $params['password'], $options);
-		$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
 		return $pdo;
 	}
