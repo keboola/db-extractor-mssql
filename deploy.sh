@@ -14,12 +14,7 @@ eval $(docker run --rm \
 docker push $REPOSITORY:$TRAVIS_TAG
 docker push $REPOSITORY:latest
 
-# Get the syrup cli image
-export SYRUP_CLI=`docker run --rm \
-  -e KBC_DEVELOPERPORTAL_USERNAME=$KBC_DEVELOPERPORTAL_USERNAME \
-  -e KBC_DEVELOPERPORTAL_PASSWORD=$KBC_DEVELOPERPORTAL_PASSWORD \
-  -e KBC_DEVELOPERPORTAL_URL=$KBC_DEVELOPERPORTAL_URL \
-  quay.io/keboola/developer-portal-cli-v2:latest ecr:get-repository keboola keboola.app-syrup-cli`
+export SYRUP_CLI=quay.io/keboola/syrup-cli
 
 docker pull $SYRUP_CLI:latest
 # run simple job
