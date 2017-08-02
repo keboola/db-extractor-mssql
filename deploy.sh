@@ -21,10 +21,10 @@ export SYRUP_CLI=`docker run --rm \
   -e KBC_DEVELOPERPORTAL_URL=$KBC_DEVELOPERPORTAL_URL \
   quay.io/keboola/developer-portal-cli-v2:latest ecr:get-repository keboola keboola.app-syrup-cli`
 
-docker pull SYRUP_CLI:latest
+docker pull $SYRUP_CLI:latest
 # run simple job
 docker run --rm -e KBC_STORAGE_TOKEN=$KBC_SYRUP_CLI_TOKEN \
-   SYRUP_CLI:latest run-job keboola.ex-db-mssql 287615945 $TRAVIS_TAG
+   $SYRUP_CLI:latest run-job keboola.ex-db-mssql 287615945 $TRAVIS_TAG
 
 if [ $? -ne 0 ]; then
   echo 'Simple test job run failed'
@@ -33,7 +33,7 @@ fi
 
 #run ssh job
 docker run --rm -e KBC_STORAGE_TOKEN=$KBC_SYRUP_CLI_TOKEN \
-   SYRUP_CLI:latest run-job keboola.ex-db-mssql 287628364 $TRAVIS_TAG
+   $SYRUP_CLI:latest run-job keboola.ex-db-mssql 287628364 $TRAVIS_TAG
 
 if [ $? -ne 0 ]; then
   echo 'SSH test job run failed'
