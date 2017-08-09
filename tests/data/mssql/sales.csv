@@ -1,5 +1,4 @@
 "usergender","usercity","usersentiment","zipcode","sku","createdat","category","price","county","countycode","userstate","categorygroup"
-"usergender","usercity","","zipcode","sku","createdat","category","","county","countycode","userstate","group"
 "Female","Mize","-1","39153","ZD111318","2013-09-23 22:38:29","Cameras","708","Smith","28129","Mississippi","Electronics"
 "Male","The Lakes","1","89124","ZD111402","2013-09-23 22:38:30","Televisions","1546","Clark","32003","Nevada","Electronics"
 "Male","Baldwin","1","21020","ZD111483","2013-09-23 22:38:31","Loose Stones","1262","Baltimore","24005","Maryland","Jewelry"
@@ -99,3 +98,4 @@
 "Female","Glen Oaks","1","11366","ZD111178","2013-09-24 08:28:26","History","9","Queens","36081","New York","Books"
 "Male","Alexandria","-1","17260","ZD111560","2013-09-24 08:28:27","Shirts","67","Huntingdon","42061","Pennsylvania","Men"
 "Male","Los Angeles","0","92124","ZD111132","2013-09-24 08:28:28","Business","12","San Diego County","06073","California","Books"
+"usergender","usercity","","zipcode","sku","createdat","category","","county","countycode","userstate","group"

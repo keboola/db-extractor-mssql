@@ -9,181 +9,8 @@ use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Symfony\Component\Yaml\Yaml;
 
-class MSSQLTest extends ExtractorTest
+class MSSQLTest extends AbstractMSSQLTest
 {
-	/**
-	 * @var \PDO
-	 */
-	protected $pdo;
-
-	public function setUp()
-	{
-		if (!defined('APP_NAME')) {
-			define('APP_NAME', 'ex-db-mssql');
-		}
-
-		$config = $this->getConfig('mssql');
-		$dbConfig = $config['parameters']['db'];
-
-		$dsn = sprintf(
-			"dblib:host=%s:%d;dbname=%s;charset=UTF-8",
-			$dbConfig['host'],
-			$dbConfig['port'],
-			$dbConfig['database']
-		);
-
-		$this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password']);
-		$this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-	}
-
-	/**
-	 * @param string $driver
-	 * @return mixed
-	 */
-	public function getConfig($driver = 'mssql')
-	{
-		$config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
-		$config['parameters']['data_dir'] = $this->dataDir;
-
-		$config['parameters']['db']['user'] = $this->getEnv($driver, 'DB_USER', true);
-		$config['parameters']['db']['password'] = $this->getEnv($driver, 'DB_PASSWORD');
-		$config['parameters']['db']['host'] = $this->getEnv($driver, 'DB_HOST');
-		$config['parameters']['db']['port'] = $this->getEnv($driver, 'DB_PORT');
-		$config['parameters']['db']['database'] = $this->getEnv($driver, 'DB_DATABASE');
-
-		$config['parameters']['extractor_class'] = 'MSSQL';
-		return $config;
-	}
-
-	/**
-	 * @param CsvFile $file
-	 * @return string
-	 */
-	private function generateTableName(CsvFile $file)
-	{
-		$tableName = sprintf(
-			'%s',
-			$file->getBasename('.' . $file->getExtension())
-		);
-
-		return 'dbo.' . $tableName;
-	}
-
-	/**
-	 * Create table from csv file with text columns
-	 *
-	 * @param CsvFile $file
-	 */
-	private function createTextTable(CsvFile $file)
-	{
-		$tableName = $this->generateTableName($file);
-
-		$this->pdo->exec(sprintf(
-			'IF OBJECT_ID(\'%s\', \'U\') IS NOT NULL DROP TABLE %s',
-			$tableName,
-			$tableName
-		));
-
-		$this->pdo->exec(sprintf(
-			'CREATE TABLE %s (%s)',
-			$tableName,
-			implode(
-				', ',
-				array_map(function ($column) {
-					return $column . ' text NULL';
-				}, $file->getHeader())
-			),
-			$tableName
-		));
-
-		$file->next();
-
-		$this->pdo->beginTransaction();
-
-		$columnsCount = count($file->current());
-		$rowsPerInsert = intval((1000 / $columnsCount) - 1);
-
-
-		while ($file->current() !== false) {
-			$sqlInserts = "";
-
-			for ($i=0; $i<$rowsPerInsert && $file->current() !== false; $i++) {
-				$sqlInserts = "";
-
-				$sqlInserts .= sprintf(
-					"(%s),",
-					implode(
-						',',
-						array_map(function ($data) {
-							if ($data == "") return 'null';
-							if (is_numeric($data)) return "'" . $data . "'";
-
-							$nonDisplayables = array(
-								'/%0[0-8bcef]/',            // url encoded 00-08, 11, 12, 14, 15
-								'/%1[0-9a-f]/',             // url encoded 16-31
-								'/[\x00-\x08]/',            // 00-08
-								'/\x0b/',                   // 11
-								'/\x0c/',                   // 12
-								'/[\x0e-\x1f]/'             // 14-31
-							);
-							foreach ($nonDisplayables as $regex) {
-								$data = preg_replace($regex, '', $data);
-							}
-
-							$data = str_replace("'", "''", $data );
-
-							return "'" . $data . "'";
-						}, $file->current())
-					)
-				);
-				$file->next();
-
-				$sql = sprintf('INSERT INTO %s VALUES %s',
-					$tableName,
-					substr($sqlInserts, 0, -1)
-				);
-
-				$this->pdo->exec($sql);
-			}
-
-//			if ($sqlInserts) {
-//				$sql = sprintf('INSERT INTO %s VALUES %s',
-//					$tableName,
-//					substr($sqlInserts, 0, -1)
-//				);
-//
-//				$this->pdo->exec($sql);
-//			}
-		}
-
-		$this->pdo->commit();
-
-		$count = $this->pdo->query(sprintf('SELECT COUNT(*) AS itemsCount FROM %s', $tableName))->fetchColumn();
-		$this->assertEquals($this->countTable($file), (int) $count);
-	}
-
-	/**
-	 * Count records in CSV (with headers)
-	 *
-	 * @param CsvFile $file
-	 * @return int
-	 */
-	protected function countTable(CsvFile $file)
-	{
-		$linesCount = 0;
-		foreach ($file AS $i => $line)
-		{
-			// skip header
-			if (!$i) {
-				continue;
-			}
-
-			$linesCount++;
-		}
-
-		return $linesCount;
-	}
-
 	public function testCredentials()
 	{
 		$config = $this->getConfig('mssql');
@@ -216,13 +43,9 @@ class MSSQLTest extends ExtractorTest
 
 		$app = $this->createApplication($config);
 
-
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-		$this->createTextTable($csv1);
-
 
 		$result = $app->run();
-
 
 		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
 
@@ -277,13 +100,9 @@ class MSSQLTest extends ExtractorTest
 
 		$app = $this->createApplication($config);
 
-
 		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-		$this->createTextTable($csv1);
-
 
 		$result = $app->run();
-
 
 		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
 
@@ -293,14 +112,609 @@ class MSSQLTest extends ExtractorTest
 		$this->assertFileEquals((string) $csv1, $outputCsvFile);
 	}
 
-	/**
-	 * @param array $config
-	 * @return MSSQLApplication
-	 */
-	public function createApplication(array $config)
-	{
-		$app = new MSSQLApplication($config, $this->dataDir);
+    public function testGetTables()
+    {
+        $config = $this->getConfig();
+        $config['action'] = 'getTables';
 
-		return $app;
-	}
+        $app = new Application($config);
+        $result = $app->run();
+
+        $this->assertArrayHasKey('status', $result);
+        $this->assertArrayHasKey('tables', $result);
+        $this->assertEquals('success', $result['status']);
+        $this->assertCount(2, $result['tables']);
+
+        $expectedData = [
+            0 =>
+                array (
+                    'name' => 'sales',
+                    'catalog' => 'test',
+                    'schema' => 'dbo',
+                    'type' => 'BASE TABLE',
+                    'columns' =>
+                        array (
+                            0 =>
+                                array (
+                                  'name' => 'usergender',
+                                  'type' => 'varchar',
+                                  'length' => '255',
+                                  'nullable' => true,
+                                  'default' => NULL,
+                                  'ordinalPosition' => '1',
+                                  'primaryKey' => false,
+                                  'uniqueKey' => false,
+                                  'foreignKey' => false,
+                                ),
+                            1 =>
+                                  array (
+                                      'name' => 'usercity',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '2',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              2 =>
+                                  array (
+                                      'name' => 'usersentiment',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '3',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              3 =>
+                                  array (
+                                      'name' => 'zipcode',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '4',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              4 =>
+                                  array (
+                                      'name' => 'sku',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '5',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              5 =>
+                                  array (
+                                      'name' => 'createdat',
+                                      'type' => 'varchar',
+                                      'length' => '64',
+                                      'nullable' => false,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '6',
+                                      'primaryKey' => true,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                      'constraintName' => 'PK__sales__77BFCB91',
+                                  ),
+                              6 =>
+                                  array (
+                                      'name' => 'category',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '7',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              7 =>
+                                  array (
+                                      'name' => 'price',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '8',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              8 =>
+                                  array (
+                                      'name' => 'county',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '9',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              9 =>
+                                  array (
+                                      'name' => 'countycode',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '10',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              10 =>
+                                  array (
+                                      'name' => 'userstate',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '11',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                              11 =>
+                                  array (
+                                      'name' => 'categorygroup',
+                                      'type' => 'varchar',
+                                      'length' => '255',
+                                      'nullable' => true,
+                                      'default' => NULL,
+                                      'ordinalPosition' => '12',
+                                      'primaryKey' => false,
+                                      'uniqueKey' => false,
+                                      'foreignKey' => false,
+                                  ),
+                            ),
+                    ),
+                    1 =>
+                        array (
+                            'name' => 'sales2',
+                            'catalog' => 'test',
+                            'schema' => 'dbo',
+                            'type' => 'BASE TABLE',
+                            'columns' =>
+                                array (
+                                    0 =>
+                                        array (
+                                            'name' => 'usergender',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '1',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    1 =>
+                                        array (
+                                            'name' => 'usercity',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '2',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    2 =>
+                                        array (
+                                            'name' => 'usersentiment',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '3',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    3 =>
+                                        array (
+                                            'name' => 'zipcode',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '4',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    4 =>
+                                        array (
+                                            'name' => 'sku',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '5',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    5 =>
+                                        array (
+                                            'name' => 'createdat',
+                                            'type' => 'varchar',
+                                            'length' => '64',
+                                            'nullable' => false,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '6',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => true,
+                                            'constraintName' => 'FK_sales_sales2',
+                                            'foreignKeyRefSchema' => 'dbo',
+                                            'foreignKeyRefTable' => 'sales',
+                                            'foreignKeyRefColumn' => 'createdat',
+                                        ),
+                                    6 =>
+                                        array (
+                                            'name' => 'category',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '7',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    7 =>
+                                        array (
+                                            'name' => 'price',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '8',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    8 =>
+                                        array (
+                                            'name' => 'county',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '9',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    9 =>
+                                        array (
+                                            'name' => 'countycode',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '10',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    10 =>
+                                        array (
+                                            'name' => 'userstate',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '11',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                    11 =>
+                                        array (
+                                            'name' => 'categorygroup',
+                                            'type' => 'varchar',
+                                            'length' => '255',
+                                            'nullable' => true,
+                                            'default' => NULL,
+                                            'ordinalPosition' => '12',
+                                            'primaryKey' => false,
+                                            'uniqueKey' => false,
+                                            'foreignKey' => false,
+                                        ),
+                                ),
+                        )
+        ];
+
+        $this->assertEquals($expectedData, $result['tables']);
+    }
+
+    public function testManifestMetadata()
+    {
+        $config = $this->getConfig();
+
+        $config['parameters']['tables'][0]['columns'] = ["usergender","usercity","usersentiment","zipcode", "createdat"];
+        $config['parameters']['tables'][0]['table'] = 'sales';
+        $config['parameters']['tables'][0]['query'] = "SELECT usergender, usercity, usersentiment, zipcode FROM sales";
+        // use just 1 table
+        unset($config['parameters']['tables'][1]);
+
+        $app = new Application($config);
+
+        $result = $app->run();
+
+        $outputManifest = Yaml::parse(
+            file_get_contents($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest')
+        );
+
+        $this->assertArrayHasKey('destination', $outputManifest);
+        $this->assertArrayHasKey('incremental', $outputManifest);
+        $this->assertArrayHasKey('metadata', $outputManifest);
+
+        $expectedTableMetadata = array (
+            0 =>
+                array (
+                    'key' => 'KBC.name',
+                    'value' => 'sales',
+                ),
+            1 =>
+                array (
+                    'key' => 'KBC.catalog',
+                    'value' => 'test',
+                ),
+            2 =>
+                array (
+                    'key' => 'KBC.schema',
+                    'value' => 'dbo',
+                ),
+            3 =>
+                array (
+                    'key' => 'KBC.type',
+                    'value' => 'BASE TABLE',
+                ),
+        );
+        $this->assertEquals($expectedTableMetadata, $outputManifest['metadata']);
+
+        $this->assertArrayHasKey('column_metadata', $outputManifest);
+
+        $expectedColumnMetadata = array (
+            'usergender' =>
+                array (
+                    0 =>
+                        array (
+                            'key' => 'KBC.datatype.type',
+                            'value' => 'varchar',
+                        ),
+                    1 =>
+                        array (
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ),
+                    2 =>
+                        array (
+                            'key' => 'KBC.datatype.basetype',
+                            'value' => 'STRING',
+                        ),
+                    3 =>
+                        array (
+                            'key' => 'KBC.datatype.length',
+                            'value' => '255',
+                        ),
+                    4 =>
+                        array (
+                            'key' => 'KBC.ordinalPosition',
+                            'value' => '1',
+                        ),
+                    5 =>
+                        array (
+                            'key' => 'KBC.primaryKey',
+                            'value' => false,
+                        ),
+                    6 =>
+                        array (
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ),
+                    7 =>
+                        array (
+                            'key' => 'KBC.foreignKey',
+                            'value' => false,
+                        ),
+                ),
+            'usercity' =>
+                array (
+                    0 =>
+                        array (
+                            'key' => 'KBC.datatype.type',
+                            'value' => 'varchar',
+                        ),
+                    1 =>
+                        array (
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ),
+                    2 =>
+                        array (
+                            'key' => 'KBC.datatype.basetype',
+                            'value' => 'STRING',
+                        ),
+                    3 =>
+                        array (
+                            'key' => 'KBC.datatype.length',
+                            'value' => '255',
+                        ),
+                    4 =>
+                        array (
+                            'key' => 'KBC.ordinalPosition',
+                            'value' => '2',
+                        ),
+                    5 =>
+                        array (
+                            'key' => 'KBC.primaryKey',
+                            'value' => false,
+                        ),
+                    6 =>
+                        array (
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ),
+                    7 =>
+                        array (
+                            'key' => 'KBC.foreignKey',
+                            'value' => false,
+                        ),
+                ),
+            'usersentiment' =>
+                array (
+                    0 =>
+                        array (
+                            'key' => 'KBC.datatype.type',
+                            'value' => 'varchar',
+                        ),
+                    1 =>
+                        array (
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ),
+                    2 =>
+                        array (
+                            'key' => 'KBC.datatype.basetype',
+                            'value' => 'STRING',
+                        ),
+                    3 =>
+                        array (
+                            'key' => 'KBC.datatype.length',
+                            'value' => '255',
+                        ),
+                    4 =>
+                        array (
+                            'key' => 'KBC.ordinalPosition',
+                            'value' => '3',
+                        ),
+                    5 =>
+                        array (
+                            'key' => 'KBC.primaryKey',
+                            'value' => false,
+                        ),
+                    6 =>
+                        array (
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ),
+                    7 =>
+                        array (
+                            'key' => 'KBC.foreignKey',
+                            'value' => false,
+                        ),
+                ),
+            'zipcode' =>
+                array (
+                    0 =>
+                        array (
+                            'key' => 'KBC.datatype.type',
+                            'value' => 'varchar',
+                        ),
+                    1 =>
+                        array (
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ),
+                    2 =>
+                        array (
+                            'key' => 'KBC.datatype.basetype',
+                            'value' => 'STRING',
+                        ),
+                    3 =>
+                        array (
+                            'key' => 'KBC.datatype.length',
+                            'value' => '255',
+                        ),
+                    4 =>
+                        array (
+                            'key' => 'KBC.ordinalPosition',
+                            'value' => '4',
+                        ),
+                    5 =>
+                        array (
+                            'key' => 'KBC.primaryKey',
+                            'value' => false,
+                        ),
+                    6 =>
+                        array (
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ),
+                    7 =>
+                        array (
+                            'key' => 'KBC.foreignKey',
+                            'value' => false,
+                        ),
+                ),
+            'createdat' =>
+                array (
+                    0 =>
+                        array (
+                            'key' => 'KBC.datatype.type',
+                            'value' => 'varchar',
+                        ),
+                    1 =>
+                        array (
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => false,
+                        ),
+                    2 =>
+                        array (
+                            'key' => 'KBC.datatype.basetype',
+                            'value' => 'STRING',
+                        ),
+                    3 =>
+                        array (
+                            'key' => 'KBC.datatype.length',
+                            'value' => '64',
+                        ),
+                    4 =>
+                        array (
+                            'key' => 'KBC.ordinalPosition',
+                            'value' => '6',
+                        ),
+                    5 =>
+                        array (
+                            'key' => 'KBC.primaryKey',
+                            'value' => true,
+                        ),
+                    6 =>
+                        array (
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ),
+                    7 =>
+                        array (
+                            'key' => 'KBC.foreignKey',
+                            'value' => false,
+                        ),
+                    8 =>
+                        array (
+                            'key' => 'KBC.constraintName',
+                            'value' => 'PK__sales__77BFCB91',
+                        ),
+                ),
+        );
+
+        $this->assertEquals($expectedColumnMetadata, $outputManifest['column_metadata']);
+    }
 }

@@ -5,16 +5,28 @@ services:
 
 before_install:
   - docker-compose -v
+  - docker-compose build
 
 script:
-  - docker-compose run app
+  - docker-compose run --rm app
+  - docker pull quay.io/keboola/developer-portal-cli-v2:latest
+  - export REPOSITORY=`docker run --rm -e KBC_DEVELOPERPORTAL_USERNAME -e KBC_DEVELOPERPORTAL_PASSWORD -e KBC_DEVELOPERPORTAL_URL quay.io/keboola/developer-portal-cli-v2:latest ecr:get-repository keboola keboola.ex-db-mssql`
+  - docker tag keboola/ex-db-mssql:latest $REPOSITORY:master
+  - eval $(docker run --rm -e KBC_DEVELOPERPORTAL_USERNAME -e KBC_DEVELOPERPORTAL_PASSWORD -e KBC_DEVELOPERPORTAL_URL quay.io/keboola/developer-portal-cli-v2:latest ecr:get-login keboola keboola.ex-db-mssql)
+  - docker push $REPOSITORY:master
+  # Run live test job on new master image
+  - docker pull quay.io/keboola/syrup-cli:latest
+  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287615945 master
+  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287628364 master
+
 
 deploy:
   provider: script
   skip_cleanup: true
-  script: ./deploy.sh
+  script: "./deploy.sh"
   on:
     tags: true
 
 notifications:
-  slack: $SLACK_INTEGRATION_DOMAIN:$SLACK_INTEGRATION_KEY
+  slack:
+    secure: O3CLJB+jgC1aBPp4ZbLqU0dkV8AJIQdABEfMBQksfavE1oqxV0kSuSAbWaDW0skZZQrCz0JXkf6Hc8c1/S8FWaH0ELvzj+i+1KXiaSPuJ0QCWi3+yH59UMg+sQLBSSuc/OS02h9C0/qGoC7Q/C9l4Y7GGWfT7ogA/S7rW23lzN5njQ4Be5rcvqFrV8mNUUt06z656CS076cDPVJearAzQRCpgjosO4RJdsNH5tm13zM6I5rF5Pn0Rm1U1bDNLuePDyuVlvLQw8sjo/Woig1g8NDLDr6zIqC/75kbmpOr6ilrefE9jUM8P5jsaB8aMuVe5VFxAUbS1z08zjNNd90eacwQK3xcvmbJL3IWRdwxz8sriLYgSwpHWnRax+B9vhngi/bMO2Qqkr+Rih2aR96Ww5yAuu2FZA/9gceavTTvBiyrKrmUOgAgzzVvZjbncqweV3/wHStMeIEyHOQmsa+tLi4WzOQYpOM2EFWu9RDEGGSPafYT6xEngALWqgb+PssZWwHsPYeKDCvKgxFuOG5cw2vAX6Zk2gHkNOhO+xw/34ifDoOlKhxRc0qzJXDuK/Ql4yPR959L6E8WZYqgbenWoCqgYm2AmFudkBLpb6g3jlC8vYH/4ZkIP6BOqh9BpGGr9tM8mccskpHhfduoNN9ss9fvQh3s1sA4HMcQx0uACcM=
