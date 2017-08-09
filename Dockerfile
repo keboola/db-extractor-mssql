@@ -6,10 +6,10 @@ RUN yum -y --enablerepo=epel,remi,remi-php56 install php-mssql
 # MSSQL
 ADD mssql/freetds.conf /etc/freetds.conf
 
-WORKDIR /home
+WORKDIR /code
 
 # Initialize
-COPY . /home/
+COPY . /code/
 RUN composer install --no-interaction
 
 CMD php ./src/run.php --data=/data
