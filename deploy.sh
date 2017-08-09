@@ -14,28 +14,6 @@ eval $(docker run --rm \
 docker push $REPOSITORY:$TRAVIS_TAG
 docker push $REPOSITORY:latest
 
-export SYRUP_CLI=quay.io/keboola/syrup-cli
-
-docker pull $SYRUP_CLI:latest
-# run simple job
-docker run --rm -e KBC_STORAGE_TOKEN=$KBC_SYRUP_CLI_TOKEN \
-   $SYRUP_CLI:latest run-job keboola.ex-db-mssql 287615945 $TRAVIS_TAG
-
-if [ $? -ne 0 ]; then
-  echo 'Simple test job run failed'
-  exit 1;
-fi
-
-#run ssh job
-docker run --rm -e KBC_STORAGE_TOKEN=$KBC_SYRUP_CLI_TOKEN \
-   $SYRUP_CLI:latest run-job keboola.ex-db-mssql 287628364 $TRAVIS_TAG
-
-if [ $? -ne 0 ]; then
-  echo 'SSH test job run failed'
-  exit 1;
-fi
-
-# If those jobs pass then go ahead and update the DP tag
 docker run --rm \
   -e KBC_DEVELOPERPORTAL_USERNAME=$KBC_DEVELOPERPORTAL_USERNAME \
   -e KBC_DEVELOPERPORTAL_PASSWORD=$KBC_DEVELOPERPORTAL_PASSWORD \
