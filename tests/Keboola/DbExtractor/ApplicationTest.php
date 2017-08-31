@@ -50,8 +50,6 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals("", $process->getErrorOutput());
 
         $this->assertFileExists($outputCsvFile1);
-        var_dump($expectedCsv1);
-        var_dump((string) $expectedCsv1);
         $this->assertFileEquals((string) $expectedCsv1, $outputCsvFile1);
         $this->assertFileExists($outputCsvFile2);
         $this->assertFileEquals((string) $expectedCsv2, $outputCsvFile2);
