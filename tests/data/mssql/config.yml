@@ -8,3 +8,16 @@ parameters:
             incremental: false
             primaryKey: null
             enabled: true
+        -
+            id: 2
+            name: tableColumns
+            enabled: true
+            outputTable: in.c-main.tableColumns
+            incremental: false
+            primaryKey: null
+            table: sales
+            columns:
+                - usergender
+                - usercity
+                - usersentiment
+                - zipcode

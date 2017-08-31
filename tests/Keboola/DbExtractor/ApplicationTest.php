@@ -26,10 +26,17 @@ class ApplicationTest extends AbstractMSSQLTest
 
     public function testRunAction()
     {
-        $outputCsvFile = new CsvFile($this->dataDir . '/out/tables/in.c-main.sales.csv');
-        $manifestFile = $this->dataDir . '/out/tables/in.c-main.sales.csv.manifest';
-        @unlink($outputCsvFile);
-        @unlink($manifestFile);
+        $outputCsvFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv';
+        $outputCsvFile2 = $this->dataDir . '/out/tables/in.c-main.tableColumns.csv';
+        $manifestFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv.manifest';
+        $manifestFile2 = $this->dataDir . '/out/tables/in.c-main.tabbleColumns.csv.manifest';
+        @unlink($outputCsvFile1);
+        @unlink($outputCsvFile2);
+        @unlink($manifestFile1);
+        @unlink($manifestFile2);
+
+        $expectedCsv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+        $expectedCsv2 = new CsvFile($this->dataDir . '/mssql/tableColumns.csv');
 
         $config = $this->getConfig('mssql');
         @unlink($this->dataDir . '/config.yml');
@@ -42,8 +49,14 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals("", $process->getErrorOutput());
 
-        $this->assertTrue($outputCsvFile->isFile());
-        $this->assertFileExists($manifestFile);
+        $this->assertFileExists($outputCsvFile1);
+        var_dump($expectedCsv1);
+        var_dump((string) $expectedCsv1);
+        $this->assertFileEquals((string) $expectedCsv1, $outputCsvFile1);
+        $this->assertFileExists($outputCsvFile2);
+        $this->assertFileEquals((string) $expectedCsv2, $outputCsvFile2);
+        $this->assertFileExists($manifestFile1);
+        $this->assertFileExists($manifestFile2);
     }
 
     public function testGetTablesAction()
