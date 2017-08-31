@@ -29,7 +29,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $outputCsvFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv';
         $outputCsvFile2 = $this->dataDir . '/out/tables/in.c-main.tableColumns.csv';
         $manifestFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv.manifest';
-        $manifestFile2 = $this->dataDir . '/out/tables/in.c-main.tabbleColumns.csv.manifest';
+        $manifestFile2 = $this->dataDir . '/out/tables/in.c-main.tableColumns.csv.manifest';
         @unlink($outputCsvFile1);
         @unlink($outputCsvFile2);
         @unlink($manifestFile1);
