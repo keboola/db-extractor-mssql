@@ -448,11 +448,8 @@ class MSSQLTest extends AbstractMSSQLTest
     {
         $config = $this->getConfig();
 
-        $config['parameters']['tables'][0]['columns'] = ["usergender","usercity","usersentiment","zipcode", "createdat"];
-        $config['parameters']['tables'][0]['table'] = 'sales';
-        $config['parameters']['tables'][0]['query'] = "SELECT usergender, usercity, usersentiment, zipcode FROM sales";
         // use just 1 table
-        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][0]);
 
         $app = new Application($config);
 
@@ -663,54 +660,6 @@ class MSSQLTest extends AbstractMSSQLTest
                         array (
                             'key' => 'KBC.foreignKey',
                             'value' => false,
-                        ),
-                ),
-            'createdat' =>
-                array (
-                    0 =>
-                        array (
-                            'key' => 'KBC.datatype.type',
-                            'value' => 'varchar',
-                        ),
-                    1 =>
-                        array (
-                            'key' => 'KBC.datatype.nullable',
-                            'value' => false,
-                        ),
-                    2 =>
-                        array (
-                            'key' => 'KBC.datatype.basetype',
-                            'value' => 'STRING',
-                        ),
-                    3 =>
-                        array (
-                            'key' => 'KBC.datatype.length',
-                            'value' => '64',
-                        ),
-                    4 =>
-                        array (
-                            'key' => 'KBC.ordinalPosition',
-                            'value' => '6',
-                        ),
-                    5 =>
-                        array (
-                            'key' => 'KBC.primaryKey',
-                            'value' => true,
-                        ),
-                    6 =>
-                        array (
-                            'key' => 'KBC.uniqueKey',
-                            'value' => false,
-                        ),
-                    7 =>
-                        array (
-                            'key' => 'KBC.foreignKey',
-                            'value' => false,
-                        ),
-                    8 =>
-                        array (
-                            'key' => 'KBC.constraintName',
-                            'value' => 'PK__sales__77BFCB91',
                         ),
                 ),
         );

@@ -8,3 +8,18 @@ parameters:
             incremental: false
             primaryKey: null
             enabled: true
+        -
+            id: 2
+            name: tableColumns
+            enabled: true
+            outputTable: in.c-main.tableColumns
+            incremental: false
+            primaryKey: null
+            table:
+              schema: dbo
+              tableName: sales
+            columns:
+                - usergender
+                - usercity
+                - usersentiment
+                - zipcode
