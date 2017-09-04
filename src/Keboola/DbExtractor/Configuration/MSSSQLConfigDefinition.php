@@ -5,8 +5,6 @@
  */
 namespace Keboola\DbExtractor\Configuration;
 
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-
 class MSSSQLConfigDefinition extends ConfigDefinition
 {
 

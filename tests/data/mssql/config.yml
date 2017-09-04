@@ -15,7 +15,9 @@ parameters:
             outputTable: in.c-main.tableColumns
             incremental: false
             primaryKey: null
-            table: sales
+            table:
+              schema: dbo
+              tableName: sales
             columns:
                 - usergender
                 - usercity
