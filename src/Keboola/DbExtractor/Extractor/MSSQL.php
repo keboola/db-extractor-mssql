@@ -69,26 +69,28 @@ class MSSQL extends Extractor
             );
         }
 
+        $sql .= " ORDER BY TABLE_SCHEMA, TABLE_NAME";
+
         $stmt = $this->db->query($sql);
 
         $arr = $stmt->fetchAll();
-        $output = [];
-        foreach ($arr as $table) {
-            $output[] = $this->describeTable($table);
+        if (count($arr) === 0) {
+            return [];
         }
-        return $output;
-    }
 
-    public function describeTable(array $table)
-    {
-        $tabledef = [
-            'name' => $table['TABLE_NAME'],
-            'catalog' => (isset($table['TABLE_CATALOG'])) ? $table['TABLE_CATALOG'] : null,
-            'schema' => (isset($table['TABLE_SCHEMA'])) ? $table['TABLE_SCHEMA'] : null,
-            'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : null
-        ];
+        $tableNameArray = [];
+        $tableDefs = [];
+        foreach ($arr as $table) {
+            $tableNameArray[] = $table['TABLE_NAME'];
+            $tableDefs[$table['TABLE_SCHEMA'] . '.' . $table['TABLE_NAME']] = [
+                'name' => $table['TABLE_NAME'],
+                'catalog' => (isset($table['TABLE_CATALOG'])) ? $table['TABLE_CATALOG'] : '',
+                'schema' => (isset($table['TABLE_SCHEMA'])) ? $table['TABLE_SCHEMA'] : '',
+                'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : ''
+            ];
+        }
 
-        $res = $this->db->query(sprintf(
+        $sql = sprintf(
             "SELECT c.column_name AS column_name, c.*, 
               cc2.CONSTRAINT_TYPE, cc2.CONSTRAINT_NAME,
               FK_REFS.REFERENCED_COLUMN_NAME, 
@@ -128,13 +130,18 @@ class MSSQL extends Extractor
                     AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION 
             ) AS FK_REFS
             ON FK_REFS.FK_CONSTRAINT_NAME = cc2.CONSTRAINT_NAME
-            WHERE c.table_name = %s
-            ORDER BY ordinal_position", $this->db->quote($table['TABLE_NAME'])));
+            WHERE c.table_name IN (%s)
+            ORDER BY c.table_schema, c.table_name, ordinal_position",
+            implode(', ', array_map(function ($tableName) {
+                return $this->db->quote($tableName);
+            }, $tableNameArray))
+        );
 
-        $columns = [];
+        $res = $this->db->query($sql);
 
         $rows = $res->fetchAll();
         foreach ($rows as $i => $column) {
+            $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
             $length = ($column['CHARACTER_MAXIMUM_LENGTH']) ? $column['CHARACTER_MAXIMUM_LENGTH'] : null;
             if (is_null($length) && !is_null($column['NUMERIC_PRECISION'])) {
                 if ($column['NUMERIC_SCALE'] > 0) {
@@ -143,7 +150,7 @@ class MSSQL extends Extractor
                     $length = $column['NUMERIC_PRECISION'];
                 }
             }
-            $columns[] = [
+            $curColumn = [
                 "name" => $column['column_name'],
                 "type" => $column['DATA_TYPE'],
                 "length" => $length,
@@ -156,17 +163,25 @@ class MSSQL extends Extractor
             ];
 
             if ($column['CONSTRAINT_TYPE'] !== null) {
-                $columns[$i]['constraintName'] = $column['CONSTRAINT_NAME'];
+                $curColumn['constraintName'] = $column['CONSTRAINT_NAME'];
                 if ($column['CONSTRAINT_TYPE'] === 'FOREIGN KEY') {
-                    $columns[$i]['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
-                    $columns[$i]['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
-                    $columns[$i]['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
+                    $curColumn['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
+                    $curColumn['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
+                    $curColumn['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
                 }
             }
+            if (!array_key_exists('columns', $tableDefs[$curTable])) {
+                $tableDefs[$curTable]['columns'] = [];
+            }
+            $tableDefs[$curTable]['columns'][] = $curColumn;
         }
-        $tabledef['columns'] = $columns;
+        return array_values($tableDefs);
+    }
 
-        return $tabledef;
+    public function describeTable(array $table)
+    {
+        // Deprecated
+        return null;
     }
 
     public function simpleQuery(array $table, array $columns = array())
