@@ -90,6 +90,10 @@ class MSSQL extends Extractor
             ];
         }
 
+        if (count($tableNameArray) === 0) {
+            return [];
+        }
+        
         $sql = sprintf(
             "SELECT c.column_name AS column_name, c.*, 
               cc2.CONSTRAINT_TYPE, cc2.CONSTRAINT_NAME,
