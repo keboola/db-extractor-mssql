@@ -204,8 +204,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                       'ordinalPosition' => '6',
                                       'primaryKey' => true,
                                       'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                      'constraintName' => 'PK__sales__77BFCB91',
+                                      'foreignKey' => false
                                   ),
                               6 =>
                                   array (
@@ -360,10 +359,6 @@ class MSSQLTest extends AbstractMSSQLTest
                                             'primaryKey' => false,
                                             'uniqueKey' => false,
                                             'foreignKey' => true,
-                                            'constraintName' => 'FK_sales_sales2',
-                                            'foreignKeyRefSchema' => 'dbo',
-                                            'foreignKeyRefTable' => 'sales',
-                                            'foreignKeyRefColumn' => 'createdat',
                                         ),
                                     6 =>
                                         array (
@@ -467,7 +462,7 @@ class MSSQLTest extends AbstractMSSQLTest
             0 =>
                 array (
                     'key' => 'KBC.name',
-                    'value' => 'sales',
+                    'value' => 'sales2',
                 ),
             1 =>
                 array (
@@ -660,6 +655,69 @@ class MSSQLTest extends AbstractMSSQLTest
                         array (
                             'key' => 'KBC.foreignKey',
                             'value' => false,
+                        ),
+                ),
+            'createdat' =>
+                array (
+                    0 =>
+                        array (
+                            'key' => 'KBC.datatype.type',
+                            'value' => 'varchar',
+                        ),
+                    1 =>
+                        array (
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => false,
+                        ),
+                    2 =>
+                        array (
+                            'key' => 'KBC.datatype.basetype',
+                            'value' => 'STRING',
+                        ),
+                    3 =>
+                        array (
+                            'key' => 'KBC.datatype.length',
+                            'value' => '64',
+                        ),
+                    4 =>
+                        array (
+                            'key' => 'KBC.ordinalPosition',
+                            'value' => '6',
+                        ),
+                    5 =>
+                        array (
+                            'key' => 'KBC.primaryKey',
+                            'value' => false,
+                        ),
+                    6 =>
+                        array (
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ),
+                    7 =>
+                        array (
+                            'key' => 'KBC.foreignKey',
+                            'value' => true,
+                        ),
+                    8 =>
+                        array (
+                            'key' => 'KBC.constraintName',
+                            'value' => 'FK_sales_sales2',
+                        ),
+                    9 =>
+                        array (
+                            'key' => 'KBC.foreignKeyRefSchema',
+                            'value' => 'dbo',
+                        ),
+                    10 =>
+                        array (
+                            'key' => 'KBC.foreignKeyRefTable',
+                            'value' => 'sales',
+                        ),
+                    11 =>
+                        array (
+                            'key' => 'KBC.foreignKeyRefColumn',
+                            'value' => 'createdat',
                         ),
                 ),
         );
