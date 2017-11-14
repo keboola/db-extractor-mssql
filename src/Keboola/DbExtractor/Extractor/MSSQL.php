@@ -93,9 +93,10 @@ class MSSQL extends Extractor
         if (count($tableNameArray) === 0) {
             return [];
         }
-        
-        $sql = sprintf(
-            "SELECT c.column_name AS column_name, c.*, 
+
+        if (!is_null($tables) && count($tables) > 0) {
+            $sql = sprintf(
+                "SELECT c.*, 
               cc2.CONSTRAINT_TYPE, cc2.CONSTRAINT_NAME,
               FK_REFS.REFERENCED_COLUMN_NAME, 
               FK_REFS.REFERENCED_TABLE_NAME,
@@ -136,10 +137,14 @@ class MSSQL extends Extractor
             ON FK_REFS.FK_CONSTRAINT_NAME = cc2.CONSTRAINT_NAME
             WHERE c.table_name IN (%s)
             ORDER BY c.table_schema, c.table_name, ordinal_position",
-            implode(', ', array_map(function ($tableName) {
-                return $this->db->quote($tableName);
-            }, $tableNameArray))
-        );
+                implode(', ', array_map(function ($tableName) {
+                    return $this->db->quote($tableName);
+                }, $tableNameArray))
+            );
+        } else {
+            $sql = $this->getQuickTablesSql();
+        }
+
 
         $res = $this->db->query($sql);
 
@@ -155,7 +160,7 @@ class MSSQL extends Extractor
                 }
             }
             $curColumn = [
-                "name" => $column['column_name'],
+                "name" => $column['COLUMN_NAME'],
                 "type" => $column['DATA_TYPE'],
                 "length" => $length,
                 "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
@@ -166,7 +171,7 @@ class MSSQL extends Extractor
                 "foreignKey" => ($column['CONSTRAINT_TYPE'] === "FOREIGN KEY") ? true : false
             ];
 
-            if ($column['CONSTRAINT_TYPE'] !== null) {
+            if (array_key_exists('CONSTRAINT_NAME', $column) && $column['CONSTRAINT_TYPE'] !== null) {
                 $curColumn['constraintName'] = $column['CONSTRAINT_NAME'];
                 if ($column['CONSTRAINT_TYPE'] === 'FOREIGN KEY') {
                     $curColumn['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
@@ -180,6 +185,20 @@ class MSSQL extends Extractor
             $tableDefs[$curTable]['columns'][] = $curColumn;
         }
         return array_values($tableDefs);
+    }
+
+    private function getQuickTablesSql()
+    {
+        return "SELECT c.*, cc2.CONSTRAINT_TYPE 
+                FROM information_schema.columns AS c
+                INNER JOIN sysobjects AS so ON c.TABLE_NAME = so.name AND (so.xtype='U' OR so.xtype='V') AND so.name NOT IN ('sysconstraints', 'syssegments')
+                LEFT JOIN (
+                    SELECT tc.CONSTRAINT_TYPE, tc.table_name, ccu.column_name, ccu.CONSTRAINT_NAME
+                    FROM information_schema.constraint_column_usage AS ccu
+                    JOIN information_schema.table_constraints AS tc
+                    ON ccu.table_name = tc.table_name
+                ) AS cc2 
+                ON cc2.table_name = c.table_name AND cc2.column_name = c.column_name";
     }
 
     public function describeTable(array $table)
