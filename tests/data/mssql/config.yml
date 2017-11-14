@@ -14,12 +14,14 @@ parameters:
             enabled: true
             outputTable: in.c-main.tableColumns
             incremental: false
-            primaryKey: null
+            primaryKey:
+              - createdat
             table:
               schema: dbo
-              tableName: sales
+              tableName: sales2
             columns:
-                - usergender
-                - usercity
-                - usersentiment
-                - zipcode
+              - createdat
+              - usergender
+              - usercity
+              - usersentiment
+              - zipcode
