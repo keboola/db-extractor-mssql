@@ -27,9 +27,9 @@ class ApplicationTest extends AbstractMSSQLTest
     public function testRunAction()
     {
         $outputCsvFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv';
-        $outputCsvFile2 = $this->dataDir . '/out/tables/in.c-main.tableColumns.csv';
+        $outputCsvFile2 = $this->dataDir . '/out/tables/in.c-main.tablecolumns.csv';
         $manifestFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv.manifest';
-        $manifestFile2 = $this->dataDir . '/out/tables/in.c-main.tableColumns.csv.manifest';
+        $manifestFile2 = $this->dataDir . '/out/tables/in.c-main.tablecolumns.csv.manifest';
         @unlink($outputCsvFile1);
         @unlink($outputCsvFile2);
         @unlink($manifestFile1);

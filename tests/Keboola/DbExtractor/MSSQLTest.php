@@ -8,6 +8,7 @@ namespace Keboola\DbExtractor;
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Symfony\Component\Yaml\Yaml;
+use Nette\Utils;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -455,8 +456,9 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $result = $app->run();
 
+        $sanitizedOutputTable = Utils\Strings::webalize($result['imported'][0], '._');
         $outputManifest = Yaml::parse(
-            file_get_contents($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest')
+            file_get_contents($this->dataDir . '/out/tables/' . $sanitizedOutputTable . '.csv.manifest')
         );
 
         $this->assertArrayHasKey('destination', $outputManifest);
