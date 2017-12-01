@@ -182,12 +182,6 @@ class MSSQL extends Extractor
         return array_values($tableDefs);
     }
 
-    public function describeTable(array $table)
-    {
-        // Deprecated
-        return null;
-    }
-
     public function simpleQuery(array $table, array $columns = array())
     {
         if (count($columns) > 0) {
