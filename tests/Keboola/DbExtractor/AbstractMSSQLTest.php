@@ -19,31 +19,31 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             define('APP_NAME', 'ex-db-mssql');
         }
 
-        $this->makeConnection();
+        if (!$this->pdo) {
+            $this->makeConnection();
+        }
 
         $this->setupTables();
     }
 
     private function makeConnection()
     {
-        if (!$this->pdo) {
-            $options = [
-                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-                \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
-            ];
+        $options = [
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+        ];
 
-            $config = $this->getConfig('mssql');
-            $dbConfig = $config['parameters']['db'];
+        $config = $this->getConfig('mssql');
+        $dbConfig = $config['parameters']['db'];
 
-            $dsn = sprintf(
-                "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
-                $dbConfig['host'],
-                $dbConfig['port'],
-                $dbConfig['database']
-            );
+        $dsn = sprintf(
+            "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
+            $dbConfig['host'],
+            $dbConfig['port'],
+            $dbConfig['database']
+        );
 
-            $this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password'], $options);
-        }
+        $this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password'], $options);
     }
 
     private function setupTables()
@@ -52,13 +52,18 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
         $arr = $res->fetchAll();
 
+        /*
         if (count($arr) > 1) {
             // tables already present
             return;
         }
+        */
 
         $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
-        $this->createTextTable($csv1, ['createdat']);
+
+        $this->pdo->exec("IF OBJECT_ID('dbo.sales2', 'U') IS NOT NULL DROP TABLE dbo.sales2");
+        $this->pdo->exec("IF OBJECT_ID('dbo.sales', 'U') IS NOT NULL DROP TABLE dbo.sales");
+        $this->createTextTable($csv1, ['createdat'], "sales");
         $this->createTextTable($csv1, null, "sales2");
         // drop the t1 demo table if it exists
         $this->pdo->exec("IF OBJECT_ID('t1', 'U') IS NOT NULL DROP TABLE t1");
@@ -66,6 +71,19 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         // set up a foreign key relationship
         $this->pdo->exec("ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL");
         $this->pdo->exec("ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)");
+
+        // create another table with an auto_increment ID
+        $this->pdo->exec("IF OBJECT_ID('dbo.autoIncrement', 'U') IS NOT NULL DROP TABLE dbo.autoIncrement");
+
+        $this->pdo->exec("CREATE TABLE autoIncrement (ID INT IDENTITY(1,1) NOT NULL, Name VARCHAR(55) NOT NULL DEFAULT 'mario', Type VARCHAR(55))");
+        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT PK_AUTOINC PRIMARY KEY (ID)");
+        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK (ID > 0 AND ID < 20)");
+        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('mario', 'plumber')");
+        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('luigi', 'plumber')");
+        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('toad', 'mushroom')");
+        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('princess', 'royalty')");
+        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('wario', 'badguy')");
+        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('yoshi', 'horse?')");
     }
 
     /**
@@ -115,14 +133,6 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         }
 
         $sql = sprintf(
-            'IF OBJECT_ID(%s, \'U\') IS NOT NULL DROP TABLE %s',
-            $this->pdo->quote($tableName),
-            $tableName
-        );
-
-        $this->pdo->exec($sql);
-
-        $sql = sprintf(
             'CREATE TABLE %s (%s)',
             $tableName,
             implode(
@@ -133,9 +143,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             ),
             $tableName
         );
-
         $this->pdo->exec($sql);
-
         // create the primary key if supplied
         if ($primaryKey && is_array($primaryKey) && !empty($primaryKey)) {
 
@@ -145,7 +153,8 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             }
 
             $sql = sprintf(
-                'ALTER TABLE %s ADD PRIMARY KEY (%s)',
+                'ALTER TABLE %s ADD CONSTRAINT PK_%s PRIMARY KEY (%s)',
+                $tableName,
                 $tableName,
                 implode(',', $primaryKey)
             );
@@ -201,15 +210,6 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
                 $this->pdo->exec($sql);
             }
-
-//			if ($sqlInserts) {
-//				$sql = sprintf('INSERT INTO %s VALUES %s',
-//					$tableName,
-//					substr($sqlInserts, 0, -1)
-//				);
-//
-//				$this->pdo->exec($sql);
-//			}
         }
 
         $this->pdo->commit();
