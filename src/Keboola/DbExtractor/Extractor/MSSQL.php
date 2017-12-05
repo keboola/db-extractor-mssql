@@ -93,10 +93,10 @@ class MSSQL extends Extractor
         if (count($tableNameArray) === 0) {
             return [];
         }
-        
+        // cc2.CONSTRAINT_TYPE, cc2.CONSTRAINT_NAME,
         $sql = sprintf(
             "SELECT c.column_name AS column_name, c.*, 
-              cc2.CONSTRAINT_TYPE, cc2.CONSTRAINT_NAME,
+              cc2.CONSTRAINT_TYPE, cc2.CONSTRAINT_NAME, CHK.CHECK_CLAUSE, 
               FK_REFS.REFERENCED_COLUMN_NAME, 
               FK_REFS.REFERENCED_TABLE_NAME,
               FK_REFS.REFERENCED_SCHEMA_NAME
@@ -119,14 +119,12 @@ class MSSQL extends Extractor
                     ,KCU2.CONSTRAINT_SCHEMA AS REFERENCED_SCHEMA_NAME
                     ,KCU2.TABLE_NAME AS REFERENCED_TABLE_NAME 
                     ,KCU2.COLUMN_NAME AS REFERENCED_COLUMN_NAME 
-                    ,KCU2.ORDINAL_POSITION AS REFERENCED_ORDINAL_POSITION 
+                    ,KCU2.ORDINAL_POSITION AS REFERENCED_ORDINAL_POSITION
                 FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC 
-                
                 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1 
                     ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG  
                     AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA 
                     AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME 
-                
                 INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU2 
                     ON KCU2.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG  
                     AND KCU2.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA 
@@ -134,18 +132,23 @@ class MSSQL extends Extractor
                     AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION 
             ) AS FK_REFS
             ON FK_REFS.FK_CONSTRAINT_NAME = cc2.CONSTRAINT_NAME
+            LEFT JOIN (
+              SELECT CHECK_CLAUSE, CONSTRAINT_NAME FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS
+            ) as CHK
+            ON CHK.CONSTRAINT_NAME = cc2.CONSTRAINT_NAME
             WHERE c.table_name IN (%s)
             ORDER BY c.table_schema, c.table_name, ordinal_position",
             implode(', ', array_map(function ($tableName) {
                 return $this->db->quote($tableName);
             }, $tableNameArray))
         );
-
         $res = $this->db->query($sql);
-
         $rows = $res->fetchAll();
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
+            if (!array_key_exists('columns', $tableDefs[$curTable])) {
+                $tableDefs[$curTable]['columns'] = [];
+            }
             $length = ($column['CHARACTER_MAXIMUM_LENGTH']) ? $column['CHARACTER_MAXIMUM_LENGTH'] : null;
             if (is_null($length) && !is_null($column['NUMERIC_PRECISION'])) {
                 if ($column['NUMERIC_SCALE'] > 0) {
@@ -154,30 +157,45 @@ class MSSQL extends Extractor
                     $length = $column['NUMERIC_PRECISION'];
                 }
             }
-            $curColumn = [
-                "name" => $column['column_name'],
-                "type" => $column['DATA_TYPE'],
-                "length" => $length,
-                "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
-                "default" => $column['COLUMN_DEFAULT'],
-                "ordinalPosition" => $column['ORDINAL_POSITION'],
-                "primaryKey" => ($column['CONSTRAINT_TYPE'] === "PRIMARY KEY") ? true : false,
-                "uniqueKey" => ($column['CONSTRAINT_TYPE'] === "UNIQUE") ? true : false,
-                "foreignKey" => ($column['CONSTRAINT_TYPE'] === "FOREIGN KEY") ? true : false
-            ];
+            $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
+            if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex] = [
+                    "name" => $column['column_name'],
+                    "type" => $column['DATA_TYPE'],
+                    "length" => $length,
+                    "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
+                    "default" => $column['COLUMN_DEFAULT'],
+                    "ordinalPosition" => $column['ORDINAL_POSITION'],
+                    "primaryKey" => false,
+                    "foreignKey" => false,
+                    "uniqueKey" => false,
+                ];
+            }
 
             if ($column['CONSTRAINT_TYPE'] !== null) {
                 $curColumn['constraintName'] = $column['CONSTRAINT_NAME'];
-                if ($column['CONSTRAINT_TYPE'] === 'FOREIGN KEY') {
-                    $curColumn['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
-                    $curColumn['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
-                    $curColumn['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
+                switch ($column['CONSTRAINT_TYPE']) {
+                    case 'PRIMARY KEY':
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKey'] = true;
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKeyName'] = $column['CONSTRAINT_NAME'];
+                        break;
+                    case 'FOREIGN KEY':
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKey'] = true;
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyName'] = $column['CONSTRAINT_NAME'];
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
+                        break;
+                    case 'UNIQUE':
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]["uniqueKey"] = true;
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]["uniqueKeyName"] = $column['CONSTRAINT_NAME'];
+                        break;
+                    case 'CHECK':
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]["checkConstraint"] = $column['CONSTRAINT_NAME'];
+                        $tableDefs[$curTable]['columns'][$curColumnIndex]["checkClause"] = $column['CHECK_CLAUSE'];
+                        break;
                 }
             }
-            if (!array_key_exists('columns', $tableDefs[$curTable])) {
-                $tableDefs[$curTable]['columns'] = [];
-            }
-            $tableDefs[$curTable]['columns'][] = $curColumn;
         }
         return array_values($tableDefs);
     }

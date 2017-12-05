@@ -124,10 +124,59 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('status', $result);
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
-        $this->assertCount(2, $result['tables']);
+        $this->assertCount(3, $result['tables']);
 
-        $expectedData = [
+        $expectedData = array (
             0 =>
+                array (
+                    'name' => 'autoIncrement',
+                    'catalog' => 'test',
+                    'schema' => 'dbo',
+                    'type' => 'BASE TABLE',
+                    'columns' =>
+                        array (
+                            0 =>
+                                array (
+                                    'name' => 'ID',
+                                    'type' => 'int',
+                                    'length' => '10',
+                                    'nullable' => false,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '1',
+                                    'primaryKey' => true,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                    'checkConstraint' => 'CHK_ID_CONTSTRAINT',
+                                    'checkClause' => '([ID] > 0 and [ID] < 20)',
+                                    'primaryKeyName' => 'PK_AUTOINC',
+                                ),
+                            1 =>
+                                array (
+                                    'name' => 'Name',
+                                    'type' => 'varchar',
+                                    'length' => '55',
+                                    'nullable' => false,
+                                    'default' => '(\'mario\')',
+                                    'ordinalPosition' => '2',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            2 =>
+                                array (
+                                    'name' => 'Type',
+                                    'type' => 'varchar',
+                                    'length' => '55',
+                                    'nullable' => false,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '3',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                        ),
+                ),
+            1 =>
                 array (
                     'name' => 'sales',
                     'catalog' => 'test',
@@ -137,310 +186,310 @@ class MSSQLTest extends AbstractMSSQLTest
                         array (
                             0 =>
                                 array (
-                                  'name' => 'usergender',
-                                  'type' => 'varchar',
-                                  'length' => '255',
-                                  'nullable' => true,
-                                  'default' => NULL,
-                                  'ordinalPosition' => '1',
-                                  'primaryKey' => false,
-                                  'uniqueKey' => false,
-                                  'foreignKey' => false,
+                                    'name' => 'usergender',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '1',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             1 =>
-                                  array (
-                                      'name' => 'usercity',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '2',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              2 =>
-                                  array (
-                                      'name' => 'usersentiment',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '3',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              3 =>
-                                  array (
-                                      'name' => 'zipcode',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '4',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              4 =>
-                                  array (
-                                      'name' => 'sku',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '5',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              5 =>
-                                  array (
-                                      'name' => 'createdat',
-                                      'type' => 'varchar',
-                                      'length' => '64',
-                                      'nullable' => false,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '6',
-                                      'primaryKey' => true,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                      'constraintName' => 'PK__sales__77BFCB91',
-                                  ),
-                              6 =>
-                                  array (
-                                      'name' => 'category',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '7',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              7 =>
-                                  array (
-                                      'name' => 'price',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '8',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              8 =>
-                                  array (
-                                      'name' => 'county',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '9',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              9 =>
-                                  array (
-                                      'name' => 'countycode',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '10',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              10 =>
-                                  array (
-                                      'name' => 'userstate',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '11',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                              11 =>
-                                  array (
-                                      'name' => 'categorygroup',
-                                      'type' => 'varchar',
-                                      'length' => '255',
-                                      'nullable' => true,
-                                      'default' => NULL,
-                                      'ordinalPosition' => '12',
-                                      'primaryKey' => false,
-                                      'uniqueKey' => false,
-                                      'foreignKey' => false,
-                                  ),
-                            ),
-                    ),
-                    1 =>
-                        array (
-                            'name' => 'sales2',
-                            'catalog' => 'test',
-                            'schema' => 'dbo',
-                            'type' => 'BASE TABLE',
-                            'columns' =>
                                 array (
-                                    0 =>
-                                        array (
-                                            'name' => 'usergender',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '1',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    1 =>
-                                        array (
-                                            'name' => 'usercity',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '2',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    2 =>
-                                        array (
-                                            'name' => 'usersentiment',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '3',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    3 =>
-                                        array (
-                                            'name' => 'zipcode',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '4',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    4 =>
-                                        array (
-                                            'name' => 'sku',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '5',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    5 =>
-                                        array (
-                                            'name' => 'createdat',
-                                            'type' => 'varchar',
-                                            'length' => '64',
-                                            'nullable' => false,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '6',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => true,
-                                            'constraintName' => 'FK_sales_sales2',
-                                            'foreignKeyRefSchema' => 'dbo',
-                                            'foreignKeyRefTable' => 'sales',
-                                            'foreignKeyRefColumn' => 'createdat',
-                                        ),
-                                    6 =>
-                                        array (
-                                            'name' => 'category',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '7',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    7 =>
-                                        array (
-                                            'name' => 'price',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '8',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    8 =>
-                                        array (
-                                            'name' => 'county',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '9',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    9 =>
-                                        array (
-                                            'name' => 'countycode',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '10',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    10 =>
-                                        array (
-                                            'name' => 'userstate',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '11',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
-                                    11 =>
-                                        array (
-                                            'name' => 'categorygroup',
-                                            'type' => 'varchar',
-                                            'length' => '255',
-                                            'nullable' => true,
-                                            'default' => NULL,
-                                            'ordinalPosition' => '12',
-                                            'primaryKey' => false,
-                                            'uniqueKey' => false,
-                                            'foreignKey' => false,
-                                        ),
+                                    'name' => 'usercity',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '2',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
                                 ),
-                        )
-        ];
+                            2 =>
+                                array (
+                                    'name' => 'usersentiment',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '3',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            3 =>
+                                array (
+                                    'name' => 'zipcode',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '4',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            4 =>
+                                array (
+                                    'name' => 'sku',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '5',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            5 =>
+                                array (
+                                    'name' => 'createdat',
+                                    'type' => 'varchar',
+                                    'length' => '64',
+                                    'nullable' => false,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '6',
+                                    'primaryKey' => true,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                    'primaryKeyName' => 'PK_sales',
+                                ),
+                            6 =>
+                                array (
+                                    'name' => 'category',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '7',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            7 =>
+                                array (
+                                    'name' => 'price',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '8',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            8 =>
+                                array (
+                                    'name' => 'county',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '9',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            9 =>
+                                array (
+                                    'name' => 'countycode',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '10',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            10 =>
+                                array (
+                                    'name' => 'userstate',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '11',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            11 =>
+                                array (
+                                    'name' => 'categorygroup',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '12',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                        ),
+                ),
+            2 =>
+                array (
+                    'name' => 'sales2',
+                    'catalog' => 'test',
+                    'schema' => 'dbo',
+                    'type' => 'BASE TABLE',
+                    'columns' =>
+                        array (
+                            0 =>
+                                array (
+                                    'name' => 'usergender',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '1',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            1 =>
+                                array (
+                                    'name' => 'usercity',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '2',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            2 =>
+                                array (
+                                    'name' => 'usersentiment',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '3',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            3 =>
+                                array (
+                                    'name' => 'zipcode',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '4',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            4 =>
+                                array (
+                                    'name' => 'sku',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '5',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            5 =>
+                                array (
+                                    'name' => 'createdat',
+                                    'type' => 'varchar',
+                                    'length' => '64',
+                                    'nullable' => false,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '6',
+                                    'primaryKey' => false,
+                                    'foreignKey' => true,
+                                    'uniqueKey' => false,
+                                    'foreignKeyName' => 'FK_sales_sales2',
+                                    'foreignKeyRefSchema' => 'dbo',
+                                    'foreignKeyRefTable' => 'sales',
+                                    'foreignKeyRefColumn' => 'createdat',
+                                ),
+                            6 =>
+                                array (
+                                    'name' => 'category',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '7',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            7 =>
+                                array (
+                                    'name' => 'price',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '8',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            8 =>
+                                array (
+                                    'name' => 'county',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '9',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            9 =>
+                                array (
+                                    'name' => 'countycode',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '10',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            10 =>
+                                array (
+                                    'name' => 'userstate',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '11',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            11 =>
+                                array (
+                                    'name' => 'categorygroup',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '12',
+                                    'primaryKey' => false,
+                                    'foreignKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                        ),
+                ),
+        );
 
         $this->assertEquals($expectedData, $result['tables']);
     }
@@ -450,7 +499,22 @@ class MSSQLTest extends AbstractMSSQLTest
         $config = $this->getConfig();
 
         // use just 1 table
-        unset($config['parameters']['tables'][0]);
+        unset($config['parameters']['tables']);
+
+        $config['parameters']['tables'] = [
+            0 => [
+                "id" => 1,
+                "name" => "plumbers",
+                "table" => [
+                    "tableName" => "autoIncrement",
+                    "schema" => "dbo"
+                ],
+                "outputTable" => "in.c-main.autoIncrement",
+                "incremental" => false,
+                "primaryKey" => ["ID"],
+                "enabled" => true
+            ]
+        ];
 
         $app = new Application($config);
 
@@ -469,7 +533,7 @@ class MSSQLTest extends AbstractMSSQLTest
             0 =>
                 array (
                     'key' => 'KBC.name',
-                    'value' => 'sales',
+                    'value' => 'autoIncrement',
                 ),
             1 =>
                 array (
@@ -492,27 +556,27 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('column_metadata', $outputManifest);
 
         $expectedColumnMetadata = array (
-            'usergender' =>
+            'ID' =>
                 array (
                     0 =>
                         array (
                             'key' => 'KBC.datatype.type',
-                            'value' => 'varchar',
+                            'value' => 'int',
                         ),
                     1 =>
                         array (
                             'key' => 'KBC.datatype.nullable',
-                            'value' => true,
+                            'value' => false,
                         ),
                     2 =>
                         array (
                             'key' => 'KBC.datatype.basetype',
-                            'value' => 'STRING',
+                            'value' => 'INTEGER',
                         ),
                     3 =>
                         array (
                             'key' => 'KBC.datatype.length',
-                            'value' => '255',
+                            'value' => '10',
                         ),
                     4 =>
                         array (
@@ -522,20 +586,35 @@ class MSSQLTest extends AbstractMSSQLTest
                     5 =>
                         array (
                             'key' => 'KBC.primaryKey',
-                            'value' => false,
+                            'value' => true,
                         ),
                     6 =>
-                        array (
-                            'key' => 'KBC.uniqueKey',
-                            'value' => false,
-                        ),
-                    7 =>
                         array (
                             'key' => 'KBC.foreignKey',
                             'value' => false,
                         ),
+                    7 =>
+                        array (
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ),
+                    8 =>
+                        array (
+                            'key' => 'KBC.checkConstraint',
+                            'value' => 'CHK_ID_CONTSTRAINT',
+                        ),
+                    9 =>
+                        array (
+                            'key' => 'KBC.checkClause',
+                            'value' => '([ID] > 0 and [ID] < 20)',
+                        ),
+                    10 =>
+                        array (
+                            'key' => 'KBC.primaryKeyName',
+                            'value' => 'PK_AUTOINC',
+                        ),
                 ),
-            'usercity' =>
+            'Name' =>
                 array (
                     0 =>
                         array (
@@ -545,7 +624,7 @@ class MSSQLTest extends AbstractMSSQLTest
                     1 =>
                         array (
                             'key' => 'KBC.datatype.nullable',
-                            'value' => true,
+                            'value' => false,
                         ),
                     2 =>
                         array (
@@ -555,21 +634,21 @@ class MSSQLTest extends AbstractMSSQLTest
                     3 =>
                         array (
                             'key' => 'KBC.datatype.length',
-                            'value' => '255',
+                            'value' => '55',
                         ),
                     4 =>
+                        array (
+                            'key' => 'KBC.datatype.default',
+                            'value' => '(\'mario\')',
+                        ),
+                    5 =>
                         array (
                             'key' => 'KBC.ordinalPosition',
                             'value' => '2',
                         ),
-                    5 =>
-                        array (
-                            'key' => 'KBC.primaryKey',
-                            'value' => false,
-                        ),
                     6 =>
                         array (
-                            'key' => 'KBC.uniqueKey',
+                            'key' => 'KBC.primaryKey',
                             'value' => false,
                         ),
                     7 =>
@@ -577,8 +656,13 @@ class MSSQLTest extends AbstractMSSQLTest
                             'key' => 'KBC.foreignKey',
                             'value' => false,
                         ),
+                    8 =>
+                        array (
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ),
                 ),
-            'usersentiment' =>
+            'Type' =>
                 array (
                     0 =>
                         array (
@@ -588,7 +672,7 @@ class MSSQLTest extends AbstractMSSQLTest
                     1 =>
                         array (
                             'key' => 'KBC.datatype.nullable',
-                            'value' => true,
+                            'value' => false,
                         ),
                     2 =>
                         array (
@@ -598,7 +682,7 @@ class MSSQLTest extends AbstractMSSQLTest
                     3 =>
                         array (
                             'key' => 'KBC.datatype.length',
-                            'value' => '255',
+                            'value' => '55',
                         ),
                     4 =>
                         array (
@@ -612,55 +696,12 @@ class MSSQLTest extends AbstractMSSQLTest
                         ),
                     6 =>
                         array (
-                            'key' => 'KBC.uniqueKey',
+                            'key' => 'KBC.foreignKey',
                             'value' => false,
                         ),
                     7 =>
                         array (
-                            'key' => 'KBC.foreignKey',
-                            'value' => false,
-                        ),
-                ),
-            'zipcode' =>
-                array (
-                    0 =>
-                        array (
-                            'key' => 'KBC.datatype.type',
-                            'value' => 'varchar',
-                        ),
-                    1 =>
-                        array (
-                            'key' => 'KBC.datatype.nullable',
-                            'value' => true,
-                        ),
-                    2 =>
-                        array (
-                            'key' => 'KBC.datatype.basetype',
-                            'value' => 'STRING',
-                        ),
-                    3 =>
-                        array (
-                            'key' => 'KBC.datatype.length',
-                            'value' => '255',
-                        ),
-                    4 =>
-                        array (
-                            'key' => 'KBC.ordinalPosition',
-                            'value' => '4',
-                        ),
-                    5 =>
-                        array (
-                            'key' => 'KBC.primaryKey',
-                            'value' => false,
-                        ),
-                    6 =>
-                        array (
                             'key' => 'KBC.uniqueKey',
-                            'value' => false,
-                        ),
-                    7 =>
-                        array (
-                            'key' => 'KBC.foreignKey',
                             'value' => false,
                         ),
                 ),
