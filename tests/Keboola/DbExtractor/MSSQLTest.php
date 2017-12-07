@@ -160,7 +160,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'ordinalPosition' => '2',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
-                                    'uniqueKey' => false,
+                                    'uniqueKey' => true,
+                                    'uniqueKeyName' => 'UNI_KEY_1'
                                 ),
                             2 =>
                                 array (
@@ -172,7 +173,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'ordinalPosition' => '3',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
-                                    'uniqueKey' => false,
+                                    'uniqueKey' => true,
+                                    'uniqueKeyName' => 'UNI_KEY_1'
                                 ),
                         ),
                 ),
@@ -600,18 +602,18 @@ class MSSQLTest extends AbstractMSSQLTest
                         ),
                     8 =>
                         array (
-                            'key' => 'KBC.checkConstraint',
-                            'value' => 'CHK_ID_CONTSTRAINT',
+                            'key' => 'KBC.primaryKeyName',
+                            'value' => 'PK_AUTOINC',
                         ),
                     9 =>
                         array (
-                            'key' => 'KBC.checkClause',
-                            'value' => '([ID] > 0 and [ID] < 20)',
+                            'key' => 'KBC.checkConstraint',
+                            'value' => 'CHK_ID_CONTSTRAINT',
                         ),
                     10 =>
                         array (
-                            'key' => 'KBC.primaryKeyName',
-                            'value' => 'PK_AUTOINC',
+                            'key' => 'KBC.checkClause',
+                            'value' => '([ID] > 0 and [ID] < 20)',
                         ),
                 ),
             'Name' =>
@@ -659,7 +661,12 @@ class MSSQLTest extends AbstractMSSQLTest
                     8 =>
                         array (
                             'key' => 'KBC.uniqueKey',
-                            'value' => false,
+                            'value' => true,
+                        ),
+                    9 =>
+                        array (
+                            'key' => 'KBC.uniqueKeyName',
+                            'value' => 'UNI_KEY_1',
                         ),
                 ),
             'Type' =>
@@ -702,7 +709,12 @@ class MSSQLTest extends AbstractMSSQLTest
                     7 =>
                         array (
                             'key' => 'KBC.uniqueKey',
-                            'value' => false,
+                            'value' => true,
+                        ),
+                    8 =>
+                        array (
+                            'key' => 'KBC.uniqueKeyName',
+                            'value' => 'UNI_KEY_1',
                         ),
                 ),
         );
