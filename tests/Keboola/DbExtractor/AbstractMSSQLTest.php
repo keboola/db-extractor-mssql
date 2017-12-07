@@ -84,6 +84,8 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('princess', 'royalty')");
         $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('wario', 'badguy')");
         $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('yoshi', 'horse?')");
+        // add unique key
+        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT UNI_KEY_1 UNIQUE (Name, Type)");
     }
 
     /**
