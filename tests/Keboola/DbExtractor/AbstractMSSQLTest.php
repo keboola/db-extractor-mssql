@@ -48,17 +48,6 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     private function setupTables()
     {
-        $res = $this->pdo->query("SELECT * FROM information_schema.tables where TABLE_TYPE='BASE TABLE'");
-
-        $arr = $res->fetchAll();
-
-        /*
-        if (count($arr) > 1) {
-            // tables already present
-            return;
-        }
-        */
-
         $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
 
         $this->pdo->exec("IF OBJECT_ID('dbo.sales2', 'U') IS NOT NULL DROP TABLE dbo.sales2");

@@ -202,7 +202,9 @@ class MSSQL extends Extractor
             }
             if ($column['chk_name'] !== null) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex]["checkConstraint"] = $column['chk_name'];
-                $tableDefs[$curTable]['columns'][$curColumnIndex]["checkClause"] = $column['CHECK_CLAUSE'];
+                if (isset($column['CHECK_CLAUSE']) && $column['CHECK_CLAUSE'] !== null) {
+                    $tableDefs[$curTable]['columns'][$curColumnIndex]["checkClause"] = $column['CHECK_CLAUSE'];
+                }
             }
             if ($column['fk_name'] !== null) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKey'] = true;
