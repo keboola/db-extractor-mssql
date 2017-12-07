@@ -55,7 +55,8 @@ class MSSQL extends Extractor
     {
         $sql = "SELECT ist.* FROM information_schema.tables as ist
                 INNER JOIN sysobjects AS so ON ist.TABLE_NAME = so.name
-                WHERE (so.xtype='U' OR so.xtype='V') AND so.name NOT IN ('sysconstraints', 'syssegments')"; // xtype='U' user generated objects only
+                WHERE (so.xtype='U' OR so.xtype='V') AND so.name NOT IN ('sysconstraints', 'syssegments')";
+                // xtype='U' user generated objects only
 
         if (!is_null($tables) && count($tables) > 0) {
             $sql .= sprintf(
@@ -93,24 +94,21 @@ class MSSQL extends Extractor
         if (count($tableNameArray) === 0) {
             return [];
         }
-        // cc2.CONSTRAINT_TYPE, cc2.CONSTRAINT_NAME,
+
         $sql = sprintf(
-            "SELECT c.column_name AS column_name, c.*, 
-              cc2.CONSTRAINT_TYPE, cc2.CONSTRAINT_NAME, CHK.CHECK_CLAUSE, 
+            "SELECT c.column_name AS column_name, c.*,  
+              chk.CHECK_CLAUSE, 
+              fk_name,
+              chk_name,
+              pk_name,
+              uk_name,
               FK_REFS.REFERENCED_COLUMN_NAME, 
               FK_REFS.REFERENCED_TABLE_NAME,
               FK_REFS.REFERENCED_SCHEMA_NAME
             FROM information_schema.columns AS c 
             LEFT JOIN (
-                SELECT tc.CONSTRAINT_TYPE, tc.table_name, ccu.column_name, ccu.CONSTRAINT_NAME
-                FROM information_schema.constraint_column_usage AS ccu
-                JOIN information_schema.table_constraints AS tc
-                ON ccu.table_name = tc.table_name
-            ) AS cc2 
-            ON cc2.table_name = c.table_name AND cc2.column_name = c.column_name
-            LEFT JOIN (
                 SELECT  
-                     KCU1.CONSTRAINT_NAME AS FK_CONSTRAINT_NAME 
+                     KCU1.CONSTRAINT_NAME AS fk_name 
                     ,KCU1.CONSTRAINT_SCHEMA AS FK_SCHEMA_NAME
                     ,KCU1.TABLE_NAME AS FK_TABLE_NAME 
                     ,KCU1.COLUMN_NAME AS FK_COLUMN_NAME 
@@ -131,11 +129,33 @@ class MSSQL extends Extractor
                     AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME 
                     AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION 
             ) AS FK_REFS
-            ON FK_REFS.FK_CONSTRAINT_NAME = cc2.CONSTRAINT_NAME
+            ON FK_REFS.FK_TABLE_NAME = c.table_name AND FK_REFS.FK_COLUMN_NAME = c.column_name
             LEFT JOIN (
-              SELECT CHECK_CLAUSE, CONSTRAINT_NAME FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS
-            ) as CHK
-            ON CHK.CONSTRAINT_NAME = cc2.CONSTRAINT_NAME
+                SELECT tc2.CONSTRAINT_TYPE, tc2.table_name, ccu2.column_name, ccu2.CONSTRAINT_NAME as chk_name, CHK.CHECK_CLAUSE 
+                FROM information_schema.constraint_column_usage AS ccu2 
+                JOIN information_schema.table_constraints AS tc2 
+                ON ccu2.table_name = tc2.table_name
+                JOIN (
+                  SELECT * FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS 
+                ) AS CHK 
+                ON CHK.CONSTRAINT_NAME = ccu2.CONSTRAINT_NAME
+                WHERE CONSTRAINT_TYPE = 'CHECK'
+            ) AS chk
+            ON chk.table_name = c.table_name AND chk.column_name = c.column_name
+            LEFT JOIN (
+                SELECT tc.CONSTRAINT_TYPE, tc.table_name, ccu.column_name, ccu.CONSTRAINT_NAME as pk_name
+                FROM information_schema.key_column_usage AS ccu
+                JOIN information_schema.table_constraints AS tc
+                ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND  ccu.table_name = tc.table_name AND CONSTRAINT_TYPE = 'PRIMARY KEY' 
+            ) AS pk
+            ON pk.table_name = c.table_name AND pk.column_name = c.column_name
+            LEFT JOIN (
+                SELECT tc.CONSTRAINT_TYPE, ccu.table_name, ccu.column_name, ccu.CONSTRAINT_NAME as uk_name
+                FROM information_schema.key_column_usage AS ccu
+                JOIN information_schema.table_constraints AS tc
+                ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND ccu.table_name = tc.table_name AND CONSTRAINT_TYPE = 'UNIQUE' 
+            ) AS uk  
+            ON uk.table_name = c.table_name AND uk.column_name = c.column_name
             WHERE c.table_name IN (%s)
             ORDER BY c.table_schema, c.table_name, ordinal_position",
             implode(', ', array_map(function ($tableName) {
@@ -172,29 +192,24 @@ class MSSQL extends Extractor
                 ];
             }
 
-            if ($column['CONSTRAINT_TYPE'] !== null) {
-                $curColumn['constraintName'] = $column['CONSTRAINT_NAME'];
-                switch ($column['CONSTRAINT_TYPE']) {
-                    case 'PRIMARY KEY':
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKey'] = true;
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKeyName'] = $column['CONSTRAINT_NAME'];
-                        break;
-                    case 'FOREIGN KEY':
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKey'] = true;
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyName'] = $column['CONSTRAINT_NAME'];
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
-                        break;
-                    case 'UNIQUE':
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]["uniqueKey"] = true;
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]["uniqueKeyName"] = $column['CONSTRAINT_NAME'];
-                        break;
-                    case 'CHECK':
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]["checkConstraint"] = $column['CONSTRAINT_NAME'];
-                        $tableDefs[$curTable]['columns'][$curColumnIndex]["checkClause"] = $column['CHECK_CLAUSE'];
-                        break;
-                }
+            if ($column['pk_name'] !== null) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKey'] = true;
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKeyName'] = $column['pk_name'];
+            }
+            if ($column['uk_name'] !== null) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKey'] = true;
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKeyName'] = $column['uk_name'];
+            }
+            if ($column['chk_name'] !== null) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]["checkConstraint"] = $column['chk_name'];
+                $tableDefs[$curTable]['columns'][$curColumnIndex]["checkClause"] = $column['CHECK_CLAUSE'];
+            }
+            if ($column['fk_name'] !== null) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKey'] = true;
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyName'] = $column['fk_name'];
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
             }
         }
         return array_values($tableDefs);
