@@ -3,7 +3,23 @@ services:
   app:
     build: .
     image: keboola/ex-db-mssql
-    working_dir: /code
+    command: "./phpunit.sh"
+    tty: true
+    stdin_open: true
+    environment:
+      MSSQL_DB_HOST: mssql
+      MSSQL_DB_PORT: 1433
+      MSSQL_DB_USER: sa
+      MSSQL_DB_PASSWORD:
+      MSSQL_DB_DATABASE: test
+    links:
+      - sshproxy
+      - mssql
+
+  dev:
+    image: keboola/ex-db-mssql
+    volumes:
+      - .:/code
     command: "./phpunit.sh"
     tty: true
     stdin_open: true
