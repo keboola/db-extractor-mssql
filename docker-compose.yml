@@ -3,9 +3,11 @@ services:
   app:
     build: .
     image: keboola/ex-db-mssql
-    command: "./phpunit.sh"
+    command: ["./wait-for-it.sh", "mssql:1433", "-t", "30", "--", "./vendor/bin/phpunit"]
     tty: true
     stdin_open: true
+    env_file:
+      - ssh-keys.env
     environment:
       MSSQL_DB_HOST: mssql
       MSSQL_DB_PORT: 1433
@@ -20,9 +22,11 @@ services:
     image: keboola/ex-db-mssql
     volumes:
       - .:/code
-    command: "./phpunit.sh"
+    command: ["./wait-for-it.sh", "mssql:1433", "-t", "30", "--", "./vendor/bin/phpunit"]
     tty: true
     stdin_open: true
+    env_file:
+      - ssh-keys.env
     environment:
       MSSQL_DB_HOST: mssql
       MSSQL_DB_PORT: 1433

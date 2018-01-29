@@ -64,7 +64,7 @@ class MSSQLTest extends AbstractMSSQLTest
 		$config['parameters']['db']['ssh'] = [
 			'enabled' => true,
 			'keys' => [
-				'#private' => $this->getEnv('mssql', 'DB_SSH_KEY_PRIVATE'),
+				'#private' => $this->getPrivateKey('mssql'),
 				'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
 			],
 			'user' => 'root',
@@ -89,7 +89,7 @@ class MSSQLTest extends AbstractMSSQLTest
 		$config['parameters']['db']['ssh'] = [
 			'enabled' => true,
 			'keys' => [
-				'#private' => $this->getEnv('mssql', 'DB_SSH_KEY_PRIVATE'),
+				'#private' => $this->getPrivateKey('mssql'),
 				'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
 			],
 			'user' => 'root',
