@@ -9,49 +9,49 @@ use Keboola\DbExtractor\Exception\UserException;
 
 class MSSQL extends Extractor
 {
-	public function createConnection($params)
-	{
-		// convert errors to PDOExceptions
-		$options = [
-			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-			\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
-		];
+    public function createConnection($params)
+    {
+        // convert errors to PDOExceptions
+        $options = [
+         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+        ];
 
-		// check params
-		if (isset($params['#password'])) {
-	            $params['password'] = $params['#password'];
-		}
-		
-		foreach (['host', 'database', 'user', 'password'] as $r) {
-			if (!array_key_exists($r, $params)) {
-				throw new UserException(sprintf("Parameter %s is missing.", $r));
-			}
-		}
+        // check params
+        if (isset($params['#password'])) {
+                $params['password'] = $params['#password'];
+        }
+        
+        foreach (['host', 'database', 'user', 'password'] as $r) {
+            if (!array_key_exists($r, $params)) {
+                throw new UserException(sprintf("Parameter %s is missing.", $r));
+            }
+        }
 
-		$port = isset($params['port']) ? $params['port'] : '1433';
-		$dsn = sprintf(
-			"dblib:host=%s:%d;dbname=%s;charset=UTF-8",
-			$params['host'],
-			$port,
-			$params['database']
-		);
+        $port = isset($params['port']) ? $params['port'] : '1433';
+        $dsn = sprintf(
+            "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
+            $params['host'],
+            $port,
+            $params['database']
+        );
 
-		$pdo = new \PDO($dsn, $params['user'], $params['password'], $options);
+        $pdo = new \PDO($dsn, $params['user'], $params['password'], $options);
 
-		return $pdo;
-	}
+        return $pdo;
+    }
 
-	public function getConnection()
-	{
-		return $this->db;
-	}
+    public function getConnection()
+    {
+        return $this->db;
+    }
 
-	public function testConnection()
-	{
-		$this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
-	}
+    public function testConnection()
+    {
+        $this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
+    }
 
-	public function getTables(array $tables = null)
+    public function getTables(array $tables = null)
     {
         $sql = "SELECT ist.* FROM information_schema.tables as ist
                 INNER JOIN sysobjects AS so ON ist.TABLE_NAME = so.name
@@ -61,12 +61,24 @@ class MSSQL extends Extractor
         if (!is_null($tables) && count($tables) > 0) {
             $sql .= sprintf(
                 " AND TABLE_NAME IN (%s) AND TABLE_SCHEMA IN (%s)",
-                implode(',', array_map(function ($table) {
-                    return $this->db->quote($table['tableName']);
-                }, $tables)),
-                implode(',', array_map(function ($table) {
-                    return $this->db->quote($table['schema']);
-                }, $tables))
+                implode(
+                    ',',
+                    array_map(
+                        function ($table) {
+                            return $this->db->quote($table['tableName']);
+                        },
+                        $tables
+                    )
+                ),
+                implode(
+                    ',',
+                    array_map(
+                        function ($table) {
+                            return $this->db->quote($table['schema']);
+                        },
+                        $tables
+                    )
+                )
             );
         }
 
@@ -158,9 +170,15 @@ class MSSQL extends Extractor
             ON uk.table_name = c.table_name AND uk.column_name = c.column_name
             WHERE c.table_name IN (%s)
             ORDER BY c.table_schema, c.table_name, ordinal_position",
-            implode(', ', array_map(function ($tableName) {
-                return $this->db->quote($tableName);
-            }, $tableNameArray))
+            implode(
+                ', ',
+                array_map(
+                    function ($tableName) {
+                        return $this->db->quote($tableName);
+                    },
+                    $tableNameArray
+                )
+            )
         );
         $res = $this->db->query($sql);
         $rows = $res->fetchAll();
@@ -220,10 +238,17 @@ class MSSQL extends Extractor
     public function simpleQuery(array $table, array $columns = array())
     {
         if (count($columns) > 0) {
-            return sprintf("SELECT %s FROM %s.%s",
-                implode(', ', array_map(function ($column) {
-                    return $this->quote($column);
-                }, $columns)),
+            return sprintf(
+                "SELECT %s FROM %s.%s",
+                implode(
+                    ', ',
+                    array_map(
+                        function ($column) {
+                            return $this->quote($column);
+                        },
+                        $columns
+                    )
+                ),
                 $this->quote($table['schema']),
                 $this->quote($table['tableName'])
             );

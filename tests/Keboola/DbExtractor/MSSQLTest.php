@@ -12,106 +12,106 @@ use Nette\Utils;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
-	public function testCredentials()
-	{
-		$config = $this->getConfig('mssql');
-		$config['action'] = 'testConnection';
-		unset($config['parameters']['tables']);
+    public function testCredentials()
+    {
+        $config = $this->getConfig('mssql');
+        $config['action'] = 'testConnection';
+        unset($config['parameters']['tables']);
 
-		$app = $this->createApplication($config);
-		$result = $app->run();
+        $app = $this->createApplication($config);
+        $result = $app->run();
 
-		$this->assertArrayHasKey('status', $result);
-		$this->assertEquals('success', $result['status']);
-	}
+        $this->assertArrayHasKey('status', $result);
+        $this->assertEquals('success', $result['status']);
+    }
 
-	public function testRunWithoutTables()
-	{
-		$config = $this->getConfig('mssql');
+    public function testRunWithoutTables()
+    {
+        $config = $this->getConfig('mssql');
 
-		unset($config['parameters']['tables']);
+        unset($config['parameters']['tables']);
 
-		$app = $this->createApplication($config);
-		$result = $app->run();
+        $app = $this->createApplication($config);
+        $result = $app->run();
 
-		$this->assertArrayHasKey('status', $result);
-		$this->assertEquals('success', $result['status']);
-	}
+        $this->assertArrayHasKey('status', $result);
+        $this->assertEquals('success', $result['status']);
+    }
 
-	public function testRun()
-	{
-		$config = $this->getConfig('mssql');
+    public function testRun()
+    {
+        $config = $this->getConfig('mssql');
 
-		$app = $this->createApplication($config);
+        $app = $this->createApplication($config);
 
-		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
 
-		$result = $app->run();
+        $result = $app->run();
 
-		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
+        $outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
 
-		$this->assertEquals('success', $result['status']);
-		$this->assertFileExists($outputCsvFile);
-		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
-		$this->assertFileEquals((string) $csv1, $outputCsvFile);
-	}
+        $this->assertEquals('success', $result['status']);
+        $this->assertFileExists($outputCsvFile);
+        $this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
+        $this->assertFileEquals((string) $csv1, $outputCsvFile);
+    }
 
-	public function testCredentialsWithSSH()
-	{
-		$config = $this->getConfig('mssql');
-		$config['action'] = 'testConnection';
+    public function testCredentialsWithSSH()
+    {
+        $config = $this->getConfig('mssql');
+        $config['action'] = 'testConnection';
 
-		$config['parameters']['db']['ssh'] = [
-			'enabled' => true,
-			'keys' => [
-				'#private' => $this->getPrivateKey('mssql'),
-				'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
-			],
-			'user' => 'root',
-			'sshHost' => 'sshproxy',
-			'remoteHost' => 'mssql',
-			'remotePort' => '1433',
-			'localPort' => '1235',
-		];
+        $config['parameters']['db']['ssh'] = [
+         'enabled' => true,
+         'keys' => [
+          '#private' => $this->getPrivateKey('mssql'),
+          'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
+         ],
+         'user' => 'root',
+         'sshHost' => 'sshproxy',
+         'remoteHost' => 'mssql',
+         'remotePort' => '1433',
+         'localPort' => '1235',
+        ];
 
-		unset($config['parameters']['tables']);
+        unset($config['parameters']['tables']);
 
-		$app = $this->createApplication($config);
-		$result = $app->run();
+        $app = $this->createApplication($config);
+        $result = $app->run();
 
-		$this->assertArrayHasKey('status', $result);
-		$this->assertEquals('success', $result['status']);
-	}
+        $this->assertArrayHasKey('status', $result);
+        $this->assertEquals('success', $result['status']);
+    }
 
-	public function testRunWithSSH()
-	{
-		$config = $this->getConfig('mssql');
-		$config['parameters']['db']['ssh'] = [
-			'enabled' => true,
-			'keys' => [
-				'#private' => $this->getPrivateKey('mssql'),
-				'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
-			],
-			'user' => 'root',
-			'sshHost' => 'sshproxy',
-			'remoteHost' => 'mssql',
-			'remotePort' => '1433',
-			'localPort' => '1234',
-		];
+    public function testRunWithSSH()
+    {
+        $config = $this->getConfig('mssql');
+        $config['parameters']['db']['ssh'] = [
+         'enabled' => true,
+         'keys' => [
+          '#private' => $this->getPrivateKey('mssql'),
+          'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
+         ],
+         'user' => 'root',
+         'sshHost' => 'sshproxy',
+         'remoteHost' => 'mssql',
+         'remotePort' => '1433',
+         'localPort' => '1234',
+        ];
 
-		$app = $this->createApplication($config);
+        $app = $this->createApplication($config);
 
-		$csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
 
-		$result = $app->run();
+        $result = $app->run();
 
-		$outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
+        $outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
 
-		$this->assertEquals('success', $result['status']);
-		$this->assertFileExists($outputCsvFile);
-		$this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
-		$this->assertFileEquals((string) $csv1, $outputCsvFile);
-	}
+        $this->assertEquals('success', $result['status']);
+        $this->assertFileExists($outputCsvFile);
+        $this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
+        $this->assertFileEquals((string) $csv1, $outputCsvFile);
+    }
 
     public function testGetTables()
     {
@@ -141,7 +141,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'int',
                                     'length' => '10',
                                     'nullable' => false,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '1',
                                     'primaryKey' => true,
                                     'foreignKey' => false,
@@ -169,7 +169,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '55',
                                     'nullable' => false,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '3',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -192,7 +192,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '1',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -204,7 +204,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '2',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -216,7 +216,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '3',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -228,7 +228,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '4',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -240,7 +240,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '5',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -252,7 +252,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '64',
                                     'nullable' => false,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '6',
                                     'primaryKey' => true,
                                     'foreignKey' => false,
@@ -265,7 +265,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '7',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -277,7 +277,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '8',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -289,7 +289,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '9',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -301,7 +301,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '10',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -313,7 +313,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '11',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -325,7 +325,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '12',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -347,7 +347,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '1',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -359,7 +359,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '2',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -371,7 +371,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '3',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -383,7 +383,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '4',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -395,7 +395,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '5',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -407,7 +407,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '64',
                                     'nullable' => false,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '6',
                                     'primaryKey' => false,
                                     'foreignKey' => true,
@@ -423,7 +423,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '7',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -435,7 +435,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '8',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -447,7 +447,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '9',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -459,7 +459,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '10',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -471,7 +471,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '11',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
@@ -483,7 +483,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => NULL,
+                                    'default' => null,
                                     'ordinalPosition' => '12',
                                     'primaryKey' => false,
                                     'foreignKey' => false,
