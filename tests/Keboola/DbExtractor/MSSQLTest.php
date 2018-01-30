@@ -1,12 +1,8 @@
 <?php
-/**
- * @package ex-db-mssql
- * @author Erik Zigo <erik.zigo@keboola.com>
- */
-namespace Keboola\DbExtractor;
+
+namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Test\ExtractorTest;
 use Symfony\Component\Yaml\Yaml;
 use Nette\Utils;
 
