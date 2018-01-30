@@ -9,16 +9,21 @@ use Symfony\Component\Yaml\Yaml;
 
 abstract class AbstractMSSQLTest extends ExtractorTest
 {
-    /**
-     * @var \PDO
-     */
+    /** @var \PDO */
     protected $pdo;
+
+    protected $rootPath;
 
     public function setUp()
     {
         if (!defined('APP_NAME')) {
             define('APP_NAME', 'ex-db-mssql');
         }
+
+        if (!defined('ROOT_PATH')) {
+            define('ROOT_PATH', '/code');
+        }
+        $this->rootPath = getenv('ROOT_PATH') ? getenv('ROOT_PATH') : '/code';
 
         if (!$this->pdo) {
             $this->makeConnection();
@@ -135,8 +140,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                     },
                     $file->getHeader()
                 )
-            ),
-            $tableName
+            )
         );
         $this->pdo->exec($sql);
         // create the primary key if supplied

@@ -3,6 +3,7 @@
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
+use Keboola\DbExtractor\MSSQLApplication;
 use Symfony\Component\Yaml\Yaml;
 use Nette\Utils;
 
@@ -114,7 +115,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $config = $this->getConfig();
         $config['action'] = 'getTables';
 
-        $app = new Application($config);
+        $app = new MSSQLApplication($config, $this->dataDir);
         $result = $app->run();
 
         $this->assertArrayHasKey('status', $result);
@@ -514,7 +515,7 @@ class MSSQLTest extends AbstractMSSQLTest
             ]
         ];
 
-        $app = new Application($config);
+        $app = new MSSQLApplication($config, $this->dataDir);
 
         $result = $app->run();
 
