@@ -57,7 +57,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertFileExists($manifestFile2);
     }
 
-    public function testASDFGetTablesAction()
+    public function testGetTablesAction()
     {
         $config = $this->getConfig('mssql');
         $config['action'] = 'getTables';
