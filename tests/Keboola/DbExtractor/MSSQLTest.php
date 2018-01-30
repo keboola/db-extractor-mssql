@@ -130,7 +130,7 @@ class MSSQLTest extends AbstractMSSQLTest
             0 =>
                 array (
                     'name' => 'autoIncrement',
-                    'catalog' => 'test',
+                    'catalog' => 'tempdb',
                     'schema' => 'dbo',
                     'type' => 'BASE TABLE',
                     'columns' =>
@@ -147,7 +147,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'foreignKey' => false,
                                     'uniqueKey' => false,
                                     'checkConstraint' => 'CHK_ID_CONTSTRAINT',
-                                    'checkClause' => '([ID] > 0 and [ID] < 20)',
+                                    'checkClause' => '([ID]>(0) AND [ID]<(20))',
                                     'primaryKeyName' => 'PK_AUTOINC',
                                 ),
                             1 =>
@@ -168,7 +168,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'Type',
                                     'type' => 'varchar',
                                     'length' => '55',
-                                    'nullable' => false,
+                                    'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => '3',
                                     'primaryKey' => false,
@@ -181,7 +181,7 @@ class MSSQLTest extends AbstractMSSQLTest
             1 =>
                 array (
                     'name' => 'sales',
-                    'catalog' => 'test',
+                    'catalog' => 'tempdb',
                     'schema' => 'dbo',
                     'type' => 'BASE TABLE',
                     'columns' =>
@@ -336,7 +336,7 @@ class MSSQLTest extends AbstractMSSQLTest
             2 =>
                 array (
                     'name' => 'sales2',
-                    'catalog' => 'test',
+                    'catalog' => 'tempdb',
                     'schema' => 'dbo',
                     'type' => 'BASE TABLE',
                     'columns' =>
@@ -540,7 +540,7 @@ class MSSQLTest extends AbstractMSSQLTest
             1 =>
                 array (
                     'key' => 'KBC.catalog',
-                    'value' => 'test',
+                    'value' => 'tempdb',
                 ),
             2 =>
                 array (
@@ -613,7 +613,7 @@ class MSSQLTest extends AbstractMSSQLTest
                     10 =>
                         array (
                             'key' => 'KBC.checkClause',
-                            'value' => '([ID] > 0 and [ID] < 20)',
+                            'value' => '([ID]>(0) AND [ID]<(20))',
                         ),
                 ),
             'Name' =>
@@ -679,7 +679,7 @@ class MSSQLTest extends AbstractMSSQLTest
                     1 =>
                         array (
                             'key' => 'KBC.datatype.nullable',
-                            'value' => false,
+                            'value' => true,
                         ),
                     2 =>
                         array (

@@ -37,7 +37,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $dbConfig = $config['parameters']['db'];
 
         $dsn = sprintf(
-            "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
+            "sqlsrv:Server=%s,%d;Database=%s;",
             $dbConfig['host'],
             $dbConfig['port'],
             $dbConfig['database']
