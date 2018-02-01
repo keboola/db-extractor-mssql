@@ -1,29 +1,23 @@
 <?php
 
-namespace Keboola\DbExtractor\Tests;
+namespace Keboola\DbExtractor;
 
-use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
 use Symfony\Component\Yaml\Yaml;
 
 abstract class AbstractMSSQLTest extends ExtractorTest
 {
-    /** @var \PDO */
+    /**
+     * @var \PDO
+     */
     protected $pdo;
-
-    protected $rootPath;
 
     public function setUp()
     {
         if (!defined('APP_NAME')) {
             define('APP_NAME', 'ex-db-mssql');
         }
-
-        if (!defined('ROOT_PATH')) {
-            define('ROOT_PATH', '/code');
-        }
-        $this->rootPath = getenv('ROOT_PATH') ? getenv('ROOT_PATH') : '/code';
 
         if (!$this->pdo) {
             $this->makeConnection();
@@ -43,7 +37,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $dbConfig = $config['parameters']['db'];
 
         $dsn = sprintf(
-            "sqlsrv:Server=%s,%d;Database=%s;",
+            "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
             $dbConfig['host'],
             $dbConfig['port'],
             $dbConfig['database']
@@ -140,7 +134,8 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                     },
                     $file->getHeader()
                 )
-            )
+            ),
+            $tableName
         );
         $this->pdo->exec($sql);
         // create the primary key if supplied

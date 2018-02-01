@@ -1,9 +1,12 @@
 <?php
-
-namespace Keboola\DbExtractor\Tests;
+/**
+ * @package ex-db-mssql
+ * @author Erik Zigo <erik.zigo@keboola.com>
+ */
+namespace Keboola\DbExtractor;
 
 use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\MSSQLApplication;
+use Keboola\DbExtractor\Test\ExtractorTest;
 use Symfony\Component\Yaml\Yaml;
 use Nette\Utils;
 
@@ -115,7 +118,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $config = $this->getConfig();
         $config['action'] = 'getTables';
 
-        $app = new MSSQLApplication($config, $this->dataDir);
+        $app = new Application($config);
         $result = $app->run();
 
         $this->assertArrayHasKey('status', $result);
@@ -127,7 +130,7 @@ class MSSQLTest extends AbstractMSSQLTest
             0 =>
                 array (
                     'name' => 'autoIncrement',
-                    'catalog' => 'tempdb',
+                    'catalog' => 'test',
                     'schema' => 'dbo',
                     'type' => 'BASE TABLE',
                     'columns' =>
@@ -144,7 +147,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'foreignKey' => false,
                                     'uniqueKey' => false,
                                     'checkConstraint' => 'CHK_ID_CONTSTRAINT',
-                                    'checkClause' => '([ID]>(0) AND [ID]<(20))',
+                                    'checkClause' => '([ID] > 0 and [ID] < 20)',
                                     'primaryKeyName' => 'PK_AUTOINC',
                                 ),
                             1 =>
@@ -165,7 +168,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'Type',
                                     'type' => 'varchar',
                                     'length' => '55',
-                                    'nullable' => true,
+                                    'nullable' => false,
                                     'default' => null,
                                     'ordinalPosition' => '3',
                                     'primaryKey' => false,
@@ -178,7 +181,7 @@ class MSSQLTest extends AbstractMSSQLTest
             1 =>
                 array (
                     'name' => 'sales',
-                    'catalog' => 'tempdb',
+                    'catalog' => 'test',
                     'schema' => 'dbo',
                     'type' => 'BASE TABLE',
                     'columns' =>
@@ -333,7 +336,7 @@ class MSSQLTest extends AbstractMSSQLTest
             2 =>
                 array (
                     'name' => 'sales2',
-                    'catalog' => 'tempdb',
+                    'catalog' => 'test',
                     'schema' => 'dbo',
                     'type' => 'BASE TABLE',
                     'columns' =>
@@ -515,7 +518,7 @@ class MSSQLTest extends AbstractMSSQLTest
             ]
         ];
 
-        $app = new MSSQLApplication($config, $this->dataDir);
+        $app = new Application($config);
 
         $result = $app->run();
 
@@ -537,7 +540,7 @@ class MSSQLTest extends AbstractMSSQLTest
             1 =>
                 array (
                     'key' => 'KBC.catalog',
-                    'value' => 'tempdb',
+                    'value' => 'test',
                 ),
             2 =>
                 array (
@@ -610,7 +613,7 @@ class MSSQLTest extends AbstractMSSQLTest
                     10 =>
                         array (
                             'key' => 'KBC.checkClause',
-                            'value' => '([ID]>(0) AND [ID]<(20))',
+                            'value' => '([ID] > 0 and [ID] < 20)',
                         ),
                 ),
             'Name' =>
@@ -676,7 +679,7 @@ class MSSQLTest extends AbstractMSSQLTest
                     1 =>
                         array (
                             'key' => 'KBC.datatype.nullable',
-                            'value' => true,
+                            'value' => false,
                         ),
                     2 =>
                         array (

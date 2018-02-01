@@ -1,13 +1,10 @@
-FROM lbosqmsft/mssql-php-msphpsql
+FROM quay.io/keboola/docker-base-php56:0.0.2
+MAINTAINER Erik Zigo <erik.zigo@keboola.com>
 
-ENV COMPOSER_ALLOW_SUPERUSER=1
+RUN yum -y --enablerepo=epel,remi,remi-php56 install php-mssql
 
-RUN apt-get update -q && apt-get install ssh git zip wget unzip time libzip-dev -y --no-install-recommends
-
-WORKDIR /root
-
-RUN curl -sS https://getcomposer.org/installer | php \
-  && mv composer.phar /usr/local/bin/composer
+# MSSQL
+ADD mssql/freetds.conf /etc/freetds.conf
 
 WORKDIR /code
 
