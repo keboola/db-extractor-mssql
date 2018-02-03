@@ -107,8 +107,83 @@ class MSSQL extends Extractor
             return [];
         }
 
-        $sql = sprintf(
-            "SELECT c.column_name AS column_name, c.*,  
+        if ($tables === null || count($tables) === 0) {
+            $sql = $this->quickTablesSql();
+        } else {
+            $sql = $this->fullTablesSql($tables);
+        }
+
+
+        $res = $this->db->query($sql);
+        $rows = $res->fetchAll();
+        foreach ($rows as $i => $column) {
+            $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
+            if (!array_key_exists('columns', $tableDefs[$curTable])) {
+                $tableDefs[$curTable]['columns'] = [];
+            }
+            $length = ($column['CHARACTER_MAXIMUM_LENGTH']) ? $column['CHARACTER_MAXIMUM_LENGTH'] : null;
+            if (is_null($length) && !is_null($column['NUMERIC_PRECISION'])) {
+                if ($column['NUMERIC_SCALE'] > 0) {
+                    $length = $column['NUMERIC_PRECISION'] . "," . $column['NUMERIC_SCALE'];
+                } else {
+                    $length = $column['NUMERIC_PRECISION'];
+                }
+            }
+            $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
+            if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex] = [
+                    "name" => $column['COLUMN_NAME'],
+                    "type" => $column['DATA_TYPE'],
+                    "length" => $length,
+                    "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
+                    "default" => $column['COLUMN_DEFAULT'],
+                    "ordinalPosition" => $column['ORDINAL_POSITION'],
+                    "primaryKey" => false,
+                ];
+            }
+
+            if (array_key_exists('pk_name', $column) && $column['pk_name'] !== null) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKey'] = true;
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKeyName'] = $column['pk_name'];
+            }
+            if (array_key_exists('uk_name', $column) && $column['uk_name'] !== null) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKey'] = true;
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKeyName'] = $column['uk_name'];
+            }
+            if (array_key_exists('chk_name', $column) && $column['chk_name'] !== null) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]["checkConstraint"] = $column['chk_name'];
+                if (isset($column['CHECK_CLAUSE']) && $column['CHECK_CLAUSE'] !== null) {
+                    $tableDefs[$curTable]['columns'][$curColumnIndex]["checkClause"] = $column['CHECK_CLAUSE'];
+                }
+            }
+            if (array_key_exists('fk_name', $column) && $column['fk_name'] !== null) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKey'] = true;
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyName'] = $column['fk_name'];
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
+            }
+        }
+        return array_values($tableDefs);
+    }
+
+    private function quickTablesSql()
+    {
+        return "SELECT c.*, pk_name 
+                FROM information_schema.columns AS c
+                INNER JOIN sysobjects AS so ON c.TABLE_NAME = so.name AND (so.xtype='U' OR so.xtype='V') AND so.name NOT IN ('sysconstraints', 'syssegments')
+                LEFT JOIN (
+                    SELECT tc.CONSTRAINT_TYPE, tc.table_name, ccu.column_name, ccu.CONSTRAINT_NAME as pk_name
+                    FROM information_schema.key_column_usage AS ccu
+                    JOIN information_schema.table_constraints AS tc
+                    ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND  ccu.table_name = tc.table_name AND CONSTRAINT_TYPE = 'PRIMARY KEY' 
+                ) AS pk
+                ON pk.table_name = c.table_name AND pk.column_name = c.column_name";
+    }
+
+    private function fullTablesSql($tables) {
+        return sprintf(
+            "SELECT c.*,  
               chk.CHECK_CLAUSE, 
               fk_name,
               chk_name,
@@ -171,68 +246,15 @@ class MSSQL extends Extractor
             WHERE c.table_name IN (%s)
             ORDER BY c.table_schema, c.table_name, ordinal_position",
             implode(
-                ', ',
+                ',',
                 array_map(
-                    function ($tableName) {
-                        return $this->db->quote($tableName);
+                    function ($table) {
+                        return $this->db->quote($table['tableName']);
                     },
-                    $tableNameArray
+                    $tables
                 )
             )
         );
-        $res = $this->db->query($sql);
-        $rows = $res->fetchAll();
-        foreach ($rows as $i => $column) {
-            $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
-            if (!array_key_exists('columns', $tableDefs[$curTable])) {
-                $tableDefs[$curTable]['columns'] = [];
-            }
-            $length = ($column['CHARACTER_MAXIMUM_LENGTH']) ? $column['CHARACTER_MAXIMUM_LENGTH'] : null;
-            if (is_null($length) && !is_null($column['NUMERIC_PRECISION'])) {
-                if ($column['NUMERIC_SCALE'] > 0) {
-                    $length = $column['NUMERIC_PRECISION'] . "," . $column['NUMERIC_SCALE'];
-                } else {
-                    $length = $column['NUMERIC_PRECISION'];
-                }
-            }
-            $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
-            if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex] = [
-                    "name" => $column['column_name'],
-                    "type" => $column['DATA_TYPE'],
-                    "length" => $length,
-                    "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
-                    "default" => $column['COLUMN_DEFAULT'],
-                    "ordinalPosition" => $column['ORDINAL_POSITION'],
-                    "primaryKey" => false,
-                    "foreignKey" => false,
-                    "uniqueKey" => false,
-                ];
-            }
-
-            if ($column['pk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKey'] = true;
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKeyName'] = $column['pk_name'];
-            }
-            if ($column['uk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKey'] = true;
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKeyName'] = $column['uk_name'];
-            }
-            if ($column['chk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]["checkConstraint"] = $column['chk_name'];
-                if (isset($column['CHECK_CLAUSE']) && $column['CHECK_CLAUSE'] !== null) {
-                    $tableDefs[$curTable]['columns'][$curColumnIndex]["checkClause"] = $column['CHECK_CLAUSE'];
-                }
-            }
-            if ($column['fk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKey'] = true;
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyName'] = $column['fk_name'];
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
-            }
-        }
-        return array_values($tableDefs);
     }
 
     public function simpleQuery(array $table, array $columns = array())

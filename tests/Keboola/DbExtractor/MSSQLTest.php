@@ -125,7 +125,6 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
         $this->assertCount(3, $result['tables']);
-
         $expectedData = array (
             0 =>
                 array (
@@ -135,19 +134,25 @@ class MSSQLTest extends AbstractMSSQLTest
                     'type' => 'BASE TABLE',
                     'columns' =>
                         array (
+                            2 =>
+                                array (
+                                    'name' => 'Type',
+                                    'type' => 'varchar',
+                                    'length' => '55',
+                                    'nullable' => false,
+                                    'default' => NULL,
+                                    'ordinalPosition' => '3',
+                                    'primaryKey' => false,
+                                ),
                             0 =>
                                 array (
                                     'name' => 'ID',
                                     'type' => 'int',
                                     'length' => '10',
                                     'nullable' => false,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '1',
                                     'primaryKey' => true,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
-                                    'checkConstraint' => 'CHK_ID_CONTSTRAINT',
-                                    'checkClause' => '([ID] > 0 and [ID] < 20)',
                                     'primaryKeyName' => 'PK_AUTOINC',
                                 ),
                             1 =>
@@ -159,22 +164,6 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'default' => '(\'mario\')',
                                     'ordinalPosition' => '2',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => true,
-                                    'uniqueKeyName' => 'UNI_KEY_1'
-                                ),
-                            2 =>
-                                array (
-                                    'name' => 'Type',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => false,
-                                    'default' => null,
-                                    'ordinalPosition' => '3',
-                                    'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => true,
-                                    'uniqueKeyName' => 'UNI_KEY_1'
                                 ),
                         ),
                 ),
@@ -192,11 +181,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '1',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             1 =>
                                 array (
@@ -204,11 +191,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '2',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             2 =>
                                 array (
@@ -216,11 +201,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '3',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             3 =>
                                 array (
@@ -228,11 +211,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '4',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             4 =>
                                 array (
@@ -240,11 +221,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '5',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             5 =>
                                 array (
@@ -252,11 +231,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '64',
                                     'nullable' => false,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '6',
                                     'primaryKey' => true,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                     'primaryKeyName' => 'PK_sales',
                                 ),
                             6 =>
@@ -265,11 +242,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '7',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             7 =>
                                 array (
@@ -277,11 +252,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '8',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             8 =>
                                 array (
@@ -289,11 +262,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '9',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             9 =>
                                 array (
@@ -301,11 +272,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '10',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             10 =>
                                 array (
@@ -313,11 +282,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '11',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             11 =>
                                 array (
@@ -325,11 +292,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '12',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                         ),
                 ),
@@ -347,11 +312,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '1',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             1 =>
                                 array (
@@ -359,11 +322,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '2',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             2 =>
                                 array (
@@ -371,11 +332,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '3',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             3 =>
                                 array (
@@ -383,11 +342,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '4',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             4 =>
                                 array (
@@ -395,11 +352,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '5',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             5 =>
                                 array (
@@ -407,15 +362,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '64',
                                     'nullable' => false,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '6',
                                     'primaryKey' => false,
-                                    'foreignKey' => true,
-                                    'uniqueKey' => false,
-                                    'foreignKeyName' => 'FK_sales_sales2',
-                                    'foreignKeyRefSchema' => 'dbo',
-                                    'foreignKeyRefTable' => 'sales',
-                                    'foreignKeyRefColumn' => 'createdat',
                                 ),
                             6 =>
                                 array (
@@ -423,11 +372,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '7',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             7 =>
                                 array (
@@ -435,11 +382,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '8',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             8 =>
                                 array (
@@ -447,11 +392,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '9',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             9 =>
                                 array (
@@ -459,11 +402,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '10',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             10 =>
                                 array (
@@ -471,11 +412,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '11',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                             11 =>
                                 array (
@@ -483,11 +422,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => '255',
                                     'nullable' => true,
-                                    'default' => null,
+                                    'default' => NULL,
                                     'ordinalPosition' => '12',
                                     'primaryKey' => false,
-                                    'foreignKey' => false,
-                                    'uniqueKey' => false,
                                 ),
                         ),
                 ),
@@ -592,25 +529,15 @@ class MSSQLTest extends AbstractMSSQLTest
                         ),
                     6 =>
                         array (
-                            'key' => 'KBC.foreignKey',
-                            'value' => false,
-                        ),
-                    7 =>
-                        array (
-                            'key' => 'KBC.uniqueKey',
-                            'value' => false,
-                        ),
-                    8 =>
-                        array (
                             'key' => 'KBC.primaryKeyName',
                             'value' => 'PK_AUTOINC',
                         ),
-                    9 =>
+                    7 =>
                         array (
                             'key' => 'KBC.checkConstraint',
                             'value' => 'CHK_ID_CONTSTRAINT',
                         ),
-                    10 =>
+                    8 =>
                         array (
                             'key' => 'KBC.checkClause',
                             'value' => '([ID] > 0 and [ID] < 20)',
@@ -655,15 +582,10 @@ class MSSQLTest extends AbstractMSSQLTest
                         ),
                     7 =>
                         array (
-                            'key' => 'KBC.foreignKey',
-                            'value' => false,
-                        ),
-                    8 =>
-                        array (
                             'key' => 'KBC.uniqueKey',
                             'value' => true,
                         ),
-                    9 =>
+                    8 =>
                         array (
                             'key' => 'KBC.uniqueKeyName',
                             'value' => 'UNI_KEY_1',
@@ -703,15 +625,10 @@ class MSSQLTest extends AbstractMSSQLTest
                         ),
                     6 =>
                         array (
-                            'key' => 'KBC.foreignKey',
-                            'value' => false,
-                        ),
-                    7 =>
-                        array (
                             'key' => 'KBC.uniqueKey',
                             'value' => true,
                         ),
-                    8 =>
+                    7 =>
                         array (
                             'key' => 'KBC.uniqueKeyName',
                             'value' => 'UNI_KEY_1',
