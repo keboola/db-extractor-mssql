@@ -53,7 +53,7 @@ class MSSQL extends Extractor
 
     public function getTables(array $tables = null)
     {
-        $sql = "SELECT ist.* FROM information_schema.tables as ist
+        $sql = "SELECT ist.* FROM INFORMATION_SCHEMA.TABLES as ist
                 INNER JOIN sysobjects AS so ON ist.TABLE_NAME = so.name
                 WHERE (so.xtype='U' OR so.xtype='V') AND so.name NOT IN ('sysconstraints', 'syssegments')";
                 // xtype='U' user generated objects only
@@ -170,15 +170,15 @@ class MSSQL extends Extractor
     private function quickTablesSql()
     {
         return "SELECT c.*, pk_name 
-                FROM information_schema.columns AS c
+                FROM INFORMATION_SCHEMA.COLUMNS AS c
                 INNER JOIN sysobjects AS so ON c.TABLE_NAME = so.name AND (so.xtype='U' OR so.xtype='V') AND so.name NOT IN ('sysconstraints', 'syssegments')
                 LEFT JOIN (
-                    SELECT tc.CONSTRAINT_TYPE, tc.table_name, ccu.column_name, ccu.CONSTRAINT_NAME as pk_name
-                    FROM information_schema.key_column_usage AS ccu
-                    JOIN information_schema.table_constraints AS tc
-                    ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND  ccu.table_name = tc.table_name AND CONSTRAINT_TYPE = 'PRIMARY KEY' 
+                    SELECT tc.CONSTRAINT_TYPE, tc.TABLE_NAME, ccu.COLUMN_NAME, ccu.CONSTRAINT_NAME as pk_name
+                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS ccu
+                    JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
+                    ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND  ccu.TABLE_NAME = tc.TABLE_NAME AND CONSTRAINT_TYPE = 'PRIMARY KEY' 
                 ) AS pk
-                ON pk.table_name = c.table_name AND pk.column_name = c.column_name";
+                ON pk.TABLE_NAME = c.TABLE_NAME AND pk.COLUMN_NAME = c.COLUMN_NAME";
     }
 
     private function fullTablesSql($tables) {
@@ -192,7 +192,7 @@ class MSSQL extends Extractor
               FK_REFS.REFERENCED_COLUMN_NAME, 
               FK_REFS.REFERENCED_TABLE_NAME,
               FK_REFS.REFERENCED_SCHEMA_NAME
-            FROM information_schema.columns AS c 
+            FROM INFORMATION_SCHEMA.COLUMNS AS c 
             LEFT JOIN (
                 SELECT  
                      KCU1.CONSTRAINT_NAME AS fk_name 
@@ -216,35 +216,35 @@ class MSSQL extends Extractor
                     AND KCU2.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME 
                     AND KCU2.ORDINAL_POSITION = KCU1.ORDINAL_POSITION 
             ) AS FK_REFS
-            ON FK_REFS.FK_TABLE_NAME = c.table_name AND FK_REFS.FK_COLUMN_NAME = c.column_name
+            ON FK_REFS.FK_TABLE_NAME = c.TABLE_NAME AND FK_REFS.FK_COLUMN_NAME = c.COLUMN_NAME
             LEFT JOIN (
-                SELECT tc2.CONSTRAINT_TYPE, tc2.table_name, ccu2.column_name, ccu2.CONSTRAINT_NAME as chk_name, CHK.CHECK_CLAUSE 
-                FROM information_schema.constraint_column_usage AS ccu2 
-                JOIN information_schema.table_constraints AS tc2 
-                ON ccu2.table_name = tc2.table_name
+                SELECT tc2.CONSTRAINT_TYPE, tc2.TABLE_NAME, ccu2.COLUMN_NAME, ccu2.CONSTRAINT_NAME as chk_name, CHK.CHECK_CLAUSE 
+                FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE AS ccu2 
+                JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc2 
+                ON ccu2.TABLE_NAME = tc2.TABLE_NAME
                 JOIN (
                   SELECT * FROM INFORMATION_SCHEMA.CHECK_CONSTRAINTS 
                 ) AS CHK 
                 ON CHK.CONSTRAINT_NAME = ccu2.CONSTRAINT_NAME
                 WHERE CONSTRAINT_TYPE = 'CHECK'
             ) AS chk
-            ON chk.table_name = c.table_name AND chk.column_name = c.column_name
+            ON chk.TABLE_NAME = c.TABLE_NAME AND chk.COLUMN_NAME = c.COLUMN_NAME
             LEFT JOIN (
-                SELECT tc.CONSTRAINT_TYPE, tc.table_name, ccu.column_name, ccu.CONSTRAINT_NAME as pk_name
-                FROM information_schema.key_column_usage AS ccu
-                JOIN information_schema.table_constraints AS tc
-                ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND  ccu.table_name = tc.table_name AND CONSTRAINT_TYPE = 'PRIMARY KEY' 
+                SELECT tc.CONSTRAINT_TYPE, tc.TABLE_NAME, ccu.COLUMN_NAME, ccu.CONSTRAINT_NAME as pk_name
+                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS ccu
+                JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
+                ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND  ccu.TABLE_NAME = tc.TABLE_NAME AND CONSTRAINT_TYPE = 'PRIMARY KEY' 
             ) AS pk
-            ON pk.table_name = c.table_name AND pk.column_name = c.column_name
+            ON pk.TABLE_NAME = c.TABLE_NAME AND pk.column_name = c.column_name
             LEFT JOIN (
                 SELECT tc.CONSTRAINT_TYPE, ccu.table_name, ccu.column_name, ccu.CONSTRAINT_NAME as uk_name
-                FROM information_schema.key_column_usage AS ccu
-                JOIN information_schema.table_constraints AS tc
-                ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND ccu.table_name = tc.table_name AND CONSTRAINT_TYPE = 'UNIQUE' 
+                FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS ccu
+                JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
+                ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND ccu.TABLE_NAME = tc.TABLE_NAME AND CONSTRAINT_TYPE = 'UNIQUE' 
             ) AS uk  
-            ON uk.table_name = c.table_name AND uk.column_name = c.column_name
-            WHERE c.table_name IN (%s)
-            ORDER BY c.table_schema, c.table_name, ordinal_position",
+            ON uk.TABLE_NAME = c.TABLE_NAME AND uk.COLUMN_NAME = c.COLUMN_NAME
+            WHERE c.TABLE_NAME IN (%s)
+            ORDER BY c.TABLE_SCHEMA, c.TABLE_NAME, ORDINAL_POSITION",
             implode(
                 ',',
                 array_map(
