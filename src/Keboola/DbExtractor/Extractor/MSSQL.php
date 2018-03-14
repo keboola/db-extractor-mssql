@@ -235,9 +235,9 @@ class MSSQL extends Extractor
                 JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
                 ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND  ccu.TABLE_NAME = tc.TABLE_NAME AND CONSTRAINT_TYPE = 'PRIMARY KEY' 
             ) AS pk
-            ON pk.TABLE_NAME = c.TABLE_NAME AND pk.column_name = c.column_name
+            ON pk.TABLE_NAME = c.TABLE_NAME AND pk.COLUMN_NAME = c.COLUMN_NAME
             LEFT JOIN (
-                SELECT tc.CONSTRAINT_TYPE, ccu.table_name, ccu.column_name, ccu.CONSTRAINT_NAME as uk_name
+                SELECT tc.CONSTRAINT_TYPE, ccu.TABLE_NAME, ccu.COLUMN_NAME, ccu.CONSTRAINT_NAME as uk_name
                 FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS ccu
                 JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
                 ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND ccu.TABLE_NAME = tc.TABLE_NAME AND CONSTRAINT_TYPE = 'UNIQUE' 
