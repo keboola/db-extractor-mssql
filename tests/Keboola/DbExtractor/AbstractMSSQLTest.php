@@ -81,7 +81,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
      * @param string $driver
      * @return mixed
      */
-    public function getConfig($driver = 'mssql')
+    public function getConfig($driver = 'mssql', $format = 'yaml')
     {
         $config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
         $config['parameters']['data_dir'] = $this->dataDir;
