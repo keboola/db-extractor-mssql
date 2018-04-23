@@ -82,8 +82,6 @@ class MSSQL extends Extractor
             );
         }
 
-        $sql .= " ORDER BY TABLE_SCHEMA, TABLE_NAME";
-
         $stmt = $this->db->query($sql);
 
         $arr = $stmt->fetchAll();
