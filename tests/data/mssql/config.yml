@@ -23,3 +23,15 @@ parameters:
                 - usercity
                 - usersentiment
                 - zipcode
+        -
+            id: 3
+            name: auto-increment-timestamp
+            enabled: true
+            outputTable: in.c-main.auto-increment-timestamp
+            table:
+              schema: db0
+              tableName: auto Increment Timestamp
+            primaryKey:
+              -
+                _Weir%d I-D
+            columns:

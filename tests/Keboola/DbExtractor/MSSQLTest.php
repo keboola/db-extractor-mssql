@@ -113,6 +113,27 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertFileEquals((string) $csv1, $outputCsvFile);
     }
 
+    public function testWeirdColumnNames()
+    {
+        $config = $this->getConfig('mssql');
+
+        $result = $this->createApplication($config)->run();
+
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(
+            [
+                'outputTable' => 'in.c-main.auto-increment-timestamp',
+                'rows' => 2
+            ],
+            $result['imported']
+        );
+        $outputManifestFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv.manifest';
+        $manifest = json_decode(file_get_contents($outputManifestFile), true);
+        $expectedColumns = ['weird_I_d', 'weird_Name', 'timestamp'];
+        $this->assertEquals($expectedColumns, $manifest['columns']);
+        $this->assertEquals(['weird_I_d'], $manifest['primary_key']);
+    }
+
     public function testGetTables()
     {
         $config = $this->getConfig();
@@ -128,7 +149,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $expectedData = array (
             0 =>
                 array (
-                    'name' => 'autoIncrement',
+                    'name' => 'auto Increment Timestamp',
                     'catalog' => 'test',
                     'schema' => 'dbo',
                     'type' => 'BASE TABLE',
@@ -136,33 +157,43 @@ class MSSQLTest extends AbstractMSSQLTest
                         array (
                             2 =>
                                 array (
-                                    'name' => 'Type',
+                                    'name' => 'type',
                                     'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => false,
+                                    'length' => 55,
+                                    'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '3',
+                                    'ordinalPosition' => 3,
+                                    'primaryKey' => false,
+                                ),
+                            3 =>
+                                array (
+                                    'name' => 'timestamp',
+                                    'type' => 'datetime',
+                                    'length' => '23,3',
+                                    'nullable' => true,
+                                    'default' => '(getdate())',
+                                    'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
                             0 =>
                                 array (
-                                    'name' => 'ID',
+                                    'name' => '_Weir%d I-D',
                                     'type' => 'int',
-                                    'length' => '10',
+                                    'length' => 10,
                                     'nullable' => false,
                                     'default' => null,
-                                    'ordinalPosition' => '1',
+                                    'ordinalPosition' => 1,
                                     'primaryKey' => true,
                                     'primaryKeyName' => 'PK_AUTOINC',
                                 ),
                             1 =>
                                 array (
-                                    'name' => 'Name',
+                                    'name' => 'Weir%d Na-me',
                                     'type' => 'varchar',
-                                    'length' => '55',
+                                    'length' => 55,
                                     'nullable' => false,
                                     'default' => '(\'mario\')',
-                                    'ordinalPosition' => '2',
+                                    'ordinalPosition' => 2,
                                     'primaryKey' => false,
                                 ),
                         ),
@@ -179,60 +210,60 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'usergender',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '1',
+                                    'ordinalPosition' => 1,
                                     'primaryKey' => false,
                                 ),
                             1 =>
                                 array (
                                     'name' => 'usercity',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '2',
+                                    'ordinalPosition' => 2,
                                     'primaryKey' => false,
                                 ),
                             2 =>
                                 array (
                                     'name' => 'usersentiment',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '3',
+                                    'ordinalPosition' => 3,
                                     'primaryKey' => false,
                                 ),
                             3 =>
                                 array (
                                     'name' => 'zipcode',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '4',
+                                    'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
                             4 =>
                                 array (
                                     'name' => 'sku',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '5',
+                                    'ordinalPosition' => 5,
                                     'primaryKey' => false,
                                 ),
                             5 =>
                                 array (
                                     'name' => 'createdat',
                                     'type' => 'varchar',
-                                    'length' => '64',
+                                    'length' => 64,
                                     'nullable' => false,
                                     'default' => null,
-                                    'ordinalPosition' => '6',
+                                    'ordinalPosition' => 6,
                                     'primaryKey' => true,
                                     'primaryKeyName' => 'PK_sales',
                                 ),
@@ -240,60 +271,60 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'category',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '7',
+                                    'ordinalPosition' => 7,
                                     'primaryKey' => false,
                                 ),
                             7 =>
                                 array (
                                     'name' => 'price',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '8',
+                                    'ordinalPosition' => 8,
                                     'primaryKey' => false,
                                 ),
                             8 =>
                                 array (
                                     'name' => 'county',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '9',
+                                    'ordinalPosition' => 9,
                                     'primaryKey' => false,
                                 ),
                             9 =>
                                 array (
                                     'name' => 'countycode',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '10',
+                                    'ordinalPosition' => 10,
                                     'primaryKey' => false,
                                 ),
                             10 =>
                                 array (
                                     'name' => 'userstate',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '11',
+                                    'ordinalPosition' => 11,
                                     'primaryKey' => false,
                                 ),
                             11 =>
                                 array (
                                     'name' => 'categorygroup',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '12',
+                                    'ordinalPosition' => 12,
                                     'primaryKey' => false,
                                 ),
                         ),
@@ -310,120 +341,120 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'usergender',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '1',
+                                    'ordinalPosition' => 1,
                                     'primaryKey' => false,
                                 ),
                             1 =>
                                 array (
                                     'name' => 'usercity',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '2',
+                                    'ordinalPosition' => 2,
                                     'primaryKey' => false,
                                 ),
                             2 =>
                                 array (
                                     'name' => 'usersentiment',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '3',
+                                    'ordinalPosition' => 3,
                                     'primaryKey' => false,
                                 ),
                             3 =>
                                 array (
                                     'name' => 'zipcode',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '4',
+                                    'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
                             4 =>
                                 array (
                                     'name' => 'sku',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '5',
+                                    'ordinalPosition' => 5,
                                     'primaryKey' => false,
                                 ),
                             5 =>
                                 array (
                                     'name' => 'createdat',
                                     'type' => 'varchar',
-                                    'length' => '64',
+                                    'length' => 64,
                                     'nullable' => false,
                                     'default' => null,
-                                    'ordinalPosition' => '6',
+                                    'ordinalPosition' => 6,
                                     'primaryKey' => false,
                                 ),
                             6 =>
                                 array (
                                     'name' => 'category',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '7',
+                                    'ordinalPosition' => 7,
                                     'primaryKey' => false,
                                 ),
                             7 =>
                                 array (
                                     'name' => 'price',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '8',
+                                    'ordinalPosition' => 8,
                                     'primaryKey' => false,
                                 ),
                             8 =>
                                 array (
                                     'name' => 'county',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '9',
+                                    'ordinalPosition' => 9,
                                     'primaryKey' => false,
                                 ),
                             9 =>
                                 array (
                                     'name' => 'countycode',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '10',
+                                    'ordinalPosition' => 10,
                                     'primaryKey' => false,
                                 ),
                             10 =>
                                 array (
                                     'name' => 'userstate',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '11',
+                                    'ordinalPosition' => 11,
                                     'primaryKey' => false,
                                 ),
                             11 =>
                                 array (
                                     'name' => 'categorygroup',
                                     'type' => 'varchar',
-                                    'length' => '255',
+                                    'length' => 255,
                                     'nullable' => true,
                                     'default' => null,
-                                    'ordinalPosition' => '12',
+                                    'ordinalPosition' => 12,
                                     'primaryKey' => false,
                                 ),
                         ),

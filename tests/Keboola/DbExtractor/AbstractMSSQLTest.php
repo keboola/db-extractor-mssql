@@ -62,19 +62,25 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)");
 
         // create another table with an auto_increment ID
-        $this->pdo->exec("IF OBJECT_ID('dbo.autoIncrement', 'U') IS NOT NULL DROP TABLE dbo.autoIncrement");
+        $this->pdo->exec("IF OBJECT_ID('dbo.[auto Increment Timestamp]', 'U') IS NOT NULL DROP TABLE dbo.[auto Increment Timestamp]");
 
-        $this->pdo->exec("CREATE TABLE autoIncrement (ID INT IDENTITY(1,1) NOT NULL, Name VARCHAR(55) NOT NULL DEFAULT 'mario', Type VARCHAR(55))");
-        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT PK_AUTOINC PRIMARY KEY (ID)");
-        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK (ID > 0 AND ID < 20)");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('mario', 'plumber')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('luigi', 'plumber')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('toad', 'mushroom')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('princess', 'royalty')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('wario', 'badguy')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('yoshi', 'horse?')");
+        $this->pdo->exec(
+            "CREATE TABLE [auto Increment Timestamp] (
+            \"_Weir%d I-D\" INT IDENTITY(1,1) NOT NULL, 
+            \"Weir%d Na-me\" VARCHAR(55) NOT NULL DEFAULT 'mario',
+            \"type\" VARCHAR(55) NULL,
+            \"timestamp\" DATETIME NULL DEFAULT GETDATE())"
+        );
+        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY (\"_Weir%d I-D\")");
+        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK (\"_Weir%d I-D\" > 0 AND \"_Weir%d I-D\" < 20)");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('mario', 'plumber')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('luigi', 'plumber')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('toad', 'mushroom')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('princess', 'royalty')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('wario', 'badguy')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('yoshi', 'horse?')");
         // add unique key
-        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT UNI_KEY_1 UNIQUE (Name, Type)");
+        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE (\"Weir%d Na-me\", Type)");
     }
 
     /**
