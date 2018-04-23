@@ -29,7 +29,7 @@ parameters:
             enabled: true
             outputTable: in.c-main.auto-increment-timestamp
             table:
-              schema: db0
+              schema: dbo
               tableName: auto Increment Timestamp
             primaryKey:
               -

@@ -264,4 +264,16 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         );
         return !($res->rowCount() === 0);
     }
+
+    public function configProvider()
+    {
+        return [
+            [
+                $this->getConfig('mssql')
+            ],
+            [
+                $this->getConfig('mssql', 'json')
+            ]
+        ];
+    }
 }

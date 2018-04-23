@@ -113,25 +113,518 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertFileEquals((string) $csv1, $outputCsvFile);
     }
 
-    public function testWeirdColumnNames()
+    /**
+     * @dataProvider configProvider
+     * @param $config
+     */
+    public function testRunConfig($config)
     {
-        $config = $this->getConfig('mssql');
-
         $result = $this->createApplication($config)->run();
 
         $this->assertEquals('success', $result['status']);
         $this->assertEquals(
-            [
-                'outputTable' => 'in.c-main.auto-increment-timestamp',
-                'rows' => 2
-            ],
+            array (
+                0 =>
+                    array (
+                        'outputTable' => 'in.c-main.sales',
+                        'rows' => 100,
+                    ),
+                1 =>
+                    array (
+                        'outputTable' => 'in.c-main.tableColumns',
+                        'rows' => 100,
+                    ),
+                2 =>
+                    array (
+                        'outputTable' => 'in.c-main.auto-increment-timestamp',
+                        'rows' => 6,
+                    ),
+            ),
             $result['imported']
         );
-        $outputManifestFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($outputManifestFile), true);
-        $expectedColumns = ['weird_I_d', 'weird_Name', 'timestamp'];
-        $this->assertEquals($expectedColumns, $manifest['columns']);
-        $this->assertEquals(['weird_I_d'], $manifest['primary_key']);
+
+        $salesManifestFile = $this->dataDir . '/out/tables/' . $result['imported'][0]['outputTable'] . '.csv.manifest';
+        $manifest = json_decode(file_get_contents($salesManifestFile), true);
+        $this->assertEquals(['destination' => 'in.c-main.sales', 'incremental' => false], $manifest);
+
+        $tableColumnsManifest = $this->dataDir . '/out/tables/' . $result['imported'][1]['outputTable'] . '.csv.manifest';
+        $manifest = json_decode(file_get_contents($tableColumnsManifest), true);
+        $this->assertEquals(
+            array (
+                'destination' => 'in.c-main.tableColumns',
+                'incremental' => false,
+                'metadata' =>
+                    array (
+                        0 =>
+                            array (
+                                'key' => 'KBC.name',
+                                'value' => 'sales',
+                            ),
+                        1 =>
+                            array (
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
+                            ),
+                        2 =>
+                            array (
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
+                            ),
+                        3 =>
+                            array (
+                                'key' => 'KBC.type',
+                                'value' => 'BASE TABLE',
+                            ),
+                    ),
+                'column_metadata' =>
+                    array (
+                        'usergender' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'varchar',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => 255,
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'usergender',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'usergender',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 1,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                        'usercity' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'varchar',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => 255,
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'usercity',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'usercity',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 2,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                        'usersentiment' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'varchar',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => 255,
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'usersentiment',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'usersentiment',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 3,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                        'zipcode' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'varchar',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => 255,
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'zipcode',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'zipcode',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 4,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                    ),
+                'columns' =>
+                    array (
+                        0 => 'usergender',
+                        1 => 'usercity',
+                        2 => 'usersentiment',
+                        3 => 'zipcode',
+                    ),
+            ),
+            $manifest
+        );
+
+        $weirdManifest = $this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv.manifest';
+        $manifest = json_decode(file_get_contents($weirdManifest), true);
+        $this->assertEquals(
+            array (
+                'destination' => 'in.c-main.auto-increment-timestamp',
+                'incremental' => false,
+                'primary_key' =>
+                    array (
+                        0 => 'Weir_d_I_D',
+                    ),
+                'metadata' =>
+                    array (
+                        0 =>
+                            array (
+                                'key' => 'KBC.name',
+                                'value' => 'auto Increment Timestamp',
+                            ),
+                        1 =>
+                            array (
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
+                            ),
+                        2 =>
+                            array (
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
+                            ),
+                        3 =>
+                            array (
+                                'key' => 'KBC.type',
+                                'value' => 'BASE TABLE',
+                            ),
+                    ),
+                'column_metadata' =>
+                    array (
+                        'Weir_d_I_D' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'int',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => false,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'INTEGER',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => 10,
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => '_Weir%d I-D',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'Weir_d_I_D',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 1,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => true,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.primaryKeyName',
+                                        'value' => 'PK_AUTOINC',
+                                    ),
+                                9 =>
+                                    array (
+                                        'key' => 'KBC.checkConstraint',
+                                        'value' => 'CHK_ID_CONTSTRAINT',
+                                    ),
+                                10 =>
+                                    array (
+                                        'key' => 'KBC.checkClause',
+                                        'value' => '([_Weir%d I-D] > 0 and [_Weir%d I-D] < 20)',
+                                    ),
+                            ),
+                        'Weir_d_Na_me' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'varchar',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => false,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => 55,
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.datatype.default',
+                                        'value' => '(\'mario\')',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'Weir%d Na-me',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'Weir_d_Na_me',
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 2,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                                9 =>
+                                    array (
+                                        'key' => 'KBC.uniqueKey',
+                                        'value' => true,
+                                    ),
+                                10 =>
+                                    array (
+                                        'key' => 'KBC.uniqueKeyName',
+                                        'value' => 'UNI_KEY_1',
+                                    ),
+                            ),
+                        'type' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'varchar',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => 55,
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'type',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'type',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 3,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.uniqueKey',
+                                        'value' => true,
+                                    ),
+                                9 =>
+                                    array (
+                                        'key' => 'KBC.uniqueKeyName',
+                                        'value' => 'UNI_KEY_1',
+                                    ),
+                            ),
+                        'timestamp' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'datetime',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'TIMESTAMP',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '23,3',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.datatype.default',
+                                        'value' => '(getdate())',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'timestamp',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'timestamp',
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 4,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                    ),
+                'columns' =>
+                    array (
+                        0 => 'Weir_d_I_D',
+                        1 => 'Weir_d_Na_me',
+                        2 => 'type',
+                        3 => 'timestamp',
+                    ),
+            ),
+            $manifest
+        );
     }
 
     public function testGetTables()
