@@ -38,81 +38,6 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertEquals('success', $result['status']);
     }
 
-    public function testRun()
-    {
-        $config = $this->getConfig('mssql');
-
-        $app = $this->createApplication($config);
-
-        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-
-        $result = $app->run();
-
-        $outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
-
-        $this->assertEquals('success', $result['status']);
-        $this->assertFileExists($outputCsvFile);
-        $this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
-        $this->assertFileEquals((string) $csv1, $outputCsvFile);
-    }
-
-    public function testCredentialsWithSSH()
-    {
-        $config = $this->getConfig('mssql');
-        $config['action'] = 'testConnection';
-
-        $config['parameters']['db']['ssh'] = [
-         'enabled' => true,
-         'keys' => [
-          '#private' => $this->getPrivateKey('mssql'),
-          'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
-         ],
-         'user' => 'root',
-         'sshHost' => 'sshproxy',
-         'remoteHost' => 'mssql',
-         'remotePort' => '1433',
-         'localPort' => '1235',
-        ];
-
-        unset($config['parameters']['tables']);
-
-        $app = $this->createApplication($config);
-        $result = $app->run();
-
-        $this->assertArrayHasKey('status', $result);
-        $this->assertEquals('success', $result['status']);
-    }
-
-    public function testRunWithSSH()
-    {
-        $config = $this->getConfig('mssql');
-        $config['parameters']['db']['ssh'] = [
-         'enabled' => true,
-         'keys' => [
-          '#private' => $this->getPrivateKey('mssql'),
-          'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
-         ],
-         'user' => 'root',
-         'sshHost' => 'sshproxy',
-         'remoteHost' => 'mssql',
-         'remotePort' => '1433',
-         'localPort' => '1234',
-        ];
-
-        $app = $this->createApplication($config);
-
-        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-
-        $result = $app->run();
-
-        $outputCsvFile = $this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv';
-
-        $this->assertEquals('success', $result['status']);
-        $this->assertFileExists($outputCsvFile);
-        $this->assertFileExists($this->dataDir . '/out/tables/' . $result['imported'][0] . '.csv.manifest');
-        $this->assertFileEquals((string) $csv1, $outputCsvFile);
-    }
-
     /**
      * @dataProvider configProvider
      * @param $config
@@ -121,6 +46,35 @@ class MSSQLTest extends AbstractMSSQLTest
     {
         $result = $this->createApplication($config)->run();
 
+        $this->checkResult($result);
+    }
+
+    /**
+     * @dataProvider configProvider
+     * @param $config
+     */
+    public function testRunWithSSH($config)
+    {
+        $config['parameters']['db']['ssh'] = [
+            'enabled' => true,
+            'keys' => [
+                '#private' => $this->getPrivateKey('mssql'),
+                'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
+            ],
+            'user' => 'root',
+            'sshHost' => 'sshproxy',
+            'remoteHost' => 'mssql',
+            'remotePort' => '1433',
+            'localPort' => '1234',
+        ];
+
+        $result = $this->createApplication($config)->run();
+
+        $this->checkResult($result);
+    }
+
+    private function checkResult($result)
+    {
         $this->assertEquals('success', $result['status']);
         $this->assertEquals(
             array (
@@ -625,6 +579,33 @@ class MSSQLTest extends AbstractMSSQLTest
             ),
             $manifest
         );
+    }
+
+    public function testCredentialsWithSSH()
+    {
+        $config = $this->getConfig('mssql');
+        $config['action'] = 'testConnection';
+
+        $config['parameters']['db']['ssh'] = [
+         'enabled' => true,
+         'keys' => [
+          '#private' => $this->getPrivateKey('mssql'),
+          'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
+         ],
+         'user' => 'root',
+         'sshHost' => 'sshproxy',
+         'remoteHost' => 'mssql',
+         'remotePort' => '1433',
+         'localPort' => '1235',
+        ];
+
+        unset($config['parameters']['tables']);
+
+        $app = $this->createApplication($config);
+        $result = $app->run();
+
+        $this->assertArrayHasKey('status', $result);
+        $this->assertEquals('success', $result['status']);
     }
 
     public function testGetTables()
