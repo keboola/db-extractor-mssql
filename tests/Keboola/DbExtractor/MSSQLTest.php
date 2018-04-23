@@ -2,16 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Keboola\DbExtractor;
+namespace Keboola\DbExtractor\Tests;
 
-use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Test\ExtractorTest;
-use Symfony\Component\Yaml\Yaml;
-use Nette\Utils;
+use Keboola\DbExtractor\MSSQLApplication;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
-    public function testCredentials()
+    public function testCredentials(): void
     {
         $config = $this->getConfig('mssql');
         $config['action'] = 'testConnection';
@@ -24,7 +21,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertEquals('success', $result['status']);
     }
 
-    public function testRunWithoutTables()
+    public function testRunWithoutTables(): void
     {
         $config = $this->getConfig('mssql');
 
@@ -39,23 +36,22 @@ class MSSQLTest extends AbstractMSSQLTest
 
     /**
      * @dataProvider configProvider
-     * @param $config
      */
-    public function testRunConfig($config)
+    public function testRunConfig(array $config): void
     {
         $result = $this->createApplication($config)->run();
 
         $this->checkResult($result);
     }
 
-    public function testRunWithSSH()
+    public function testRunWithSSH(): void
     {
         $config = $this->getConfig('mssql', 'json');
         $config['parameters']['db']['ssh'] = [
             'enabled' => true,
             'keys' => [
                 '#private' => $this->getPrivateKey('mssql'),
-                'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
+                'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC'),
             ],
             'user' => 'root',
             'sshHost' => 'sshproxy',
@@ -69,7 +65,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->checkResult($result);
     }
 
-    private function checkResult($result)
+    private function checkResult(array $result): void
     {
         $this->assertEquals('success', $result['status']);
         $this->assertEquals(
@@ -577,7 +573,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
     }
 
-    public function testCredentialsWithSSH()
+    public function testCredentialsWithSSH(): void
     {
         $config = $this->getConfig('mssql');
         $config['action'] = 'testConnection';
@@ -586,7 +582,7 @@ class MSSQLTest extends AbstractMSSQLTest
          'enabled' => true,
          'keys' => [
           '#private' => $this->getPrivateKey('mssql'),
-          'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC')
+          'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC'),
          ],
          'user' => 'root',
          'sshHost' => 'sshproxy',
@@ -604,12 +600,12 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertEquals('success', $result['status']);
     }
 
-    public function testGetTables()
+    public function testGetTables(): void
     {
         $config = $this->getConfig();
         $config['action'] = 'getTables';
 
-        $app = new Application($config);
+        $app = $this->createApplication($config);
         $result = $app->run();
 
         $this->assertArrayHasKey('status', $result);

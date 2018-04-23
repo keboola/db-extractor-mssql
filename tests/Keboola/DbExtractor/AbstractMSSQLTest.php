@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Keboola\DbExtractor;
+namespace Keboola\DbExtractor\Tests;
 
+use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
 use Symfony\Component\Yaml\Yaml;
@@ -15,7 +16,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
      */
     protected $pdo;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!defined('APP_NAME')) {
             define('APP_NAME', 'ex-db-mssql');
@@ -28,11 +29,11 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->setupTables();
     }
 
-    private function makeConnection()
+    private function makeConnection(): void
     {
         $options = [
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         ];
 
         $config = $this->getConfig('mssql');
@@ -45,10 +46,15 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             $dbConfig['database']
         );
 
-        $this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password'], $options);
+        $this->pdo = new \PDO(
+            $dsn,
+            $dbConfig['user'],
+            $dbConfig['password'] ? $dbConfig['password'] : '',
+            $options
+        );
     }
 
-    private function setupTables()
+    private function setupTables(): void
     {
         $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
 
@@ -85,11 +91,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE (\"Weir%d Na-me\", Type)");
     }
 
-    /**
-     * @param string $driver
-     * @return mixed
-     */
-    public function getConfig($driver = 'mssql', $format = 'yaml')
+    public function getConfig($driver = 'mssql', $format = 'yaml'): array
     {
         $config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
         $config['parameters']['data_dir'] = $this->dataDir;
@@ -104,11 +106,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return $config;
     }
 
-    /**
-     * @param CsvFile $file
-     * @return string
-     */
-    protected function generateTableName(CsvFile $file)
+    protected function generateTableName(CsvFile $file): string
     {
         $tableName = sprintf(
             '%s',
@@ -118,12 +116,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return 'dbo.' . $tableName;
     }
 
-    /**
-     * Create table from csv file with text columns
-     *
-     * @param CsvFile $file
-     */
-    protected function createTextTable(CsvFile $file, $primaryKey = null, $overrideTableName = null)
+    protected function createTextTable(CsvFile $file, ?array $primaryKey = null, ?string $overrideTableName = null): void
     {
         if (!$overrideTableName) {
             $tableName = $this->generateTableName($file);
@@ -142,8 +135,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                     },
                     $file->getHeader()
                 )
-            ),
-            $tableName
+            )
         );
         $this->pdo->exec($sql);
         // create the primary key if supplied
@@ -233,7 +225,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
      * @param  CsvFile $file
      * @return int
      */
-    protected function countTable(CsvFile $file)
+    protected function countTable(CsvFile $file): int
     {
         $linesCount = 0;
         foreach ($file as $i => $line) {
@@ -246,17 +238,13 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return $linesCount;
     }
 
-    /**
-     * @param array $config
-     * @return MSSQLApplication
-     */
-    public function createApplication(array $config)
+    public function createApplication(array $config): MSSQLApplication
     {
         $app = new MSSQLApplication($config, $this->dataDir);
         return $app;
     }
 
-    public function tableExists($tableName)
+    public function tableExists(string $tableName): bool
     {
         $res = $this->pdo->query(
             sprintf(
@@ -267,15 +255,15 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return !($res->rowCount() === 0);
     }
 
-    public function configProvider()
+    public function configProvider(): array
     {
         return [
             [
-                $this->getConfig('mssql')
+                $this->getConfig('mssql'),
             ],
             [
-                $this->getConfig('mssql', 'json')
-            ]
+                $this->getConfig('mssql', 'json'),
+            ],
         ];
     }
 }
