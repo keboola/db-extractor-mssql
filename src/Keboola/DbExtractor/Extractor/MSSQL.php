@@ -131,6 +131,7 @@ class MSSQL extends Extractor
             if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex] = [
                     "name" => $column['COLUMN_NAME'],
+                    "sanitizedName" => \Keboola\Utils\sanitizeColumnName($column['COLUMN_NAME']),
                     "type" => $column['DATA_TYPE'],
                     "length" => $length,
                     "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
