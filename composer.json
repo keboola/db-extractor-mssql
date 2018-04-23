@@ -1,12 +1,19 @@
 {
     "name": "keboola/db-extractor-mssql",
+    "authors": [
+        {
+            "name": "keboola",
+            "email": "devel@keboola.com"
+        }
+    ],
     "require": {
         "keboola/db-extractor-common": "^8.1.0",
         "keboola/php-utils": "^2.3.1"
     },
     "require-dev": {
         "phpunit/phpunit": "4.6.*",
-        "squizlabs/php_codesniffer": "^2.6"
+        "squizlabs/php_codesniffer": "^2.6",
+        "phpstan/phpstan": "^0.8"
     },
     "autoload": {
         "psr-4": {

@@ -181,7 +181,8 @@ class MSSQL extends Extractor
                 ON pk.TABLE_NAME = c.TABLE_NAME AND pk.COLUMN_NAME = c.COLUMN_NAME";
     }
 
-    private function fullTablesSql($tables) {
+    private function fullTablesSql($tables)
+    {
         return sprintf(
             "SELECT c.*,  
               chk.CHECK_CLAUSE, 
