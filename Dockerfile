@@ -15,13 +15,12 @@ RUN echo "\r\n deb http://ftp.de.debian.org/debian/ sid main" >> /etc/apt/source
     build-essential
 
 WORKDIR /code
-RUN curl -sS ftp://ftp.freetds.org/pub/freetds/stable/freetds-patched.tar.gz > freetds-patched.tar.gz
-RUN ls -ll
-RUN tar xzvf freetds-patched.tar.gz
-RUN ls -ll
-RUN mkdir /temp && mv freetds-1.00.86 /temp/
 
-RUN cd /temp/freetds-1.00.86 && \
+RUN curl -sS ftp://ftp.freetds.org/pub/freetds/stable/freetds-patched.tar.gz > freetds-patched.tar.gz
+RUN tar xzvf freetds-patched.tar.gz
+RUN mkdir /tmp/freetds && mv freetds-*/* /tmp/freetds/
+
+RUN cd /tmp/freetds && \
     ./configure --enable-msdblib --prefix=/usr/local && \
     make -j$(nproc) && \
     make install && \
