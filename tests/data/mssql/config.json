@@ -13,8 +13,8 @@
       {
         "id": 2,
         "enabled": true,
-        "name": "tableColumns",
-        "outputTable": "in.c-main.tableColumns",
+        "name": "tablecolumns",
+        "outputTable": "in.c-main.tablecolumns",
         "incremental": false,
         "primaryKey": null,
         "table": {

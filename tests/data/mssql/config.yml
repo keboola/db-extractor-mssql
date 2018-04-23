@@ -10,9 +10,9 @@ parameters:
             enabled: true
         -
             id: 2
-            name: tableColumns
+            name: tablecolumns
             enabled: true
-            outputTable: in.c-main.tableColumns
+            outputTable: in.c-main.tablecolumns
             incremental: false
             primaryKey: null
             table:

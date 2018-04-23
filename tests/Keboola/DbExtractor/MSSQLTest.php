@@ -77,7 +77,7 @@ class MSSQLTest extends AbstractMSSQLTest
                     ),
                 1 =>
                     array (
-                        'outputTable' => 'in.c-main.tableColumns',
+                        'outputTable' => 'in.c-main.tablecolumns',
                         'rows' => 100,
                     ),
                 2 =>
@@ -97,7 +97,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $manifest = json_decode(file_get_contents($tableColumnsManifest), true);
         $this->assertEquals(
             array (
-                'destination' => 'in.c-main.tableColumns',
+                'destination' => 'in.c-main.tablecolumns',
                 'incremental' => false,
                 'metadata' =>
                     array (
