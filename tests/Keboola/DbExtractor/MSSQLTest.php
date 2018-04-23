@@ -1,8 +1,7 @@
 <?php
-/**
- * @package ex-db-mssql
- * @author Erik Zigo <erik.zigo@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\DbExtractor;
 
 use Keboola\Csv\CsvFile;
