@@ -3,7 +3,7 @@ services:
   app:
     build: .
     image: keboola/ex-db-mssql
-    command: ["./wait-for-it.sh", "mssql:1433", "-t", "30", "--", "./vendor/bin/phpunit"]
+    command: composer ci
     tty: true
     stdin_open: true
     env_file:
@@ -22,7 +22,7 @@ services:
     image: keboola/ex-db-mssql
     volumes:
       - .:/code
-    command: ["./wait-for-it.sh", "mssql:1433", "-t", "30", "--", "./vendor/bin/phpunit"]
+    command: composer ci
     tty: true
     stdin_open: true
     env_file:
