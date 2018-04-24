@@ -14,10 +14,12 @@ RUN echo "\r\n deb http://ftp.de.debian.org/debian/ sid main" >> /etc/apt/source
     gcc \
     build-essential
 
+# Initialize
+ADD . /code
 WORKDIR /code
 
-RUN curl -sS ftp://ftp.freetds.org/pub/freetds/stable/freetds-patched.tar.gz > freetds-patched.tar.gz
-RUN tar xzvf freetds-patched.tar.gz
+#RUN curl -sS ftp://ftp.freetds.org/pub/freetds/stable/freetds-patched.tar.gz > freetds-patched.tar.gz
+RUN tar xzvf mssql/freetds-patched.tar.gz
 RUN mkdir /tmp/freetds && mv freetds-*/* /tmp/freetds/
 
 RUN cd /tmp/freetds && \
@@ -28,15 +30,13 @@ RUN cd /tmp/freetds && \
       sed -i '$ d' /etc/apt/sources.list
 
 # MSSQL
-ADD mssql/freetds.conf /etc/freetds.conf
+RUN cp /code/mssql/freetds.conf /etc/freetds.conf
 
 RUN echo "memory_limit = -1" >> /usr/local/etc/php/php.ini
 
 RUN curl -sS https://getcomposer.org/installer | php \
   && mv composer.phar /usr/local/bin/composer
 
-# Initialize
-ADD . /code
 WORKDIR /code
 
 RUN composer install --no-interaction
