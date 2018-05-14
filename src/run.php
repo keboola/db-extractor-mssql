@@ -73,7 +73,14 @@ try {
     }
     exit(1);
 } catch (ApplicationException $e) {
-    $logger->log('error', $e->getMessage(), $e->getData());
+    $logger->log('error', $e->getMessage(), array_merge(
+        $e->getData(),
+        [
+            'errFile' => $e->getFile(),
+            'errLine' => $e->getLine(),
+            'trace' => $e->getTrace(),
+        ]
+    ));
     exit($e->getCode() > 1 ? $e->getCode(): 2);
 } catch (\Throwable $e) {
     $logger->log(
