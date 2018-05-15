@@ -1,13 +1,14 @@
-FROM php:7.1.3-fpm
+FROM php:7.1.3
+
 ENV DEBIAN_FRONTEND=noninteractive
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
-RUN apt-get update; \
-    apt-get install -y --no-install-recommends curl unzip gzip tar git apt-transport-https wget ssh libxml2-dev
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl unzip gzip tar git ssh
 
 RUN apt-get remove -y binutils
 
-RUN echo "\r\n deb http://ftp.de.debian.org/debian/ sid main" >> /etc/apt/sources.list && \
+RUN echo "deb http://ftp.de.debian.org/debian/ sid main" >> /etc/apt/sources.list && \
     apt-get update && \
     apt-get -y install tdsodbc \
     php7.1-sybase \
@@ -15,12 +16,11 @@ RUN echo "\r\n deb http://ftp.de.debian.org/debian/ sid main" >> /etc/apt/source
     build-essential
 
 # Initialize
-ADD . /code
 WORKDIR /code
+ADD mssql/freetds-patched.tar.gz /code/mssql
 
 #RUN curl -sS ftp://ftp.freetds.org/pub/freetds/stable/freetds-patched.tar.gz > freetds-patched.tar.gz
-RUN tar xzvf mssql/freetds-patched.tar.gz
-RUN mkdir /tmp/freetds && mv freetds-*/* /tmp/freetds/
+RUN mkdir /tmp/freetds && mv mssql/freetds-*/* /tmp/freetds/
 
 RUN cd /tmp/freetds && \
     ./configure --enable-msdblib --prefix=/usr/local && \
@@ -30,13 +30,14 @@ RUN cd /tmp/freetds && \
       sed -i '$ d' /etc/apt/sources.list
 
 # MSSQL
-RUN cp /code/mssql/freetds.conf /etc/freetds.conf
+ADD mssql/freetds.conf /etc/freetds.conf
 
 RUN echo "memory_limit = -1" >> /usr/local/etc/php/php.ini
 
 RUN curl -sS https://getcomposer.org/installer | php \
   && mv composer.phar /usr/local/bin/composer
 
+ADD . /code
 WORKDIR /code
 
 RUN composer install --no-interaction
