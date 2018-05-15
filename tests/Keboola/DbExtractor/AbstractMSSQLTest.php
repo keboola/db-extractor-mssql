@@ -93,9 +93,13 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function getConfig($driver = 'mssql', $format = 'yaml'): array
     {
-        $config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
-        $config['parameters']['data_dir'] = $this->dataDir;
+        if ($format === 'yaml') {
+            $config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
+        } else if ($format === 'json') {
+            $config = json_decode(file_get_contents($this->dataDir . '/' .$driver . '/config.json'), true);
+        }
 
+        $config['parameters']['data_dir'] = $this->dataDir;
         $config['parameters']['db']['user'] = $this->getEnv($driver, 'DB_USER', true);
         $config['parameters']['db']['password'] = $this->getEnv($driver, 'DB_PASSWORD');
         $config['parameters']['db']['host'] = $this->getEnv($driver, 'DB_HOST');
