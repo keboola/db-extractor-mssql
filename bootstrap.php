@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * @package ex-db-mssql
  * @author Erik Zigo <erik.zigo@keboola.com>

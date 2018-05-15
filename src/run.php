@@ -1,8 +1,7 @@
 <?php
-/**
- * @package ex-db-mssql
- * @author Erik Zigo <erik.zigo@keboola.com>
- */
+
+declare(strict_types=1);
+
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
@@ -15,10 +14,9 @@ define('APP_NAME', 'ex-db-mssql');
 require_once __DIR__ . "/../bootstrap.php";
 
 $logger = new \Keboola\DbExtractor\Logger(APP_NAME);
-
+$runAction = true;
 
 try {
-    $runAction = true;
     $arguments = getopt("d::", ["data::"]);
     if (!isset($arguments["data"])) {
         throw new UserException('Data folder not set.');
@@ -46,24 +44,23 @@ try {
     $app['logger']->log('info', "Extractor finished successfully.");
     exit(0);
 } catch (UserException $e) {
-    $logger->log('error', $e->getMessage(), (array) $e->getData());
-
+    $logger->log('error', $e->getMessage(), $e->getData());
     if (!$runAction) {
         echo $e->getMessage();
     }
 
     exit(1);
 } catch (ApplicationException $e) {
-    $logger->log('error', $e->getMessage(), (array) $e->getData());
+    $logger->log('error', $e->getMessage(), $e->getData());
     exit($e->getCode() > 1 ? $e->getCode(): 2);
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     $logger->log(
         'error',
         $e->getMessage(),
         [
             'errFile' => $e->getFile(),
             'errLine' => $e->getLine(),
-            'trace' => $e->getTrace()
+            'trace' => $e->getTrace(),
         ]
     );
     exit(2);

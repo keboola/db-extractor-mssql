@@ -1,7 +1,10 @@
 <?php
 
-namespace Keboola\DbExtractor;
+declare(strict_types=1);
 
+namespace Keboola\DbExtractor\Tests;
+
+use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
 use Symfony\Component\Yaml\Yaml;
@@ -13,7 +16,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
      */
     protected $pdo;
 
-    public function setUp()
+    public function setUp(): void
     {
         if (!defined('APP_NAME')) {
             define('APP_NAME', 'ex-db-mssql');
@@ -26,11 +29,11 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->setupTables();
     }
 
-    private function makeConnection()
+    private function makeConnection(): void
     {
         $options = [
             \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         ];
 
         $config = $this->getConfig('mssql');
@@ -43,10 +46,15 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             $dbConfig['database']
         );
 
-        $this->pdo = new \PDO($dsn, $dbConfig['user'], $dbConfig['password'], $options);
+        $this->pdo = new \PDO(
+            $dsn,
+            $dbConfig['user'],
+            $dbConfig['password'] ? $dbConfig['password'] : '',
+            $options
+        );
     }
 
-    private function setupTables()
+    private function setupTables(): void
     {
         $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
 
@@ -62,30 +70,36 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)");
 
         // create another table with an auto_increment ID
-        $this->pdo->exec("IF OBJECT_ID('dbo.autoIncrement', 'U') IS NOT NULL DROP TABLE dbo.autoIncrement");
+        $this->pdo->exec("IF OBJECT_ID('dbo.[auto Increment Timestamp]', 'U') IS NOT NULL DROP TABLE dbo.[auto Increment Timestamp]");
 
-        $this->pdo->exec("CREATE TABLE autoIncrement (ID INT IDENTITY(1,1) NOT NULL, Name VARCHAR(55) NOT NULL DEFAULT 'mario', Type VARCHAR(55))");
-        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT PK_AUTOINC PRIMARY KEY (ID)");
-        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK (ID > 0 AND ID < 20)");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('mario', 'plumber')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('luigi', 'plumber')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('toad', 'mushroom')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('princess', 'royalty')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('wario', 'badguy')");
-        $this->pdo->exec("INSERT INTO autoIncrement (Name, Type) VALUES ('yoshi', 'horse?')");
+        $this->pdo->exec(
+            "CREATE TABLE [auto Increment Timestamp] (
+            \"_Weir%d I-D\" INT IDENTITY(1,1) NOT NULL, 
+            \"Weir%d Na-me\" VARCHAR(55) NOT NULL DEFAULT 'mario',
+            \"type\" VARCHAR(55) NULL,
+            \"timestamp\" DATETIME NULL DEFAULT GETDATE())"
+        );
+        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY (\"_Weir%d I-D\")");
+        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK (\"_Weir%d I-D\" > 0 AND \"_Weir%d I-D\" < 20)");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('mario', 'plumber')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('luigi', 'plumber')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('toad', 'mushroom')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('princess', 'royalty')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('wario', 'badguy')");
+        $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('yoshi', 'horse?')");
         // add unique key
-        $this->pdo->exec("ALTER TABLE autoIncrement ADD CONSTRAINT UNI_KEY_1 UNIQUE (Name, Type)");
+        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE (\"Weir%d Na-me\", Type)");
     }
 
-    /**
-     * @param string $driver
-     * @return mixed
-     */
-    public function getConfig($driver = 'mssql')
+    public function getConfig($driver = 'mssql', $format = 'yaml'): array
     {
-        $config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
-        $config['parameters']['data_dir'] = $this->dataDir;
+        if ($format === 'yaml') {
+            $config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
+        } else if ($format === 'json') {
+            $config = json_decode(file_get_contents($this->dataDir . '/' .$driver . '/config.json'), true);
+        }
 
+        $config['parameters']['data_dir'] = $this->dataDir;
         $config['parameters']['db']['user'] = $this->getEnv($driver, 'DB_USER', true);
         $config['parameters']['db']['password'] = $this->getEnv($driver, 'DB_PASSWORD');
         $config['parameters']['db']['host'] = $this->getEnv($driver, 'DB_HOST');
@@ -96,11 +110,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return $config;
     }
 
-    /**
-     * @param CsvFile $file
-     * @return string
-     */
-    protected function generateTableName(CsvFile $file)
+    protected function generateTableName(CsvFile $file): string
     {
         $tableName = sprintf(
             '%s',
@@ -110,12 +120,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return 'dbo.' . $tableName;
     }
 
-    /**
-     * Create table from csv file with text columns
-     *
-     * @param CsvFile $file
-     */
-    protected function createTextTable(CsvFile $file, $primaryKey = null, $overrideTableName = null)
+    protected function createTextTable(CsvFile $file, ?array $primaryKey = null, ?string $overrideTableName = null): void
     {
         if (!$overrideTableName) {
             $tableName = $this->generateTableName($file);
@@ -134,8 +139,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                     },
                     $file->getHeader()
                 )
-            ),
-            $tableName
+            )
         );
         $this->pdo->exec($sql);
         // create the primary key if supplied
@@ -225,7 +229,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
      * @param  CsvFile $file
      * @return int
      */
-    protected function countTable(CsvFile $file)
+    protected function countTable(CsvFile $file): int
     {
         $linesCount = 0;
         foreach ($file as $i => $line) {
@@ -238,17 +242,13 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return $linesCount;
     }
 
-    /**
-     * @param array $config
-     * @return MSSQLApplication
-     */
-    public function createApplication(array $config)
+    public function createApplication(array $config): MSSQLApplication
     {
         $app = new MSSQLApplication($config, $this->dataDir);
         return $app;
     }
 
-    public function tableExists($tableName)
+    public function tableExists(string $tableName): bool
     {
         $res = $this->pdo->query(
             sprintf(
@@ -257,5 +257,17 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             )
         );
         return !($res->rowCount() === 0);
+    }
+
+    public function configProvider(): array
+    {
+        return [
+            [
+                $this->getConfig('mssql'),
+            ],
+            [
+                $this->getConfig('mssql', 'json'),
+            ],
+        ];
     }
 }

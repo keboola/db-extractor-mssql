@@ -1,20 +1,24 @@
 <?php
-/**
- * @package ex-db-mssql
- * @author Erik Zigo <erik.zigo@keboola.com>
- */
+
+declare(strict_types=1);
+
 namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\DbExtractor\Exception\UserException;
 
 class MSSQL extends Extractor
 {
-    public function createConnection($params)
+    /**
+     * @param array $params
+     * @return \PDO
+     * @throws UserException
+     */
+    public function createConnection($params): \PDO
     {
         // convert errors to PDOExceptions
         $options = [
          \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
         ];
 
         // check params
@@ -36,22 +40,27 @@ class MSSQL extends Extractor
             $params['database']
         );
 
-        $pdo = new \PDO($dsn, $params['user'], $params['password'], $options);
+        $pdo = new \PDO(
+            $dsn,
+            $params['user'],
+            $params['password'] ? $params['password'] : '',
+            $options
+        );
 
         return $pdo;
     }
 
-    public function getConnection()
+    public function getConnection(): \PDO
     {
         return $this->db;
     }
 
-    public function testConnection()
+    public function testConnection(): void
     {
         $this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
     }
 
-    public function getTables(array $tables = null)
+    public function getTables(?array $tables = null): array
     {
         $sql = "SELECT ist.* FROM INFORMATION_SCHEMA.TABLES as ist
                 INNER JOIN sysobjects AS so ON ist.TABLE_NAME = so.name
@@ -82,8 +91,6 @@ class MSSQL extends Extractor
             );
         }
 
-        $sql .= " ORDER BY TABLE_SCHEMA, TABLE_NAME";
-
         $stmt = $this->db->query($sql);
 
         $arr = $stmt->fetchAll();
@@ -99,7 +106,7 @@ class MSSQL extends Extractor
                 'name' => $table['TABLE_NAME'],
                 'catalog' => (isset($table['TABLE_CATALOG'])) ? $table['TABLE_CATALOG'] : '',
                 'schema' => (isset($table['TABLE_SCHEMA'])) ? $table['TABLE_SCHEMA'] : '',
-                'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : ''
+                'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : '',
             ];
         }
 
@@ -133,6 +140,7 @@ class MSSQL extends Extractor
             if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex] = [
                     "name" => $column['COLUMN_NAME'],
+                    "sanitizedName" => \Keboola\Utils\sanitizeColumnName($column['COLUMN_NAME']),
                     "type" => $column['DATA_TYPE'],
                     "length" => $length,
                     "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
@@ -167,7 +175,7 @@ class MSSQL extends Extractor
         return array_values($tableDefs);
     }
 
-    private function quickTablesSql()
+    private function quickTablesSql(): string
     {
         return "SELECT c.*, pk_name 
                 FROM INFORMATION_SCHEMA.COLUMNS AS c
@@ -181,7 +189,8 @@ class MSSQL extends Extractor
                 ON pk.TABLE_NAME = c.TABLE_NAME AND pk.COLUMN_NAME = c.COLUMN_NAME";
     }
 
-    private function fullTablesSql($tables) {
+    private function fullTablesSql(array $tables): string
+    {
         return sprintf(
             "SELECT c.*,  
               chk.CHECK_CLAUSE, 
@@ -257,7 +266,7 @@ class MSSQL extends Extractor
         );
     }
 
-    public function simpleQuery(array $table, array $columns = array())
+    public function simpleQuery(array $table, array $columns = array()): string
     {
         if (count($columns) > 0) {
             return sprintf(
@@ -283,7 +292,7 @@ class MSSQL extends Extractor
         }
     }
 
-    private function quote($obj)
+    private function quote(string $obj): string
     {
         return "\"{$obj}\"";
     }

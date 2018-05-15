@@ -1,6 +1,8 @@
 <?php
 
-namespace Keboola\DbExtractor;
+declare(strict_types=1);
+
+namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
 use Symfony\Component\Process\Process;
@@ -8,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class ApplicationTest extends AbstractMSSQLTest
 {
-    public function testTestConnectionAction()
+    public function testTestConnectionAction(): void
     {
         $config = $this->getConfig('mssql');
         $config['action'] = 'testConnection';
@@ -24,7 +26,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertJson($process->getOutput());
     }
 
-    public function testRunAction()
+    public function testRunAction(): void
     {
         $outputCsvFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv';
         $outputCsvFile2 = $this->dataDir . '/out/tables/in.c-main.tablecolumns.csv';
@@ -57,7 +59,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertFileExists($manifestFile2);
     }
 
-    public function testGetTablesAction()
+    public function testGetTablesAction(): void
     {
         $config = $this->getConfig('mssql');
         $config['action'] = 'getTables';
