@@ -31,27 +31,20 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     private function makeConnection(): void
     {
-        $options = [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-        ];
-
         $config = $this->getConfig('mssql');
-        $dbConfig = $config['parameters']['db'];
+        $params = $config['parameters']['db'];
 
-        $dsn = sprintf(
-            "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
-            $dbConfig['host'],
-            $dbConfig['port'],
-            $dbConfig['database']
-        );
+        // construct DSN connection string
+        $host = $params['host'];
+        $host .= (isset($params['port']) && $params['port'] !== '1433') ? ',' . $params['port'] : '';
+        $host .= empty($params['instance']) ? '' : '\\\\' . $params['instance'];
+        $options[] = 'Server=' . $host;
+        $options[] = 'Database=' . $params['database'];
+        $dsn = sprintf("sqlsrv:%s", implode(';', $options));
 
-        $this->pdo = new \PDO(
-            $dsn,
-            $dbConfig['user'],
-            $dbConfig['password'] ? $dbConfig['password'] : '',
-            $options
-        );
+        // ms sql doesn't support options
+        $this->pdo = new \PDO($dsn, $params['user'], $params['password'] ? $params['password'] : '');
+        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
     private function setupTables(): void
