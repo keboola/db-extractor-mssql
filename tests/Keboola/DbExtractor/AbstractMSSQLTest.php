@@ -38,17 +38,20 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             $params['password'] = $params['#password'];
         }
 
-        // construct DSN connection string
-        $host = $params['host'];
-        $host .= (isset($params['port']) && $params['port'] !== '1433') ? ',' . $params['port'] : '';
-        $host .= empty($params['instance']) ? '' : '\\\\' . $params['instance'];
-        $options[] = 'Server=' . $host;
-        $options[] = 'Database=' . $params['database'];
-        $dsn = sprintf("sqlsrv:%s", implode(';', $options));
-
-        // ms sql doesn't support options
-        $this->pdo = new \PDO($dsn, $params['user'], $params['password']);
+        // create test database
+        $this->pdo = new \PDO(
+            sprintf("sqlsrv:Server=%s", $params['host']),
+            $params['user'],
+            $params['password']
+        );
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+        $this->pdo->exec("USE master");
+        $this->pdo->exec(sprintf("
+            IF NOT EXISTS(select * from sys.databases where name='%s') 
+            CREATE DATABASE %s
+        ", $params['database'], $params['database']));
+        $this->pdo->exec(sprintf("USE %s", $params['database']));
     }
 
     private function setupTables(): void
