@@ -100,6 +100,7 @@ class MSSQL extends Extractor
                 'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : '',
             ];
         }
+        ksort($tableDefs);
 
         if (count($tableNameArray) === 0) {
             return [];
