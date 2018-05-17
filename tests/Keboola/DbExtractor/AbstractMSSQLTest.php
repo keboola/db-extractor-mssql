@@ -43,7 +43,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $dsn = sprintf("sqlsrv:%s", implode(';', $options));
 
         // ms sql doesn't support options
-        $this->pdo = new \PDO($dsn, $params['user'], $params['password'] ? $params['password'] : '');
+        $this->pdo = new \PDO($dsn, $params['user'], $params['password']);
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
@@ -86,19 +86,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function getConfig($driver = 'mssql', $format = 'yaml'): array
     {
-        if ($format === 'yaml') {
-            $config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
-        } else if ($format === 'json') {
-            $config = json_decode(file_get_contents($this->dataDir . '/' .$driver . '/config.json'), true);
-        }
-
-        $config['parameters']['data_dir'] = $this->dataDir;
-        $config['parameters']['db']['user'] = $this->getEnv($driver, 'DB_USER', true);
-        $config['parameters']['db']['password'] = $this->getEnv($driver, 'DB_PASSWORD');
-        $config['parameters']['db']['host'] = $this->getEnv($driver, 'DB_HOST');
-        $config['parameters']['db']['port'] = $this->getEnv($driver, 'DB_PORT');
-        $config['parameters']['db']['database'] = $this->getEnv($driver, 'DB_DATABASE');
-
+        $config = parent::getConfig($driver, $format);
         $config['parameters']['extractor_class'] = 'MSSQL';
         return $config;
     }

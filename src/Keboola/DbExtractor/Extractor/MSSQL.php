@@ -36,7 +36,7 @@ class MSSQL extends Extractor
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
 
         // ms sql doesn't support options
-        $pdo = new \PDO($dsn, $params['user'], $params['#password']);
+        $pdo = new \PDO($dsn, $params['user'], $params['password']);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         return $pdo;
     }
