@@ -12,7 +12,7 @@ services:
       MSSQL_DB_HOST: mssql
       MSSQL_DB_PORT: 1433
       MSSQL_DB_USER: sa
-      MSSQL_DB_PASSWORD:
+      MSSQL_DB_PASSWORD: "yourStrong(!)Password"
       MSSQL_DB_DATABASE: test
     links:
       - sshproxy
@@ -31,14 +31,17 @@ services:
       MSSQL_DB_HOST: mssql
       MSSQL_DB_PORT: 1433
       MSSQL_DB_USER: sa
-      MSSQL_DB_PASSWORD:
+      MSSQL_DB_PASSWORD: "yourStrong(!)Password"
       MSSQL_DB_DATABASE: test
     links:
       - sshproxy
       - mssql
 
   mssql:
-    image: rsmoorthy/mssql
+    image: microsoft/mssql-server-linux
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: "yourStrong(!)Password"
     ports:
       - "1433:1433"
 
