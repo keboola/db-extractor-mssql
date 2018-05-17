@@ -34,6 +34,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $config = $this->getConfig('mssql');
         $params = $config['parameters']['db'];
 
+        if (isset($params['#password'])) {
+            $params['password'] = $params['#password'];
+        }
+
         // construct DSN connection string
         $host = $params['host'];
         $host .= (isset($params['port']) && $params['port'] !== '1433') ? ',' . $params['port'] : '';
