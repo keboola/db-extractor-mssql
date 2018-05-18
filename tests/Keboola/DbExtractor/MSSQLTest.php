@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
 use Symfony\Component\Process\Process;
+use Keboola\DbExtractor\MSSQLApplication;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -1242,7 +1244,7 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $result = $this->createApplication($config)->run();
 
-        $outputData = iterator_to_array(new CsvFile($this->dataDir.'/out/tables/in.c-main.null_test.csv'));
+        $outputData = iterator_to_array(new CsvFile($this->dataDir . '/out/tables/in.c-main.null_test.csv'));
 
         $this->assertNotContains(chr(0), $outputData[0][0]);
         $this->assertNotContains(chr(0), $outputData[0][1]);
@@ -1254,5 +1256,86 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertEquals('success', $result['status']);
 
         $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
+    }
+
+    public function testThousandsOfTablesGetTables(): void
+    {
+        $this->markTestSkipped("No need to run this test every time.");
+        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+
+        for ($i = 0; $i < 1500; $i++) {
+            $this->createTextTable($csv1, null, "sales_" . $i);
+        }
+
+        $config = $this->getConfig();
+        $config['action'] = 'getTables';
+        $app = $this->createApplication($config);
+
+        $startTime = time();
+        $result = $app->run();
+        $this->assertEquals('success', $result['status']);
+        $runTime = time() - $startTime;
+
+        echo "\nThe tables were fetched in " . $runTime . " seconds.\n";
+
+        // cleanup
+        for ($i = 0; $i < 1500; $i++) {
+            $this->pdo->exec("DROP TABLE sales_" . $i);
+        }
+    }
+
+    public function testLargeTableRun(): void
+    {
+        $this->markTestSkipped("No need to run this test every time.");
+
+        $insertionScript = <<<EOT
+Declare @Id int
+Set @Id = 1
+
+While @Id <= 1000000
+Begin 
+   Insert Into largetest values ('One morning, when Gregor Samsa woke from troubled dreams, 
+he found himself transformed in his bed into a horrible vermin. 
+He lay on his armour-like back, and if he lifted his head a little he could see his brown belly, 
+slightly domed and divided by a')
+   
+   Set @Id = @Id + 1
+End
+EOT;
+
+        try {
+            $this->pdo->exec("DROP TABLE largetest");
+        } catch (\Throwable $e) {
+            // table didn't exist
+        }
+        $this->pdo->exec("CREATE TABLE largetest (id int identity primary key, lorem VARCHAR(255))");
+        $this->pdo->exec($insertionScript);
+
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables']);
+        unset($config['parameters']['tables']);
+        $config['parameters']['tables'][] = [
+            'id' => 1,
+            'name' => 'largetest',
+            'outputTable' => 'in.c-main.largetest',
+            'table' => [
+                'tableName' => 'largetest',
+                'schema' => 'dbo',
+            ]
+        ];
+
+        $app = $this->createApplication($config);
+        $startTime = time();
+        $result = $app->run();
+        $this->assertEquals('success', $result['status']);
+        $runTime = time() - $startTime;
+
+        echo "\nThe app ran in " . $runTime . " seconds.\n";
+
+        try {
+            $this->pdo->exec("DROP TABLE largetest");
+        } catch (\Throwable $e) {
+            // table didn't exist
+        }
     }
 }

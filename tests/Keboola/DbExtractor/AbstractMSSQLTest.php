@@ -120,6 +120,13 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             $tableName = $overrideTableName;
         }
 
+        try {
+            $this->pdo->exec(sprintf("DROP TABLE %s", $tableName));
+        } catch (\Throwable $e) {
+            // table didn't exist
+        }
+
+
         $sql = sprintf(
             'CREATE TABLE %s (%s)',
             $tableName,
