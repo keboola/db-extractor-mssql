@@ -1261,11 +1261,30 @@ class MSSQLTest extends AbstractMSSQLTest
     public function testThousandsOfTablesGetTables(): void
     {
         $this->markTestSkipped("No need to run this test every time.");
-        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+        $numberOfTables = 5000;
 
-        for ($i = 0; $i < 1500; $i++) {
-            $this->createTextTable($csv1, null, "sales_" . $i);
+        $createTableScript = '';
+        $dropTableScript = '';
+        for ($i = 0; $i < $numberOfTables; $i++) {
+            $createTableScript .= "CREATE TABLE tmp_" . $i . " (id int identity primary key, kafka VARCHAR(255))\n";
+            $dropTableScript .= "DROP TABLE tmp_" . $i . "\n";
         }
+
+        $dropTableScript = "Begin\n" . $dropTableScript . "End\n";
+        $createTableScript = "Begin\n" . $createTableScript . "End\n";
+
+        // cleanup
+        try {
+            $this->pdo->exec($dropTableScript);
+        } catch (\Throwable $e) {
+            // one or more tables didn't exist
+        }
+        // wait for the drop script to finish
+        sleep(5);
+
+        $this->pdo->exec($createTableScript);
+        // wait for the create script to finish
+        sleep(5);
 
         $config = $this->getConfig();
         $config['action'] = 'getTables';
@@ -1276,11 +1295,12 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertEquals('success', $result['status']);
         $runTime = time() - $startTime;
 
-        echo "\nThe tables were fetched in " . $runTime . " seconds.\n";
-
+        echo "\n" . $numberOfTables . " tables were fetched in " . $runTime . " seconds.\n";
         // cleanup
-        for ($i = 0; $i < 1500; $i++) {
-            $this->pdo->exec("DROP TABLE sales_" . $i);
+        try {
+            $this->pdo->exec($dropTableScript);
+        } catch (\Throwable $e) {
+            // one or more table didn't exist
         }
     }
 
@@ -1308,7 +1328,7 @@ EOT;
         } catch (\Throwable $e) {
             // table didn't exist
         }
-        $this->pdo->exec("CREATE TABLE largetest (id int identity primary key, lorem VARCHAR(255))");
+        $this->pdo->exec("CREATE TABLE largetest (id int identity primary key, kafka VARCHAR(255))");
         $this->pdo->exec($insertionScript);
 
         $config = $this->getConfig('mssql');
@@ -1321,7 +1341,7 @@ EOT;
             'table' => [
                 'tableName' => 'largetest',
                 'schema' => 'dbo',
-            ]
+            ],
         ];
 
         $app = $this->createApplication($config);
