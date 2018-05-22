@@ -5,9 +5,19 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\DbExtractor\Exception\UserException;
+use Keboola\DbExtractor\Logger;
 
 class MSSQL extends Extractor
 {
+    /** @var  array */
+    private $dbParams;
+
+    public function __construct(array $parameters, array $state = [], Logger $logger = null)
+    {
+        parent::__construct($parameters, $state, $logger);
+        $this->dbParams = $parameters['db'];
+    }
+
     /**
      * @param array $params
      * @return \PDO
@@ -49,6 +59,53 @@ class MSSQL extends Extractor
     public function testConnection(): void
     {
         $this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
+    }
+
+    public function export(array $table): array
+    {
+        $outputTable = $table['outputTable'];
+        $csv = $this->createOutputCsv($outputTable);
+
+        $this->logger->info("Exporting to " . $outputTable);
+
+        $isAdvancedQuery = true;
+        if (array_key_exists('table', $table) && !array_key_exists('query', $table)) {
+            $isAdvancedQuery = false;
+            $query = $this->simpleQuery($table['table'], $table['columns']);
+        } else {
+            $query = $table['query'];
+        }
+
+        $this->logger->info("BCP import started");
+        try {
+            $bcp = new BCP($this->db, $this->dbParams, $this->logger);
+            $bcp->export($query, (string) $csv);
+        } catch (\Exception $e) {
+            throw new UserException(
+                sprintf("[%s]: DB query failed: %s", $table['name'], $e->getMessage()),
+                0,
+                $e
+            );
+        }
+        exit;
+        if ($result['rows'] > 0) {
+            $this->createManifest($table);
+        } else {
+            $this->logger->warn(sprintf(
+                "Query returned empty result. Nothing was imported for table [%s]",
+                $table['name']
+            ));
+        }
+
+        $output = [
+            "outputTable"=> $outputTable,
+            "rows" => $result['rows']
+        ];
+        // output state
+        if (!empty($result['lastFetchedRow'])) {
+            $output["state"]['lastFetchedRow'] = $result['lastFetchedRow'];
+        }
+        return $output;
     }
 
     public function getTables(?array $tables = null): array
