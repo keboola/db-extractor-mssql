@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\Datatype\Definition\GenericStorage;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Logger;
 
@@ -71,15 +72,33 @@ class MSSQL extends Extractor
         $isAdvancedQuery = true;
         if (array_key_exists('table', $table) && !array_key_exists('query', $table)) {
             $isAdvancedQuery = false;
-            $query = $this->simpleQuery($table['table'], $table['columns']);
+            $columns = $table['columns'];
+            $tableMetadata = $this->getTables([$table['table']]);
+            if (count($tableMetadata) === 0) {
+                throw new UserException(sprintf(
+                    "Was unable to determine metadata for the table: [%s].[%s]",
+                    $table['schema'],
+                    $table['tableName']
+                ));
+            }
+            $tableMetadata = $tableMetadata[0];
+            $columnMetadata = $tableMetadata['columns'];
+            if (count($columns) > 0) {
+                $columnMetadata = array_filter($columnMetadata, function($columnMeta) use ($columns) {
+                    return in_array($columnMeta['name'], $columns);
+                });
+            }
+            var_dump($columnMetadata);
+            $query = $this->simpleQuery($table['table'], $columnMetadata);
         } else {
             $query = $table['query'];
         }
+        $this->logger->debug("Executing query: " . $query);
 
-        $this->logger->info("BCP import started");
+        $this->logger->info("BCP export started");
         try {
             $bcp = new BCP($this->db, $this->dbParams, $this->logger);
-            $bcp->export($query, (string) $csv);
+            $numRows = $bcp->export($query, (string) $csv);
         } catch (\Exception $e) {
             throw new UserException(
                 sprintf("[%s]: DB query failed: %s", $table['name'], $e->getMessage()),
@@ -87,8 +106,8 @@ class MSSQL extends Extractor
                 $e
             );
         }
-        exit;
-        if ($result['rows'] > 0) {
+
+        if ($numRows > 0) {
             $this->createManifest($table);
         } else {
             $this->logger->warn(sprintf(
@@ -99,7 +118,7 @@ class MSSQL extends Extractor
 
         $output = [
             "outputTable"=> $outputTable,
-            "rows" => $result['rows']
+            "rows" => $numRows,
         ];
         // output state
         if (!empty($result['lastFetchedRow'])) {
@@ -317,28 +336,34 @@ class MSSQL extends Extractor
 
     public function simpleQuery(array $table, array $columns = array()): string
     {
-        if (count($columns) > 0) {
-            return sprintf(
-                "SELECT %s FROM %s.%s",
-                implode(
-                    ', ',
-                    array_map(
-                        function ($column) {
-                            return $this->quote($column);
-                        },
-                        $columns
-                    )
-                ),
-                $this->quote($table['schema']),
-                $this->quote($table['tableName'])
-            );
-        } else {
-            return sprintf(
-                "SELECT * FROM %s.%s",
-                $this->quote($table['schema']),
-                $this->quote($table['tableName'])
-            );
-        }
+        $datatypeKeys = ['type', 'length', 'nullable', 'default', 'format'];
+        return sprintf(
+            "SELECT %s FROM %s.%s",
+            implode(
+                ', ',
+                array_map(
+                    function ($column) use ($datatypeKeys) {
+                        $datatype = new GenericStorage(
+                            $column['type'],
+                            array_intersect_key($column, array_flip($datatypeKeys))
+                        );
+                        $colstr = $this->quote($column['name']);
+                        if ($datatype->getBasetype() === 'STRING') {
+                            $colstr = "REPLACE(" . $colstr . ", char(34), char(34) + char(34))";
+                            if ($datatype->isNullable()) {
+                                $colstr = "COALESCE(" . $colstr . ",'')";
+                            }
+                            $colstr = "char(34) + " . $colstr . " + char(34)";
+                        }
+                        return $colstr;
+                    },
+                    $columns
+                )
+            ),
+            $this->quote($table['schema']),
+            $this->quote($table['tableName'])
+        );
+
     }
 
     private function quote(string $obj): string

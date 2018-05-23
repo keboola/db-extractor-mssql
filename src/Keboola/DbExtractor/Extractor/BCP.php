@@ -27,7 +27,8 @@ class BCP
         $this->conn = $conn;
         $this->dbParams = $dbParams;
         $this->logger = $logger;
-        @unlink($this->errorFile);
+        touch($this->errorFile);
+        chmod($this->errorFile, 0777);
     }
 
     public function export(string $query, string $filename): int
@@ -39,6 +40,8 @@ class BCP
         if (!$process->isSuccessful()) {
             $errors = '';
             if (file_exists($this->errorFile)) {
+                echo "\n THERE WAS A GODDAMNED ERROR\n";
+                var_dump(file_get_contents($this->errorFile));
                 $errors = file_get_contents($this->errorFile);
             }
 
@@ -64,7 +67,7 @@ class BCP
         //D:\BCP\People.txt -t, -c -T
 
         $cmd = sprintf(
-            'bcp "%s" queryout %s -S "%s" -U %s -P "%s" -d %s -k -b50000 -e"%s" -m1 -t"\",\"" -r"\"\n" -c',
+            'bcp "%s" queryout %s -S "%s" -U %s -P "%s" -d %s -k -b50000 -e"%s" -m1 -t, -r"\n" -c',
             $query,
             $filename,
             $serverName,
