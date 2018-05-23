@@ -3,6 +3,7 @@ vendor/
 /tests/data/out/
 /tests/data/config.yml
 /tests/data/config.json
+/tmp/
 .idea/
 composer.phar
 runtests.sh

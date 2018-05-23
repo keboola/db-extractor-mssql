@@ -19,7 +19,7 @@ class BCP
     private $logger;
 
     /** @var string */
-    private $errorFile = '/tmp/ex-db-mssql-errors';
+    private $errorFile = './tmp/ex-db-mssql-errors';
 
     public function __construct(PDO $conn, array $dbParams, Logger $logger)
     {
