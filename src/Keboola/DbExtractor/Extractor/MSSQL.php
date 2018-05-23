@@ -88,7 +88,6 @@ class MSSQL extends Extractor
                     return in_array($columnMeta['name'], $columns);
                 });
             }
-            var_dump($columnMetadata);
             $query = $this->simpleQuery($table['table'], $columnMetadata);
         } else {
             $query = $table['query'];
@@ -101,9 +100,7 @@ class MSSQL extends Extractor
             $numRows = $bcp->export($query, (string) $csv);
         } catch (\Throwable $e) {
             throw new UserException(
-                sprintf("[%s]: DB query failed: %s", $table['name'], $e->getMessage()),
-                0,
-                $e
+                sprintf("[%s]: DB query failed: %s", $table['name'], $e->getMessage())
             );
         }
 
