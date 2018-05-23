@@ -86,10 +86,6 @@ class BCP
     {
         $linesCount = 0;
         foreach ($file as $i => $line) {
-            // skip header
-            if (!$i) {
-                continue;
-            }
             $linesCount++;
         }
         return $linesCount;
