@@ -35,3 +35,11 @@ parameters:
               -
                 _Weir%d I-D
             columns:
+        -
+            id: 4
+            name: special
+            enabled: true
+            outputTable: in.c-main.special
+            table:
+              schema: dbo
+              tableName: special

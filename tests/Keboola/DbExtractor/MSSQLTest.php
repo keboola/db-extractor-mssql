@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\DbExtractor\MSSQLApplication;
-
 class MSSQLTest extends AbstractMSSQLTest
 {
     public function testCredentials(): void
@@ -84,6 +82,11 @@ class MSSQLTest extends AbstractMSSQLTest
                     array (
                         'outputTable' => 'in.c-main.auto-increment-timestamp',
                         'rows' => 6,
+                    ),
+                3 =>
+                    array (
+                        'outputTable' => 'in.c-main.special',
+                        'rows' => 7,
                     ),
             ),
             $result['imported']
@@ -562,6 +565,134 @@ class MSSQLTest extends AbstractMSSQLTest
                         1 => 'Weir_d_Na_me',
                         2 => 'type',
                         3 => 'timestamp',
+                    ),
+            ),
+            $manifest
+        );
+
+        $specialManifest = $this->dataDir . '/out/tables/' . $result['imported'][3]['outputTable'] . '.csv.manifest';
+        $manifest = json_decode(file_get_contents($specialManifest), true);
+        $this->assertEquals(
+            array (
+                'destination' => 'in.c-main.special',
+                'incremental' => false,
+                'primary_key' => null,
+                'metadata' =>
+                    array (
+                        0 =>
+                            array (
+                                'key' => 'KBC.name',
+                                'value' => 'special',
+                            ),
+                        1 =>
+                            array (
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
+                            ),
+                        2 =>
+                            array (
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
+                            ),
+                        3 =>
+                            array (
+                                'key' => 'KBC.type',
+                                'value' => 'BASE TABLE',
+                            ),
+                    ),
+                'column_metadata' =>
+                    array (
+                        'col1' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'varchar',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '255',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'col1',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'col1',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '1',
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                        'col2' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'varchar',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '255',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'col2',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'col2',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '1',
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                    ),
+                'columns' =>
+                    array (
+                        0 => 'col1',
+                        1 => 'col2',
                     ),
             ),
             $manifest
