@@ -576,7 +576,6 @@ class MSSQLTest extends AbstractMSSQLTest
             array (
                 'destination' => 'in.c-main.special',
                 'incremental' => false,
-                'primary_key' => null,
                 'metadata' =>
                     array (
                         0 =>
@@ -680,7 +679,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 6 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => '1',
+                                        'value' => '2',
                                     ),
                                 7 =>
                                     array (
@@ -737,7 +736,8 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('status', $result);
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
-        $this->assertCount(3, $result['tables']);
+        $this->assertCount(4, $result['tables']);
+        var_export($result['tables']);
         $expectedData = array (
             0 =>
                 array (
@@ -1075,6 +1075,38 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 12,
+                                    'primaryKey' => false,
+                                ),
+                        ),
+                ),
+            3 =>
+                array (
+                    'name' => 'special',
+                    'catalog' => 'test',
+                    'schema' => 'dbo',
+                    'type' => 'BASE TABLE',
+                    'columns' =>
+                        array (
+                            0 =>
+                                array (
+                                    'name' => 'col1',
+                                    'sanitizedName' => 'col1',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => null,
+                                    'ordinalPosition' => '1',
+                                    'primaryKey' => false,
+                                ),
+                            1 =>
+                                array (
+                                    'name' => 'col2',
+                                    'sanitizedName' => 'col2',
+                                    'type' => 'varchar',
+                                    'length' => '255',
+                                    'nullable' => true,
+                                    'default' => null,
+                                    'ordinalPosition' => '2',
                                     'primaryKey' => false,
                                 ),
                         ),
