@@ -2,6 +2,7 @@
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Logger;
 use Symfony\Component\Process\Process;
@@ -29,7 +30,7 @@ class BCP
         @unlink($this->errorFile);
     }
 
-    public function export(string $query, string $filename): void
+    public function export(string $query, string $filename): int
     {
         $process = new Process($this->createBcpCommand($filename, $query));
         $process->setTimeout(null);
@@ -48,6 +49,9 @@ class BCP
                 $errors
             ));
         }
+        $numRows = $this->countRows(new CsvFile($filename));
+
+        return $numRows;
     }
 
     private function createBcpCommand(string $filename, string $query): string
@@ -76,5 +80,18 @@ class BCP
         ));
 
         return $cmd;
+    }
+
+    protected function countRows(CsvFile $file)
+    {
+        $linesCount = 0;
+        foreach ($file as $i => $line) {
+            // skip header
+            if (!$i) {
+                continue;
+            }
+            $linesCount++;
+        }
+        return $linesCount;
     }
 }
