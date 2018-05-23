@@ -1,10 +1,7 @@
 vendor/
-/data/
 /tests/data/out/
 /tests/data/config.yml
 /tests/data/config.json
-/tmp/
+/tmp/ex-db-mssql-errors
 .idea/
 composer.phar
-runtests.sh
-test.php
