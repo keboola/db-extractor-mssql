@@ -1,18 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Logger;
 use Symfony\Component\Process\Process;
-use PDO;
 
 class BCP
 {
-    /** @var PDO */
-    private $conn;
-
     /** @var array */
     private $dbParams;
 
@@ -22,13 +20,11 @@ class BCP
     /** @var string */
     private $errorFile = './tmp/ex-db-mssql-errors';
 
-    public function __construct(PDO $conn, array $dbParams, Logger $logger)
+    public function __construct(array $dbParams, Logger $logger)
     {
-        $this->conn = $conn;
         $this->dbParams = $dbParams;
         $this->logger = $logger;
-        touch($this->errorFile);
-        chmod($this->errorFile, 0777);
+        @unlink($this->errorFile);
     }
 
     public function export(string $query, string $filename): int
@@ -63,9 +59,6 @@ class BCP
         $serverName .= !empty($this->dbParams['instance']) ? '\\' . $this->dbParams['instance'] : '';
         $serverName .= "," . $this->dbParams['port'];
 
-        //bcp "SELECT FullName, PreferredName FROM WideWorldImporters.Application.People ORDER BY FullName" queryout
-        //D:\BCP\People.txt -t, -c -T
-
         $cmd = sprintf(
             'bcp "%s" queryout %s -S "%s" -U %s -P "%s" -d %s -k -b50000 -e"%s" -m1 -t, -r"\n" -c',
             $query,
@@ -85,7 +78,7 @@ class BCP
         return $cmd;
     }
 
-    protected function countRows(CsvFile $file)
+    protected function countRows(CsvFile $file): int
     {
         $linesCount = 0;
         foreach ($file as $i => $line) {

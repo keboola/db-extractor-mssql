@@ -13,7 +13,7 @@ class MSSQL extends Extractor
     /** @var  array */
     private $dbParams;
 
-    public function __construct(array $parameters, array $state = [], Logger $logger = null)
+    public function __construct(array $parameters, array $state = [], ?Logger $logger = null)
     {
         parent::__construct($parameters, $state, $logger);
         $this->dbParams = $parameters['db'];
@@ -84,7 +84,7 @@ class MSSQL extends Extractor
             $tableMetadata = $tableMetadata[0];
             $columnMetadata = $tableMetadata['columns'];
             if (count($columns) > 0) {
-                $columnMetadata = array_filter($columnMetadata, function($columnMeta) use ($columns) {
+                $columnMetadata = array_filter($columnMetadata, function ($columnMeta) use ($columns) {
                     return in_array($columnMeta['name'], $columns);
                 });
             }
@@ -97,9 +97,9 @@ class MSSQL extends Extractor
 
         $this->logger->info("BCP export started");
         try {
-            $bcp = new BCP($this->db, $this->dbParams, $this->logger);
+            $bcp = new BCP($this->dbParams, $this->logger);
             $numRows = $bcp->export($query, (string) $csv);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new UserException(
                 sprintf("[%s]: DB query failed: %s", $table['name'], $e->getMessage()),
                 0,
@@ -363,7 +363,6 @@ class MSSQL extends Extractor
             $this->quote($table['schema']),
             $this->quote($table['tableName'])
         );
-
     }
 
     private function quote(string $obj): string
