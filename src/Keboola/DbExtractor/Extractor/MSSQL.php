@@ -343,6 +343,6 @@ class MSSQL extends Extractor
 
     private function quote(string $obj): string
     {
-        return "\"{$obj}\"";
+        return "[{$obj}]";
     }
 }
