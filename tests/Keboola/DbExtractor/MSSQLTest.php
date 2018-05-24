@@ -363,7 +363,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.length',
-                                        'value' => 10,
+                                        'value' => '10',
                                     ),
                                 4 =>
                                     array (
@@ -378,7 +378,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 6 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => 1,
+                                        'value' => '1',
                                     ),
                                 7 =>
                                     array (
@@ -398,7 +398,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 10 =>
                                     array (
                                         'key' => 'KBC.checkClause',
-                                        'value' => '([_Weir%d I-D] > 0 and [_Weir%d I-D] < 20)',
+                                        'value' => '([_Weir%d I-D]>(0) AND [_Weir%d I-D]<(20))',
                                     ),
                             ),
                         'Weir_d_Na_me' =>
@@ -421,7 +421,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.length',
-                                        'value' => 55,
+                                        'value' => '55',
                                     ),
                                 4 =>
                                     array (
@@ -441,7 +441,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 7 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => 2,
+                                        'value' => '2',
                                     ),
                                 8 =>
                                     array (
@@ -479,7 +479,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.length',
-                                        'value' => 55,
+                                        'value' => '55',
                                     ),
                                 4 =>
                                     array (
@@ -494,7 +494,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 6 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => 3,
+                                        'value' => '3',
                                     ),
                                 7 =>
                                     array (
@@ -531,30 +531,25 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 3 =>
                                     array (
-                                        'key' => 'KBC.datatype.length',
-                                        'value' => '23,3',
-                                    ),
-                                4 =>
-                                    array (
                                         'key' => 'KBC.datatype.default',
                                         'value' => '(getdate())',
                                     ),
-                                5 =>
+                                4 =>
                                     array (
                                         'key' => 'KBC.sourceName',
                                         'value' => 'timestamp',
                                     ),
-                                6 =>
+                                5 =>
                                     array (
                                         'key' => 'KBC.sanitizedName',
                                         'value' => 'timestamp',
                                     ),
-                                7 =>
+                                6 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => 4,
+                                        'value' => '4',
                                     ),
-                                8 =>
+                                7 =>
                                     array (
                                         'key' => 'KBC.primaryKey',
                                         'value' => false,
@@ -637,7 +632,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'timestamp',
                                     'sanitizedName' => 'timestamp',
                                     'type' => 'datetime',
-                                    'length' => '23,3',
+                                    'length' => null,
                                     'nullable' => true,
                                     'default' => '(getdate())',
                                     'ordinalPosition' => 4,

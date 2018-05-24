@@ -15,12 +15,6 @@ class MSSQL extends Extractor
      */
     public function createConnection($params): \PDO
     {
-        // convert errors to PDOExceptions
-        $options = [
-         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-        ];
-
         // check params
         if (isset($params['#password'])) {
                 $params['password'] = $params['#password'];
@@ -32,21 +26,18 @@ class MSSQL extends Extractor
             }
         }
 
-        $port = isset($params['port']) ? $params['port'] : '1433';
-        $dsn = sprintf(
-            "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
-            $params['host'],
-            $port,
-            $params['database']
-        );
+        // construct DSN connection string
+        $host = $params['host'];
+        $host .= (isset($params['port']) && $params['port'] !== '1433') ? ',' . $params['port'] : '';
+        $host .= empty($params['instance']) ? '' : '\\\\' . $params['instance'];
+        $options[] = 'Server=' . $host;
+        $options[] = 'Database=' . $params['database'];
+        $dsn = sprintf("sqlsrv:%s", implode(';', $options));
+        $this->logger->info("Connecting to DSN '" . $dsn . "'");
 
-        $pdo = new \PDO(
-            $dsn,
-            $params['user'],
-            $params['password'] ? $params['password'] : '',
-            $options
-        );
-
+        // ms sql doesn't support options
+        $pdo = new \PDO($dsn, $params['user'], $params['password']);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         return $pdo;
     }
 
@@ -109,6 +100,7 @@ class MSSQL extends Extractor
                 'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : '',
             ];
         }
+        ksort($tableDefs);
 
         if (count($tableNameArray) === 0) {
             return [];

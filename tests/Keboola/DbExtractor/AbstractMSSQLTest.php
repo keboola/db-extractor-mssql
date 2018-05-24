@@ -31,27 +31,27 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     private function makeConnection(): void
     {
-        $options = [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-        ];
-
         $config = $this->getConfig('mssql');
-        $dbConfig = $config['parameters']['db'];
+        $params = $config['parameters']['db'];
 
-        $dsn = sprintf(
-            "dblib:host=%s:%d;dbname=%s;charset=UTF-8",
-            $dbConfig['host'],
-            $dbConfig['port'],
-            $dbConfig['database']
-        );
+        if (isset($params['#password'])) {
+            $params['password'] = $params['#password'];
+        }
 
+        // create test database
         $this->pdo = new \PDO(
-            $dsn,
-            $dbConfig['user'],
-            $dbConfig['password'] ? $dbConfig['password'] : '',
-            $options
+            sprintf("sqlsrv:Server=%s", $params['host']),
+            $params['user'],
+            $params['password']
         );
+        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+        $this->pdo->exec("USE master");
+        $this->pdo->exec(sprintf("
+            IF NOT EXISTS(select * from sys.databases where name='%s') 
+            CREATE DATABASE %s
+        ", $params['database'], $params['database']));
+        $this->pdo->exec(sprintf("USE %s", $params['database']));
     }
 
     private function setupTables(): void
@@ -93,19 +93,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function getConfig($driver = 'mssql', $format = 'yaml'): array
     {
-        if ($format === 'yaml') {
-            $config = Yaml::parse(file_get_contents($this->dataDir . '/' .$driver . '/config.yml'));
-        } else if ($format === 'json') {
-            $config = json_decode(file_get_contents($this->dataDir . '/' .$driver . '/config.json'), true);
-        }
-
-        $config['parameters']['data_dir'] = $this->dataDir;
-        $config['parameters']['db']['user'] = $this->getEnv($driver, 'DB_USER', true);
-        $config['parameters']['db']['password'] = $this->getEnv($driver, 'DB_PASSWORD');
-        $config['parameters']['db']['host'] = $this->getEnv($driver, 'DB_HOST');
-        $config['parameters']['db']['port'] = $this->getEnv($driver, 'DB_PORT');
-        $config['parameters']['db']['database'] = $this->getEnv($driver, 'DB_DATABASE');
-
+        $config = parent::getConfig($driver, $format);
         $config['parameters']['extractor_class'] = 'MSSQL';
         return $config;
     }
