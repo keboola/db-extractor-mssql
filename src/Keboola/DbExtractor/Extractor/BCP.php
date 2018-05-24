@@ -36,7 +36,6 @@ class BCP
         if (!$process->isSuccessful()) {
             $errors = '';
             if (file_exists($this->errorFile)) {
-                echo "\n THERE WAS A GODDAMNED ERROR\n";
                 var_dump(file_get_contents($this->errorFile));
                 $errors = file_get_contents($this->errorFile);
             }
@@ -48,8 +47,18 @@ class BCP
                 $errors
             ));
         }
-        $numRows = $this->countRows(new CsvFile($filename));
 
+        $outputFile = new CsvFile($filename);
+        $numRows = 0;
+        $colCount = $outputFile->getColumnsCount();
+        while ($outputFile->valid()) {
+            if (count($outputFile->current()) !== $colCount) {
+                throw new UserException("The BCP command produced an invalid csv.");
+            }
+            $outputFile->next();
+            $numRows++;
+        }
+        $this->logger->info(sprintf("BCP successfully exported %d rows.", $numRows));
         return $numRows;
     }
 
@@ -76,14 +85,5 @@ class BCP
         ));
 
         return $cmd;
-    }
-
-    protected function countRows(CsvFile $file): int
-    {
-        $linesCount = 0;
-        foreach ($file as $i => $line) {
-            $linesCount++;
-        }
-        return $linesCount;
     }
 }
