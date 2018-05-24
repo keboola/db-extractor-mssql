@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\Csv\Exception as CsvException;
 use Keboola\Datatype\Definition\GenericStorage;
+use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Logger;
 
@@ -99,9 +101,32 @@ class MSSQL extends Extractor
             $bcp = new BCP($this->dbParams, $this->logger);
             $numRows = $bcp->export($query, (string) $csv);
         } catch (\Throwable $e) {
-            throw new UserException(
-                sprintf("[%s]: DB query failed: %s", $table['name'], $e->getMessage())
+            $this->logger->warn(
+                sprintf(
+                    "[%s]: BCP command failed: %s. Attempting export using pdo_sqlsrv.",
+                    $table['name'],
+                    $e->getMessage()
+                )
             );
+            try {
+                /** @var \PDOStatement $stmt */
+                $stmt = $this->executeQuery(
+                    $query,
+                    isset($table['retries']) ? (int) $table['retries'] : self::DEFAULT_MAX_TRIES
+                );
+            } catch (\Exception $e) {
+                throw new UserException(
+                    sprintf("[%s]: DB query failed: %s.", $table['name'], $e->getMessage()),
+                    0,
+                    $e
+                );
+            }
+            try {
+                $result = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
+                $numRows = $result['rows'];
+            } catch (CsvException $e) {
+                throw new ApplicationException("Write to CSV failed: " . $e->getMessage(), 0, $e);
+            }
         }
 
         if ($numRows > 0) {
