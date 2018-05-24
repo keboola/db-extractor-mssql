@@ -93,4 +93,49 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals("", $process->getErrorOutput());
         $this->assertJson($process->getOutput());
     }
+
+    public function testRunError(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][0]);
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]['table']);
+        $config['parameters']['tables'][3]['query'] = "SELECT SOMETHING INVALID FROM \"dbo\".\"special\"";
+        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+
+        var_dump($process->getErrorOutput());
+        $this->assertContains("Tried 5 times..", $process->getErrorOutput());
+
+        $this->assertContains("BCP command failed:", $process->getOutput());
+        $this->assertContains("Attempting export using pdo", $process->getOutput());
+    }
+
+    public function testPdoFallback(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][0]);
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]['table']);
+        $config['parameters']['tables'][3]['query'] = "SELECT \"col1\", \"col2\" FROM \"dbo\".\"special\"";
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertEquals('', $process->getErrorOutput());
+
+        $this->assertContains("BCP command failed:", $process->getOutput());
+        $this->assertContains("Attempting export using pdo", $process->getOutput());
+    }
 }
