@@ -17,14 +17,10 @@ class BCP
     /** @var Logger */
     private $logger;
 
-    /** @var string */
-    private $errorFile = './tmp/ex-db-mssql-errors';
-
     public function __construct(array $dbParams, Logger $logger)
     {
         $this->dbParams = $dbParams;
         $this->logger = $logger;
-        @unlink($this->errorFile);
     }
 
     public function export(string $query, string $filename): int
@@ -34,17 +30,10 @@ class BCP
         $process->run();
 
         if (!$process->isSuccessful()) {
-            $errors = '';
-            if (file_exists($this->errorFile)) {
-                var_dump(file_get_contents($this->errorFile));
-                $errors = file_get_contents($this->errorFile);
-            }
-
             throw new UserException(sprintf(
-                "Export process failed. Output: %s. \n\n Error Output: %s. \n\n Errors: %s",
+                "Export process failed. Output: %s. \n\n Error Output: %s.",
                 $process->getOutput(),
-                $process->getErrorOutput(),
-                $errors
+                $process->getErrorOutput()
             ));
         }
 
@@ -79,7 +68,7 @@ class BCP
             $this->errorFile
         );
 
-        $this->logger->info(sprintf(
+        $this->logger->debug(sprintf(
             "The export BCP command: %s",
             preg_replace('/\-P.".*".\-d/', '-P "*****" -d', $cmd)
         ));

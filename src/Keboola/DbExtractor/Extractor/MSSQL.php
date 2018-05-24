@@ -101,7 +101,7 @@ class MSSQL extends Extractor
             $bcp = new BCP($this->dbParams, $this->logger);
             $numRows = $bcp->export($query, (string) $csv);
         } catch (\Throwable $e) {
-            $this->logger->warn(
+            $this->logger->info(
                 sprintf(
                     "[%s]: BCP command failed: %s. Attempting export using pdo_sqlsrv.",
                     $table['name'],
