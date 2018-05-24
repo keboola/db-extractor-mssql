@@ -42,6 +42,30 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->checkResult($result);
     }
 
+    public function testPdoFallback(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][0]);
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]['table']);
+        $config['parameters']['tables'][3]['query'] = "SELECT \"col1\", \"col2\" FROM \"dbo\".\"special\"";
+
+        $result = $this->createApplication($config)->run();
+
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(
+            array(
+                0=>
+                    array(
+                        'outputTable' => 'in.c-main.special',
+                        'rows' => 7,
+                    )
+            ),
+            $result['imported']
+        );
+    }
+
     public function testRunWithSSH(): void
     {
         $config = $this->getConfig('mssql', 'json');
