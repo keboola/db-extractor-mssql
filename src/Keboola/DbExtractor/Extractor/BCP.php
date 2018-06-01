@@ -64,8 +64,7 @@ class BCP
             $serverName,
             $this->dbParams['user'],
             $this->dbParams['#password'],
-            $this->dbParams['database'],
-            $this->errorFile
+            $this->dbParams['database']
         );
 
         $this->logger->debug(sprintf(
