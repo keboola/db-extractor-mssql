@@ -5,9 +5,9 @@ declare(strict_types=1);
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
-use Symfony\Component\Yaml\Yaml;
+use Keboola\DbExtractor\Logger;
 use Monolog\Handler\NullHandler;
-use Monolog\Logger;
+use Symfony\Component\Yaml\Yaml;
 
 require_once(dirname(__FILE__) . "/../vendor/autoload.php");
 
@@ -37,7 +37,7 @@ try {
     $inputState = [];
     $inputStateFile = $arguments['data'] . '/in/state.json';
     if (file_exists($inputStateFile)) {
-        $inputState = json_decode(file_get_contents($inputStateFile),true);
+        $inputState = json_decode(file_get_contents($inputStateFile), true);
     }
 
     $app = new MSSQLApplication(
