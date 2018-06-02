@@ -10,6 +10,9 @@ use Symfony\Component\Yaml\Yaml;
 
 class ApplicationTest extends AbstractMSSQLTest
 {
+    /** @var string */
+    protected $rootPath = __DIR__ . '/../../..';
+    
     public function testTestConnectionAction(): void
     {
         $config = $this->getConfig('mssql');
@@ -17,7 +20,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
@@ -56,7 +59,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
@@ -100,7 +103,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
@@ -119,14 +122,14 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['tables'][3]['query'] = "SELECT SOMETHING INVALID FROM \"dbo\".\"special\"";
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
 
         var_dump($process->getErrorOutput());
-        $this->assertContains("Tried 5 times..", $process->getErrorOutput());
+        $this->assertContains("[special]: DB query failed:", $process->getErrorOutput());
 
         $this->assertContains("BCP command failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
@@ -142,7 +145,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
