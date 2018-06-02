@@ -9,8 +9,6 @@ use Symfony\Component\Yaml\Yaml;
 use Monolog\Handler\NullHandler;
 use Monolog\Logger;
 
-define('APP_NAME', 'ex-db-mssql');
-
 require_once(dirname(__FILE__) . "/../vendor/autoload.php");
 
 $logger = new Logger('ex-db-mssql');
@@ -73,7 +71,6 @@ try {
     if (!$runAction) {
         echo $e->getMessage();
     }
-
     exit(1);
 } catch (ApplicationException $e) {
     $logger->log('error', $e->getMessage(), $e->getData());
