@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "keboola/db-extractor-common": "^8.1.0",
+        "keboola/db-extractor-common": "^9.1.2",
         "keboola/php-utils": "^2.3.1"
     },
     "require-dev": {
