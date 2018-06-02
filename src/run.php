@@ -13,7 +13,7 @@ define('APP_NAME', 'ex-db-mssql');
 
 require_once __DIR__ . "/../bootstrap.php";
 
-$logger = new \Keboola\DbExtractor\Logger(APP_NAME);
+$logger = new Logger('ex-db-mssql');
 $runAction = true;
 
 try {
@@ -36,6 +36,8 @@ try {
 
     $app = new MSSQLApplication(
         $config,
+        $logger,
+        [],
         $arguments["data"]
     );
 

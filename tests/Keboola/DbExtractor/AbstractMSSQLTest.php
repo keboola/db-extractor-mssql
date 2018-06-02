@@ -7,7 +7,7 @@ namespace Keboola\DbExtractor\Tests;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
-use Symfony\Component\Yaml\Yaml;
+use Keboola\DbExtractor\Logger;
 
 abstract class AbstractMSSQLTest extends ExtractorTest
 {
@@ -237,6 +237,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function createApplication(array $config): MSSQLApplication
     {
+        $logger = new Logger('ex-db-mssql-tests');
         $app = new MSSQLApplication($config, $this->dataDir);
         return $app;
     }
