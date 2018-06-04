@@ -58,7 +58,7 @@ class BCP
         $serverName .= "," . $this->dbParams['port'];
 
         $cmd = sprintf(
-            'bcp "%s" queryout %s -S "%s" -U %s -P "%s" -d %s -k -b50000 -e"%s" -m1 -t, -r"\n" -c',
+            'bcp "%s" queryout %s -S "%s" -U %s -P "%s" -d %s -k -b50000 -m1 -t, -r"\n" -c',
             $query,
             $filename,
             $serverName,
