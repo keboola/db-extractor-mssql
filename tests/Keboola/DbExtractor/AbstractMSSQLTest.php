@@ -30,7 +30,6 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     private function makeConnection(): void
     {
         $config = $this->getConfig(self::DRIVER);
-        var_dump($config);
         $params = $config['parameters']['db'];
 
         if (isset($params['#password'])) {
