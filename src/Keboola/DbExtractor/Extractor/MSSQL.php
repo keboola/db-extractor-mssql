@@ -371,11 +371,14 @@ class MSSQL extends Extractor
                         );
                         $colstr = $this->quote($column['name']);
                         if ($datatype->getBasetype() === 'STRING') {
-                            $colstr = "REPLACE(" . $colstr . ", char(34), char(34) + char(34))";
-                            if ($datatype->isNullable()) {
-                                $colstr = "COALESCE(" . $colstr . ",'')";
+                            if ($datatype->getType() === 'text' || $datatype->getType() === 'ntext') {
+                                $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
                             }
-                            $colstr = "char(34) + " . $colstr . " + char(34)";
+                            $colstr = sprintf("REPLACE(%s, char(34), char(34) + char(34))", $colstr);
+                            if ($datatype->isNullable()) {
+                                $colstr = sprintf("COALESCE(%s,'')", $colstr);
+                            }
+                            $colstr = sprintf("char(34) + %s + char(34)", $colstr);
                         }
                         return $colstr;
                     },
