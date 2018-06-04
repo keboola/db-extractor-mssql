@@ -127,7 +127,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                 ', ',
                 array_map(
                     function ($column) {
-                        return $column . ' varchar(255) NULL';
+                        return $column . ' text NULL';
                     },
                     $file->getHeader()
                 )
