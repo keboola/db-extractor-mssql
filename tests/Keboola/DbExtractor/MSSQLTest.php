@@ -34,6 +34,30 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertEquals('success', $result['status']);
     }
 
+    public function testRunNoRows(): void
+    {
+        $salesManifestFile = $this->dataDir . '/out/tables/in.c-main.sales.csv.manifest';
+        $salesDataFile = $this->dataDir . '/out/tables/in.c-main.sales.csv';
+        unlink($salesDataFile);
+        unlink($salesManifestFile);
+
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+
+        $config['parameters']['tables'][0]['query'] = "SELECT * FROM sales WHERE usergender = 'undefined'";
+
+        $app = $this->createApplication($config);
+        $result = $app->run();
+
+        $this->assertArrayHasKey('status', $result);
+        $this->assertEquals('success', $result['status']);
+
+        $this->assertFileNotExists($salesManifestFile);
+        $this->assertFileNotExists($salesDataFile);
+    }
+
     /**
      * @dataProvider configProvider
      */
