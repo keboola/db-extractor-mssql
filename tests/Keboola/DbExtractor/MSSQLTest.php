@@ -96,7 +96,21 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $salesManifestFile = $this->dataDir . '/out/tables/' . $result['imported'][0]['outputTable'] . '.csv.manifest';
         $manifest = json_decode(file_get_contents($salesManifestFile), true);
-        $this->assertEquals(['destination' => 'in.c-main.sales', 'incremental' => false], $manifest);
+        $this->assertEquals(['destination' => 'in.c-main.sales', 'incremental' => false, 'columns' =>
+            array (
+                0 => 'usergender',
+                1 => 'usercity',
+                2 => 'usersentiment',
+                3 => 'zipcode',
+                4 => 'sku',
+                5 => 'createdat',
+                6 => 'category',
+                7 => 'price',
+                8 => 'county',
+                9 => 'countycode',
+                10 => 'userstate',
+                11 => 'categorygroup',
+            ),], $manifest);
 
         $tableColumnsManifest = $this->dataDir . '/out/tables/' . $result['imported'][1]['outputTable'] . '.csv.manifest';
         $manifest = json_decode(file_get_contents($tableColumnsManifest), true);

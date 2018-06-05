@@ -44,7 +44,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $expectedCsv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
         $expectedCsv1 = iterator_to_array($expectedCsv1);
-        
+
         $expectedCsv2 = new CsvFile($this->dataDir . '/mssql/tableColumns.csv');
         $expectedCsv2 = iterator_to_array($expectedCsv2);
         array_shift($expectedCsv2);
