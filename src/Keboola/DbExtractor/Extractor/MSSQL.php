@@ -173,7 +173,8 @@ class MSSQL extends Extractor
             $stmt = $this->db->query($sql);
             $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             if (is_array($result) && !empty($result)) {
-                return array_map(function ($row) {
+                return array_map(
+                    function ($row) {
                         return $row['name'];
                     },
                     $result
