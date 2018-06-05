@@ -122,7 +122,7 @@ class MSSQL extends Extractor
                 );
             }
             try {
-                $result = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
+                $result = $this->writeToCsv($stmt, $csv);
                 $numRows = $result['rows'];
             } catch (CsvException $e) {
                 throw new ApplicationException("Write to CSV failed: " . $e->getMessage(), 0, $e);
@@ -131,8 +131,15 @@ class MSSQL extends Extractor
 
         if ($numRows > 0) {
             $this->createManifest($table);
+            if ($isAdvancedQuery) {
+                $manifestFile = $this->getOutputFilename($table['outputTable']) . '.manifest';
+                $columnsArray = $this->getAdvancedQueryColumns($query);
+                $manifest = json_decode(file_get_contents($manifestFile), true);
+                $manifest['columns'] = $columnsArray;
+                file_put_contents($manifestFile, json_encode($manifest));
+            }
         } else {
-            $this->logger->warn(sprintf(
+            $this->logger->notice(sprintf(
                 "Query returned empty result. Nothing was imported for table [%s]",
                 $table['name']
             ));
@@ -147,6 +154,39 @@ class MSSQL extends Extractor
             $output["state"]['lastFetchedRow'] = $result['lastFetchedRow'];
         }
         return $output;
+    }
+
+    /**
+     * @param string $query
+     * @return array|bool
+     * @throws UserException
+     */
+    public function getAdvancedQueryColumns(string $query)
+    {
+        // This will only work if the server is >= sql server 2012
+        $sql = sprintf(
+            "EXEC sp_describe_first_result_set N'%s', null, 0;",
+            rtrim(trim($query), ';')
+        );
+        try {
+            /** @var \PDOStatement $stmt */
+            $stmt = $this->db->query($sql);
+            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            if (is_array($result) && !empty($result)) {
+                return array_map(function ($row) {
+                        return $row['name'];
+                    },
+                    $result
+                );
+            }
+            return false;
+        } catch (\Exception $e) {
+            throw new UserException(
+                sprintf('DB query "%s" failed: %s', rtrim(trim($query), ';'), $e->getMessage()),
+                0,
+                $e
+            );
+        }
     }
 
     public function getTables(?array $tables = null): array
