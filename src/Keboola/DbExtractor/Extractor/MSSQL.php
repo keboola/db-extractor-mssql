@@ -103,7 +103,7 @@ class MSSQL extends Extractor
             if ($numRows === 0) {
                 // BCP will create an empty file for no rows case
                 @unlink((string) $csv);
-                $this->logger->notice(sprintf(
+                $this->logger->warning(sprintf(
                     "Query returned empty result. Nothing was imported for table [%s]",
                     $table['name']
                 ));
@@ -143,6 +143,12 @@ class MSSQL extends Extractor
                 $numRows = $result['rows'];
                 if ($numRows > 0) {
                     $this->createManifest($table);
+                } else {
+                    $this->logger->warning(sprintf(
+                        "Query returned empty result. Nothing was imported for table [%s]",
+                        $table['name']
+                    ));
+                    @unlink((string) $csv);
                 }
             } catch (CsvException $e) {
                 throw new ApplicationException("Write to CSV failed: " . $e->getMessage(), 0, $e);

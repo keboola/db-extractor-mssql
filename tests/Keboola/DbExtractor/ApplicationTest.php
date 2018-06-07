@@ -116,7 +116,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertContains("BCP command failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
     }
-    
+
     public function testPdoFallback(): void
     {
         $config = $this->getConfig('mssql');
@@ -136,5 +136,42 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertContains("BCP command failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
+    }
+
+    public function testPDOFallbackSimpleNoData(): void
+    {
+        $this->pdo->exec("CREATE TABLE [Empty Test] ([wierd C\$name] varchar, col2 varchar);");
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        unset($config['parameters']['tables'][0]['query']);
+        $config['parameters']['tables'][0]['name'] = "simple_empty";
+        $config['parameters']['tables'][0]['outputTable'] = "in.c-main.simple_empty";
+        $config['parameters']['tables'][0]['table'] = [
+            "tableName" => "empty test",
+            "schema" => "dbo",
+        ];
+
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $dataFile = $this->dataDir . '/out/tables/in.c-main.simple_empty.csv';
+        $manifestFile = $this->dataDir . '/out/tables/in.c-main.simple_empty.csv.manifest';
+        @unlink($dataFile);
+        @unlink($manifestFile);
+
+        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertContains('Nothing was imported for table [simple_empty]', $process->getErrorOutput());
+
+        $this->assertContains("BCP command failed:", $process->getOutput());
+        $this->assertContains("Attempting export using pdo", $process->getOutput());
+
+        $this->assertFileNotExists($dataFile);
+        $this->assertFileNotExists($manifestFile);
     }
 }

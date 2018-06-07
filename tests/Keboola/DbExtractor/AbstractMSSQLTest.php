@@ -59,6 +59,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
         $specialCsv = new CsvFile($this->dataDir . "/mssql/special.csv");
 
+        $this->pdo->exec("IF OBJECT_ID('dbo.[Empty Test]', 'U') IS NOT NULL DROP TABLE dbo.[Empty Test]");
         $this->pdo->exec("IF OBJECT_ID('dbo.sales2', 'U') IS NOT NULL DROP TABLE dbo.sales2");
         $this->pdo->exec("IF OBJECT_ID('dbo.sales', 'U') IS NOT NULL DROP TABLE dbo.sales");
         $this->pdo->exec("IF OBJECT_ID('dbo.special', 'U') IS NOT NULL DROP TABLE dbo.special");
