@@ -88,7 +88,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.json');
         file_put_contents($this->dataDir . '/config.json', json_encode($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
@@ -179,7 +179,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($dataFile);
         @unlink($manifestFile);
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
