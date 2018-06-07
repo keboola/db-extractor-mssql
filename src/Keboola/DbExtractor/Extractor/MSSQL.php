@@ -100,6 +100,10 @@ class MSSQL extends Extractor
         try {
             $bcp = new BCP($this->dbParams, $this->logger);
             $numRows = $bcp->export($query, (string) $csv);
+            if ($numRows === 0) {
+                // BCP will create an empty file for no rows case
+                @unlink((string) $csv);
+            }
         } catch (\Throwable $e) {
             $this->logger->info(
                 sprintf(
