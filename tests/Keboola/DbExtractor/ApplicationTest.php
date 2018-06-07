@@ -116,15 +116,14 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertContains("BCP command failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
     }
-
+    
     public function testPdoFallback(): void
     {
         $config = $this->getConfig('mssql');
-        unset($config['parameters']['tables'][0]);
         unset($config['parameters']['tables'][1]);
         unset($config['parameters']['tables'][2]);
-        unset($config['parameters']['tables'][3]['table']);
-        $config['parameters']['tables'][3]['query'] = "SELECT \"col1\", \"col2\" FROM \"dbo\".\"special\"";
+        unset($config['parameters']['tables'][3]);
+        $config['parameters']['tables'][0]['query'] = "SELECT \"usergender\", \"sku\"  FROM \"sales\" WHERE \"usergender\" LIKE 'male'";
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 

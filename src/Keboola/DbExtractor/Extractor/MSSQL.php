@@ -103,6 +103,19 @@ class MSSQL extends Extractor
             if ($numRows === 0) {
                 // BCP will create an empty file for no rows case
                 @unlink((string) $csv);
+                $this->logger->notice(sprintf(
+                    "Query returned empty result. Nothing was imported for table [%s]",
+                    $table['name']
+                ));
+            } else {
+                $this->createManifest($table);
+                if ($isAdvancedQuery) {
+                    $manifestFile = $this->getOutputFilename($table['outputTable']) . '.manifest';
+                    $columnsArray = $this->getAdvancedQueryColumns($query);
+                    $manifest = json_decode(file_get_contents($manifestFile), true);
+                    $manifest['columns'] = $columnsArray;
+                    file_put_contents($manifestFile, json_encode($manifest));
+                }
             }
         } catch (\Throwable $e) {
             $this->logger->info(
@@ -126,27 +139,14 @@ class MSSQL extends Extractor
                 );
             }
             try {
-                $result = $this->writeToCsv($stmt, $csv);
+                $result = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
                 $numRows = $result['rows'];
+                if ($numRows > 0) {
+                    $this->createManifest($table);
+                }
             } catch (CsvException $e) {
                 throw new ApplicationException("Write to CSV failed: " . $e->getMessage(), 0, $e);
             }
-        }
-
-        if ($numRows > 0) {
-            $this->createManifest($table);
-            if ($isAdvancedQuery) {
-                $manifestFile = $this->getOutputFilename($table['outputTable']) . '.manifest';
-                $columnsArray = $this->getAdvancedQueryColumns($query);
-                $manifest = json_decode(file_get_contents($manifestFile), true);
-                $manifest['columns'] = $columnsArray;
-                file_put_contents($manifestFile, json_encode($manifest));
-            }
-        } else {
-            $this->logger->notice(sprintf(
-                "Query returned empty result. Nothing was imported for table [%s]",
-                $table['name']
-            ));
         }
 
         $output = [
