@@ -78,6 +78,21 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertFileExists($manifestFile4);
     }
 
+    public function testRunActionJsonConfig(): void
+    {
+        $config = $this->getConfig('mssql', 'json');
+        @unlink($this->dataDir . '/config.yml');
+        @unlink($this->dataDir . '/config.json');
+        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+
+        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertEquals("", $process->getErrorOutput());
+    }
+
     public function testGetTablesAction(): void
     {
         $config = $this->getConfig('mssql');

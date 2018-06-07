@@ -2,6 +2,5 @@ vendor/
 /tests/data/out/
 /tests/data/config.yml
 /tests/data/config.json
-/tmp/ex-db-mssql-errors
 .idea/
 composer.phar
