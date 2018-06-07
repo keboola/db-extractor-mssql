@@ -57,11 +57,16 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     private function setupTables(): void
     {
         $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
+        $specialCsv = new CsvFile($this->dataDir . "/mssql/special.csv");
 
+        $this->pdo->exec("IF OBJECT_ID('dbo.[Empty Test]', 'U') IS NOT NULL DROP TABLE dbo.[Empty Test]");
         $this->pdo->exec("IF OBJECT_ID('dbo.sales2', 'U') IS NOT NULL DROP TABLE dbo.sales2");
         $this->pdo->exec("IF OBJECT_ID('dbo.sales', 'U') IS NOT NULL DROP TABLE dbo.sales");
+        $this->pdo->exec("IF OBJECT_ID('dbo.special', 'U') IS NOT NULL DROP TABLE dbo.special");
+
         $this->createTextTable($csv1, ['createdat'], "sales");
         $this->createTextTable($csv1, null, "sales2");
+        $this->createTextTable($specialCsv, null, "special");
         // drop the t1 demo table if it exists
         $this->pdo->exec("IF OBJECT_ID('t1', 'U') IS NOT NULL DROP TABLE t1");
 
@@ -123,7 +128,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                 ', ',
                 array_map(
                     function ($column) {
-                        return $column . ' varchar(255) NULL';
+                        return $column . ' text NULL';
                     },
                     $file->getHeader()
                 )

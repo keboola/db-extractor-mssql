@@ -4,10 +4,23 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\Csv\Exception as CsvException;
+use Keboola\Datatype\Definition\GenericStorage;
+use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
+use Keboola\DbExtractor\Logger;
 
 class MSSQL extends Extractor
 {
+    /** @var  array */
+    private $dbParams;
+
+    public function __construct(array $parameters, array $state = [], ?Logger $logger = null)
+    {
+        parent::__construct($parameters, $state, $logger);
+        $this->dbParams = $parameters['db'];
+    }
+
     /**
      * @param array $params
      * @return \PDO
@@ -49,6 +62,142 @@ class MSSQL extends Extractor
     public function testConnection(): void
     {
         $this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
+    }
+
+    public function export(array $table): array
+    {
+        $outputTable = $table['outputTable'];
+        $csv = $this->createOutputCsv($outputTable);
+
+        $this->logger->info("Exporting to " . $outputTable);
+
+        $isAdvancedQuery = true;
+        if (array_key_exists('table', $table) && !array_key_exists('query', $table)) {
+            $isAdvancedQuery = false;
+            $columns = $table['columns'];
+            $tableMetadata = $this->getTables([$table['table']]);
+            if (count($tableMetadata) === 0) {
+                throw new UserException(sprintf(
+                    "Was unable to determine metadata for the table: [%s].[%s]",
+                    $table['schema'],
+                    $table['tableName']
+                ));
+            }
+            $tableMetadata = $tableMetadata[0];
+            $columnMetadata = $tableMetadata['columns'];
+            if (count($columns) > 0) {
+                $columnMetadata = array_filter($columnMetadata, function ($columnMeta) use ($columns) {
+                    return in_array($columnMeta['name'], $columns);
+                });
+            }
+            $query = $this->simpleQuery($table['table'], $columnMetadata);
+        } else {
+            $query = $table['query'];
+        }
+        $this->logger->debug("Executing query: " . $query);
+
+        $this->logger->info("BCP export started");
+        try {
+            $bcp = new BCP($this->dbParams, $this->logger);
+            $numRows = $bcp->export($query, (string) $csv);
+            if ($numRows === 0) {
+                // BCP will create an empty file for no rows case
+                @unlink((string) $csv);
+                $this->logger->warning(sprintf(
+                    "Query returned empty result. Nothing was imported for table [%s]",
+                    $table['name']
+                ));
+            } else {
+                $this->createManifest($table);
+                if ($isAdvancedQuery) {
+                    $manifestFile = $this->getOutputFilename($table['outputTable']) . '.manifest';
+                    $columnsArray = $this->getAdvancedQueryColumns($query);
+                    $manifest = json_decode(file_get_contents($manifestFile), true);
+                    $manifest['columns'] = $columnsArray;
+                    file_put_contents($manifestFile, json_encode($manifest));
+                }
+            }
+        } catch (\Throwable $e) {
+            $this->logger->info(
+                sprintf(
+                    "[%s]: BCP command failed: %s. Attempting export using pdo_sqlsrv.",
+                    $table['name'],
+                    $e->getMessage()
+                )
+            );
+            try {
+                /** @var \PDOStatement $stmt */
+                $stmt = $this->executeQuery(
+                    $query,
+                    isset($table['retries']) ? (int) $table['retries'] : self::DEFAULT_MAX_TRIES
+                );
+            } catch (\Exception $e) {
+                throw new UserException(
+                    sprintf("[%s]: DB query failed: %s.", $table['name'], $e->getMessage()),
+                    0,
+                    $e
+                );
+            }
+            try {
+                $result = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
+                $numRows = $result['rows'];
+                if ($numRows > 0) {
+                    $this->createManifest($table);
+                } else {
+                    $this->logger->warning(sprintf(
+                        "Query returned empty result. Nothing was imported for table [%s]",
+                        $table['name']
+                    ));
+                    @unlink((string) $csv);
+                }
+            } catch (CsvException $e) {
+                throw new ApplicationException("Write to CSV failed: " . $e->getMessage(), 0, $e);
+            }
+        }
+
+        $output = [
+            "outputTable"=> $outputTable,
+            "rows" => $numRows,
+        ];
+        // output state
+        if (!empty($result['lastFetchedRow'])) {
+            $output["state"]['lastFetchedRow'] = $result['lastFetchedRow'];
+        }
+        return $output;
+    }
+
+    /**
+     * @param string $query
+     * @return array|bool
+     * @throws UserException
+     */
+    public function getAdvancedQueryColumns(string $query)
+    {
+        // This will only work if the server is >= sql server 2012
+        $sql = sprintf(
+            "EXEC sp_describe_first_result_set N'%s', null, 0;",
+            rtrim(trim($query), ';')
+        );
+        try {
+            /** @var \PDOStatement $stmt */
+            $stmt = $this->db->query($sql);
+            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            if (is_array($result) && !empty($result)) {
+                return array_map(
+                    function ($row) {
+                        return $row['name'];
+                    },
+                    $result
+                );
+            }
+            return false;
+        } catch (\Exception $e) {
+            throw new UserException(
+                sprintf('DB query "%s" failed: %s', rtrim(trim($query), ';'), $e->getMessage()),
+                0,
+                $e
+            );
+        }
     }
 
     public function getTables(?array $tables = null): array
@@ -260,32 +409,40 @@ class MSSQL extends Extractor
 
     public function simpleQuery(array $table, array $columns = array()): string
     {
-        if (count($columns) > 0) {
-            return sprintf(
-                "SELECT %s FROM %s.%s",
-                implode(
-                    ', ',
-                    array_map(
-                        function ($column) {
-                            return $this->quote($column);
-                        },
-                        $columns
-                    )
-                ),
-                $this->quote($table['schema']),
-                $this->quote($table['tableName'])
-            );
-        } else {
-            return sprintf(
-                "SELECT * FROM %s.%s",
-                $this->quote($table['schema']),
-                $this->quote($table['tableName'])
-            );
-        }
+        $datatypeKeys = ['type', 'length', 'nullable', 'default', 'format'];
+        return sprintf(
+            "SELECT %s FROM %s.%s",
+            implode(
+                ', ',
+                array_map(
+                    function ($column) use ($datatypeKeys) {
+                        $datatype = new GenericStorage(
+                            $column['type'],
+                            array_intersect_key($column, array_flip($datatypeKeys))
+                        );
+                        $colstr = $this->quote($column['name']);
+                        if ($datatype->getBasetype() === 'STRING') {
+                            if ($datatype->getType() === 'text' || $datatype->getType() === 'ntext') {
+                                $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
+                            }
+                            $colstr = sprintf("REPLACE(%s, char(34), char(34) + char(34))", $colstr);
+                            if ($datatype->isNullable()) {
+                                $colstr = sprintf("COALESCE(%s,'')", $colstr);
+                            }
+                            $colstr = sprintf("char(34) + %s + char(34)", $colstr);
+                        }
+                        return $colstr;
+                    },
+                    $columns
+                )
+            ),
+            $this->quote($table['schema']),
+            $this->quote($table['tableName'])
+        );
     }
 
     private function quote(string $obj): string
     {
-        return "\"{$obj}\"";
+        return "[{$obj}]";
     }
 }

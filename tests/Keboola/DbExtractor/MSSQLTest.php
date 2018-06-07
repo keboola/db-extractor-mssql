@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\DbExtractor\MSSQLApplication;
+use Keboola\DbExtractor\Exception\UserException;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -32,6 +32,30 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $this->assertArrayHasKey('status', $result);
         $this->assertEquals('success', $result['status']);
+    }
+
+    public function testRunNoRows(): void
+    {
+        $salesManifestFile = $this->dataDir . '/out/tables/in.c-main.sales.csv.manifest';
+        $salesDataFile = $this->dataDir . '/out/tables/in.c-main.sales.csv';
+        @unlink($salesDataFile);
+        @unlink($salesManifestFile);
+
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+
+        $config['parameters']['tables'][0]['query'] = "SELECT * FROM sales WHERE usergender LIKE 'undefined'";
+
+        $app = $this->createApplication($config);
+        $result = $app->run();
+
+        $this->assertArrayHasKey('status', $result);
+        $this->assertEquals('success', $result['status']);
+
+        $this->assertFileNotExists($salesManifestFile);
+        $this->assertFileNotExists($salesDataFile);
     }
 
     /**
@@ -85,13 +109,39 @@ class MSSQLTest extends AbstractMSSQLTest
                         'outputTable' => 'in.c-main.auto-increment-timestamp',
                         'rows' => 6,
                     ),
+                3 =>
+                    array (
+                        'outputTable' => 'in.c-main.special',
+                        'rows' => 7,
+                    ),
             ),
             $result['imported']
         );
 
         $salesManifestFile = $this->dataDir . '/out/tables/' . $result['imported'][0]['outputTable'] . '.csv.manifest';
         $manifest = json_decode(file_get_contents($salesManifestFile), true);
-        $this->assertEquals(['destination' => 'in.c-main.sales', 'incremental' => false], $manifest);
+        $this->assertEquals(
+            [
+                'destination' => 'in.c-main.sales',
+                'incremental' => false,
+                'columns' =>
+                    array (
+                        0 => 'usergender',
+                        1 => 'usercity',
+                        2 => 'usersentiment',
+                        3 => 'zipcode',
+                        4 => 'sku',
+                        5 => 'createdat',
+                        6 => 'category',
+                        7 => 'price',
+                        8 => 'county',
+                        9 => 'countycode',
+                        10 => 'userstate',
+                        11 => 'categorygroup',
+                    ),
+            ],
+            $manifest
+        );
 
         $tableColumnsManifest = $this->dataDir . '/out/tables/' . $result['imported'][1]['outputTable'] . '.csv.manifest';
         $manifest = json_decode(file_get_contents($tableColumnsManifest), true);
@@ -129,7 +179,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 0 =>
                                     array (
                                         'key' => 'KBC.datatype.type',
-                                        'value' => 'varchar',
+                                        'value' => 'text',
                                     ),
                                 1 =>
                                     array (
@@ -144,7 +194,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.length',
-                                        'value' => 255,
+                                        'value' => '2147483647',
                                     ),
                                 4 =>
                                     array (
@@ -172,7 +222,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 0 =>
                                     array (
                                         'key' => 'KBC.datatype.type',
-                                        'value' => 'varchar',
+                                        'value' => 'text',
                                     ),
                                 1 =>
                                     array (
@@ -187,7 +237,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.length',
-                                        'value' => 255,
+                                        'value' => '2147483647',
                                     ),
                                 4 =>
                                     array (
@@ -215,7 +265,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 0 =>
                                     array (
                                         'key' => 'KBC.datatype.type',
-                                        'value' => 'varchar',
+                                        'value' => 'text',
                                     ),
                                 1 =>
                                     array (
@@ -230,7 +280,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.length',
-                                        'value' => 255,
+                                        'value' => '2147483647',
                                     ),
                                 4 =>
                                     array (
@@ -258,7 +308,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 0 =>
                                     array (
                                         'key' => 'KBC.datatype.type',
-                                        'value' => 'varchar',
+                                        'value' => 'text',
                                     ),
                                 1 =>
                                     array (
@@ -273,7 +323,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.length',
-                                        'value' => 255,
+                                        'value' => '2147483647',
                                     ),
                                 4 =>
                                     array (
@@ -566,6 +616,133 @@ class MSSQLTest extends AbstractMSSQLTest
             ),
             $manifest
         );
+
+        $specialManifest = $this->dataDir . '/out/tables/' . $result['imported'][3]['outputTable'] . '.csv.manifest';
+        $manifest = json_decode(file_get_contents($specialManifest), true);
+        $this->assertEquals(
+            array (
+                'destination' => 'in.c-main.special',
+                'incremental' => false,
+                'metadata' =>
+                    array (
+                        0 =>
+                            array (
+                                'key' => 'KBC.name',
+                                'value' => 'special',
+                            ),
+                        1 =>
+                            array (
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
+                            ),
+                        2 =>
+                            array (
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
+                            ),
+                        3 =>
+                            array (
+                                'key' => 'KBC.type',
+                                'value' => 'BASE TABLE',
+                            ),
+                    ),
+                'column_metadata' =>
+                    array (
+                        'col1' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'text',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '2147483647',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'col1',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'col1',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '1',
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                        'col2' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'text',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '2147483647',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'col2',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'col2',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '2',
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                    ),
+                'columns' =>
+                    array (
+                        0 => 'col1',
+                        1 => 'col2',
+                    ),
+            ),
+            $manifest
+        );
     }
 
     public function testCredentialsWithSSH(): void
@@ -606,7 +783,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('status', $result);
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
-        $this->assertCount(3, $result['tables']);
+        $this->assertCount(4, $result['tables']);
         $expectedData = array (
             0 =>
                 array (
@@ -675,8 +852,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'usergender',
                                     'sanitizedName' => 'usergender',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 1,
@@ -686,8 +863,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'usercity',
                                     'sanitizedName' => 'usercity',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 2,
@@ -697,8 +874,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'usersentiment',
                                     'sanitizedName' => 'usersentiment',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 3,
@@ -708,8 +885,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'zipcode',
                                     'sanitizedName' => 'zipcode',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 4,
@@ -719,8 +896,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'sku',
                                     'sanitizedName' => 'sku',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 5,
@@ -742,8 +919,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'category',
                                     'sanitizedName' => 'category',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 7,
@@ -753,8 +930,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'price',
                                     'sanitizedName' => 'price',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 8,
@@ -764,8 +941,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'county',
                                     'sanitizedName' => 'county',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 9,
@@ -775,8 +952,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'countycode',
                                     'sanitizedName' => 'countycode',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 10,
@@ -786,8 +963,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'userstate',
                                     'sanitizedName' => 'userstate',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 11,
@@ -797,8 +974,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'categorygroup',
                                     'sanitizedName' => 'categorygroup',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 12,
@@ -818,8 +995,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'usergender',
                                     'sanitizedName' => 'usergender',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 1,
@@ -829,8 +1006,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'usercity',
                                     'sanitizedName' => 'usercity',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 2,
@@ -840,8 +1017,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'usersentiment',
                                     'sanitizedName' => 'usersentiment',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 3,
@@ -851,8 +1028,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'zipcode',
                                     'sanitizedName' => 'zipcode',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 4,
@@ -862,8 +1039,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'sku',
                                     'sanitizedName' => 'sku',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 5,
@@ -884,8 +1061,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'category',
                                     'sanitizedName' => 'category',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 7,
@@ -895,8 +1072,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'price',
                                     'sanitizedName' => 'price',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 8,
@@ -906,8 +1083,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'county',
                                     'sanitizedName' => 'county',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 9,
@@ -917,8 +1094,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'countycode',
                                     'sanitizedName' => 'countycode',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 10,
@@ -928,8 +1105,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'userstate',
                                     'sanitizedName' => 'userstate',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 11,
@@ -939,11 +1116,43 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'categorygroup',
                                     'sanitizedName' => 'categorygroup',
-                                    'type' => 'varchar',
-                                    'length' => 255,
+                                    'type' => 'text',
+                                    'length' => '2147483647',
                                     'nullable' => true,
                                     'default' => null,
                                     'ordinalPosition' => 12,
+                                    'primaryKey' => false,
+                                ),
+                        ),
+                ),
+            3 =>
+                array (
+                    'name' => 'special',
+                    'catalog' => 'test',
+                    'schema' => 'dbo',
+                    'type' => 'BASE TABLE',
+                    'columns' =>
+                        array (
+                            0 =>
+                                array (
+                                    'name' => 'col1',
+                                    'sanitizedName' => 'col1',
+                                    'type' => 'text',
+                                    'length' => '2147483647',
+                                    'nullable' => true,
+                                    'default' => null,
+                                    'ordinalPosition' => '1',
+                                    'primaryKey' => false,
+                                ),
+                            1 =>
+                                array (
+                                    'name' => 'col2',
+                                    'sanitizedName' => 'col2',
+                                    'type' => 'text',
+                                    'length' => '2147483647',
+                                    'nullable' => true,
+                                    'default' => null,
+                                    'ordinalPosition' => '2',
                                     'primaryKey' => false,
                                 ),
                         ),
