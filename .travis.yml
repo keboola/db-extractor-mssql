@@ -18,7 +18,8 @@ script:
   - docker pull quay.io/keboola/syrup-cli:latest
   - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287615945 master
   - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287628364 master
-
+  # Run a test on sql server 2008
+  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 402532849 master
 
 deploy:
   provider: script
