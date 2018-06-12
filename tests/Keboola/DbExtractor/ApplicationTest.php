@@ -81,6 +81,34 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertFileExists($manifestFile4);
     }
 
+    public function testRunActionSshTunnel(): void
+    {
+        $config = $this->getConfig('mssql');
+        $config['parameters']['db']['ssh'] = [
+            'enabled' => true,
+            'keys' => [
+                '#private' => $this->getPrivateKey('mssql'),
+                'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC'),
+            ],
+            'user' => 'root',
+            'sshHost' => 'sshproxy',
+            'remoteHost' => 'mssql',
+            'remotePort' => '1433',
+            'localPort' => '1234',
+        ];
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertEquals("", $process->getErrorOutput());
+        // verify that the bcp command uses the proxy
+        $this->assertContains("-S \"127.0.0.1,1234\"", $process->getOutput());
+    }
+
     public function testRunActionJsonConfig(): void
     {
         $config = $this->getConfig('mssql', 'json');

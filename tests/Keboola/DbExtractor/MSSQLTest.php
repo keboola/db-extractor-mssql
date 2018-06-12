@@ -83,9 +83,7 @@ class MSSQLTest extends AbstractMSSQLTest
             'remotePort' => '1433',
             'localPort' => '1234',
         ];
-
         $result = $this->createApplication($config)->run();
-
         $this->checkResult($result);
     }
 
