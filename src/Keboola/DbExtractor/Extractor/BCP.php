@@ -67,8 +67,8 @@ class BCP
             $this->dbParams['database']
         );
 
-        $this->logger->debug(sprintf(
-            "The export BCP command: %s",
+        $this->logger->info(sprintf(
+            "Executing this BCP command: %s",
             preg_replace('/\-P.".*".\-d/', '-P "*****" -d', $cmd)
         ));
 
