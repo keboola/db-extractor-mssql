@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "18b9065e4d40eb0fd813545a40724429",
+    "content-hash": "e8204ab5e3553eaffe1d998398ef4bed",
     "packages": [
         {
             "name": "keboola/csv",
@@ -54,16 +54,16 @@
         },
         {
             "name": "keboola/db-extractor-common",
-            "version": "9.1.2",
+            "version": "9.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-common.git",
-                "reference": "3da330d3e9bf5afafeb49b55b6263bbfdfab0b1d"
+                "reference": "13fe5c14e942ed6e95f05d0e3ea9f1b00288822e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/3da330d3e9bf5afafeb49b55b6263bbfdfab0b1d",
-                "reference": "3da330d3e9bf5afafeb49b55b6263bbfdfab0b1d",
+                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/13fe5c14e942ed6e95f05d0e3ea9f1b00288822e",
+                "reference": "13fe5c14e942ed6e95f05d0e3ea9f1b00288822e",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                 }
             ],
             "description": "Common library from Keboola Database Extractors",
-            "time": "2018-06-01T08:04:10+00:00"
+            "time": "2018-06-12T15:02:21+00:00"
         },
         {
             "name": "keboola/php-datatypes",
@@ -2177,16 +2177,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.2.3",
+            "version": "3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "4842476c434e375f9d3182ff7b89059583aa8b27"
+                "reference": "d86873af43b4aa9d1f39a3601cc0cfcf02b25266"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/4842476c434e375f9d3182ff7b89059583aa8b27",
-                "reference": "4842476c434e375f9d3182ff7b89059583aa8b27",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/d86873af43b4aa9d1f39a3601cc0cfcf02b25266",
+                "reference": "d86873af43b4aa9d1f39a3601cc0cfcf02b25266",
                 "shasum": ""
             },
             "require": {
@@ -2224,7 +2224,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2018-02-20T21:35:23+00:00"
+            "time": "2018-06-06T23:58:19+00:00"
         },
         {
             "name": "webmozart/assert",
