@@ -83,6 +83,30 @@ class ApplicationTest extends AbstractMSSQLTest
 
     public function testRunActionSshTunnel(): void
     {
+        $outputCsvFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv';
+        $outputCsvFile2 = $this->dataDir . '/out/tables/in.c-main.tablecolumns.csv';
+        $outputCsvFile4 = $this->dataDir . '/out/tables/in.c-main.special.csv';
+        $manifestFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv.manifest';
+        $manifestFile2 = $this->dataDir . '/out/tables/in.c-main.tablecolumns.csv.manifest';
+        $manifestFile4 = $this->dataDir . '/out/tables/in.c-main.special.csv.manifest';
+
+        @unlink($outputCsvFile1);
+        @unlink($outputCsvFile2);
+        @unlink($outputCsvFile4);
+        @unlink($manifestFile1);
+        @unlink($manifestFile2);
+        @unlink($manifestFile4);
+
+        $expectedCsv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+        $expectedCsv1 = iterator_to_array($expectedCsv1);
+
+        $expectedCsv2 = new CsvFile($this->dataDir . '/mssql/tableColumns.csv');
+        $expectedCsv2 = iterator_to_array($expectedCsv2);
+        array_shift($expectedCsv2);
+        $expectedCsv4 = new CsvFile($this->dataDir . '/mssql/special.csv');
+        $expectedCsv4 = iterator_to_array($expectedCsv4);
+        array_shift($expectedCsv4);
+
         $config = $this->getConfig('mssql');
         $config['parameters']['db']['ssh'] = [
             'enabled' => true,
@@ -107,6 +131,20 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals("", $process->getErrorOutput());
         // verify that the bcp command uses the proxy
         $this->assertContains("-S \"127.0.0.1,1234\"", $process->getOutput());
+
+        $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
+        $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
+        $outputCsvData4 = iterator_to_array(new CsvFile($outputCsvFile4));
+
+        $this->assertFileExists($outputCsvFile1);
+        $this->assertEquals(ksort($expectedCsv1), ksort($outputCsvData1));
+        $this->assertFileExists($outputCsvFile2);
+        $this->assertEquals(ksort($expectedCsv2), ksort($outputCsvData2));
+        $this->assertFileExists($outputCsvFile4);
+        $this->assertEquals(ksort($expectedCsv4), ksort($outputCsvData4));
+        $this->assertFileExists($manifestFile1);
+        $this->assertFileExists($manifestFile2);
+        $this->assertFileExists($manifestFile4);
     }
 
     public function testRunActionJsonConfig(): void

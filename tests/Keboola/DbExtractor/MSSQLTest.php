@@ -68,25 +68,6 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->checkResult($result);
     }
 
-    public function testRunWithSSH(): void
-    {
-        $config = $this->getConfig('mssql', 'json');
-        $config['parameters']['db']['ssh'] = [
-            'enabled' => true,
-            'keys' => [
-                '#private' => $this->getPrivateKey('mssql'),
-                'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC'),
-            ],
-            'user' => 'root',
-            'sshHost' => 'sshproxy',
-            'remoteHost' => 'mssql',
-            'remotePort' => '1433',
-            'localPort' => '1234',
-        ];
-        $result = $this->createApplication($config)->run();
-        $this->checkResult($result);
-    }
-
     private function checkResult(array $result): void
     {
         $this->assertEquals('success', $result['status']);
