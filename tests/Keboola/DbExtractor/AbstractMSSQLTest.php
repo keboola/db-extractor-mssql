@@ -7,31 +7,29 @@ namespace Keboola\DbExtractor\Tests;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
-use Symfony\Component\Yaml\Yaml;
+use Keboola\DbExtractor\Logger;
 
 abstract class AbstractMSSQLTest extends ExtractorTest
 {
-    /**
-     * @var \PDO
-     */
+    public const DRIVER = 'mssql';
+
+    /** @var \PDO */
     protected $pdo;
+
+    /** @var string  */
+    protected $dataDir = __DIR__ . '/../../data';
 
     public function setUp(): void
     {
-        if (!defined('APP_NAME')) {
-            define('APP_NAME', 'ex-db-mssql');
-        }
-
         if (!$this->pdo) {
             $this->makeConnection();
         }
-
         $this->setupTables();
     }
 
     private function makeConnection(): void
     {
-        $config = $this->getConfig('mssql');
+        $config = $this->getConfig(self::DRIVER);
         $params = $config['parameters']['db'];
 
         if (isset($params['#password'])) {
@@ -96,7 +94,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE (\"Weir%d Na-me\", Type)");
     }
 
-    public function getConfig($driver = 'mssql', $format = 'yaml'): array
+    public function getConfig(string $driver = self::DRIVER, string $format = ExtractorTest::CONFIG_FORMAT_YAML): array
     {
         $config = parent::getConfig($driver, $format);
         $config['parameters']['extractor_class'] = 'MSSQL';
@@ -237,7 +235,8 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function createApplication(array $config): MSSQLApplication
     {
-        $app = new MSSQLApplication($config, $this->dataDir);
+        $logger = new Logger('ex-db-mssql-tests');
+        $app = new MSSQLApplication($config, $logger, [], $this->dataDir);
         return $app;
     }
 
@@ -256,10 +255,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     {
         return [
             [
-                $this->getConfig('mssql'),
+                $this->getConfig(self::DRIVER),
             ],
             [
-                $this->getConfig('mssql', 'json'),
+                $this->getConfig(self::DRIVER, ExtractorTest::CONFIG_FORMAT_JSON),
             ],
         ];
     }

@@ -12,21 +12,12 @@ use Keboola\DbExtractor\Logger;
 
 class MSSQL extends Extractor
 {
-    /** @var  array */
-    private $dbParams;
-
-    public function __construct(array $parameters, array $state = [], ?Logger $logger = null)
-    {
-        parent::__construct($parameters, $state, $logger);
-        $this->dbParams = $parameters['db'];
-    }
-
     /**
      * @param array $params
      * @return \PDO
      * @throws UserException
      */
-    public function createConnection($params): \PDO
+    public function createConnection(array $params): \PDO
     {
         // check params
         if (isset($params['#password'])) {
@@ -98,7 +89,7 @@ class MSSQL extends Extractor
 
         $this->logger->info("BCP export started");
         try {
-            $bcp = new BCP($this->dbParams, $this->logger);
+            $bcp = new BCP($this->getDbParameters(), $this->logger);
             $numRows = $bcp->export($query, (string) $csv);
             if ($numRows === 0) {
                 // BCP will create an empty file for no rows case

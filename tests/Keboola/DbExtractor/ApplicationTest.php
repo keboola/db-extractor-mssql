@@ -10,6 +10,9 @@ use Symfony\Component\Yaml\Yaml;
 
 class ApplicationTest extends AbstractMSSQLTest
 {
+    /** @var string */
+    protected $rootPath = __DIR__ . '/../../..';
+    
     public function testTestConnectionAction(): void
     {
         $config = $this->getConfig('mssql');
@@ -17,7 +20,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
@@ -56,12 +59,78 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals("", $process->getErrorOutput());
+
+        $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
+        $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
+        $outputCsvData4 = iterator_to_array(new CsvFile($outputCsvFile4));
+
+        $this->assertFileExists($outputCsvFile1);
+        $this->assertEquals(ksort($expectedCsv1), ksort($outputCsvData1));
+        $this->assertFileExists($outputCsvFile2);
+        $this->assertEquals(ksort($expectedCsv2), ksort($outputCsvData2));
+        $this->assertFileExists($outputCsvFile4);
+        $this->assertEquals(ksort($expectedCsv4), ksort($outputCsvData4));
+        $this->assertFileExists($manifestFile1);
+        $this->assertFileExists($manifestFile2);
+        $this->assertFileExists($manifestFile4);
+    }
+
+    public function testRunActionSshTunnel(): void
+    {
+        $outputCsvFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv';
+        $outputCsvFile2 = $this->dataDir . '/out/tables/in.c-main.tablecolumns.csv';
+        $outputCsvFile4 = $this->dataDir . '/out/tables/in.c-main.special.csv';
+        $manifestFile1 = $this->dataDir . '/out/tables/in.c-main.sales.csv.manifest';
+        $manifestFile2 = $this->dataDir . '/out/tables/in.c-main.tablecolumns.csv.manifest';
+        $manifestFile4 = $this->dataDir . '/out/tables/in.c-main.special.csv.manifest';
+
+        @unlink($outputCsvFile1);
+        @unlink($outputCsvFile2);
+        @unlink($outputCsvFile4);
+        @unlink($manifestFile1);
+        @unlink($manifestFile2);
+        @unlink($manifestFile4);
+
+        $expectedCsv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+        $expectedCsv1 = iterator_to_array($expectedCsv1);
+
+        $expectedCsv2 = new CsvFile($this->dataDir . '/mssql/tableColumns.csv');
+        $expectedCsv2 = iterator_to_array($expectedCsv2);
+        array_shift($expectedCsv2);
+        $expectedCsv4 = new CsvFile($this->dataDir . '/mssql/special.csv');
+        $expectedCsv4 = iterator_to_array($expectedCsv4);
+        array_shift($expectedCsv4);
+
+        $config = $this->getConfig('mssql');
+        $config['parameters']['db']['ssh'] = [
+            'enabled' => true,
+            'keys' => [
+                '#private' => $this->getPrivateKey('mssql'),
+                'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC'),
+            ],
+            'user' => 'root',
+            'sshHost' => 'sshproxy',
+            'remoteHost' => 'mssql',
+            'remotePort' => '1433',
+            'localPort' => '1234',
+        ];
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertEquals("", $process->getErrorOutput());
+        // verify that the bcp command uses the proxy
+        $this->assertContains("-S \"127.0.0.1,1234\"", $process->getOutput());
 
         $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
         $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
@@ -85,7 +154,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.json');
         file_put_contents($this->dataDir . '/config.json', json_encode($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
@@ -100,7 +169,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
@@ -119,14 +188,14 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['tables'][3]['query'] = "SELECT SOMETHING INVALID FROM \"dbo\".\"special\"";
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
 
         var_dump($process->getErrorOutput());
-        $this->assertContains("Tried 5 times..", $process->getErrorOutput());
+        $this->assertContains("[special]: DB query failed:", $process->getErrorOutput());
 
         $this->assertContains("BCP command failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
@@ -142,7 +211,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 
@@ -176,7 +245,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($dataFile);
         @unlink($manifestFile);
 
-        $process = new Process('php ' . ROOT_PATH . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
 

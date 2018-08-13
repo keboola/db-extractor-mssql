@@ -5,15 +5,13 @@ declare(strict_types=1);
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
-use Symfony\Component\Yaml\Yaml;
+use Keboola\DbExtractor\Logger;
 use Monolog\Handler\NullHandler;
-use Monolog\Logger;
+use Symfony\Component\Yaml\Yaml;
 
-define('APP_NAME', 'ex-db-mssql');
+require_once(dirname(__FILE__) . "/../vendor/autoload.php");
 
-require_once __DIR__ . "/../bootstrap.php";
-
-$logger = new \Keboola\DbExtractor\Logger(APP_NAME);
+$logger = new Logger('ex-db-mssql');
 $runAction = true;
 
 try {
@@ -21,6 +19,7 @@ try {
     if (!isset($arguments["data"])) {
         throw new UserException('Data folder not set.');
     }
+
     if (file_exists($arguments["data"] . "/config.yml")) {
         $config = Yaml::parse(
             file_get_contents($arguments["data"] . "/config.yml")
@@ -34,8 +33,17 @@ try {
         throw new UserException('Configuration file not found.');
     }
 
+    // get the state
+    $inputState = [];
+    $inputStateFile = $arguments['data'] . '/in/state.json';
+    if (file_exists($inputStateFile)) {
+        $inputState = json_decode(file_get_contents($inputStateFile), true);
+    }
+
     $app = new MSSQLApplication(
         $config,
+        $logger,
+        $inputState,
         $arguments["data"]
     );
 
@@ -48,6 +56,12 @@ try {
 
     if (!$runAction) {
         echo json_encode($result);
+    } else {
+        if (!empty($result['state'])) {
+            // write state
+            $outputStateFile = $arguments['data'] . '/out/state.json';
+            file_put_contents($outputStateFile, json_encode($result['state'], true));
+        }
     }
 
     $app['logger']->log('info', "Extractor finished successfully.");
@@ -57,7 +71,6 @@ try {
     if (!$runAction) {
         echo $e->getMessage();
     }
-
     exit(1);
 } catch (ApplicationException $e) {
     $logger->log('error', $e->getMessage(), $e->getData());
