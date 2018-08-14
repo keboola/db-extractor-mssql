@@ -221,7 +221,6 @@ class MSSQL extends Extractor
                 )
             );
         }
-
         $stmt = $this->db->query($sql);
 
         $arr = $stmt->fetchAll();
@@ -252,8 +251,8 @@ class MSSQL extends Extractor
             $sql = $this->fullTablesSql($tables);
         }
 
-
         $res = $this->db->query($sql);
+
         $rows = $res->fetchAll();
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
@@ -384,13 +383,22 @@ class MSSQL extends Extractor
                 ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND ccu.TABLE_NAME = tc.TABLE_NAME AND CONSTRAINT_TYPE = 'UNIQUE' 
             ) AS uk  
             ON uk.TABLE_NAME = c.TABLE_NAME AND uk.COLUMN_NAME = c.COLUMN_NAME
-            WHERE c.TABLE_NAME IN (%s)
+            WHERE c.TABLE_NAME IN (%s) AND c.TABLE_SCHEMA IN (%s)
             ORDER BY c.TABLE_SCHEMA, c.TABLE_NAME, ORDINAL_POSITION",
             implode(
                 ',',
                 array_map(
                     function ($table) {
                         return $this->db->quote($table['tableName']);
+                    },
+                    $tables
+                )
+            ),
+            implode(
+                ',',
+                array_map(
+                    function ($table) {
+                        return $this->db->quote($table['schema']);
                     },
                     $tables
                 )
