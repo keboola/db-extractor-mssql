@@ -80,6 +80,10 @@ class MSSQL extends Extractor
                 $columnMetadata = array_filter($columnMetadata, function ($columnMeta) use ($columns) {
                     return in_array($columnMeta['name'], $columns);
                 });
+                $colOrder = array_flip($columns);
+                usort($columnMetadata, function (array $colA, array $colB) use ($colOrder) {
+                   return $colOrder[$colA['name']] - $colOrder[$colB['name']];
+                });
             }
             $query = $this->simpleQuery($table['table'], $columnMetadata);
         } else {
