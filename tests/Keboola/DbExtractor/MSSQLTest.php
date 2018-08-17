@@ -339,6 +339,13 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $weirdManifest = $this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv.manifest';
         $manifest = json_decode(file_get_contents($weirdManifest), true);
+        // assert the timestamp column has the correct date format
+        $outputData = iterator_to_array(
+            new CsvFile($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
+        );
+        $firstTimestamp = $outputData[0][3];
+        // there should be no decimal separator present (it should be cast to smalldatetime which does not include ms)
+        $this->assertTrue(count(explode('.', $firstTimestamp)) === 1);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.auto-increment-timestamp',
