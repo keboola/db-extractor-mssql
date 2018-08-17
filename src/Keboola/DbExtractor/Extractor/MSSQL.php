@@ -82,7 +82,7 @@ class MSSQL extends Extractor
                 });
                 $colOrder = array_flip($columns);
                 usort($columnMetadata, function (array $colA, array $colB) use ($colOrder) {
-                   return $colOrder[$colA['name']] - $colOrder[$colB['name']];
+                    return $colOrder[$colA['name']] - $colOrder[$colB['name']];
                 });
             }
             $query = $this->simpleQuery($table['table'], $columnMetadata);
