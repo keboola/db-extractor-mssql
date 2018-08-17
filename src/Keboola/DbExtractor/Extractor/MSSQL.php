@@ -433,6 +433,8 @@ class MSSQL extends Extractor
                                 $colstr = sprintf("COALESCE(%s,'')", $colstr);
                             }
                             $colstr = sprintf("char(34) + %s + char(34)", $colstr);
+                        } else if ($datatype->getBasetype() === 'TIMESTAMP') {
+                            $colstr = sprintf('CAST(%s as smalldatetime)', $colstr);
                         }
                         return $colstr;
                     },
