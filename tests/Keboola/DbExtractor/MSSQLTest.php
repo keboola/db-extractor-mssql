@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\DbExtractor\Exception\UserException;
+use Keboola\Csv\CsvFile;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -1139,5 +1139,39 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $this->assertEquals($expectedData, $result['tables']);
+    }
+
+    public function testColumnOrdering(): void
+    {
+        $salesManifestFile = $this->dataDir . '/out/tables/in.c-main.columnscheck.csv.manifest';
+        $salesDataFile = $this->dataDir . '/out/tables/in.c-main.columnscheck.csv';
+        @unlink($salesDataFile);
+        @unlink($salesManifestFile);
+
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+
+        unset($config['parameters']['tables'][0]['query']);
+        $config['parameters']['tables'][0]['table'] = ['tableName' => 'sales', 'schema' => 'dbo'];
+        $config['parameters']['tables'][0]['columns'] = ["createdat", "categorygroup", "sku", "zipcode", "userstate"];
+        $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.columnsCheck';
+        $result = $this->createApplication($config)->run();
+
+        $this->assertEquals('success', $result['status']);
+        $outputManifestFile = $this->dataDir . '/out/tables/in.c-main.columnscheck.csv.manifest';
+        $outputManifest = json_decode(file_get_contents($outputManifestFile), true);
+        // check that the manifest has the correct column ordering
+        $this->assertEquals($config['parameters']['tables'][0]['columns'], $outputManifest['columns']);
+        // check the data
+        $expectedData = iterator_to_array(new CsvFile($this->dataDir.'/mssql/columnsOrderCheck.csv'));
+        $outputData = iterator_to_array(new CsvFile($this->dataDir.'/out/tables/in.c-main.columnscheck.csv'));
+        foreach ($outputData as $rowNum => $line) {
+            // assert timestamp
+            $this->assertEquals($line[0], $expectedData[$rowNum][0]);
+            $this->assertEquals($line[1], $expectedData[$rowNum][1]);
+            $this->assertEquals($line[2], $expectedData[$rowNum][2]);
+        }
     }
 }
