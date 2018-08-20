@@ -67,29 +67,20 @@ try {
     $app['logger']->log('info', "Extractor finished successfully.");
     exit(0);
 } catch (UserException $e) {
-    $logger->log('error', $e->getMessage(), $e->getData());
+    $logger->log('error', $e->getMessage());
     if (!$runAction) {
         echo $e->getMessage();
     }
     exit(1);
-} catch (ApplicationException $e) {
-    $logger->log('error', $e->getMessage(), array_merge(
-        $e->getData(),
-        [
-            'errFile' => $e->getFile(),
-            'errLine' => $e->getLine(),
-            'trace' => $e->getTrace(),
-        ]
-    ));
-    exit($e->getCode() > 1 ? $e->getCode(): 2);
 } catch (\Throwable $e) {
-    $logger->log(
-        'error',
-        $e->getMessage(),
+    $logger->critical(
+        get_class($e) . ':' . $e->getMessage(),
         [
             'errFile' => $e->getFile(),
             'errLine' => $e->getLine(),
-            'trace' => $e->getTrace(),
+            'errCode' => $e->getCode(),
+            'errTrace' => $e->getTraceAsString(),
+            'errPrevious' => $e->getPrevious() ? get_class($e->getPrevious()) : '',
         ]
     );
     exit(2);
