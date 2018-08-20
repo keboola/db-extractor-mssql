@@ -345,7 +345,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
         $firstTimestamp = $outputData[0][3];
         // there should be no decimal separator present (it should be cast to smalldatetime which does not include ms)
-        $this->assertTrue(count(explode('.', $firstTimestamp)) === 1);
+        $this->assertEquals("2018-08-14 10:43:18", $firstTimestamp);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.auto-increment-timestamp',
@@ -553,7 +553,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 0 =>
                                     array (
                                         'key' => 'KBC.datatype.type',
-                                        'value' => 'datetime',
+                                        'value' => 'datetime2',
                                     ),
                                 1 =>
                                     array (
@@ -568,7 +568,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.default',
-                                        'value' => '(getdate())',
+                                        'value' => '(\'2018-08-14 10:43:18\')',
                                     ),
                                 4 =>
                                     array (
