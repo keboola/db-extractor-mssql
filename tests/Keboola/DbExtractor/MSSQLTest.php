@@ -794,10 +794,10 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'timestamp',
                                     'sanitizedName' => 'timestamp',
-                                    'type' => 'datetime',
+                                    'type' => 'datetime2',
                                     'length' => null,
                                     'nullable' => true,
-                                    'default' => '(getdate())',
+                                    'default' => '(\'2018-08-14 10:43:18\')',
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
