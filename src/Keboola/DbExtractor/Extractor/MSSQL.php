@@ -434,7 +434,7 @@ class MSSQL extends Extractor
                             }
                             $colstr = sprintf("char(34) + %s + char(34)", $colstr);
                         } else if ($datatype->getBasetype() === 'TIMESTAMP') {
-                            $colstr = sprintf('CONVERT(DATETIME2(0),%s) [yyyy-mm-dd hh:mm:ss]', $colstr);
+                            $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
                         }
                         return $colstr;
                     },

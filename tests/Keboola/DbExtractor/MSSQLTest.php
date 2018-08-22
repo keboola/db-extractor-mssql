@@ -553,7 +553,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 0 =>
                                     array (
                                         'key' => 'KBC.datatype.type',
-                                        'value' => 'datetime2',
+                                        'value' => 'datetime',
                                     ),
                                 1 =>
                                     array (
@@ -794,7 +794,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 array (
                                     'name' => 'timestamp',
                                     'sanitizedName' => 'timestamp',
-                                    'type' => 'datetime2',
+                                    'type' => 'datetime',
                                     'length' => null,
                                     'nullable' => true,
                                     'default' => '(\'2018-08-14 10:43:18\')',
