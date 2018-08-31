@@ -69,9 +69,9 @@ class MSSQL extends Extractor
             $tableMetadata = $this->getTables([$table['table']]);
             if (count($tableMetadata) === 0) {
                 throw new UserException(sprintf(
-                    "Was unable to determine metadata for the table: [%s].[%s]",
-                    $table['schema'],
-                    $table['tableName']
+                    "Could not find the table: [%s].[%s]",
+                    $table['table']['schema'],
+                    $table['table']['tableName']
                 ));
             }
             $tableMetadata = $tableMetadata[0];
