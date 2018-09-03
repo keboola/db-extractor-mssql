@@ -21,6 +21,22 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertEquals('success', $result['status']);
     }
 
+    public function testCredentialsWrongDb(): void
+    {
+        $config = $this->getConfig('mssql');
+        $config['parameters']['db']['database'] = 'nonExistentDb';
+        $config['action'] = 'testConnection';
+        unset($config['parameters']['tables']);
+
+        $app = $this->createApplication($config);
+        try {
+            $app->run();
+            $this->fail('Must raise exception');
+        } catch (UserException $e) {
+            $this->assertContains('Cannot open database "nonExistentDb" requested by the login.', $e->getMessage());
+        }
+    }
+
     public function testRunWithoutTables(): void
     {
         $config = $this->getConfig('mssql');
