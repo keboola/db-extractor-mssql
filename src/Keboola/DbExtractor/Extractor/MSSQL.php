@@ -69,9 +69,9 @@ class MSSQL extends Extractor
             $tableMetadata = $this->getTables([$table['table']]);
             if (count($tableMetadata) === 0) {
                 throw new UserException(sprintf(
-                    "Was unable to determine metadata for the table: [%s].[%s]",
-                    $table['schema'],
-                    $table['tableName']
+                    "Could not find the table: [%s].[%s]",
+                    $table['table']['schema'],
+                    $table['table']['tableName']
                 ));
             }
             $tableMetadata = $tableMetadata[0];
@@ -79,6 +79,10 @@ class MSSQL extends Extractor
             if (count($columns) > 0) {
                 $columnMetadata = array_filter($columnMetadata, function ($columnMeta) use ($columns) {
                     return in_array($columnMeta['name'], $columns);
+                });
+                $colOrder = array_flip($columns);
+                usort($columnMetadata, function (array $colA, array $colB) use ($colOrder) {
+                    return $colOrder[$colA['name']] - $colOrder[$colB['name']];
                 });
             }
             $query = $this->simpleQuery($table['table'], $columnMetadata);
@@ -429,6 +433,8 @@ class MSSQL extends Extractor
                                 $colstr = sprintf("COALESCE(%s,'')", $colstr);
                             }
                             $colstr = sprintf("char(34) + %s + char(34)", $colstr);
+                        } else if ($datatype->getBasetype() === 'TIMESTAMP' && strtoupper($datatype->getType()) !== 'TIMESTAMP') {
+                            $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
                         }
                         return $colstr;
                     },

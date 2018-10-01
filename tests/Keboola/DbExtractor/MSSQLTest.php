@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\DbExtractor\Exception\UserException;
+use Keboola\Csv\CsvFile;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -355,6 +355,13 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $weirdManifest = $this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv.manifest';
         $manifest = json_decode(file_get_contents($weirdManifest), true);
+        // assert the timestamp column has the correct date format
+        $outputData = iterator_to_array(
+            new CsvFile($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
+        );
+        $firstTimestamp = $outputData[0][3];
+        // there should be no decimal separator present (it should be cast to smalldatetime which does not include ms)
+        $this->assertEquals("2018-08-14 10:43:18", $firstTimestamp);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.auto-increment-timestamp',
@@ -577,7 +584,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.default',
-                                        'value' => '(getdate())',
+                                        'value' => '(\'2018-08-14 10:43:18\')',
                                     ),
                                 4 =>
                                     array (
@@ -806,7 +813,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'datetime',
                                     'length' => null,
                                     'nullable' => true,
-                                    'default' => '(getdate())',
+                                    'default' => '(\'2018-08-14 10:43:18\')',
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
@@ -1155,5 +1162,39 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $this->assertEquals($expectedData, $result['tables']);
+    }
+
+    public function testColumnOrdering(): void
+    {
+        $salesManifestFile = $this->dataDir . '/out/tables/in.c-main.columnscheck.csv.manifest';
+        $salesDataFile = $this->dataDir . '/out/tables/in.c-main.columnscheck.csv';
+        @unlink($salesDataFile);
+        @unlink($salesManifestFile);
+
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+
+        unset($config['parameters']['tables'][0]['query']);
+        $config['parameters']['tables'][0]['table'] = ['tableName' => 'sales', 'schema' => 'dbo'];
+        $config['parameters']['tables'][0]['columns'] = ["createdat", "categorygroup", "sku", "zipcode", "userstate"];
+        $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.columnsCheck';
+        $result = $this->createApplication($config)->run();
+
+        $this->assertEquals('success', $result['status']);
+        $outputManifestFile = $this->dataDir . '/out/tables/in.c-main.columnscheck.csv.manifest';
+        $outputManifest = json_decode(file_get_contents($outputManifestFile), true);
+        // check that the manifest has the correct column ordering
+        $this->assertEquals($config['parameters']['tables'][0]['columns'], $outputManifest['columns']);
+        // check the data
+        $expectedData = iterator_to_array(new CsvFile($this->dataDir.'/mssql/columnsOrderCheck.csv'));
+        $outputData = iterator_to_array(new CsvFile($this->dataDir.'/out/tables/in.c-main.columnscheck.csv'));
+        foreach ($outputData as $rowNum => $line) {
+            // assert timestamp
+            $this->assertEquals($line[0], $expectedData[$rowNum][0]);
+            $this->assertEquals($line[1], $expectedData[$rowNum][1]);
+            $this->assertEquals($line[2], $expectedData[$rowNum][2]);
+        }
     }
 }
