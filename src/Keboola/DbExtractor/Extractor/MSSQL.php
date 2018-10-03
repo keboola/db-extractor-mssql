@@ -171,7 +171,7 @@ class MSSQL extends Extractor
         // This will only work if the server is >= sql server 2012
         $sql = sprintf(
             "EXEC sp_describe_first_result_set N'%s', null, 0;",
-            rtrim(trim($query), ';')
+            rtrim(trim(str_replace("'", "''", $query)), ';')
         );
         try {
             /** @var \PDOStatement $stmt */
@@ -188,7 +188,7 @@ class MSSQL extends Extractor
             return false;
         } catch (\Exception $e) {
             throw new UserException(
-                sprintf('DB query "%s" failed: %s', rtrim(trim($query), ';'), $e->getMessage()),
+                sprintf('DB query "%s" failed: %s', $sql, $e->getMessage()),
                 0,
                 $e
             );
