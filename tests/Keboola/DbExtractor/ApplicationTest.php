@@ -207,6 +207,31 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][1]);
         unset($config['parameters']['tables'][2]);
         unset($config['parameters']['tables'][3]);
+        $config['parameters']['tables'][0]['query'] = "SELECT *  FROM \"special\";";
+
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        echo "\n" . $process->getOutput() . "\n";
+        echo "\n" . $process->getErrorOutput() . "\n";
+
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertEquals('', $process->getErrorOutput());
+
+        $this->assertContains("BCP command failed:", $process->getOutput());
+        $this->assertContains("Attempting export using pdo", $process->getOutput());
+    }
+
+    public function testWhereClauseWithSingleQuotes(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
         $config['parameters']['tables'][0]['query'] = "SELECT \"usergender\", \"sku\"  FROM \"sales\" WHERE \"usergender\" LIKE 'male'";
         @unlink($this->dataDir . '/config.yml');
         file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
@@ -215,11 +240,14 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
+        echo "\n" . $process->getOutput() . "\n";
+        echo "\n" . $process->getErrorOutput() . "\n";
+
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals('', $process->getErrorOutput());
 
-        $this->assertContains("BCP command failed:", $process->getOutput());
-        $this->assertContains("Attempting export using pdo", $process->getOutput());
+        $this->assertContains("BCP successfully exported", $process->getOutput());
+        $this->assertNotContains("BCP command failed:", $process->getOutput());
     }
 
     public function testPDOFallbackSimpleNoData(): void
