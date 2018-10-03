@@ -216,10 +216,9 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
-        echo "\n" . $process->getOutput() . "\n";
-        echo "\n" . $process->getErrorOutput() . "\n";
+        $output = $process->getOutput() . "\n" . $process->getErrorOutput();
 
-        $this->assertEquals(0, $process->getExitCode());
+        $this->assertEquals(0, $process->getExitCode(), $output);
         $this->assertEquals('', $process->getErrorOutput());
 
         $this->assertContains("BCP command failed:", $process->getOutput());
@@ -240,10 +239,9 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
-        echo "\n" . $process->getOutput() . "\n";
-        echo "\n" . $process->getErrorOutput() . "\n";
+        $output = $process->getOutput() . "\n" . $process->getErrorOutput();
 
-        $this->assertEquals(0, $process->getExitCode());
+        $this->assertEquals(0, $process->getExitCode(), $output);
         $this->assertEquals('', $process->getErrorOutput());
 
         $this->assertContains("BCP successfully exported", $process->getOutput());
