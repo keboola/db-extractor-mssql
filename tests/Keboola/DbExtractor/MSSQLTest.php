@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
+use Symfony\Component\Process\Process;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -1218,6 +1219,31 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $this->assertEquals('success', $result['status']);
         
+        $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
+    }
+
+    public function testStripNulls(): void
+    {
+        $this->pdo->exec("IF OBJECT_ID('dbo.NULL_TEST', 'U') IS NOT NULL DROP TABLE dbo.NULL_TEST");
+        $this->pdo->exec("CREATE TABLE [NULL_TEST] ([ID] INT NOT NULL, [NULL_COL] CHAR(1) DEFAULT NULL, [col2] VARCHAR(5));");
+        $this->pdo->exec(
+            "INSERT INTO [NULL_TEST] VALUES (1, null,'test'), (2, CHAR(0), 'test'), (3, '', 'test')"
+        );
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        unset($config['parameters']['tables'][0]['table']);
+        $config['parameters']['tables'][0]['query'] = "SELECT * FROM [NULL_TEST]";
+        $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.null_test';
+
+        $result = $this->createApplication($config)->run();
+
+        $outputData = iterator_to_array(new CsvFile($this->dataDir.'/out/tables/in.c-main.null_test.csv'));
+        
+        $this->assertEquals('success', $result['status']);
+
+        $this->assertNotContains(chr(0), $outputData[1][1]);
         $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
     }
 }
