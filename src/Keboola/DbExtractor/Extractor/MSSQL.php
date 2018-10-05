@@ -425,7 +425,10 @@ class MSSQL extends Extractor
                         );
                         $colstr = $this->quote($column['name']);
                         if ($datatype->getBasetype() === 'STRING') {
-                            if ($datatype->getType() === 'text' || $datatype->getType() === 'ntext') {
+                            if ($datatype->getType() === 'text' ||
+                                $datatype->getType() === 'ntext' ||
+                                $datatype->getType() === 'xml'
+                            ) {
                                 $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
                             }
                             $colstr = sprintf("REPLACE(%s, char(34), char(34) + char(34))", $colstr);
