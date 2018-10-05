@@ -1198,4 +1198,26 @@ class MSSQLTest extends AbstractMSSQLTest
             $this->assertEquals($line[2], $expectedData[$rowNum][2]);
         }
     }
+
+    public function testXMLtoNVarchar(): void
+    {
+        $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
+        $this->pdo->exec("CREATE TABLE [XML_TEST] ([ID] INT NOT NULL, [XML_COL] XML NULL);");
+        $this->pdo->exec(
+            "INSERT INTO [XML_TEST] VALUES (1, '<test>some test xml </test>'), (2, null), (3, '<test>some test xml </test>')"
+        );
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        unset($config['parameters']['tables'][0]['query']);
+        $config['parameters']['tables'][0]['table'] = ['tableName' => 'XML_TEST', 'schema' => 'dbo'];
+        $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.xml_test';
+
+        $result = $this->createApplication($config)->run();
+
+        $this->assertEquals('success', $result['status']);
+        
+        $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
+    }
 }
