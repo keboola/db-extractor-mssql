@@ -425,9 +425,9 @@ class MSSQL extends Extractor
                         );
                         $colstr = $this->quote($column['name']);
                         if ($datatype->getBasetype() === 'STRING') {
-                            if ($datatype->getType() === 'text' ||
-                                $datatype->getType() === 'ntext' ||
-                                $datatype->getType() === 'xml'
+                            if ($datatype->getType() === 'text'
+                                || $datatype->getType() === 'ntext'
+                                || $datatype->getType() === 'xml'
                             ) {
                                 $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
                             }
