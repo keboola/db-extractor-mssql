@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\GenericStorage;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Logger;
+use Symfony\Component\Process\Process;
 
 class MSSQL extends Extractor
 {
@@ -53,6 +54,18 @@ class MSSQL extends Extractor
     public function testConnection(): void
     {
         $this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
+    }
+
+    private function stripNulls(string $fileName): void
+    {
+        $process = new Process(sprintf('sed -e \'s/\x00//\' -i %s', $fileName));
+        $process->setTimeout(300);
+        $process->run();
+        if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
+            throw new ApplicationException(
+                sprintf("Error Stripping Nulls: %s", $process->getErrorOutput())
+            );
+        }
     }
 
     public function export(array $table): array
@@ -110,6 +123,7 @@ class MSSQL extends Extractor
                     $manifest = json_decode(file_get_contents($manifestFile), true);
                     $manifest['columns'] = $columnsArray;
                     file_put_contents($manifestFile, json_encode($manifest));
+                    $this->stripNulls($this->getOutputFilename($table['outputTable']));
                 }
             }
         } catch (\Throwable $e) {

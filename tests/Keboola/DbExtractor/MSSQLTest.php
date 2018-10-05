@@ -1239,11 +1239,11 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $result = $this->createApplication($config)->run();
 
-        $outputData = iterator_to_array(new CsvFile($this->dataDir.'/out/tables/in.c-main.null_test.csv'));
-        
+        $outputData = file_get_contents($this->dataDir.'/out/tables/in.c-main.null_test.csv');
+
+        $this->assertNotContains(chr(0), $outputData);
         $this->assertEquals('success', $result['status']);
 
-        $this->assertNotContains(chr(0), $outputData[1][1]);
         $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
     }
 }
