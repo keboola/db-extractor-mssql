@@ -58,7 +58,7 @@ class MSSQL extends Extractor
 
     private function stripNulls(string $fileName): void
     {
-        $process = new Process(sprintf('sed -e \'s/\x00//\' -i %s', $fileName));
+        $process = new Process(sprintf('sed -e \'s/,\x00,/,,/\' -i %s', $fileName));
         $process->setTimeout(300);
         $process->run();
         if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
