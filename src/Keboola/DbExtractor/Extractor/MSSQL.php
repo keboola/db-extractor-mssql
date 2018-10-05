@@ -9,6 +9,7 @@ use Keboola\Datatype\Definition\GenericStorage;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Logger;
+use Symfony\Component\Process\Process;
 
 class MSSQL extends Extractor
 {
@@ -53,6 +54,21 @@ class MSSQL extends Extractor
     public function testConnection(): void
     {
         $this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
+    }
+
+    private function stripNullBytesInEmptyFields(string $fileName): void
+    {
+        // this will replace null byte column values in the file
+        // this is here because BCP will output null bytes for empty strings
+        // this can occur in advanced queries where the column isn't sanitized
+        $process = new Process(sprintf('sed -e \'s/,\x00,/,,/\' -i %s', $fileName));
+        $process->setTimeout(300);
+        $process->run();
+        if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
+            throw new ApplicationException(
+                sprintf("Error Stripping Nulls: %s", $process->getErrorOutput())
+            );
+        }
     }
 
     public function export(array $table): array
@@ -110,6 +126,7 @@ class MSSQL extends Extractor
                     $manifest = json_decode(file_get_contents($manifestFile), true);
                     $manifest['columns'] = $columnsArray;
                     file_put_contents($manifestFile, json_encode($manifest));
+                    $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 }
             }
         } catch (\Throwable $e) {
