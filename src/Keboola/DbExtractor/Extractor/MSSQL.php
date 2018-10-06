@@ -61,7 +61,12 @@ class MSSQL extends Extractor
         // this will replace null byte column values in the file
         // this is here because BCP will output null bytes for empty strings
         // this can occur in advanced queries where the column isn't sanitized
-        $process = new Process(sprintf('sed -e \'s/,\x00,/,,/\' -i %s', $fileName));
+        $nullAtStart = 's/^\x00,/,/g';
+        $nullAtEnd = 's/,\x00$/,/g';
+        $nullInTheMiddle = 's/,\x00,/,,/g';
+        $sedCommand = sprintf('sed -e \'%s;%s;%s\' -i %s', $nullAtStart, $nullInTheMiddle, $nullAtEnd, $fileName);
+
+        $process = new Process($sedCommand);
         $process->setTimeout(300);
         $process->run();
         if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
