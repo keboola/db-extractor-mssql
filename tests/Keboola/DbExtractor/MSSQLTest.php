@@ -1228,8 +1228,8 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->pdo->exec("CREATE TABLE [NULL_TEST] ([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));");
         $this->pdo->exec(
             "INSERT INTO [NULL_TEST] VALUES 
-            (char(0), '', 'test with ' + CHAR(0) + ' inside'), 
-            ('', '', char(0)), 
+            ('', '', 'test with ' + CHAR(0) + ' inside'), 
+            ('', '', ''), 
             ('3', '', 'test')"
         );
         $config = $this->getConfig('mssql');
