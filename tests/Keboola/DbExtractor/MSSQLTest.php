@@ -1225,9 +1225,12 @@ class MSSQLTest extends AbstractMSSQLTest
     public function testStripNulls(): void
     {
         $this->pdo->exec("IF OBJECT_ID('dbo.NULL_TEST', 'U') IS NOT NULL DROP TABLE dbo.NULL_TEST");
-        $this->pdo->exec("CREATE TABLE [NULL_TEST] ([ID] INT NOT NULL, [NULL_COL] CHAR(1) DEFAULT NULL, [col2] VARCHAR(55));");
+        $this->pdo->exec("CREATE TABLE [NULL_TEST] ([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));");
         $this->pdo->exec(
-            "INSERT INTO [NULL_TEST] VALUES (1, null,'test with ' + CHAR(0) + ' inside'), (2, CHAR(0), 'test'), (3, '', 'test')"
+            "INSERT INTO [NULL_TEST] VALUES 
+            ('', '', 'test with ' + CHAR(0) + ' inside'), 
+            ('', '', ''), 
+            ('3', '', 'test')"
         );
         $config = $this->getConfig('mssql');
         unset($config['parameters']['tables'][1]);
@@ -1241,8 +1244,12 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $outputData = iterator_to_array(new CsvFile($this->dataDir.'/out/tables/in.c-main.null_test.csv'));
 
+        $this->assertNotContains(chr(0), $outputData[0][0]);
+        $this->assertNotContains(chr(0), $outputData[0][1]);
         $this->assertEquals("test with " . chr(0) . " inside", $outputData[0][2]);
+        $this->assertNotContains(chr(0), $outputData[1][0]);
         $this->assertNotContains(chr(0), $outputData[1][1]);
+        $this->assertNotContains(chr(0), $outputData[1][2]);
         $this->assertNotContains(chr(0), $outputData[2][1]);
         $this->assertEquals('success', $result['status']);
 
