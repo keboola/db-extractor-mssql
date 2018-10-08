@@ -1255,4 +1255,26 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
     }
+
+    public function testSmallDateTime(): void
+    {
+        $this->pdo->exec("IF OBJECT_ID('dbo.SMALLDATETIME_TEST', 'U') IS NOT NULL DROP TABLE dbo.SMALLDATETIME_TEST");
+        $this->pdo->exec("CREATE TABLE [SMALLDATETIME_TEST] ([ID] INT NULL, [SMALLDATE] SMALLDATETIME NOT NULL);");
+        $this->pdo->exec(
+            "INSERT INTO [SMALLDATETIME_TEST] VALUES 
+            (1, GETDATE()),
+            (2, GETDATE())"
+        );
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        unset($config['parameters']['tables'][0]['query']);
+        $config['parameters']['tables'][0]['table'] = ["tableName" => "SMALLDATETIME_TEST", "schema" => "dbo"];
+        $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.smalldatetime_test';
+
+        $result = $this->createApplication($config)->run();
+
+        $this->pdo->exec("IF OBJECT_ID('dbo.SMALLDATETIME_TEST', 'U') IS NOT NULL DROP TABLE dbo.SMALLDATETIME_TEST");
+    }
 }
