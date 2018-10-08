@@ -478,7 +478,8 @@ class MSSQL extends Extractor
     public function simplePdoQuery(array $table, array $columns = array()): string
     {
         if (count($columns) > 0) {
-            return sprintf("SELECT %s FROM %s.%s",
+            return sprintf(
+                "SELECT %s FROM %s.%s",
                 implode(', ', array_map(function ($column) {
                     return $this->quote($column);
                 }, $columns)),
