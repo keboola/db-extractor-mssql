@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\DbExtractor\Extractor\MSSQL;
-use Keboola\DbExtractor\ExtractorFactory;
 use Keboola\DbExtractor\Logger;
 
 class ExtractorTest extends AbstractMSSQLTest
@@ -18,8 +17,7 @@ class ExtractorTest extends AbstractMSSQLTest
         $config = $this->getConfig('mssql');
         $config['parameters']['extractor_class'] = 'MSSQL';
 
-        $extractorFactory = new ExtractorFactory($config['parameters'], []);
-        $this->extractor = $extractorFactory->create(new Logger('mssql-extractor-test'));
+        $this->extractor = new MSSQL($config['parameters'], [], new Logger('mssql-extractor-test'));
     }
 
     /**
