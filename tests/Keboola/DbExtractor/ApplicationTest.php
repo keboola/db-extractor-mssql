@@ -284,4 +284,35 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertFileNotExists($dataFile);
         $this->assertFileNotExists($manifestFile);
     }
+
+    public function testSimplifiedPdoFallbackQuery(): void
+    {
+        $this->pdo->exec("IF OBJECT_ID('dbo.PDO_TEST', 'U') IS NOT NULL DROP TABLE dbo.PDO_TEST");
+        $this->pdo->exec("CREATE TABLE [PDO_TEST] ([ID] INT NULL, [PROB_COL] sql_variant DEFAULT null);");
+        $this->pdo->exec(
+            "INSERT INTO [PDO_TEST] VALUES 
+            ('', GETDATE()), 
+            ('', null)"
+        );
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        unset($config['parameters']['tables'][0]['query']);
+        $config['parameters']['tables'][0]['name'] = "pdo test";
+        $config['parameters']['tables'][0]['table'] = ["tableName" => "PDO_TEST", "schema" => "dbo"];
+        $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.pdo_test';
+
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertContains("Executing \"SELECT * FROM [dbo].[PDO_TEST]\" via PDO", $process->getOutput());
+
+        $this->pdo->exec("IF OBJECT_ID('dbo.PDO_TEST', 'U') IS NOT NULL DROP TABLE dbo.PDO_TEST");
+    }
 }

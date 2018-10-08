@@ -83,10 +83,10 @@ class MSSQL extends Extractor
 
         $this->logger->info("Exporting to " . $outputTable);
 
+        $columns = $table['columns'];
         $isAdvancedQuery = true;
         if (array_key_exists('table', $table) && !array_key_exists('query', $table)) {
             $isAdvancedQuery = false;
-            $columns = $table['columns'];
             $tableMetadata = $this->getTables([$table['table']]);
             if (count($tableMetadata) === 0) {
                 throw new UserException(sprintf(
@@ -143,6 +143,10 @@ class MSSQL extends Extractor
                 )
             );
             try {
+                if (!$isAdvancedQuery) {
+                    $query = $this->simplePdoQuery($table['table'], $columns);
+                }
+                $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
                 /** @var \PDOStatement $stmt */
                 $stmt = $this->executeQuery(
                     $query,
@@ -469,6 +473,21 @@ class MSSQL extends Extractor
             $this->quote($table['schema']),
             $this->quote($table['tableName'])
         );
+    }
+
+    public function simplePdoQuery(array $table, array $columns = array()): string
+    {
+        if (count($columns) > 0) {
+            return sprintf("SELECT %s FROM %s.%s",
+                implode(', ', array_map(function ($column) {
+                    return $this->quote($column);
+                }, $columns)),
+                $this->quote($table['schema']),
+                $this->quote($table['tableName'])
+            );
+        } else {
+            return sprintf("SELECT * FROM %s.%s", $this->quote($table['schema']), $this->quote($table['tableName']));
+        }
     }
 
     private function quote(string $obj): string
