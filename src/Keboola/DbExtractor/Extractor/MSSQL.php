@@ -144,7 +144,7 @@ class MSSQL extends Extractor
             );
             try {
                 if (!$isAdvancedQuery) {
-                    $query = $this->simplePdoQuery($table['table'], $columns);
+                    $query = $this->getSimplePdoQuery($table['table'], $columns);
                 }
                 $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
                 /** @var \PDOStatement $stmt */
@@ -475,9 +475,9 @@ class MSSQL extends Extractor
         );
     }
 
-    public function simplePdoQuery(array $table, array $columns = array()): string
+    public function getSimplePdoQuery(array $table, ?array $columns = []): string
     {
-        if (count($columns) > 0) {
+        if ($columns && count($columns) > 0) {
             return sprintf(
                 "SELECT %s FROM %s.%s",
                 implode(', ', array_map(function ($column) {
