@@ -341,6 +341,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
+        $this->assertContains("SELECT [ID], [SMALLDATE] FROM [dbo].[SMALLDATETIME_TEST]", $process->getOutput());
         $this->assertNotContains("CONVERT(DATETIME2(0),[SMALLDATE])", $process->getOutput());
         $this->pdo->exec("IF OBJECT_ID('dbo.SMALLDATETIME_TEST', 'U') IS NOT NULL DROP TABLE dbo.SMALLDATETIME_TEST");
     }
