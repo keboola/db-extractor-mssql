@@ -462,7 +462,10 @@ class MSSQL extends Extractor
                                 $colstr = sprintf("COALESCE(%s,'')", $colstr);
                             }
                             $colstr = sprintf("char(34) + %s + char(34)", $colstr);
-                        } else if ($datatype->getBasetype() === 'TIMESTAMP' && strtoupper($datatype->getType()) !== 'TIMESTAMP') {
+                        } else if ($datatype->getBasetype() === 'TIMESTAMP'
+                            && strtoupper($datatype->getType()) !== 'TIMESTAMP'
+                            && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
+                        ) {
                             $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
                         }
                         return $colstr;
