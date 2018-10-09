@@ -315,4 +315,34 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->pdo->exec("IF OBJECT_ID('dbo.PDO_TEST', 'U') IS NOT NULL DROP TABLE dbo.PDO_TEST");
     }
+
+    public function testSmallDateTime(): void
+    {
+        $this->pdo->exec("IF OBJECT_ID('dbo.SMALLDATETIME_TEST', 'U') IS NOT NULL DROP TABLE dbo.SMALLDATETIME_TEST");
+        $this->pdo->exec("CREATE TABLE [SMALLDATETIME_TEST] ([ID] INT NULL, [SMALLDATE] SMALLDATETIME NOT NULL);");
+        $this->pdo->exec(
+            "INSERT INTO [SMALLDATETIME_TEST] VALUES 
+            (1, GETDATE()),
+            (2, GETDATE())"
+        );
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        unset($config['parameters']['tables'][0]['query']);
+        $config['parameters']['tables'][0]['name'] = "smalldatetime";
+        $config['parameters']['tables'][0]['table'] = ["tableName" => "SMALLDATETIME_TEST", "schema" => "dbo"];
+        $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.smalldatetime_test';
+
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->mustRun();
+
+        $this->assertContains("SELECT [ID], [SMALLDATE] FROM [dbo].[SMALLDATETIME_TEST]", $process->getOutput());
+        $this->assertNotContains("CONVERT(DATETIME2(0),[SMALLDATE])", $process->getOutput());
+        $this->pdo->exec("IF OBJECT_ID('dbo.SMALLDATETIME_TEST', 'U') IS NOT NULL DROP TABLE dbo.SMALLDATETIME_TEST");
+    }
 }
