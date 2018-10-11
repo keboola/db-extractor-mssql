@@ -1260,31 +1260,46 @@ class MSSQLTest extends AbstractMSSQLTest
 
     public function testThousandsOfTablesGetTables(): void
     {
-        $this->markTestSkipped("No need to run this test every time.");
-        $numberOfTables = 5000;
+        // $this->markTestSkipped("No need to run this test every time.");
 
-        $createTableScript = '';
-        $dropTableScript = '';
-        for ($i = 0; $i < $numberOfTables; $i++) {
-            $createTableScript .= "CREATE TABLE tmp_" . $i . " (id int identity primary key, kafka VARCHAR(255))\n";
-            $dropTableScript .= "DROP TABLE tmp_" . $i . "\n";
+        $numberOfSchemas = 2;
+        $numberOfTablesPerSchema = 50;
+        $numberOfColumnsPerTable = 50;
+
+        echo "\nSTARTING CLEANUP\n";
+        $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
+        echo "\nFINISHED CLEANUP\n";
+        // gen columns
+        $columnsSql = "";
+        for ($columnCount = 0; $columnCount < $numberOfColumnsPerTable; $columnCount++) {
+            $columnsSql .= sprintf(", [col_%d] VARCHAR(50) NOT NULL DEFAULT ''", $columnCount);
         }
 
-        $dropTableScript = "Begin\n" . $dropTableScript . "End\n";
-        $createTableScript = "Begin\n" . $createTableScript . "End\n";
-
-        // cleanup
-        try {
-            $this->pdo->exec($dropTableScript);
-        } catch (\Throwable $e) {
-            // one or more tables didn't exist
+        for ($schemaCount = 0; $schemaCount < $numberOfSchemas; $schemaCount++) {
+            echo "\ncreating schema $schemaCount\n";
+            $this->pdo->exec(sprintf("CREATE SCHEMA [testschema_%d]", $schemaCount));
+            for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount ++){
+                echo "\ncreating table $tableCount\n";
+                $this->pdo->exec(
+                    sprintf(
+                        "CREATE TABLE [testschema_%d].[testtable_%d] ([ID] INT IDENTITY(1,1) NOT NULL%s)",
+                        $schemaCount,
+                        $tableCount,
+                        $columnsSql
+                    )
+                );
+                $this->pdo->exec(
+                    sprintf(
+                        "ALTER TABLE [testschema_%d].[testtable_%d] ADD CONSTRAINT pk_%d_%d PRIMARY KEY ([ID])",
+                        $schemaCount,
+                        $tableCount,
+                        $schemaCount,
+                        $tableCount
+                    )
+                );
+            }
         }
-        // wait for the drop script to finish
-        sleep(5);
-
-        $this->pdo->exec($createTableScript);
-        // wait for the create script to finish
-        sleep(5);
+        echo "\nTABLES CREATED\n";
 
         $config = $this->getConfig();
         $config['action'] = 'getTables';
@@ -1295,12 +1310,37 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertEquals('success', $result['status']);
         $runTime = time() - $startTime;
 
-        echo "\n" . $numberOfTables . " tables were fetched in " . $runTime . " seconds.\n";
+        echo "\nThe tables were fetched in " . $runTime . " seconds.\n";
+        $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
+    }
+
+    private function cleanupTestSchemas(int $numberOfSchemas, int $numberOfTablesPerSchema): void
+    {
         // cleanup
-        try {
-            $this->pdo->exec($dropTableScript);
-        } catch (\Throwable $e) {
-            // one or more table didn't exist
+        for ($schemaCount = 0; $schemaCount < $numberOfSchemas; $schemaCount++) {
+            for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount++) {
+                $this->pdo->exec(
+                    sprintf(
+                        "IF OBJECT_ID('testschema_%d.testtable_%d', 'U') IS NOT NULL ALTER TABLE [testschema_%d].[testtable_%d] DROP CONSTRAINT pk_%d_%d",
+                        $schemaCount,
+                        $tableCount,
+                        $schemaCount,
+                        $tableCount,
+                        $schemaCount,
+                        $tableCount
+                    )
+                );
+                $this->pdo->exec(
+                    sprintf(
+                        "IF OBJECT_ID('testschema_%d.testtable_%d', 'U') IS NOT NULL DROP TABLE testschema_%d.testtable_%d",
+                        $schemaCount,
+                        $tableCount,
+                        $schemaCount,
+                        $tableCount
+                    )
+                );
+            }
+            $this->pdo->exec(sprintf("DROP SCHEMA IF EXISTS [testschema_%d]", $schemaCount));
         }
     }
 
@@ -1329,6 +1369,7 @@ EOT;
             // table didn't exist
         }
         $this->pdo->exec("CREATE TABLE largetest (id int identity primary key, kafka VARCHAR(255))");
+
         $this->pdo->exec($insertionScript);
 
         $config = $this->getConfig('mssql');
@@ -1341,6 +1382,7 @@ EOT;
             'table' => [
                 'tableName' => 'largetest',
                 'schema' => 'dbo',
+
             ],
         ];
 
@@ -1352,10 +1394,14 @@ EOT;
 
         echo "\nThe app ran in " . $runTime . " seconds.\n";
 
+<<<<<<< HEAD
         try {
             $this->pdo->exec("DROP TABLE largetest");
         } catch (\Throwable $e) {
             // table didn't exist
         }
+=======
+        $this->pdo->exec("IF OBJECT_ID('dbo.largetest', 'U') IS NOT NULL DROP TABLE dbo.largetest");
+>>>>>>> b31ff9c... debugging performance tests
     }
 }
