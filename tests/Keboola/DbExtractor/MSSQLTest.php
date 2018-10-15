@@ -1261,9 +1261,9 @@ class MSSQLTest extends AbstractMSSQLTest
     public function testThousandsOfTablesGetTables(): void
     {
         // $this->markTestSkipped("No need to run this test every time.");
-
-        $numberOfSchemas = 2;
-        $numberOfTablesPerSchema = 50;
+        $testStartTime = time();
+        $numberOfSchemas = 5;
+        $numberOfTablesPerSchema = 100;
         $numberOfColumnsPerTable = 50;
 
         echo "\nSTARTING CLEANUP\n";
@@ -1301,17 +1301,22 @@ class MSSQLTest extends AbstractMSSQLTest
         }
         echo "\nTABLES CREATED\n";
 
+        $dbBuildTime = time() - $testStartTime;
+        echo "\nTest DB built in  " . $dbBuildTime . " seconds.\n";
+
         $config = $this->getConfig();
         $config['action'] = 'getTables';
         $app = $this->createApplication($config);
 
-        $startTime = time();
+        $jobStartTime = time();
         $result = $app->run();
         $this->assertEquals('success', $result['status']);
-        $runTime = time() - $startTime;
+        $runTime = time() - $jobStartTime;
 
         echo "\nThe tables were fetched in " . $runTime . " seconds.\n";
         $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
+        $entireTime = time() - $testStartTime;
+        echo "\nComplete test finished in  " . $entireTime . " seconds.\n";
     }
 
     private function cleanupTestSchemas(int $numberOfSchemas, int $numberOfTablesPerSchema): void
