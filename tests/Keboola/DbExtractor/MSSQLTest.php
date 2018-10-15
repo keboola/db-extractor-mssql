@@ -1394,14 +1394,6 @@ EOT;
 
         echo "\nThe app ran in " . $runTime . " seconds.\n";
 
-<<<<<<< HEAD
-        try {
-            $this->pdo->exec("DROP TABLE largetest");
-        } catch (\Throwable $e) {
-            // table didn't exist
-        }
-=======
         $this->pdo->exec("IF OBJECT_ID('dbo.largetest', 'U') IS NOT NULL DROP TABLE dbo.largetest");
->>>>>>> b31ff9c... debugging performance tests
     }
 }
