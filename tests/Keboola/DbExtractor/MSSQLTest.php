@@ -1250,17 +1250,10 @@ class MSSQLTest extends AbstractMSSQLTest
             for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount++) {
                 $this->pdo->exec(
                     sprintf(
-                        "CREATE TABLE [testschema_%d].[testtable_%d] ([ID] INT IDENTITY(1,1) NOT NULL%s)",
+                        "CREATE TABLE [testschema_%d].[testtable_%d] ([ID] INT IDENTITY(1,1) NOT NULL%s, CONSTRAINT pk_%d_%d PRIMARY KEY ([ID]))",
                         $schemaCount,
                         $tableCount,
-                        $columnsSql
-                    )
-                );
-                $this->pdo->exec(
-                    sprintf(
-                        "ALTER TABLE [testschema_%d].[testtable_%d] ADD CONSTRAINT pk_%d_%d PRIMARY KEY ([ID])",
-                        $schemaCount,
-                        $tableCount,
+                        $columnsSql,
                         $schemaCount,
                         $tableCount
                     )
