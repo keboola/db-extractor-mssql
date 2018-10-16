@@ -12,6 +12,6 @@
 
     <testsuite name="MSSQL Extractor Test Suite">
         <directory>tests</directory>
+        <exclude>tests/Keboola/DbExtractor/PerformanceTest.php</exclude>
     </testsuite>
-
 </phpunit>
