@@ -92,7 +92,7 @@ class PerformanceTest extends AbstractMSSQLTest
 
     public function testLargeTableRun(): void
     {
-        $this->markTestSkipped("No need to run this test every time.");
+        $this->markTestSkipped("This is a work in progress.");
 
         $insertionScript = <<<EOT
 Declare @Id int
