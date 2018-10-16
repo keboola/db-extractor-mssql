@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
 use Symfony\Component\Process\Process;
@@ -790,6 +789,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
         $this->assertCount(4, $result['tables']);
+
         $expectedData = array (
             0 =>
                 array (
@@ -806,7 +806,6 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => 55,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 3,
                                     'primaryKey' => false,
                                 ),
@@ -817,7 +816,6 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'datetime',
                                     'length' => null,
                                     'nullable' => true,
-                                    'default' => '(\'2018-08-14 10:43:18\')',
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
@@ -828,7 +826,6 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'int',
                                     'length' => 10,
                                     'nullable' => false,
-                                    'default' => null,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => true,
                                     'primaryKeyName' => 'PK_AUTOINC',
@@ -840,7 +837,6 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => 55,
                                     'nullable' => false,
-                                    'default' => '(\'mario\')',
                                     'ordinalPosition' => 2,
                                     'primaryKey' => false,
                                 ),
@@ -859,9 +855,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'usergender',
                                     'sanitizedName' => 'usergender',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => false,
                                 ),
@@ -870,9 +865,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'usercity',
                                     'sanitizedName' => 'usercity',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 2,
                                     'primaryKey' => false,
                                 ),
@@ -881,9 +875,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'usersentiment',
                                     'sanitizedName' => 'usersentiment',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 3,
                                     'primaryKey' => false,
                                 ),
@@ -892,9 +885,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'zipcode',
                                     'sanitizedName' => 'zipcode',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
@@ -903,9 +895,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'sku',
                                     'sanitizedName' => 'sku',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 5,
                                     'primaryKey' => false,
                                 ),
@@ -916,7 +907,6 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => 64,
                                     'nullable' => false,
-                                    'default' => null,
                                     'ordinalPosition' => 6,
                                     'primaryKey' => true,
                                     'primaryKeyName' => 'PK_sales',
@@ -926,9 +916,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'category',
                                     'sanitizedName' => 'category',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 7,
                                     'primaryKey' => false,
                                 ),
@@ -937,9 +926,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'price',
                                     'sanitizedName' => 'price',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 8,
                                     'primaryKey' => false,
                                 ),
@@ -948,9 +936,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'county',
                                     'sanitizedName' => 'county',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 9,
                                     'primaryKey' => false,
                                 ),
@@ -959,9 +946,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'countycode',
                                     'sanitizedName' => 'countycode',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 10,
                                     'primaryKey' => false,
                                 ),
@@ -970,9 +956,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'userstate',
                                     'sanitizedName' => 'userstate',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 11,
                                     'primaryKey' => false,
                                 ),
@@ -981,9 +966,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'categorygroup',
                                     'sanitizedName' => 'categorygroup',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 12,
                                     'primaryKey' => false,
                                 ),
@@ -1002,9 +986,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'usergender',
                                     'sanitizedName' => 'usergender',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => false,
                                 ),
@@ -1013,9 +996,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'usercity',
                                     'sanitizedName' => 'usercity',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 2,
                                     'primaryKey' => false,
                                 ),
@@ -1024,9 +1006,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'usersentiment',
                                     'sanitizedName' => 'usersentiment',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 3,
                                     'primaryKey' => false,
                                 ),
@@ -1035,9 +1016,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'zipcode',
                                     'sanitizedName' => 'zipcode',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
@@ -1046,9 +1026,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'sku',
                                     'sanitizedName' => 'sku',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 5,
                                     'primaryKey' => false,
                                 ),
@@ -1059,7 +1038,6 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'type' => 'varchar',
                                     'length' => 64,
                                     'nullable' => false,
-                                    'default' => null,
                                     'ordinalPosition' => 6,
                                     'primaryKey' => false,
                                 ),
@@ -1068,9 +1046,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'category',
                                     'sanitizedName' => 'category',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 7,
                                     'primaryKey' => false,
                                 ),
@@ -1079,9 +1056,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'price',
                                     'sanitizedName' => 'price',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 8,
                                     'primaryKey' => false,
                                 ),
@@ -1090,9 +1066,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'county',
                                     'sanitizedName' => 'county',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 9,
                                     'primaryKey' => false,
                                 ),
@@ -1101,9 +1076,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'countycode',
                                     'sanitizedName' => 'countycode',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 10,
                                     'primaryKey' => false,
                                 ),
@@ -1112,9 +1086,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'userstate',
                                     'sanitizedName' => 'userstate',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 11,
                                     'primaryKey' => false,
                                 ),
@@ -1123,9 +1096,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'categorygroup',
                                     'sanitizedName' => 'categorygroup',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
                                     'ordinalPosition' => 12,
                                     'primaryKey' => false,
                                 ),
@@ -1144,10 +1116,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'col1',
                                     'sanitizedName' => 'col1',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
-                                    'ordinalPosition' => '1',
+                                    'ordinalPosition' => 1,
                                     'primaryKey' => false,
                                 ),
                             1 =>
@@ -1155,10 +1126,9 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'col2',
                                     'sanitizedName' => 'col2',
                                     'type' => 'text',
-                                    'length' => '2147483647',
+                                    'length' => null,
                                     'nullable' => true,
-                                    'default' => null,
-                                    'ordinalPosition' => '2',
+                                    'ordinalPosition' => 2,
                                     'primaryKey' => false,
                                 ),
                         ),
@@ -1266,9 +1236,8 @@ class MSSQLTest extends AbstractMSSQLTest
         $numberOfTablesPerSchema = 100;
         $numberOfColumnsPerTable = 50;
 
-        echo "\nSTARTING CLEANUP\n";
         $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
-        echo "\nFINISHED CLEANUP\n";
+
         // gen columns
         $columnsSql = "";
         for ($columnCount = 0; $columnCount < $numberOfColumnsPerTable; $columnCount++) {
@@ -1276,10 +1245,8 @@ class MSSQLTest extends AbstractMSSQLTest
         }
 
         for ($schemaCount = 0; $schemaCount < $numberOfSchemas; $schemaCount++) {
-            echo "\ncreating schema $schemaCount\n";
             $this->pdo->exec(sprintf("CREATE SCHEMA [testschema_%d]", $schemaCount));
-            for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount ++){
-                echo "\ncreating table $tableCount\n";
+            for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount++) {
                 $this->pdo->exec(
                     sprintf(
                         "CREATE TABLE [testschema_%d].[testtable_%d] ([ID] INT IDENTITY(1,1) NOT NULL%s)",
@@ -1299,7 +1266,6 @@ class MSSQLTest extends AbstractMSSQLTest
                 );
             }
         }
-        echo "\nTABLES CREATED\n";
 
         $dbBuildTime = time() - $testStartTime;
         echo "\nTest DB built in  " . $dbBuildTime . " seconds.\n";
