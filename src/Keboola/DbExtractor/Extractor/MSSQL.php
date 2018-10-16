@@ -224,8 +224,8 @@ class MSSQL extends Extractor
     public function getTables(?array $tables = null): array
     {
         $sql = "SELECT ist.* FROM INFORMATION_SCHEMA.TABLES as ist
-                INNER JOIN sysobjects AS so ON ist.TABLE_NAME = so.name
-                WHERE (so.xtype='U' OR so.xtype='V') AND so.name NOT IN ('sysconstraints', 'syssegments')";
+                INNER JOIN sys.objects AS so ON ist.TABLE_NAME = so.name
+                WHERE (so.type='U' OR so.type='V')";
                 // xtype='U' user generated objects only
 
         if (!is_null($tables) && count($tables) > 0) {
@@ -284,31 +284,27 @@ class MSSQL extends Extractor
         $res = $this->db->query($sql);
 
         $rows = $res->fetchAll();
+
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
             if (!array_key_exists('columns', $tableDefs[$curTable])) {
                 $tableDefs[$curTable]['columns'] = [];
             }
-            $length = ($column['CHARACTER_MAXIMUM_LENGTH']) ? $column['CHARACTER_MAXIMUM_LENGTH'] : null;
-            if (is_null($length) && !is_null($column['NUMERIC_PRECISION'])) {
-                if ($column['NUMERIC_SCALE'] > 0) {
-                    $length = $column['NUMERIC_PRECISION'] . "," . $column['NUMERIC_SCALE'];
-                } else {
-                    $length = $column['NUMERIC_PRECISION'];
-                }
-            }
+
             $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
             if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex] = [
                     "name" => $column['COLUMN_NAME'],
                     "sanitizedName" => \Keboola\Utils\sanitizeColumnName($column['COLUMN_NAME']),
                     "type" => $column['DATA_TYPE'],
-                    "length" => $length,
-                    "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
-                    "default" => $column['COLUMN_DEFAULT'],
-                    "ordinalPosition" => $column['ORDINAL_POSITION'],
+                    "length" => $this->getFieldLength($column),
+                    "nullable" => ($column['IS_NULLABLE'] === "YES" || $column['IS_NULLABLE'] === '1') ? true : false,
+                    "ordinalPosition" => (int) $column['ORDINAL_POSITION'],
                     "primaryKey" => false,
                 ];
+            }
+            if (array_key_exists('COLUMN_DEFAULT', $column)) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['default'] = $column['COLUMN_DEFAULT'];
             }
 
             if (array_key_exists('pk_name', $column) && $column['pk_name'] !== null) {
@@ -336,18 +332,68 @@ class MSSQL extends Extractor
         return array_values($tableDefs);
     }
 
+    private function getFieldLength(array $column): ?string
+    {
+        $dateTimeTypes = ['datetimeoffset', 'datetime2', 'datetime', 'time', 'smalldatetime', 'date'];
+        if (in_array($column['DATA_TYPE'], $dateTimeTypes)) {
+            return null;
+        }
+        if ($column['NUMERIC_PRECISION'] > 0) {
+            if ($column['NUMERIC_SCALE'] > 0) {
+                return $column['NUMERIC_PRECISION'] . "," . $column['NUMERIC_SCALE'];
+            } else {
+                return $column['NUMERIC_PRECISION'];
+            }
+        }
+        switch ($column['CHARACTER_MAXIMUM_LENGTH']) {
+            case '16':
+                // most likely TEXT column
+                if ($column['DATA_TYPE'] === 'text') {
+                    return null;
+                } else {
+                    return $column['CHARACTER_MAXIMUM_LENGTH'];
+                }
+            case '-1':
+                // this is returned for max, ex: nvarchar(max), we will treat it as unspecified
+                return null;
+            default:
+                return $column['CHARACTER_MAXIMUM_LENGTH'];
+                break;
+        }
+    }
+
     private function quickTablesSql(): string
     {
-        return "SELECT c.*, pk_name 
-                FROM INFORMATION_SCHEMA.COLUMNS AS c
-                INNER JOIN sysobjects AS so ON c.TABLE_NAME = so.name AND (so.xtype='U' OR so.xtype='V') AND so.name NOT IN ('sysconstraints', 'syssegments')
-                LEFT JOIN (
-                    SELECT tc.CONSTRAINT_TYPE, tc.TABLE_NAME, ccu.COLUMN_NAME, ccu.CONSTRAINT_NAME as pk_name
-                    FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS ccu
-                    JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS tc
-                    ON ccu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME AND  ccu.TABLE_NAME = tc.TABLE_NAME AND CONSTRAINT_TYPE = 'PRIMARY KEY' 
-                ) AS pk
-                ON pk.TABLE_NAME = c.TABLE_NAME AND pk.COLUMN_NAME = c.COLUMN_NAME";
+        return "SELECT 
+                  OBJECT_SCHEMA_NAME (sys.columns.object_id) AS TABLE_SCHEMA,
+                  OBJECT_NAME(sys.columns.object_id) as TABLE_NAME,
+                  sys.columns.column_id AS COLUMN_ID,
+                  sys.columns.column_id AS ORDINAL_POSITION,
+                  sys.columns.name AS COLUMN_NAME,
+                  TYPE_NAME(sys.columns.system_type_id) AS DATA_TYPE,
+                  sys.columns.is_nullable AS IS_NULLABLE,
+                  sys.columns.precision AS NUMERIC_PRECISION,
+                  sys.columns.scale AS NUMERIC_SCALE,
+                  sys.columns.max_length AS CHARACTER_MAXIMUM_LENGTH,
+                  pks.index_name AS pk_name
+                FROM sys.columns 
+                LEFT JOIN
+                  (
+                    SELECT i.name AS index_name,
+                        is_identity,
+                        c.column_id AS columnid,
+                        c.object_id AS objectid
+                    FROM sys.indexes AS i  
+                    INNER JOIN sys.index_columns AS ic   
+                        ON i.object_id = ic.object_id AND i.index_id = ic.index_id  
+                    INNER JOIN sys.columns AS c   
+                        ON ic.object_id = c.object_id AND c.column_id = ic.column_id  
+                    WHERE i.is_primary_key = 1
+                  ) pks 
+                ON pks.objectid = sys.columns.object_id AND pks.columnid = sys.columns.column_id
+                INNER JOIN sys.objects AS so ON sys.columns.object_id = so.object_id
+                WHERE (so.type='U' OR so.type='V')
+              ";
     }
 
     private function fullTablesSql(array $tables): string

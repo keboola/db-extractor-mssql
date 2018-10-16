@@ -10,8 +10,11 @@
          syntaxCheck="false"
          bootstrap="vendor/autoload.php">
 
-    <testsuite name="MSSQL Extractor Test Suite">
+    <testsuite name="unit">
         <directory>tests</directory>
+        <exclude>tests/Keboola/DbExtractor/PerformanceTest.php</exclude>
     </testsuite>
-
+    <testsuite name="perf">
+        <file>tests/Keboola/DbExtractor/PerformanceTest.php</file>
+    </testsuite>
 </phpunit>

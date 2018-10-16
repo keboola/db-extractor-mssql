@@ -29,14 +29,16 @@
         }
     },
     "scripts": {
-        "tests": "./wait-for-it.sh mssql:1433 -t 30 -- phpunit",
+        "tests": "./wait-for-it.sh mssql:1433 -t 30 -- phpunit --testsuite unit",
+        "perf": "./wait-for-it.sh mssql:1433 -t 30 -- phpunit --testsuite perf",
         "phpstan": "phpstan analyse --no-progress --level=max ./src ./tests -c phpstan.neon",
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
         "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
         "build": [
             "@phpcs",
             "@phpstan",
-            "@tests"
+            "@tests",
+            "@perf"
         ],
         "ci": [
             "@composer validate --no-check-all --strict",
