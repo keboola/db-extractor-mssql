@@ -287,7 +287,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
     public function testSimplifiedPdoFallbackQuery(): void
     {
-        $this->pdo->exec("IF OBJECT_ID('dbo.PDO_TEST', 'U') IS NOT NULL DROP TABLE dbo.PDO_TEST");
+        $this->dropTable("PDO_TEST");
         $this->pdo->exec("CREATE TABLE [PDO_TEST] ([ID] INT NULL, [PROB_COL] sql_variant DEFAULT null);");
         $this->pdo->exec(
             "INSERT INTO [PDO_TEST] VALUES 
@@ -313,12 +313,12 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode());
         $this->assertContains("Executing \"SELECT * FROM [dbo].[PDO_TEST]\" via PDO", $process->getOutput());
 
-        $this->pdo->exec("IF OBJECT_ID('dbo.PDO_TEST', 'U') IS NOT NULL DROP TABLE dbo.PDO_TEST");
+        $this->dropTable("PDO_TEST");
     }
 
     public function testSmallDateTime(): void
     {
-        $this->pdo->exec("IF OBJECT_ID('dbo.SMALLDATETIME_TEST', 'U') IS NOT NULL DROP TABLE dbo.SMALLDATETIME_TEST");
+        $this->dropTable("SMALLDATETIME_TEST");
         $this->pdo->exec("CREATE TABLE [SMALLDATETIME_TEST] ([ID] INT NULL, [SMALLDATE] SMALLDATETIME NOT NULL);");
         $this->pdo->exec(
             "INSERT INTO [SMALLDATETIME_TEST] VALUES 
@@ -343,6 +343,6 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertContains("SELECT [ID], [SMALLDATE] FROM [dbo].[SMALLDATETIME_TEST]", $process->getOutput());
         $this->assertNotContains("CONVERT(DATETIME2(0),[SMALLDATE])", $process->getOutput());
-        $this->pdo->exec("IF OBJECT_ID('dbo.SMALLDATETIME_TEST', 'U') IS NOT NULL DROP TABLE dbo.SMALLDATETIME_TEST");
+        $this->dropTable("SMALLDATETIME_TEST");
     }
 }

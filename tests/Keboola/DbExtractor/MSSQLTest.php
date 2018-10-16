@@ -1174,7 +1174,7 @@ class MSSQLTest extends AbstractMSSQLTest
 
     public function testXMLtoNVarchar(): void
     {
-        $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
+        $this->dropTable("XML_TEST");
         $this->pdo->exec("CREATE TABLE [XML_TEST] ([ID] INT NOT NULL, [XML_COL] XML NULL);");
         $this->pdo->exec(
             "INSERT INTO [XML_TEST] VALUES (1, '<test>some test xml </test>'), (2, null), (3, '<test>some test xml </test>')"
@@ -1190,13 +1190,13 @@ class MSSQLTest extends AbstractMSSQLTest
         $result = $this->createApplication($config)->run();
 
         $this->assertEquals('success', $result['status']);
-        
-        $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
+
+        $this->dropTable("XML_TEST");
     }
 
     public function testStripNulls(): void
     {
-        $this->pdo->exec("IF OBJECT_ID('dbo.NULL_TEST', 'U') IS NOT NULL DROP TABLE dbo.NULL_TEST");
+        $this->dropTable("NULL_TEST");
         $this->pdo->exec("CREATE TABLE [NULL_TEST] ([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));");
         $this->pdo->exec(
             "INSERT INTO [NULL_TEST] VALUES 
@@ -1225,7 +1225,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertNotContains(chr(0), $outputData[2][1]);
         $this->assertEquals('success', $result['status']);
 
-        $this->pdo->exec("IF OBJECT_ID('dbo.XML_TEST', 'U') IS NOT NULL DROP TABLE dbo.XML_TEST");
+        $this->dropTable("NULL_TEST");
     }
 
     public function testThousandsOfTablesGetTables(): void
@@ -1301,14 +1301,9 @@ class MSSQLTest extends AbstractMSSQLTest
                         $tableCount
                     )
                 );
-                $this->pdo->exec(
-                    sprintf(
-                        "IF OBJECT_ID('testschema_%d.testtable_%d', 'U') IS NOT NULL DROP TABLE testschema_%d.testtable_%d",
-                        $schemaCount,
-                        $tableCount,
-                        $schemaCount,
-                        $tableCount
-                    )
+                $this->dropTable(
+                    sprintf("testtable_%d", $tableCount),
+                    sprintf("testschema_%d", $schemaCount)
                 );
             }
             $this->pdo->exec(sprintf("DROP SCHEMA IF EXISTS [testschema_%d]", $schemaCount));
@@ -1334,11 +1329,8 @@ slightly domed and divided by a')
 End
 EOT;
 
-        try {
-            $this->pdo->exec("DROP TABLE largetest");
-        } catch (\Throwable $e) {
-            // table didn't exist
-        }
+        $this->dropTable("largetest");
+
         $this->pdo->exec("CREATE TABLE largetest (id int identity primary key, kafka VARCHAR(255))");
 
         $this->pdo->exec($insertionScript);
@@ -1365,6 +1357,6 @@ EOT;
 
         echo "\nThe app ran in " . $runTime . " seconds.\n";
 
-        $this->pdo->exec("IF OBJECT_ID('dbo.largetest', 'U') IS NOT NULL DROP TABLE dbo.largetest");
+        $this->dropTable('largetest');
     }
 }

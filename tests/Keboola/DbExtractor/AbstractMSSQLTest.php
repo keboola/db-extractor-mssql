@@ -57,23 +57,23 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
         $specialCsv = new CsvFile($this->dataDir . "/mssql/special.csv");
 
-        $this->pdo->exec("IF OBJECT_ID('dbo.[Empty Test]', 'U') IS NOT NULL DROP TABLE dbo.[Empty Test]");
-        $this->pdo->exec("IF OBJECT_ID('dbo.sales2', 'U') IS NOT NULL DROP TABLE dbo.sales2");
-        $this->pdo->exec("IF OBJECT_ID('dbo.sales', 'U') IS NOT NULL DROP TABLE dbo.sales");
-        $this->pdo->exec("IF OBJECT_ID('dbo.special', 'U') IS NOT NULL DROP TABLE dbo.special");
+        $this->dropTable("Empty Test");
+        $this->dropTable("sales2");
+        $this->dropTable("sales");
+        $this->dropTable("special");
 
         $this->createTextTable($csv1, ['createdat'], "sales");
         $this->createTextTable($csv1, null, "sales2");
         $this->createTextTable($specialCsv, null, "special");
         // drop the t1 demo table if it exists
-        $this->pdo->exec("IF OBJECT_ID('t1', 'U') IS NOT NULL DROP TABLE t1");
+        $this->dropTable('t1');
 
         // set up a foreign key relationship
         $this->pdo->exec("ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL");
         $this->pdo->exec("ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)");
 
         // create another table with an auto_increment ID
-        $this->pdo->exec("IF OBJECT_ID('dbo.[auto Increment Timestamp]', 'U') IS NOT NULL DROP TABLE dbo.[auto Increment Timestamp]");
+        $this->dropTable("auto Increment Timestamp");
 
         $this->pdo->exec(
             "CREATE TABLE [auto Increment Timestamp] (
@@ -93,6 +93,19 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('yoshi', 'horse?')");
         // add unique key
         $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE (\"Weir%d Na-me\", Type)");
+    }
+
+    protected function dropTable(string $tableName, ?string $schema = 'dbo'): void
+    {
+        $this->pdo->exec(
+            sprintf(
+                "IF OBJECT_ID('[%s].[%s]', 'U') IS NOT NULL DROP TABLE [%s].[%s]",
+                $schema,
+                $tableName,
+                $schema,
+                $tableName
+            )
+        );
     }
 
     public function getConfig(string $driver = self::DRIVER, string $format = ExtractorTest::CONFIG_FORMAT_YAML): array
@@ -119,13 +132,6 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         } else {
             $tableName = $overrideTableName;
         }
-
-        try {
-            $this->pdo->exec(sprintf("DROP TABLE %s", $tableName));
-        } catch (\Throwable $e) {
-            // table didn't exist
-        }
-
 
         $sql = sprintf(
             'CREATE TABLE %s (%s)',
