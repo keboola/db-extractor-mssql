@@ -290,25 +290,21 @@ class MSSQL extends Extractor
             if (!array_key_exists('columns', $tableDefs[$curTable])) {
                 $tableDefs[$curTable]['columns'] = [];
             }
-            $length = ($column['CHARACTER_MAXIMUM_LENGTH']) ? $column['CHARACTER_MAXIMUM_LENGTH'] : null;
-            if (is_null($length) && !is_null($column['NUMERIC_PRECISION'])) {
-                if ($column['NUMERIC_SCALE'] > 0) {
-                    $length = $column['NUMERIC_PRECISION'] . "," . $column['NUMERIC_SCALE'];
-                } else {
-                    $length = $column['NUMERIC_PRECISION'];
-                }
-            }
+
             $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
             if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex] = [
                     "name" => $column['COLUMN_NAME'],
                     "sanitizedName" => \Keboola\Utils\sanitizeColumnName($column['COLUMN_NAME']),
                     "type" => $column['DATA_TYPE'],
-                    "length" => $length,
-                    "nullable" => ($column['IS_NULLABLE'] === "YES") ? true : false,
-                    "ordinalPosition" => $column['ORDINAL_POSITION'],
+                    "length" => $this->getFieldLength($column),
+                    "nullable" => ($column['IS_NULLABLE'] === "YES" || $column['IS_NULLABLE'] === '1') ? true : false,
+                    "ordinalPosition" => (int) $column['ORDINAL_POSITION'],
                     "primaryKey" => false,
                 ];
+            }
+            if (array_key_exists('COLUMN_DEFAULT', $column)) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['default'] = $column['COLUMN_DEFAULT'];
             }
 
             if (array_key_exists('pk_name', $column) && $column['pk_name'] !== null) {
@@ -334,6 +330,36 @@ class MSSQL extends Extractor
             }
         }
         return array_values($tableDefs);
+    }
+
+    private function getFieldLength(array $column): ?string
+    {
+        $dateTimeTypes = ['datetimeoffset', 'datetime2', 'datetime', 'time', 'smalldatetime', 'date'];
+        if (in_array($column['DATA_TYPE'], $dateTimeTypes)) {
+            return null;
+        }
+        if ($column['NUMERIC_PRECISION'] > 0) {
+            if ($column['NUMERIC_SCALE'] > 0) {
+                return $column['NUMERIC_PRECISION'] . "," . $column['NUMERIC_SCALE'];
+            } else {
+                return $column['NUMERIC_PRECISION'];
+            }
+        }
+        switch ($column['CHARACTER_MAXIMUM_LENGTH']) {
+            case '16':
+                // most likely TEXT column
+                if ($column['DATA_TYPE'] === 'text') {
+                    return null;
+                } else {
+                    return $column['CHARACTER_MAXIMUM_LENGTH'];
+                }
+            case '-1':
+                // this is returned for max, ex: nvarchar(max), we will treat it as unspecified
+                return null;
+            default:
+                return $column['CHARACTER_MAXIMUM_LENGTH'];
+                break;
+        }
     }
 
     private function quickTablesSql(): string
