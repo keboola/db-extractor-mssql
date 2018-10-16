@@ -1235,6 +1235,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $numberOfSchemas = 5;
         $numberOfTablesPerSchema = 100;
         $numberOfColumnsPerTable = 50;
+        $maxRunTime = 5;
 
         $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
 
@@ -1278,6 +1279,8 @@ class MSSQLTest extends AbstractMSSQLTest
         $result = $app->run();
         $this->assertEquals('success', $result['status']);
         $runTime = time() - $jobStartTime;
+
+        $this->assertLessThan($maxRunTime, $runTime);
 
         echo "\nThe tables were fetched in " . $runTime . " seconds.\n";
         $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
