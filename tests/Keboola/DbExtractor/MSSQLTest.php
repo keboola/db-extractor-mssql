@@ -42,7 +42,7 @@ class MSSQLTest extends AbstractMSSQLTest
     {
         $config = $this->getConfig('mssql');
 
-        unset($config['parameters']['tables']);
+        $config['parameters']['tables'] = [];
 
         $app = $this->createApplication($config);
         $result = $app->run();
@@ -81,11 +81,153 @@ class MSSQLTest extends AbstractMSSQLTest
     public function testRunConfig(array $config): void
     {
         $result = $this->createApplication($config)->run();
-        
-        $this->checkResult($result);
+        if (array_key_exists('tables', $config['parameters'])) {
+            $this->checkTablesResult($result);
+        } else {
+            $this->checkRowResult($result);
+        }
     }
 
-    private function checkResult(array $result): void
+    private function checkRowResult(array $result): void
+    {
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(
+            array (
+                'outputTable' => 'in.c-main.special',
+                'rows' => 7,
+            ),
+            $result['imported']
+        );
+
+        $specialManifest = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv.manifest';
+        $manifest = json_decode(file_get_contents($specialManifest), true);
+        $this->assertEquals(
+            array (
+                'destination' => 'in.c-main.special',
+                'incremental' => false,
+                'metadata' =>
+                    array (
+                        0 =>
+                            array (
+                                'key' => 'KBC.name',
+                                'value' => 'special',
+                            ),
+                        1 =>
+                            array (
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
+                            ),
+                        2 =>
+                            array (
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
+                            ),
+                        3 =>
+                            array (
+                                'key' => 'KBC.type',
+                                'value' => 'BASE TABLE',
+                            ),
+                    ),
+                'column_metadata' =>
+                    array (
+                        'col1' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'text',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '2147483647',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'col1',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'col1',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '1',
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                        'col2' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'text',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '2147483647',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'col2',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'col2',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '2',
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                    ),
+                'columns' =>
+                    array (
+                        0 => 'col1',
+                        1 => 'col2',
+                    ),
+            ),
+            $manifest
+        );
+    }
+
+    private function checkTablesResult(array $result): void
     {
         $this->assertEquals('success', $result['status']);
         $this->assertEquals(

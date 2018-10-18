@@ -1,0 +1,14 @@
+{
+  "parameters": {
+    "id": 4,
+    "enabled": true,
+    "name": "special",
+    "outputTable": "in.c-main.special",
+    "incremental": false,
+    "primaryKey": null,
+    "table": {
+      "schema": "dbo",
+      "tableName": "special"
+    }
+  }
+}
