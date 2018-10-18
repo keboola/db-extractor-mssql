@@ -13,6 +13,9 @@ use Symfony\Component\Process\Process;
 
 class MSSQL extends Extractor
 {
+    public const TYPE_AUTO_INCREMENT = 'autoIncrement';
+    public const TYPE_TIMESTAMP = 'timestamp';
+
     /**
      * @param array $params
      * @return \PDO
@@ -539,7 +542,7 @@ class MSSQL extends Extractor
             return sprintf("SELECT * FROM %s.%s", $this->quote($table['schema']), $this->quote($table['tableName']));
         }
     }
-
+    
     public static function getColumnMetadata(array $column): array
     {
         $datatype = new MssqlDataType(
@@ -562,6 +565,49 @@ class MSSQL extends Extractor
             }
         }
         return $columnMetadata;
+    }
+
+    public function validateIncrementalFetching(array $table, string $columnName, ?int $limit = null): void
+    {
+        $res = $this->db->query(
+            sprintf(
+                "SELECT COLUMNPROPERTY(OBJECT_ID('%s'.'%s'),'%s','isidentity') AS isIdentity, 
+                TYPE_NAME( 
+                  SELECT sys.columns.system_type_id FROM sys.columns WHERE column_name  = '%s') AS DATA_TYPE",
+                $table['schema'],
+                $table['tableName'],
+                $columnName,
+                $columnName
+            )
+        );
+        $columns = $res->fetchAll();
+        if (count($columns) === 0) {
+            throw new UserException(
+                sprintf(
+                    'Column [%s] specified for incremental fetching was not found in the table',
+                    $columnName
+                )
+            );
+        }
+
+
+        if ($columns[0]['isIdentity']) {
+            $this->incrementalFetching['column'] = $columnName;
+            $this->incrementalFetching['type'] = self::TYPE_AUTO_INCREMENT;
+        } else if ($columns[0]['DATA_TYPE'] === 'datetime' || $columns[0]['DATA_TYPE'] === 'datetime2') {
+            $this->incrementalFetching['column'] = $columnName;
+            $this->incrementalFetching['type'] = self::TYPE_TIMESTAMP;
+        } else {
+            throw new UserException(
+                sprintf(
+                    'Column [%s] specified for incremental fetching is not an identity column or a datetime',
+                    $columnName
+                )
+            );
+        }
+        if ($limit) {
+            $this->incrementalFetching['limit'] = $limit;
+        }
     }
 
     private function quote(string $obj): string
