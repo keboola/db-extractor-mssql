@@ -13,7 +13,7 @@ class MSSQLTest extends AbstractMSSQLTest
     {
         $config = $this->getConfig('mssql');
         $config['action'] = 'testConnection';
-        unset($config['parameters']['tables']);
+        $config['parameters']['tables'] = [];
 
         $app = $this->createApplication($config);
         $result = $app->run();
@@ -27,7 +27,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $config = $this->getConfig('mssql');
         $config['parameters']['db']['database'] = 'nonExistentDb';
         $config['action'] = 'testConnection';
-        unset($config['parameters']['tables']);
+        $config['parameters']['tables'] = [];
 
         $app = $this->createApplication($config);
         try {
@@ -908,7 +908,7 @@ class MSSQLTest extends AbstractMSSQLTest
          'localPort' => '1235',
         ];
 
-        unset($config['parameters']['tables']);
+        $config['parameters']['tables'] = [];
 
         $app = $this->createApplication($config);
         $result = $app->run();
