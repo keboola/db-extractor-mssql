@@ -569,18 +569,18 @@ class MSSQL extends Extractor
 
     public function validateIncrementalFetching(array $table, string $columnName, ?int $limit = null): void
     {
-        $res = $this->db->query(
-            sprintf(
-                "SELECT COLUMNPROPERTY(OBJECT_ID('%s'.'%s'),'%s','isidentity') AS isIdentity, 
-                TYPE_NAME( 
-                  SELECT sys.columns.system_type_id FROM sys.columns WHERE column_name  = '%s') AS DATA_TYPE",
-                $table['schema'],
-                $table['tableName'],
-                $columnName,
-                $columnName
-            )
+        $query = sprintf(
+            "SELECT is_identity, TYPE_NAME(system_type_id) AS data_type 
+            FROM sys.columns 
+            WHERE object_id = OBJECT_ID('[%s].[%s]') AND sys.columns.name = '%s'",
+            $table['schema'],
+            $table['tableName'],
+            $columnName
         );
+
+        $res = $this->db->query($query);
         $columns = $res->fetchAll();
+
         if (count($columns) === 0) {
             throw new UserException(
                 sprintf(
@@ -590,11 +590,10 @@ class MSSQL extends Extractor
             );
         }
 
-
-        if ($columns[0]['isIdentity']) {
+        if ($columns[0]['is_identity']) {
             $this->incrementalFetching['column'] = $columnName;
             $this->incrementalFetching['type'] = self::TYPE_AUTO_INCREMENT;
-        } else if ($columns[0]['DATA_TYPE'] === 'datetime' || $columns[0]['DATA_TYPE'] === 'datetime2') {
+        } else if ($columns[0]['data_type'] === 'datetime' || $columns[0]['data_type'] === 'datetime2') {
             $this->incrementalFetching['column'] = $columnName;
             $this->incrementalFetching['type'] = self::TYPE_TIMESTAMP;
         } else {

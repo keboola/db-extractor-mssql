@@ -141,8 +141,8 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $config = $this->getConfigRow(self::DRIVER);
         unset($config['parameters']['query']);
         $config['parameters']['table'] = [
-            'tableName' => 'auto_increment_timestamp',
-            'schema' => 'test',
+            'tableName' => 'auto Increment Timestamp',
+            'schema' => 'dbo',
         ];
         $config['parameters']['incremental'] = true;
         $config['parameters']['name'] = 'auto-increment-timestamp';
