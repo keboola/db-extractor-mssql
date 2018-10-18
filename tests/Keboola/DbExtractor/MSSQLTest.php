@@ -503,8 +503,8 @@ class MSSQLTest extends AbstractMSSQLTest
             new CsvFile($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
         );
         $firstTimestamp = $outputData[0][3];
-        // there should be no decimal separator present (it should be cast to smalldatetime which does not include ms)
-        $this->assertEquals("2018-08-14 10:43:18", $firstTimestamp);
+        // there should be no decimal separator present (it should be cast to datetime2(0) which does not include ms)
+        $this->assertEquals(1,preg_match("/^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/", $firstTimestamp));
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.auto-increment-timestamp',
@@ -717,7 +717,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 1 =>
                                     array (
                                         'key' => 'KBC.datatype.nullable',
-                                        'value' => true,
+                                        'value' => false,
                                     ),
                                 2 =>
                                     array (
@@ -727,7 +727,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.default',
-                                        'value' => '(\'2018-08-14 10:43:18\')',
+                                        'value' => '(getdate())',
                                     ),
                                 4 =>
                                     array (
@@ -955,7 +955,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'sanitizedName' => 'timestamp',
                                     'type' => 'datetime',
                                     'length' => null,
-                                    'nullable' => true,
+                                    'nullable' => false,
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
                                 ),
