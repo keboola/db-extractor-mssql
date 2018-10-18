@@ -6,8 +6,6 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
-use Symfony\Component\Process\Process;
-use Keboola\DbExtractor\MSSQLApplication;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -83,7 +81,7 @@ class MSSQLTest extends AbstractMSSQLTest
     public function testRunConfig(array $config): void
     {
         $result = $this->createApplication($config)->run();
-
+        
         $this->checkResult($result);
     }
 
