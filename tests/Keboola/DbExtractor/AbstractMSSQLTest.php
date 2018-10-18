@@ -247,10 +247,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return $linesCount;
     }
 
-    public function createApplication(array $config): MSSQLApplication
+    public function createApplication(array $config, ?array $state = []): MSSQLApplication
     {
         $logger = new Logger('ex-db-mssql-tests');
-        $app = new MSSQLApplication($config, $logger, [], $this->dataDir);
+        $app = new MSSQLApplication($config, $logger, $state, $this->dataDir);
         return $app;
     }
 
