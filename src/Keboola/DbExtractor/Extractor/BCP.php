@@ -53,7 +53,7 @@ class BCP
             }
             $lastRow = $outputFile->current();
             $outputFile->next();
-            if (!is_null($this->incrementalFetchingColumnIndex) && !$outputFile->valid()) {
+            if ($this->incrementalFetchingColumnIndex !== null && !$outputFile->valid()) {
                 $lastFetchedRow = $lastRow[$this->incrementalFetchingColumnIndex];
             }
             $numRows++;

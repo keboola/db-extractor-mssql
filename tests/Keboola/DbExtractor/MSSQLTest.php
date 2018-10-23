@@ -504,7 +504,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
         $firstTimestamp = $outputData[0][3];
         // there should be no decimal separator present (it should be cast to datetime2(0) which does not include ms)
-        $this->assertEquals(1,preg_match("/^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/", $firstTimestamp));
+        $this->assertEquals(1, preg_match("/^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/", $firstTimestamp));
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.auto-increment-timestamp',
