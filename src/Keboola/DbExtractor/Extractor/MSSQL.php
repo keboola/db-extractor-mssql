@@ -8,7 +8,6 @@ use Keboola\Csv\Exception as CsvException;
 use Keboola\Datatype\Definition\GenericStorage;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
-use Keboola\DbExtractor\Logger;
 use Symfony\Component\Process\Process;
 
 class MSSQL extends Extractor
@@ -79,6 +78,16 @@ class MSSQL extends Extractor
         }
     }
 
+    private function getIncrementalFetchingColumnIndex(array $columnMetadata): ?int
+    {
+        foreach ($columnMetadata as $key => $column) {
+            if ($column['name'] === $this->incrementalFetching['column']) {
+                return $key;
+            }
+        }
+        return null;
+    }
+
     public function export(array $table): array
     {
         $outputTable = $table['outputTable'];
@@ -110,18 +119,24 @@ class MSSQL extends Extractor
                 });
             }
             $query = $this->simpleQuery($table['table'], $columnMetadata);
+            $incrementalFetchingColumnIndex = $this->getIncrementalFetchingColumnIndex($columnMetadata);
         } else {
             $query = $table['query'];
         }
         $this->logger->debug("Executing query: " . $query);
 
+        $outputState = [];
         $this->logger->info("BCP export started");
         try {
-            $bcp = new BCP($this->getDbParameters(), $this->logger);
-            $numRows = $bcp->export($query, (string) $csv);
-            if ($numRows === 0) {
+            $bcp = new BCP($this->getDbParameters(), $this->logger, $incrementalFetchingColumnIndex ?? null);
+            $exportResult = $bcp->export($query, (string) $csv);
+            if ($exportResult['rows'] === 0) {
                 // BCP will create an empty file for no rows case
                 @unlink((string) $csv);
+                // no rows found.  If incremental fetching is turned on, we need to preserve the last state
+                if ($this->incrementalFetching['column'] && isset($this->state['lastFetchedRow'])) {
+                    $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
+                }
                 $this->logger->warning(sprintf(
                     "Query returned empty result. Nothing was imported for table [%s]",
                     $table['name']
@@ -163,11 +178,13 @@ class MSSQL extends Extractor
                 );
             }
             try {
-                $result = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
-                $numRows = $result['rows'];
-                if ($numRows > 0) {
+                $exportResult = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
+                if ($exportResult['rows'] > 0) {
                     $this->createManifest($table);
                 } else {
+                    if ($this->incrementalFetching['column'] && isset($this->state['lastFetchedRow'])) {
+                        $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
+                    }
                     $this->logger->warning(sprintf(
                         "Query returned empty result. Nothing was imported for table [%s]",
                         $table['name']
@@ -181,11 +198,11 @@ class MSSQL extends Extractor
 
         $output = [
             "outputTable"=> $outputTable,
-            "rows" => $numRows,
+            "rows" => $exportResult['rows'],
         ];
         // output state
-        if (!empty($result['lastFetchedRow'])) {
-            $output["state"]['lastFetchedRow'] = $result['lastFetchedRow'];
+        if (!empty($exportResult['lastFetchedRow'])) {
+            $output["state"]['lastFetchedRow'] = $exportResult['lastFetchedRow'];
         }
         return $output;
     }
@@ -487,9 +504,38 @@ class MSSQL extends Extractor
 
     public function simpleQuery(array $table, array $columns = array()): string
     {
+        $incrementalAddon = null;
+        if ($this->incrementalFetching && isset($this->state['lastFetchedRow'])) {
+            if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
+                $incrementalAddon = sprintf(
+                    ' %s > %d',
+                    $this->quote($this->incrementalFetching['column']),
+                    (int) $this->state['lastFetchedRow']
+                );
+            } else if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
+                $incrementalAddon = sprintf(
+                    " %s > '%s'",
+                    $this->quote($this->incrementalFetching['column']),
+                    $this->state['lastFetchedRow']
+                );
+            } else {
+                throw new ApplicationException(
+                    sprintf('Unknown incremental fetching column type %s', $this->incrementalFetching['type'])
+                );
+            }
+        }
+        $queryStart = "SELECT";
+        if (isset($this->incrementalFetching['limit'])) {
+            $queryStart .= sprintf(
+                " TOP %d",
+                $this->incrementalFetching['limit']
+            );
+        }
+
         $datatypeKeys = ['type', 'length', 'nullable', 'default', 'format'];
-        return sprintf(
-            "SELECT %s FROM %s.%s",
+        $query = sprintf(
+            "%s %s FROM %s.%s",
+            $queryStart,
             implode(
                 ', ',
                 array_map(
@@ -525,13 +571,51 @@ class MSSQL extends Extractor
             $this->quote($table['schema']),
             $this->quote($table['tableName'])
         );
+
+        if ($incrementalAddon) {
+            $query .= sprintf(
+                " WHERE %s ORDER BY %s",
+                $incrementalAddon,
+                $this->quote($this->incrementalFetching['column'])
+            );
+        }
+        return $query;
     }
 
     public function getSimplePdoQuery(array $table, ?array $columns = []): string
     {
+        $incrementalAddon = null;
+        if ($this->incrementalFetching && isset($this->state['lastFetchedRow'])) {
+            if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
+                $incrementalAddon = sprintf(
+                    ' %s > %d',
+                    $this->quote($this->incrementalFetching['column']),
+                    (int) $this->state['lastFetchedRow']
+                );
+            } else if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
+                $incrementalAddon = sprintf(
+                    " %s > '%s'",
+                    $this->quote($this->incrementalFetching['column']),
+                    $this->state['lastFetchedRow']
+                );
+            } else {
+                throw new ApplicationException(
+                    sprintf('Unknown incremental fetching column type %s', $this->incrementalFetching['type'])
+                );
+            }
+        }
+        $queryStart = "SELECT";
+        if (isset($this->incrementalFetching['limit'])) {
+            $queryStart .= sprintf(
+                " TOP %d",
+                $this->incrementalFetching['limit']
+            );
+        }
+
         if ($columns && count($columns) > 0) {
-            return sprintf(
-                "SELECT %s FROM %s.%s",
+            $query = sprintf(
+                "%s %s FROM %s.%s",
+                $queryStart,
                 implode(', ', array_map(function ($column) {
                     return $this->quote($column);
                 }, $columns)),
@@ -539,8 +623,21 @@ class MSSQL extends Extractor
                 $this->quote($table['tableName'])
             );
         } else {
-            return sprintf("SELECT * FROM %s.%s", $this->quote($table['schema']), $this->quote($table['tableName']));
+            $query = sprintf(
+                "%s * FROM %s.%s",
+                $queryStart,
+                $this->quote($table['schema']),
+                $this->quote($table['tableName'])
+            );
         }
+        if ($incrementalAddon) {
+            $query .= sprintf(
+                " WHERE %s ORDER BY %s",
+                $incrementalAddon,
+                $this->quote($this->incrementalFetching['column'])
+            );
+        }
+        return $query;
     }
     
     public static function getColumnMetadata(array $column): array
