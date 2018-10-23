@@ -504,29 +504,6 @@ class MSSQL extends Extractor
 
     public function simpleQuery(array $table, array $columns = array()): string
     {
-        $incrementalAddon = null;
-        if ($this->incrementalFetching) {
-            if (isset($this->state['lastFetchedRow'])) {
-                if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
-                    $incrementalAddon = sprintf(
-                        ' WHERE %s > %d',
-                        $this->quote($this->incrementalFetching['column']),
-                        (int) $this->state['lastFetchedRow']
-                    );
-                } else if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
-                    $incrementalAddon = sprintf(
-                        " WHERE %s > '%s'",
-                        $this->quote($this->incrementalFetching['column']),
-                        $this->state['lastFetchedRow']
-                    );
-                } else {
-                    throw new ApplicationException(
-                        sprintf('Unknown incremental fetching column type %s', $this->incrementalFetching['type'])
-                    );
-                }
-            }
-            $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
-        }
         $queryStart = "SELECT";
         if (isset($this->incrementalFetching['limit'])) {
             $queryStart .= sprintf(
@@ -575,6 +552,7 @@ class MSSQL extends Extractor
             $this->quote($table['tableName'])
         );
 
+        $incrementalAddon = $this->getIncrementalQueryAddon();
         if ($incrementalAddon) {
             $query .= $incrementalAddon;
         }
@@ -583,29 +561,6 @@ class MSSQL extends Extractor
 
     public function getSimplePdoQuery(array $table, ?array $columns = []): string
     {
-        $incrementalAddon = null;
-        if ($this->incrementalFetching) {
-            if (isset($this->state['lastFetchedRow'])) {
-                if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
-                    $incrementalAddon = sprintf(
-                        ' WHERE %s > %d',
-                        $this->quote($this->incrementalFetching['column']),
-                        (int) $this->state['lastFetchedRow']
-                    );
-                } else if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
-                    $incrementalAddon = sprintf(
-                        " WHERE %s > '%s'",
-                        $this->quote($this->incrementalFetching['column']),
-                        $this->state['lastFetchedRow']
-                    );
-                } else {
-                    throw new ApplicationException(
-                        sprintf('Unknown incremental fetching column type %s', $this->incrementalFetching['type'])
-                    );
-                }
-            }
-            $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
-        }
         $queryStart = "SELECT";
         if (isset($this->incrementalFetching['limit'])) {
             $queryStart .= sprintf(
@@ -632,6 +587,7 @@ class MSSQL extends Extractor
                 $this->quote($table['tableName'])
             );
         }
+        $incrementalAddon = $this->getIncrementalQueryAddon();
         if ($incrementalAddon) {
             $query .= $incrementalAddon;
         }
@@ -702,6 +658,34 @@ class MSSQL extends Extractor
         if ($limit) {
             $this->incrementalFetching['limit'] = $limit;
         }
+    }
+
+    private function getIncrementalQueryAddon(): ?string
+    {
+        $incrementalAddon = null;
+        if ($this->incrementalFetching) {
+            if (isset($this->state['lastFetchedRow'])) {
+                if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
+                    $incrementalAddon = sprintf(
+                        ' WHERE %s > %d',
+                        $this->quote($this->incrementalFetching['column']),
+                        (int) $this->state['lastFetchedRow']
+                    );
+                } else if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
+                    $incrementalAddon = sprintf(
+                        " WHERE %s > '%s'",
+                        $this->quote($this->incrementalFetching['column']),
+                        $this->state['lastFetchedRow']
+                    );
+                } else {
+                    throw new ApplicationException(
+                        sprintf('Unknown incremental fetching column type %s', $this->incrementalFetching['type'])
+                    );
+                }
+            }
+            $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
+        }
+        return $incrementalAddon;
     }
 
     private function quote(string $obj): string
