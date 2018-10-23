@@ -19,7 +19,7 @@ class ExtractorTest extends AbstractMSSQLTest
     }
 
     /**
-     * @dataProvider tableColumnsDataProvider
+     * @dataProvider simpleTableColumnsDataProvider
      */
     public function testGetSimplifiedPdoQuery(array $params, array $state, string $expected): void
     {
@@ -36,7 +36,25 @@ class ExtractorTest extends AbstractMSSQLTest
         $this->assertEquals($expected, $query);
     }
 
-    public function tableColumnsDataProvider(): array
+    /**
+     * @dataProvider bcpTableColumnsDataProvider
+     */
+    public function testGetBCPQuery(array $params, array $state, string $expected): void
+    {
+        $extractor = new MSSQL($this->config['parameters'], $state, new Logger('mssql-extractor-test'));
+
+        if (isset($params['incrementalFetchingColumn']) && $params['incrementalFetchingColumn'] !== "") {
+            $extractor->validateIncrementalFetching(
+                $params['table'],
+                $params['incrementalFetchingColumn'],
+                isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
+            );
+        }
+        $query = $extractor->simpleQuery($params['table'], $params['columns'] ?? []);
+        $this->assertEquals($expected, $query);
+    }
+
+    public function simpleTableColumnsDataProvider(): array
     {
         return [
             // simple table select with all columns
@@ -84,10 +102,10 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => 10,
-                    'incrementalFetchingColumn' => 'timestamp'
+                    'incrementalFetchingColumn' => 'timestamp',
                 ],
                 [],
-                "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]"
+                "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
             ],
             // test simplePDO query with limit and idp column and previos state
             [
@@ -98,12 +116,12 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => 10,
-                    'incrementalFetchingColumn' => '_Weir%d I-D'
+                    'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 [
-                    "lastFetchedRow" => 4
+                    "lastFetchedRow" => 4,
                 ],
-                "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]"
+                "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
             ],
             // test simplePDO query timestamp column but no state and no limit
             [
@@ -114,10 +132,10 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => null,
-                    'incrementalFetchingColumn' => 'timestamp'
+                    'incrementalFetchingColumn' => 'timestamp',
                 ],
                 [],
-                "SELECT * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]"
+                "SELECT * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
             ],
             // test simplePDO query id column and previos state and no limit
             [
@@ -128,12 +146,229 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => 0,
-                    'incrementalFetchingColumn' => '_Weir%d I-D'
+                    'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 [
-                    "lastFetchedRow" => 4
+                    "lastFetchedRow" => 4,
                 ],
-                "SELECT * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]"
+                "SELECT * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
+            ],
+        ];
+    }
+
+    public function bcpTableColumnsDataProvider(): array
+    {
+        return [
+            // simple table select with all columns
+            [
+                [
+                    'table' => [
+                        'tableName' => 'test',
+                        'schema' => 'testSchema',
+                    ],
+                    'columns' => array (
+                        0 =>
+                            array (
+                                'name' => 'col1',
+                                'sanitizedName' => 'col1',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 1,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                        1 =>
+                            array (
+                                'name' => 'col2',
+                                'sanitizedName' => 'col2',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 2,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                    ),
+                ],
+                [],
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [testSchema].[test]",
+            ],
+            // simple table with 1 columns selected
+            [
+                [
+                    'table' => [
+                        'tableName' => 'test',
+                        'schema' => 'testSchema',
+                    ],
+                    'columns' => array (
+                        0 =>
+                            array (
+                                'name' => 'col1',
+                                'sanitizedName' => 'col1',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 1,
+                                'primaryKey' => false,
+                                'default' => null,
+                            )
+                    ),
+                ],
+                [],
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [testSchema].[test]",
+            ],
+            // test simplePDO query with limit and timestamp column but no state
+            [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => array (
+                        0 =>
+                            array (
+                                'name' => 'col1',
+                                'sanitizedName' => 'col1',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 1,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                        1 =>
+                            array (
+                                'name' => 'col2',
+                                'sanitizedName' => 'col2',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 2,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                    ),
+                    'incrementalFetchingLimit' => 10,
+                    'incrementalFetchingColumn' => 'timestamp',
+                ],
+                [],
+                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
+            ],
+            // test simplePDO query with limit and idp column and previos state
+            [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => array (
+                        0 =>
+                            array (
+                                'name' => 'col1',
+                                'sanitizedName' => 'col1',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 1,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                        1 =>
+                            array (
+                                'name' => 'col2',
+                                'sanitizedName' => 'col2',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 2,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                    ),
+                    'incrementalFetchingLimit' => 10,
+                    'incrementalFetchingColumn' => '_Weir%d I-D',
+                ],
+                [
+                    "lastFetchedRow" => 4,
+                ],
+                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
+            ],
+            // test simplePDO query timestamp column but no state and no limit
+            [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => array (
+                        0 =>
+                            array (
+                                'name' => 'col1',
+                                'sanitizedName' => 'col1',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 1,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                        1 =>
+                            array (
+                                'name' => 'col2',
+                                'sanitizedName' => 'col2',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 2,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                    ),
+                    'incrementalFetchingLimit' => null,
+                    'incrementalFetchingColumn' => 'timestamp',
+                ],
+                [],
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
+            ],
+            // test simplePDO query id column and previos state and no limit
+            [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => array (
+                        0 =>
+                            array (
+                                'name' => 'col1',
+                                'sanitizedName' => 'col1',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 1,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                        1 =>
+                            array (
+                                'name' => 'col2',
+                                'sanitizedName' => 'col2',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 2,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                    ),
+                    'incrementalFetchingLimit' => 0,
+                    'incrementalFetchingColumn' => '_Weir%d I-D',
+                ],
+                [
+                    "lastFetchedRow" => 4,
+                ],
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
             ],
         ];
     }
