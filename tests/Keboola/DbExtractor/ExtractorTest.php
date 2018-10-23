@@ -75,7 +75,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT [col1], [col2] FROM [testSchema].[test]",
             ],
-            // test simplePDO query with limit and no state
+            // test simplePDO query with limit and timestamp column but no state
             [
                 [
                     'table' => [
@@ -88,6 +88,52 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 [],
                 "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]"
+            ],
+            // test simplePDO query with limit and idp column and previos state
+            [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => [],
+                    'incrementalFetchingLimit' => 10,
+                    'incrementalFetchingColumn' => '_Weir%d I-D'
+                ],
+                [
+                    "lastFetchedRow" => 4
+                ],
+                "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]"
+            ],
+            // test simplePDO query timestamp column but no state and no limit
+            [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => [],
+                    'incrementalFetchingLimit' => null,
+                    'incrementalFetchingColumn' => 'timestamp'
+                ],
+                [],
+                "SELECT * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]"
+            ],
+            // test simplePDO query id column and previos state and no limit
+            [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => [],
+                    'incrementalFetchingLimit' => 0,
+                    'incrementalFetchingColumn' => '_Weir%d I-D'
+                ],
+                [
+                    "lastFetchedRow" => 4
+                ],
+                "SELECT * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]"
             ],
         ];
     }
