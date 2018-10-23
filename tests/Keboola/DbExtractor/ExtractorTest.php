@@ -9,30 +9,37 @@ use Keboola\DbExtractor\Logger;
 
 class ExtractorTest extends AbstractMSSQLTest
 {
-    /** @var MSSQL */
-    private $extractor;
+    /** @var array */
+    private $config;
 
     public function setUp(): void
     {
-        $config = $this->getConfig('mssql');
-        $config['parameters']['extractor_class'] = 'MSSQL';
-
-        $this->extractor = new MSSQL($config['parameters'], [], new Logger('mssql-extractor-test'));
+        $this->config = $this->getConfig('mssql');
+        $this->config['parameters']['extractor_class'] = 'MSSQL';
     }
 
     /**
      * @dataProvider tableColumnsDataProvider
      */
-    public function testGetSimplifiedPdoQuery(array $params, string $expected): void
+    public function testGetSimplifiedPdoQuery(array $params, array $state, string $expected): void
     {
-        $query = $this->extractor->getSimplePdoQuery($params['table'], $params['columns']);
+        $extractor = new MSSQL($this->config['parameters'], $state, new Logger('mssql-extractor-test'));
+
+        if (isset($params['incrementalFetchingColumn']) && $params['incrementalFetchingColumn'] !== "") {
+            $extractor->validateIncrementalFetching(
+                $params['table'],
+                $params['incrementalFetchingColumn'],
+                isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
+            );
+        }
+        $query = $extractor->getSimplePdoQuery($params['table'], $params['columns']);
         $this->assertEquals($expected, $query);
     }
 
     public function tableColumnsDataProvider(): array
     {
         return [
-            // first test
+            // simple table select with all columns
             [
                 [
                     'table' => [
@@ -41,8 +48,10 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                 ],
+                [],
                 "SELECT * FROM [testSchema].[test]",
             ],
+            // simple table select with all columns (columns as null)
             [
                 [
                     'table' => [
@@ -51,8 +60,10 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => null,
                 ],
+                [],
                 "SELECT * FROM [testSchema].[test]",
             ],
+            // simple table with 2 columns selected
             [
                 [
                     'table' => [
@@ -61,7 +72,22 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => ["col1", "col2"],
                 ],
+                [],
                 "SELECT [col1], [col2] FROM [testSchema].[test]",
+            ],
+            // test simplePDO query with limit and no state
+            [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => [],
+                    'incrementalFetchingLimit' => 10,
+                    'incrementalFetchingColumn' => 'timestamp'
+                ],
+                [],
+                "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]"
             ],
         ];
     }
