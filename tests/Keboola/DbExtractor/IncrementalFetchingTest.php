@@ -26,8 +26,8 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('state', $result);
         $this->assertArrayHasKey('lastFetchedRow', $result['state']);
         $this->assertNotEmpty($result['state']['lastFetchedRow']);
-        sleep(2);
         unlink($outputFile);
+        sleep(2);
         // the next fetch should be empty
         $emptyResult = ($this->createApplication($config, $result['state']))->run();
         $this->assertEquals(0, $emptyResult['imported']['rows']);
@@ -64,8 +64,8 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('state', $result);
         $this->assertArrayHasKey('lastFetchedRow', $result['state']);
         $this->assertEquals(6, $result['state']['lastFetchedRow']);
-        sleep(2);
         unlink($outputFile);
+        sleep(2);
         // the next fetch should be empty
         $emptyResult = ($this->createApplication($config, $result['state']))->run();
         $this->assertEquals(0, $emptyResult['imported']['rows']);
