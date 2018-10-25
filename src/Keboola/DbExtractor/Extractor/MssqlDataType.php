@@ -27,4 +27,29 @@ class MssqlDataType extends GenericStorage
     public const FIXED_NUMERIC_TYPES = [
         "numeric", "decimal", "money", "smallmoney",
     ];
+
+    public function getBasetype(): string
+    {
+        $type = strtolower($this->type);
+        $baseType = "STRING";
+        if (in_array($type, self::DATE_TYPES)) {
+            $baseType = "DATE";
+        }
+        if (in_array($type, self::TIMESTAMP_TYPES)) {
+            $baseType = "TIMESTAMP";
+        }
+        if (in_array($type, self::INTEGER_TYPES)) {
+            $baseType = "INTEGER";
+        }
+        if (in_array($type, self::FIXED_NUMERIC_TYPES)) {
+            $baseType = "NUMERIC";
+        }
+        if (in_array($type, self::FLOATING_POINT_TYPES)) {
+            $baseType = "FLOAT";
+        }
+        if (in_array($type, self::BOOLEAN_TYPES)) {
+            $baseType = "BOOLEAN";
+        }
+        return $baseType;
+    }
 }

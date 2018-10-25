@@ -21,7 +21,6 @@ class DatatypeMappingTest extends \PHPUnit_Framework_TestCase
             array_intersect_key($testColumn, array_flip(MSSQL::DATATYPE_KEYS))
         );
         $datatypeMetadata = $datatype->toMetadata();
-        var_export($datatypeMetadata);
         $this->assertEquals($expectedMetadtata, $datatypeMetadata);
     }
 
