@@ -540,6 +540,30 @@ class MSSQL extends Extractor
         }
     }
 
+    public static function getColumnMetadata(array $column): array
+    {
+        $datatype = new MssqlDataType(
+            $column['type'],
+            array_intersect_key($column, array_flip(self::DATATYPE_KEYS))
+        );
+        $columnMetadata = $datatype->toMetadata();
+        $nonDatatypeKeys = array_diff_key($column, array_flip(self::DATATYPE_KEYS));
+        foreach ($nonDatatypeKeys as $key => $value) {
+            if ($key === 'name') {
+                $columnMetadata[] = [
+                    'key' => "KBC.sourceName",
+                    'value' => $value,
+                ];
+            } else {
+                $columnMetadata[] = [
+                    'key' => "KBC." . $key,
+                    'value' => $value,
+                ];
+            }
+        }
+        return $columnMetadata;
+    }
+
     private function quote(string $obj): string
     {
         return "[{$obj}]";
