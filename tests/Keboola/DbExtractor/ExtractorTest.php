@@ -146,6 +146,21 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 "SELECT * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
             ],
+            'test simplePDO query timestamp column and previos state and limit' => [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => [],
+                    'incrementalFetchingLimit' => 1000,
+                    'incrementalFetchingColumn' => 'timestamp',
+                ],
+                [
+                    "lastFetchedRow" => '2018-10-26 10:52:32',
+                ],
+                "SELECT TOP 1000 * FROM [dbo].[auto Increment Timestamp] WHERE [timestamp] > '2018-10-26 10:52:32' ORDER BY [timestamp]",
+            ],
         ];
     }
 
