@@ -113,25 +113,33 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('lastFetchedRow', $result['state']);
         $this->assertEquals(2, $result['state']['lastFetchedRow']);
     }
-    public function testIncrementalFetchingInvalidColumns(): void
+    /**
+     * @dataProvider invalidColumnProvider
+     */
+    public function testIncrementalFetchingInvalidColumns(string $column, string $expectedExceptionMessage): void
     {
         $config = $this->getIncrementalFetchingConfig();
-        $config['parameters']['incrementalFetchingColumn'] = 'fakeCol'; // column does not exist
-        try {
-            $result = ($this->createApplication($config))->run();
-            $this->fail('specified autoIncrement column does not exist, should fail.');
-        } catch (UserException $e) {
-            $this->assertStringStartsWith("Column [fakeCol]", $e->getMessage());
-        }
-        // column exists but is not auto-increment nor updating timestamp so should fail
-        $config['parameters']['incrementalFetchingColumn'] = 'weird-Name';
-        try {
-            $result = ($this->createApplication($config))->run();
-            $this->fail('specified column is not auto increment nor timestamp, should fail.');
-        } catch (UserException $e) {
-            $this->assertStringStartsWith("Column [weird-Name] specified for incremental fetching", $e->getMessage());
-        }
+        $config['parameters']['incrementalFetchingColumn'] = $column;
+
+        $this->setExpectedException(UserException::class, $expectedExceptionMessage);
+
+        $result = ($this->createApplication($config))->run();
     }
+
+    public function invalidColumnProvider(): array
+    {
+        return [
+            'column does not exist' => [
+                "fakeCol",
+                "Column [fakeCol] specified for incremental fetching was not found in the table",
+            ],
+            'column exists but is not auto-increment nor updating timestamp so should fail' => [
+                "Weir%d Na-me",
+                "Column [Weir%d Na-me] specified for incremental fetching is not an identity column or a datetime",
+            ],
+        ];
+    }
+
     public function testIncrementalFetchingInvalidConfig(): void
     {
         $config = $this->getIncrementalFetchingConfig();
