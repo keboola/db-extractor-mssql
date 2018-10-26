@@ -57,8 +57,7 @@ class ExtractorTest extends AbstractMSSQLTest
     public function simpleTableColumnsDataProvider(): array
     {
         return [
-            // simple table select with all columns
-            [
+            'simple table select with all columns' => [
                 [
                     'table' => [
                         'tableName' => 'test',
@@ -69,8 +68,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT * FROM [testSchema].[test]",
             ],
-            // simple table select with all columns (columns as null)
-            [
+            'simple table select with all columns (columns as null)' => [
                 [
                     'table' => [
                         'tableName' => 'test',
@@ -81,8 +79,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT * FROM [testSchema].[test]",
             ],
-            // simple table with 2 columns selected
-            [
+            'simple table with 2 columns selected' => [
                 [
                     'table' => [
                         'tableName' => 'test',
@@ -93,8 +90,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT [col1], [col2] FROM [testSchema].[test]",
             ],
-            // test simplePDO query with limit and timestamp column but no state
-            [
+            'test simplePDO query with limit and timestamp column but no state' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -107,8 +103,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
             ],
-            // test simplePDO query with limit and idp column and previos state
-            [
+            'test simplePDO query with limit and idp column and previos state' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -123,8 +118,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
             ],
-            // test simplePDO query timestamp column but no state and no limit
-            [
+            'test simplePDO query timestamp column but no state and no limit' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -137,8 +131,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
             ],
-            // test simplePDO query id column and previos state and no limit
-            [
+            'test simplePDO query id column and previos state and no limit' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -159,8 +152,7 @@ class ExtractorTest extends AbstractMSSQLTest
     public function bcpTableColumnsDataProvider(): array
     {
         return [
-            // simple table select with all columns
-            [
+            'simple table select with all columns' => [
                 [
                     'table' => [
                         'tableName' => 'test',
@@ -194,8 +186,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [testSchema].[test]",
             ],
-            // simple table with 1 columns selected
-            [
+            'simple table with 1 columns selected' => [
                 [
                     'table' => [
                         'tableName' => 'test',
@@ -218,8 +209,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [testSchema].[test]",
             ],
-            // test simplePDO query with limit and timestamp column but no state
-            [
+            'test simplePDO query with limit and timestamp column but no state' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -255,8 +245,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
             ],
-            // test simplePDO query with limit and idp column and previos state
-            [
+            'test simplePDO query with limit and idp column and previos state' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -294,8 +283,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
             ],
-            // test simplePDO query timestamp column but no state and no limit
-            [
+            'test simplePDO query timestamp column but no state and no limit' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -331,8 +319,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
             ],
-            // test simplePDO query id column and previos state and no limit
-            [
+            'test simplePDO query id column and previos state and no limit' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
