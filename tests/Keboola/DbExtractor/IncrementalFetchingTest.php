@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
 
 class IncrementalFetchingTest extends AbstractMSSQLTest
@@ -26,8 +27,8 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('state', $result);
         $this->assertArrayHasKey('lastFetchedRow', $result['state']);
         $this->assertNotEmpty($result['state']['lastFetchedRow']);
-        unlink($outputFile);
-        sleep(2);
+        @unlink($outputFile);
+        sleep(1);
         // the next fetch should be empty
         $emptyResult = ($this->createApplication($config, $result['state']))->run();
         $this->assertEquals(0, $emptyResult['imported']['rows']);

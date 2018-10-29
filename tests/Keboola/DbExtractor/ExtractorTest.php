@@ -159,7 +159,8 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => '2018-10-26 10:52:32',
                 ],
-                "SELECT TOP 1000 * FROM [dbo].[auto Increment Timestamp] WHERE [timestamp] > '2018-10-26 10:52:32' ORDER BY [timestamp]",
+                "SELECT TOP 1000 * FROM [dbo].[auto Increment Timestamp] " .
+                "WHERE CONVERT(DATETIME2, [timestamp]) > CONVERT(DATETIME2, '2018-10-26 10:52:32') ORDER BY [timestamp]",
             ],
         ];
     }
