@@ -17,13 +17,19 @@ class BCP
     /** @var Logger */
     private $logger;
 
-    public function __construct(array $dbParams, Logger $logger)
+    /** @var  int */
+    private $incrementalFetchingColumnIndex;
+
+    public function __construct(array $dbParams, Logger $logger, ?int $incrementalFetchingColumnIndex = null)
     {
         $this->dbParams = $dbParams;
         $this->logger = $logger;
+        if (!is_null($incrementalFetchingColumnIndex)) {
+            $this->incrementalFetchingColumnIndex = $incrementalFetchingColumnIndex;
+        }
     }
 
-    public function export(string $query, string $filename): int
+    public function export(string $query, string $filename): array
     {
         $process = new Process($this->createBcpCommand($filename, $query));
         $process->setTimeout(null);
@@ -39,16 +45,25 @@ class BCP
 
         $outputFile = new CsvFile($filename);
         $numRows = 0;
+        $lastFetchedRow = null;
         $colCount = $outputFile->getColumnsCount();
         while ($outputFile->valid()) {
             if (count($outputFile->current()) !== $colCount) {
                 throw new UserException("The BCP command produced an invalid csv.");
             }
+            $lastRow = $outputFile->current();
             $outputFile->next();
+            if ($this->incrementalFetchingColumnIndex !== null && !$outputFile->valid()) {
+                $lastFetchedRow = $lastRow[$this->incrementalFetchingColumnIndex];
+            }
             $numRows++;
         }
         $this->logger->info(sprintf("BCP successfully exported %d rows.", $numRows));
-        return $numRows;
+        $output = ['rows' => $numRows];
+        if ($lastFetchedRow) {
+            $output['lastFetchedRow'] = $lastFetchedRow;
+        }
+        return $output;
     }
 
     private function createBcpCommand(string $filename, string $query): string

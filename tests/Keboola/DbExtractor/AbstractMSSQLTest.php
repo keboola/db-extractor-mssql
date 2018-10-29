@@ -80,7 +80,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             \"_Weir%d I-D\" INT IDENTITY(1,1) NOT NULL, 
             \"Weir%d Na-me\" VARCHAR(55) NOT NULL DEFAULT 'mario',
             \"type\" VARCHAR(55) NULL,
-            \"timestamp\" DATETIME NULL DEFAULT '2018-08-14 10:43:18'
+            \"timestamp\" DATETIME NOT NULL DEFAULT GETDATE()
             )"
         );
         $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY (\"_Weir%d I-D\")");
@@ -247,10 +247,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return $linesCount;
     }
 
-    public function createApplication(array $config): MSSQLApplication
+    public function createApplication(array $config, array $state = []): MSSQLApplication
     {
         $logger = new Logger('ex-db-mssql-tests');
-        $app = new MSSQLApplication($config, $logger, [], $this->dataDir);
+        $app = new MSSQLApplication($config, $logger, $state, $this->dataDir);
         return $app;
     }
 
