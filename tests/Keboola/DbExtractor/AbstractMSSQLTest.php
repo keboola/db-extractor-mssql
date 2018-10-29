@@ -267,12 +267,16 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function configProvider(): array
     {
+        $this->dataDir = __DIR__ . '/../../data';
         return [
             [
-                $this->getConfig(self::DRIVER),
+                $this->getConfig(self::DRIVER, ExtractorTest::CONFIG_FORMAT_YAML),
             ],
             [
                 $this->getConfig(self::DRIVER, ExtractorTest::CONFIG_FORMAT_JSON),
+            ],
+            [
+                $this->getConfigRow(self::DRIVER),
             ],
         ];
     }

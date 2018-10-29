@@ -14,7 +14,5 @@ class MSSQLApplication extends Application
         $config['parameters']['extractor_class'] = 'MSSQL';
 
         parent::__construct($config, ($logger) ? $logger : new Logger("ex-db-mssql"), $state);
-
-        $this->setConfigDefinition(new MSSSQLConfigDefinition());
     }
 }
