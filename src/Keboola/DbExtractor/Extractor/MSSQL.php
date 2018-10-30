@@ -188,7 +188,7 @@ class MSSQL extends Extractor
                             $exportResult['lastFetchedRow'],
                             $this->getLastDatetimeQuery($table['table'], $columnMetadata)
                         );
-                    } else {
+                    } else if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedId(
                             $columnMetadata,
                             $exportResult['lastFetchedRow']
@@ -245,7 +245,7 @@ class MSSQL extends Extractor
             "rows" => $exportResult['rows'],
         ];
         // output state
-        if (!empty($exportResult['lastFetchedRow'])) {
+        if (isset($exportResult['lastFetchedRow']) && !is_array($exportResult['lastFetchedRow'])) {
             $output["state"]['lastFetchedRow'] = $exportResult['lastFetchedRow'];
         }
         return $output;
