@@ -78,7 +78,7 @@ class MSSQL extends Extractor
         }
     }
 
-    private function getLastDatetimeQuery(array $table, array $columnMetadata): string
+    private function getLastFetchedDatetimeQuery(array $table, array $columnMetadata): string
     {
         $whereClause = "";
         foreach ($columnMetadata as $key => $column) {
@@ -100,10 +100,10 @@ class MSSQL extends Extractor
         );
     }
 
-    private function getLastDatetime(array $lastFetchedRow, string $query): string
+    private function getLastFetchedDatetimeValue(array $lastExportedLine, string $query): string
     {
         $stmt = $this->db->prepare($query);
-        $stmt->execute($lastFetchedRow);
+        $stmt->execute($lastExportedLine);
         if ($stmt->rowCount() > 1) {
             throw new UserException("Was unable to find unique row for incremental fetching state");
         }
@@ -111,12 +111,12 @@ class MSSQL extends Extractor
         return $lastDatetimeRow[$this->incrementalFetching['column']];
     }
 
-    private function getLastFetchedId(array $columnMetadata, array $lastFetchedRow): string
+    private function getLastFetchedId(array $columnMetadata, array $lastExportedLine): string
     {
         $incrementalFetchingColumnIndex = null;
         foreach ($columnMetadata as $key => $column) {
             if ($column['name'] === $this->incrementalFetching['column']) {
-                return $lastFetchedRow[$incrementalFetchingColumnIndex];
+                return $lastExportedLine[$key];
             }
         }
     }
@@ -184,9 +184,9 @@ class MSSQL extends Extractor
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
                     if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
-                        $exportResult['lastFetchedRow'] = $this->getLastDatetime(
+                        $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
-                            $this->getLastDatetimeQuery($table['table'], $columnMetadata)
+                            $this->getLastFetchedDatetimeQuery($table['table'], $columnMetadata)
                         );
                     } else if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedId(
