@@ -160,7 +160,7 @@ class MSSQL extends Extractor
 
         $this->logger->info("BCP export started");
         try {
-            $bcp = new BCP($this->getDbParameters(), $this->logger, isset($this->incrementalFetching['column']));
+            $bcp = new BCP($this->getDbParameters(), $this->logger);
             $exportResult = $bcp->export($query, (string) $csv);
             if ($exportResult['rows'] === 0) {
                 // BCP will create an empty file for no rows case
