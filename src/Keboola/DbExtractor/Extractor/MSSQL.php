@@ -78,14 +78,46 @@ class MSSQL extends Extractor
         }
     }
 
-    private function getIncrementalFetchingColumnIndex(array $columnMetadata): ?int
+    private function getLastFetchedRowValue(array $table, array $columnMetadata, array $lastFetchedRow): string
     {
+        $incrementalFetchingColumnIndex = null;
         foreach ($columnMetadata as $key => $column) {
             if ($column['name'] === $this->incrementalFetching['column']) {
-                return $key;
+                $incrementalFetchingColumnIndex = $key;
             }
         }
-        return null;
+
+        if ($this->incrementalFetching['type'] = self::TYPE_TIMESTAMP) {
+            $whereClause = "";
+            $whereValues = [];
+            foreach ($columnMetadata as $key => $column) {
+                if ($whereClause !== "") {
+                    $whereClause .= " AND ";
+                }
+                if ($column['name'] === $this->incrementalFetching['column']) {
+                    $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
+                } else {
+                    $whereClause .= $this->quote($column['name']) . " = ?";
+                }
+                $whereValues[] = $lastFetchedRow[$column['ordinalPosition'] - 1];
+            }
+            $sql = sprintf(
+                "SELECT %s FROM %s.%s WHERE %s;",
+                $this->quote($this->incrementalFetching['column']),
+                $this->quote($table['schema']),
+                $this->quote($table['tableName']),
+                $whereClause
+            );
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute($whereValues);
+            if ($stmt->rowCount() > 1) {
+                throw new UserException("Was unable to find unique row for incremental fetching state");
+            }
+            $lastFetchedRow = $stmt->fetch(\PDO::FETCH_ASSOC);
+            return $lastFetchedRow[$this->incrementalFetching['column']];
+        } else {
+            return $lastFetchedRow[$incrementalFetchingColumnIndex];
+        }
     }
 
     public function export(array $table): array
@@ -119,7 +151,6 @@ class MSSQL extends Extractor
                 });
             }
             $query = $this->simpleQuery($table['table'], $columnMetadata);
-            $incrementalFetchingColumnIndex = $this->getIncrementalFetchingColumnIndex($columnMetadata);
         } else {
             $query = $table['query'];
         }
@@ -128,7 +159,7 @@ class MSSQL extends Extractor
         $outputState = [];
         $this->logger->info("BCP export started");
         try {
-            $bcp = new BCP($this->getDbParameters(), $this->logger, $incrementalFetchingColumnIndex ?? null);
+            $bcp = new BCP($this->getDbParameters(), $this->logger, isset($this->incrementalFetching['column']));
             $exportResult = $bcp->export($query, (string) $csv);
             if ($exportResult['rows'] === 0) {
                 // BCP will create an empty file for no rows case
@@ -150,6 +181,12 @@ class MSSQL extends Extractor
                     $manifest['columns'] = $columnsArray;
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
+                } else if (isset($this->incrementalFetching['column'])) {
+                    $exportResult['lastFetchedRow'] = $this->getLastFetchedRowValue(
+                        $table['table'],
+                        $columnMetadata,
+                        $exportResult['lastFetchedRow']
+                    );
                 }
             }
         } catch (\Throwable $e) {
@@ -673,7 +710,7 @@ class MSSQL extends Extractor
                     );
                 } else if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
                     $incrementalAddon = sprintf(
-                        " WHERE CONVERT(DATETIME2, %s, 121) > CONVERT(DATETIME2, '%s', 120)",
+                        " WHERE CONVERT(DATETIME2, %s, 121) > CONVERT(DATETIME2, '%s', 121)",
                         $this->quote($this->incrementalFetching['column']),
                         $this->state['lastFetchedRow']
                     );
