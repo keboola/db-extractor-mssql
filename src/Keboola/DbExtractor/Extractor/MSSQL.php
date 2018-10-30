@@ -78,45 +78,46 @@ class MSSQL extends Extractor
         }
     }
 
-    private function getLastFetchedRowValue(array $table, array $columnMetadata, array $lastFetchedRow): string
+    private function getLastDatetimeQuery(array $table, array $columnMetadata): string
+    {
+        $whereClause = "";
+        foreach ($columnMetadata as $key => $column) {
+            if ($whereClause !== "") {
+                $whereClause .= " AND ";
+            }
+            if ($column['name'] === $this->incrementalFetching['column']) {
+                $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
+            } else {
+                $whereClause .= $this->quote($column['name']) . " = ?";
+            }
+        }
+        return sprintf(
+            "SELECT %s FROM %s.%s WHERE %s;",
+            $this->quote($this->incrementalFetching['column']),
+            $this->quote($table['schema']),
+            $this->quote($table['tableName']),
+            $whereClause
+        );
+    }
+
+    private function getLastDatetime(array $lastFetchedRow, string $query): string
+    {
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($lastFetchedRow);
+        if ($stmt->rowCount() > 1) {
+            throw new UserException("Was unable to find unique row for incremental fetching state");
+        }
+        $lastDatetimeRow = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $lastDatetimeRow[$this->incrementalFetching['column']];
+    }
+
+    private function getLastFetchedId(array $columnMetadata, array $lastFetchedRow): string
     {
         $incrementalFetchingColumnIndex = null;
         foreach ($columnMetadata as $key => $column) {
             if ($column['name'] === $this->incrementalFetching['column']) {
-                $incrementalFetchingColumnIndex = $key;
+                return $lastFetchedRow[$incrementalFetchingColumnIndex];
             }
-        }
-
-        if ($this->incrementalFetching['type'] = self::TYPE_TIMESTAMP) {
-            $whereClause = "";
-            $whereValues = [];
-            foreach ($columnMetadata as $key => $column) {
-                if ($whereClause !== "") {
-                    $whereClause .= " AND ";
-                }
-                if ($column['name'] === $this->incrementalFetching['column']) {
-                    $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
-                } else {
-                    $whereClause .= $this->quote($column['name']) . " = ?";
-                }
-                $whereValues[] = $lastFetchedRow[$column['ordinalPosition'] - 1];
-            }
-            $sql = sprintf(
-                "SELECT %s FROM %s.%s WHERE %s;",
-                $this->quote($this->incrementalFetching['column']),
-                $this->quote($table['schema']),
-                $this->quote($table['tableName']),
-                $whereClause
-            );
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute($whereValues);
-            if ($stmt->rowCount() > 1) {
-                throw new UserException("Was unable to find unique row for incremental fetching state");
-            }
-            $lastFetchedRow = $stmt->fetch(\PDO::FETCH_ASSOC);
-            return $lastFetchedRow[$this->incrementalFetching['column']];
-        } else {
-            return $lastFetchedRow[$incrementalFetchingColumnIndex];
         }
     }
 
@@ -129,6 +130,7 @@ class MSSQL extends Extractor
 
         $columns = $table['columns'];
         $isAdvancedQuery = true;
+        $columnMetadata = [];
         if (array_key_exists('table', $table) && !array_key_exists('query', $table)) {
             $isAdvancedQuery = false;
             $tableMetadata = $this->getTables([$table['table']]);
@@ -156,7 +158,6 @@ class MSSQL extends Extractor
         }
         $this->logger->debug("Executing query: " . $query);
 
-        $outputState = [];
         $this->logger->info("BCP export started");
         try {
             $bcp = new BCP($this->getDbParameters(), $this->logger, isset($this->incrementalFetching['column']));
@@ -182,11 +183,17 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    $exportResult['lastFetchedRow'] = $this->getLastFetchedRowValue(
-                        $table['table'],
-                        $columnMetadata,
-                        $exportResult['lastFetchedRow']
-                    );
+                    if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
+                        $exportResult['lastFetchedRow'] = $this->getLastDatetime(
+                            $exportResult['lastFetchedRow'],
+                            $this->getLastDatetimeQuery($table['table'], $columnMetadata)
+                        );
+                    } else {
+                        $exportResult['lastFetchedRow'] = $this->getLastFetchedId(
+                            $columnMetadata,
+                            $exportResult['lastFetchedRow']
+                        );
+                    }
                 }
             }
         } catch (\Throwable $e) {
