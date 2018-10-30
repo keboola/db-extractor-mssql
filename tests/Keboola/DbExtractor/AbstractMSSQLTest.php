@@ -90,6 +90,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('toad', 'mushroom')");
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('princess', 'royalty')");
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('wario', 'badguy')");
+        sleep(1); // stagger the timestamps
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type) VALUES ('yoshi', 'horse?')");
         // add unique key
         $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE (\"Weir%d Na-me\", Type)");
