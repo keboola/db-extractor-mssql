@@ -367,6 +367,7 @@ class MSSQL extends Extractor
                     "primaryKey" => false,
                 ];
             }
+
             if (array_key_exists('COLUMN_DEFAULT', $column)) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex]['default'] = $column['COLUMN_DEFAULT'];
             }
@@ -374,6 +375,9 @@ class MSSQL extends Extractor
             if (array_key_exists('pk_name', $column) && $column['pk_name'] !== null) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKey'] = true;
                 $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKeyName'] = $column['pk_name'];
+            }
+            if (array_key_exists('is_identity', $column) && $column['is_identity']) {
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['autoIncrement'] = true;
             }
             if (array_key_exists('uk_name', $column) && $column['uk_name'] !== null) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKey'] = true;
@@ -439,7 +443,8 @@ class MSSQL extends Extractor
                   sys.columns.precision AS NUMERIC_PRECISION,
                   sys.columns.scale AS NUMERIC_SCALE,
                   sys.columns.max_length AS CHARACTER_MAXIMUM_LENGTH,
-                  pks.index_name AS pk_name
+                  pks.index_name AS pk_name,
+                  pks.is_identity AS is_identity
                 FROM sys.columns 
                 LEFT JOIN
                   (
