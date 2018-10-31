@@ -17,16 +17,10 @@ class BCP
     /** @var Logger */
     private $logger;
 
-    /** @var  int */
-    private $incrementalFetchingColumnIndex;
-
-    public function __construct(array $dbParams, Logger $logger, ?int $incrementalFetchingColumnIndex = null)
+    public function __construct(array $dbParams, Logger $logger)
     {
         $this->dbParams = $dbParams;
         $this->logger = $logger;
-        if (!is_null($incrementalFetchingColumnIndex)) {
-            $this->incrementalFetchingColumnIndex = $incrementalFetchingColumnIndex;
-        }
     }
 
     public function export(string $query, string $filename): array
@@ -53,8 +47,8 @@ class BCP
             }
             $lastRow = $outputFile->current();
             $outputFile->next();
-            if ($this->incrementalFetchingColumnIndex !== null && !$outputFile->valid()) {
-                $lastFetchedRow = $lastRow[$this->incrementalFetchingColumnIndex];
+            if (!$outputFile->valid()) {
+                $lastFetchedRow = $lastRow;
             }
             $numRows++;
         }

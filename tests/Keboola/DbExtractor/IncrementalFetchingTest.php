@@ -12,7 +12,6 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
     {
         $config = $this->getIncrementalFetchingConfig();
         $config['parameters']['incrementalFetchingColumn'] = 'timestamp';
-        sleep(1);
         $result = ($this->createApplication($config))->run();
         $outputFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv';
         $this->assertEquals('success', $result['status']);
