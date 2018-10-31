@@ -969,6 +969,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'ordinalPosition' => 1,
                                     'primaryKey' => true,
                                     'primaryKeyName' => 'PK_AUTOINC',
+                                    'autoIncrement' => true,
                                 ),
                             1 =>
                                 array (
