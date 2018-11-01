@@ -368,8 +368,8 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
-        $this->assertFileExists($this->dataDir . '/state.json');
-        $state = json_decode(file_get_contents($this->dataDir . "/state.json"), true);
+        $this->assertFileExists($this->dataDir . '/out/state.json');
+        $state = json_decode(file_get_contents($this->dataDir . "/out/state.json"), true);
         $this->assertEquals(["lastFetchedRow" => 6], $state);
     }
 }
