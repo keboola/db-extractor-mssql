@@ -276,9 +276,9 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
-        $this->assertContains('Nothing was imported into the table [in.c-main.simple_empty]', $process->getErrorOutput());
+        $this->assertContains('[in.c-main.simple_empty]: Query returned empty result so nothing was imported', $process->getErrorOutput());
 
-        $this->assertContains("The BCP export failed:", $process->getOutput());
+        $this->assertContains("[in.c-main.simple_empty]: The BCP export failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
 
         $this->assertFileNotExists($dataFile);
