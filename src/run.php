@@ -60,7 +60,7 @@ try {
         if (!empty($result['state'])) {
             // write state
             $outputStateFile = $arguments['data'] . '/out/state.json';
-            file_put_contents($outputStateFile, json_encode($result['state'], true));
+            file_put_contents($outputStateFile, json_encode($result['state']));
         }
     }
 
