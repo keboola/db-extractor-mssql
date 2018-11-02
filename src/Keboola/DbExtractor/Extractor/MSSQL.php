@@ -170,8 +170,8 @@ class MSSQL extends Extractor
                     $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
                 }
                 $this->logger->warning(sprintf(
-                    "Query returned empty result. Nothing was imported for table [%s]",
-                    $table['name']
+                    "[%s]: Query returned empty result so nothing was imported",
+                    $outputTable
                 ));
             } else {
                 $this->createManifest($table);
@@ -199,8 +199,8 @@ class MSSQL extends Extractor
         } catch (\Throwable $e) {
             $this->logger->info(
                 sprintf(
-                    "[%s]: BCP command failed: %s. Attempting export using pdo_sqlsrv.",
-                    $table['name'],
+                    "[%s]: The BCP export failed: %s. Attempting export using pdo_sqlsrv.",
+                    $outputTable,
                     $e->getMessage()
                 )
             );
@@ -216,7 +216,7 @@ class MSSQL extends Extractor
                 );
             } catch (\Exception $e) {
                 throw new UserException(
-                    sprintf("[%s]: DB query failed: %s.", $table['name'], $e->getMessage()),
+                    sprintf("[%s]: DB query failed: %s.", $outputTable, $e->getMessage()),
                     0,
                     $e
                 );
@@ -230,8 +230,8 @@ class MSSQL extends Extractor
                         $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
                     }
                     $this->logger->warning(sprintf(
-                        "Query returned empty result. Nothing was imported for table [%s]",
-                        $table['name']
+                        "[%s]: Query returned empty result so nothing was imported",
+                        $outputTable
                     ));
                     @unlink((string) $csv);
                 }

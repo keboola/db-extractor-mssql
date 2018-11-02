@@ -195,9 +195,9 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(1, $process->getExitCode());
 
         var_dump($process->getErrorOutput());
-        $this->assertContains("[special]: DB query failed:", $process->getErrorOutput());
+        $this->assertContains("[in.c-main.special]: DB query failed:", $process->getErrorOutput());
 
-        $this->assertContains("BCP command failed:", $process->getOutput());
+        $this->assertContains("The BCP export failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
     }
 
@@ -221,7 +221,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode(), $output);
         $this->assertEquals('', $process->getErrorOutput());
 
-        $this->assertContains("BCP command failed:", $process->getOutput());
+        $this->assertContains("The BCP export failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
     }
 
@@ -245,7 +245,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals('', $process->getErrorOutput());
 
         $this->assertContains("BCP successfully exported", $process->getOutput());
-        $this->assertNotContains("BCP command failed:", $process->getOutput());
+        $this->assertNotContains("The BCP export failed:", $process->getOutput());
     }
 
     public function testPDOFallbackSimpleNoData(): void
@@ -276,9 +276,9 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
-        $this->assertContains('Nothing was imported for table [simple_empty]', $process->getErrorOutput());
+        $this->assertContains('[in.c-main.simple_empty]: Query returned empty result so nothing was imported', $process->getErrorOutput());
 
-        $this->assertContains("BCP command failed:", $process->getOutput());
+        $this->assertContains("[in.c-main.simple_empty]: The BCP export failed:", $process->getOutput());
         $this->assertContains("Attempting export using pdo", $process->getOutput());
 
         $this->assertFileNotExists($dataFile);
