@@ -231,7 +231,7 @@ class MSSQL extends Extractor
                     }
                     $this->logger->warning(sprintf(
                         "[%s]: Query returned empty result so nothing was imported",
-                        $table['outputTable']
+                        $outputTable
                     ));
                     @unlink((string) $csv);
                 }
