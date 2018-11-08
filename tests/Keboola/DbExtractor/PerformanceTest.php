@@ -44,7 +44,7 @@ class PerformanceTest extends AbstractMSSQLTest
         $numberOfSchemas = 5;
         $numberOfTablesPerSchema = 100;
         $numberOfColumnsPerTable = 50;
-        $maxRunTime = 5;
+        $maxRunTime = 10;
 
         $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
 
