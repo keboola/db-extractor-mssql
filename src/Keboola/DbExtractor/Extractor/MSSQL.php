@@ -722,9 +722,9 @@ class MSSQL extends Extractor
                     );
                 } else if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
                     $incrementalAddon = sprintf(
-                        " WHERE CONVERT(DATETIME2, %s, 121) > CONVERT(DATETIME2, '%s', 121)",
+                        " WHERE %s > %s",
                         $this->quote($this->incrementalFetching['column']),
-                        $this->state['lastFetchedRow']
+                        $this->db->quote($this->state['lastFetchedRow'])
                     );
                 } else {
                     throw new ApplicationException(
