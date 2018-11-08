@@ -87,6 +87,8 @@ class MSSQL extends Extractor
             }
             if ($column['name'] === $this->incrementalFetching['column']) {
                 $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
+            } else if ($column['type'] === "timestamp") {
+                $whereClause .= $this->quote($column['name']) . " = CONVERT(TIMESTAMP, ?)";
             } else {
                 $whereClause .= $this->quote($column['name']) . " = ?";
             }
