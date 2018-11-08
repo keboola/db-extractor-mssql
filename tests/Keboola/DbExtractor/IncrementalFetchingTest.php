@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
 
 class IncrementalFetchingTest extends AbstractMSSQLTest
@@ -30,6 +31,16 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         sleep(2);
         // the next fetch should be empty
         $emptyResult = ($this->createApplication($config, $result['state']))->run();
+        if ($emptyResult['imported']['rows']) {
+            $res = $this->pdo->query("SELECT * FROM [auto Increment Timestamp] ORDER BY [timestamp]");
+            echo "\n It should only have fetched values > " . $result['state']['lastFetchedRow'];
+            echo "\n But this row was fetched: ";
+            var_export(
+                iterator_to_array(
+                    new CsvFile($this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv')
+                )
+            );
+        }
         $this->assertEquals(0, $emptyResult['imported']['rows']);
         // assert that the state is unchanged
         $this->assertEquals($result['state'], $emptyResult['state']);
