@@ -162,6 +162,23 @@ class ExtractorTest extends AbstractMSSQLTest
                 "SELECT TOP 1000 * FROM [dbo].[auto Increment Timestamp] " .
                 "WHERE [timestamp] > '2018-10-26 10:52:32' ORDER BY [timestamp]",
             ],
+            'test simplePDO query timestamp column and previos state and limit and NOLOCK' => [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => [],
+                    'incrementalFetchingLimit' => 1000,
+                    'incrementalFetchingColumn' => 'timestamp',
+                    'nolock' => true,
+                ],
+                [
+                    "lastFetchedRow" => '2018-10-26 10:52:32',
+                ],
+                "SELECT TOP 1000 * FROM [dbo].[auto Increment Timestamp] " .
+                "WHERE [timestamp] > '2018-10-26 10:52:32' ORDER BY [timestamp] WITH(NOLOCK)",
+            ],
         ];
     }
 
@@ -372,6 +389,45 @@ class ExtractorTest extends AbstractMSSQLTest
                     "lastFetchedRow" => 4,
                 ],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
+            ],
+            'test query with NOLOCK' => [
+                [
+                    'table' => [
+                        'tableName' => 'auto Increment Timestamp',
+                        'schema' => 'dbo',
+                    ],
+                    'columns' => array (
+                        0 =>
+                            array (
+                                'name' => 'col1',
+                                'sanitizedName' => 'col1',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 1,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                        1 =>
+                            array (
+                                'name' => 'col2',
+                                'sanitizedName' => 'col2',
+                                'type' => 'text',
+                                'length' => '2147483647',
+                                'nullable' => true,
+                                'ordinalPosition' => 2,
+                                'primaryKey' => false,
+                                'default' => null,
+                            ),
+                    ),
+                    'incrementalFetchingLimit' => 0,
+                    'incrementalFetchingColumn' => '_Weir%d I-D',
+                    'nolock' => 'true'
+                ],
+                [
+                    "lastFetchedRow" => 4,
+                ],
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[autoIncrement Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D] WITH(NOLOCK)",
             ],
         ];
     }
