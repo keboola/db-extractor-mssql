@@ -167,11 +167,11 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
+                        'nolock' => 'true',
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => 1000,
                     'incrementalFetchingColumn' => 'timestamp',
-                    'nolock' => true,
                 ],
                 [
                     "lastFetchedRow" => '2018-10-26 10:52:32',
@@ -395,6 +395,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
+                        'nolock' => 'true',
                     ],
                     'columns' => array (
                         0 =>
@@ -422,12 +423,11 @@ class ExtractorTest extends AbstractMSSQLTest
                     ),
                     'incrementalFetchingLimit' => 0,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
-                    'nolock' => 'true'
                 ],
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[autoIncrement Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D] WITH(NOLOCK)",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D] WITH(NOLOCK)",
             ],
         ];
     }
