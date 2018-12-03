@@ -158,6 +158,9 @@ class MSSQL extends Extractor
             $query = $this->simpleQuery($table['table'], $columnMetadata);
         } else {
             $query = $table['query'];
+            if (isset($table['nolock'])) {
+                throw new UserException("Advanced queries do not support the WITH(NOLOCK) option");
+            }
         }
         $this->logger->debug("Executing query: " . $query);
 
