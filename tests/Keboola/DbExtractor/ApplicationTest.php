@@ -373,22 +373,6 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(["lastFetchedRow" => 6], $state);
     }
 
-    public function testRunAdvancedQueryWithNoLock(): void
-    {
-        $config = $this->getConfigRow(self::DRIVER);
-        $config['parameters']['nolock'] = true;
-        @unlink($this->dataDir . '/config.json');
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.json', json_encode($config));
-
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
-        $process->run();
-
-        $this->assertEquals(1, $process->getExitCode());
-        $this->assertEquals("Advanced queries do not support the WITH(NOLOCK) option", $process->getErrorOutput());
-    }
-
     public function testRunWithNoLock(): void
     {
         $config = $this->getConfigRow(self::DRIVER);
@@ -406,5 +390,41 @@ class ApplicationTest extends AbstractMSSQLTest
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->mustRun();
+    }
+
+    public function testDeprecatedConfigWithNoLock(): void
+    {
+        $config = $this->getConfig(self::DRIVER, self::CONFIG_FORMAT_JSON);
+        $config['parameters']['tables'][1]['nolock'] = true;
+
+        @unlink($this->dataDir . '/config.json');
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+        $this->assertContains("Unrecognized option \"nolock\" under \"parameters.tables.1", $process->getErrorOutput());
+    }
+
+    public function testRunAdvancedQueryWithNoLock(): void
+    {
+        $config = $this->getConfigRow(self::DRIVER);
+        $config['parameters']['nolock'] = true;
+        unset($config['parameters']['table']);
+        $config['parameters']['query'] = "SELECT * FROM special";
+
+        @unlink($this->dataDir . '/config.json');
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+        $this->assertContains("Advanced queries do not support the WITH(NOLOCK) option", $process->getErrorOutput());
     }
 }
