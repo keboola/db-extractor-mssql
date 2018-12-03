@@ -154,6 +154,7 @@ class MSSQL extends Extractor
                     return $colOrder[$colA['name']] - $colOrder[$colB['name']];
                 });
             }
+            $table['table']['nolock'] = $table['nolock'] ?? false;
             $query = $this->simpleQuery($table['table'], $columnMetadata);
         } else {
             $query = $table['query'];
@@ -607,6 +608,9 @@ class MSSQL extends Extractor
         if ($incrementalAddon) {
             $query .= $incrementalAddon;
         }
+        if ($table['nolock']) {
+            $query .= " WITH(NOLOCK)";
+        }
         return $query;
     }
 
@@ -641,6 +645,9 @@ class MSSQL extends Extractor
         $incrementalAddon = $this->getIncrementalQueryAddon();
         if ($incrementalAddon) {
             $query .= $incrementalAddon;
+        }
+        if ($table['nolock']) {
+            $query .= " WITH(NOLOCK)";
         }
         return $query;
     }
