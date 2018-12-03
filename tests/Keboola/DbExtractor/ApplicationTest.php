@@ -388,4 +388,23 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(1, $process->getExitCode());
         $this->assertEquals("Advanced queries do not support the WITH(NOLOCK) option", $process->getErrorOutput());
     }
+
+    public function testRunWithNoLock(): void
+    {
+        $config = $this->getConfigRow(self::DRIVER);
+        unset($config['parameters']['query']);
+        $config['parameters']['table'] = [
+            'tableName' => 'auto Increment Timestamp',
+            'schema' => 'dbo',
+        ];
+        $config['parameters']['nolock'] = true;
+
+        @unlink($this->dataDir . '/config.json');
+        @unlink($this->dataDir . '/config.yml');
+        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->mustRun();
+    }
 }
