@@ -708,7 +708,7 @@ class MSSQL extends Extractor
         } else {
             throw new UserException(
                 sprintf(
-                    'Column [%s] specified for incremental fetching is not an identity column or a datetime',
+                    'Column [%s] specified for incremental fetching is not numeric or datetime',
                     $columnName
                 )
             );
