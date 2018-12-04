@@ -186,12 +186,12 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
+                    if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
                             $this->getLastFetchedDatetimeQuery($table['table'], $columnMetadata)
                         );
-                    } else if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
+                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedId(
                             $columnMetadata,
                             $exportResult['lastFetchedRow']
