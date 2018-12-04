@@ -51,6 +51,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
     {
         $config = $this->getIncrementalFetchingConfig();
         $config['parameters']['incrementalFetchingColumn'] = '_Weir%d I-D';
+        $config['parameters']['nolock'] = true;
         $result = ($this->createApplication($config))->run();
         $outputFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv';
         $this->assertEquals('success', $result['status']);
@@ -114,6 +115,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('lastFetchedRow', $result['state']);
         $this->assertEquals(2, $result['state']['lastFetchedRow']);
     }
+
     /**
      * @dataProvider invalidColumnProvider
      */
