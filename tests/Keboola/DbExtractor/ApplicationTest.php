@@ -403,10 +403,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
-        $process->run();
-
-        $this->assertEquals(1, $process->getExitCode());
-        $this->assertContains("Unrecognized option \"nolock\" under \"parameters.tables.1", $process->getErrorOutput());
+        $process->mustRun();
     }
 
     public function testRunAdvancedQueryWithNoLock(): void
