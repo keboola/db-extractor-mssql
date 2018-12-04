@@ -154,11 +154,11 @@ class MSSQL extends Extractor
                     return $colOrder[$colA['name']] - $colOrder[$colB['name']];
                 });
             }
-            $table['table']['nolock'] = $table['nolock'] ?? false;
+            $table['table']['nolock'] = $table['nolock'];
             $query = $this->simpleQuery($table['table'], $columnMetadata);
         } else {
             $query = $table['query'];
-            if (isset($table['nolock'])) {
+            if ($table['nolock']) {
                 throw new UserException("Advanced queries do not support the WITH(NOLOCK) option");
             }
         }
