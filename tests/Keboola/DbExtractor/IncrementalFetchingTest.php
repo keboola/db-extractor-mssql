@@ -31,7 +31,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         sleep(2);
         // the next fetch should be empty
         $emptyResult = ($this->createApplication($config, $result['state']))->run();
-        $this->assertEquals(0, $emptyResult['imported']['rows']);
+        $this->assertEquals(1, $emptyResult['imported']['rows']);
         // assert that the state is unchanged
         $this->assertEquals($result['state'], $emptyResult['state']);
         sleep(2);
@@ -70,7 +70,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         sleep(2);
         // the next fetch should be empty
         $emptyResult = ($this->createApplication($config, $result['state']))->run();
-        $this->assertEquals(0, $emptyResult['imported']['rows']);
+        $this->assertEquals(1, $emptyResult['imported']['rows']);
         // assert that the state is unchanged
         $this->assertEquals($result['state'], $emptyResult['state']);
         sleep(2);
@@ -81,7 +81,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('state', $newResult);
         $this->assertArrayHasKey('lastFetchedRow', $newResult['state']);
         $this->assertEquals(8, $newResult['state']['lastFetchedRow']);
-        $this->assertEquals(2, $newResult['imported']['rows']);
+        $this->assertEquals(3, $newResult['imported']['rows']);
     }
     public function testIncrementalFetchingLimit(): void
     {
@@ -101,12 +101,13 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('lastFetchedRow', $result['state']);
         $this->assertEquals(1, $result['state']['lastFetchedRow']);
         sleep(2);
-        // the next fetch should contain the second row
+        // since it's >= we'll set limit to 2 to fetch the second row also
+        $config['parameters']['incrementalFetchingLimit'] = 1;
         $result = ($this->createApplication($config, $result['state']))->run();
         $this->assertEquals(
             [
                 'outputTable' => 'in.c-main.auto-increment-timestamp',
-                'rows' => 1,
+                'rows' => 2,
             ],
             $result['imported']
         );
