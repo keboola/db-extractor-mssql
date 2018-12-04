@@ -607,12 +607,12 @@ class MSSQL extends Extractor
             $this->quote($table['tableName'])
         );
 
+        if ($table['nolock']) {
+            $query .= " WITH(NOLOCK)";
+        }
         $incrementalAddon = $this->getIncrementalQueryAddon();
         if ($incrementalAddon) {
             $query .= $incrementalAddon;
-        }
-        if ($table['nolock']) {
-            $query .= " WITH(NOLOCK)";
         }
         return $query;
     }
@@ -645,12 +645,12 @@ class MSSQL extends Extractor
                 $this->quote($table['tableName'])
             );
         }
+        if ($table['nolock']) {
+            $query .= " WITH(NOLOCK)";
+        }
         $incrementalAddon = $this->getIncrementalQueryAddon();
         if ($incrementalAddon) {
             $query .= $incrementalAddon;
-        }
-        if ($table['nolock']) {
-            $query .= " WITH(NOLOCK)";
         }
         return $query;
     }
