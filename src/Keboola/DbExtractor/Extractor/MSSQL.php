@@ -729,13 +729,13 @@ class MSSQL extends Extractor
             if (isset($this->state['lastFetchedRow'])) {
                 if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
                     $incrementalAddon = sprintf(
-                        ' WHERE %s > %d',
+                        ' WHERE %s >= %d',
                         $this->quote($this->incrementalFetching['column']),
                         (int) $this->state['lastFetchedRow']
                     );
                 } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
                     $incrementalAddon = sprintf(
-                        " WHERE %s > %s",
+                        " WHERE %s >= %s",
                         $this->quote($this->incrementalFetching['column']),
                         $this->db->quote($this->state['lastFetchedRow'])
                     );
