@@ -126,7 +126,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
 
         $this->setExpectedException(UserException::class, $expectedExceptionMessage);
 
-        $result = ($this->createApplication($config))->run();
+        ($this->createApplication($config))->run();
     }
 
     public function invalidColumnProvider(): array
@@ -136,9 +136,9 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
                 "fakeCol",
                 "Column [fakeCol] specified for incremental fetching was not found in the table",
             ],
-            'column exists but is not auto-increment nor updating timestamp so should fail' => [
+            'column exists but is not numeric nor datetime so should fail' => [
                 "Weir%d Na-me",
-                "Column [Weir%d Na-me] specified for incremental fetching is not an identity column or a datetime",
+                "Column [Weir%d Na-me] specified for incremental fetching is not numeric or datetime",
             ],
         ];
     }
@@ -149,7 +149,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $config['parameters']['query'] = 'SELECT * FROM auto_increment_timestamp';
         unset($config['parameters']['table']);
         try {
-            $result = ($this->createApplication($config))->run();
+            ($this->createApplication($config))->run();
             $this->fail('cannot use incremental fetching with advanced query, should fail.');
         } catch (UserException $e) {
             $this->assertStringStartsWith("Invalid Configuration", $e->getMessage());
