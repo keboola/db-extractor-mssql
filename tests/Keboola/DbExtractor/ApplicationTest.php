@@ -421,7 +421,12 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
-        $this->assertEquals(1, $process->getExitCode());
-        $this->assertContains("Advanced queries do not support the WITH(NOLOCK) option", $process->getErrorOutput());
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertNotContains(
+            "nolock",
+            $process->getOutput(),
+            "Failed to assert that advanced query with nolock set didn't have nolock in the query",
+            true
+        );
     }
 }
