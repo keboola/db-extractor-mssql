@@ -78,7 +78,42 @@ class MSSQL extends Extractor
         }
     }
 
-    private function getLastFetchedResult(array $columnMetadata, array $lastExportedLine): string
+    private function getLastFetchedDatetimeQuery(array $table, array $columnMetadata): string
+    {
+        $whereClause = "";
+        foreach ($columnMetadata as $key => $column) {
+            if ($whereClause !== "") {
+                $whereClause .= " AND ";
+            }
+            if ($column['name'] === $this->incrementalFetching['column']) {
+                $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
+            } else if ($column['type'] === "TIMESTAMP") {
+                $whereClause .= $this->quote($column['name']) . " = CONVERT(TIMESTAMP, ?)";
+            } else {
+                $whereClause .= $this->quote($column['name']) . " = ?";
+            }
+        }
+        return sprintf(
+            "SELECT %s FROM %s.%s WHERE %s;",
+            $this->quote($this->incrementalFetching['column']),
+            $this->quote($table['schema']),
+            $this->quote($table['tableName']),
+            $whereClause
+        );
+    }
+
+    private function getLastFetchedDatetimeValue(array $lastExportedLine, string $query): string
+    {
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($lastExportedLine);
+        if ($stmt->rowCount() > 1) {
+            throw new UserException("Was unable to find unique row for incremental fetching state");
+        }
+        $lastDatetimeRow = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $lastDatetimeRow[$this->incrementalFetching['column']];
+    }
+
+    private function getLastFetchedId(array $columnMetadata, array $lastExportedLine): string
     {
         $incrementalFetchingColumnIndex = null;
         foreach ($columnMetadata as $key => $column) {
@@ -151,10 +186,17 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    $exportResult['lastFetchedRow'] = $this->getLastFetchedResult(
-                        $columnMetadata,
-                        $exportResult['lastFetchedRow']
-                    );
+                    if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
+                        $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
+                            $exportResult['lastFetchedRow'],
+                            $this->getLastFetchedDatetimeQuery($table['table'], $columnMetadata)
+                        );
+                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
+                        $exportResult['lastFetchedRow'] = $this->getLastFetchedId(
+                            $columnMetadata,
+                            $exportResult['lastFetchedRow']
+                        );
+                    }
                 }
             }
         } catch (\Throwable $e) {
