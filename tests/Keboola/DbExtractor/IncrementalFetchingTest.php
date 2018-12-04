@@ -29,7 +29,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertNotEmpty($result['state']['lastFetchedRow']);
         @unlink($outputFile);
         sleep(2);
-        // the next fetch should be empty
+        // the next fetch should be just the last fetched row from last time because of >=
         $emptyResult = ($this->createApplication($config, $result['state']))->run();
         $this->assertEquals(1, $emptyResult['imported']['rows']);
         // assert that the state is unchanged
@@ -45,7 +45,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
             $result['state']['lastFetchedRow'],
             $newResult['state']['lastFetchedRow']
         );
-        $this->assertEquals(2, $newResult['imported']['rows']);
+        $this->assertEquals(3, $newResult['imported']['rows']);
     }
     public function testIncrementalFetchingByAutoIncrement(): void
     {
@@ -102,7 +102,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertEquals(1, $result['state']['lastFetchedRow']);
         sleep(2);
         // since it's >= we'll set limit to 2 to fetch the second row also
-        $config['parameters']['incrementalFetchingLimit'] = 1;
+        $config['parameters']['incrementalFetchingLimit'] = 2;
         $result = ($this->createApplication($config, $result['state']))->run();
         $this->assertEquals(
             [
