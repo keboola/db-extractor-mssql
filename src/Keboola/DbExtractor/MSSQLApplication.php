@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor;
 
 use Keboola\DbExtractor\Configuration\MssqlConfigurationRowDefinition;
+use Keboola\DbExtractor\Configuration\MssqlConfigurationDefinition;
 
 class MSSQLApplication extends Application
 {
@@ -15,7 +16,10 @@ class MSSQLApplication extends Application
 
         parent::__construct($config, ($logger) ? $logger : new Logger("ex-db-mssql"), $state);
 
-        if (!isset($this['parameters']['tables']) && $this['action'] === 'run') {
+        // override with mssql specific config definitions
+        if (isset($this['parameters']['tables'])) {
+            $this->setConfigDefinition(new MssqlConfigurationDefinition());
+        } else if ($this['action'] === 'run') {
             $this->setConfigDefinition(new MssqlConfigurationRowDefinition());
         }
     }
