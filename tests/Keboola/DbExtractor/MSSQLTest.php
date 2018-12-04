@@ -929,7 +929,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
         $this->assertCount(4, $result['tables']);
-
+        
         $expectedData = array (
             0 =>
                 array (
@@ -939,32 +939,12 @@ class MSSQLTest extends AbstractMSSQLTest
                     'type' => 'BASE TABLE',
                     'columns' =>
                         array (
-                            2 =>
-                                array (
-                                    'name' => 'type',
-                                    'sanitizedName' => 'type',
-                                    'type' => 'varchar',
-                                    'length' => 55,
-                                    'nullable' => true,
-                                    'ordinalPosition' => 3,
-                                    'primaryKey' => false,
-                                ),
-                            3 =>
-                                array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
-                                    'type' => 'datetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 4,
-                                    'primaryKey' => false,
-                                ),
                             0 =>
                                 array (
                                     'name' => '_Weir%d I-D',
                                     'sanitizedName' => 'Weir_d_I_D',
                                     'type' => 'int',
-                                    'length' => 10,
+                                    'length' => '10',
                                     'nullable' => false,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => true,
@@ -976,9 +956,59 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'Weir%d Na-me',
                                     'sanitizedName' => 'Weir_d_Na_me',
                                     'type' => 'varchar',
-                                    'length' => 55,
+                                    'length' => '55',
                                     'nullable' => false,
                                     'ordinalPosition' => 2,
+                                    'primaryKey' => false,
+                                ),
+                            2 =>
+                                array (
+                                    'name' => 'someInteger',
+                                    'sanitizedName' => 'someInteger',
+                                    'type' => 'int',
+                                    'length' => '10',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 3,
+                                    'primaryKey' => false,
+                                ),
+                            3 =>
+                                array (
+                                    'name' => 'someDecimal',
+                                    'sanitizedName' => 'someDecimal',
+                                    'type' => 'decimal',
+                                    'length' => '10,2',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 4,
+                                    'primaryKey' => false,
+                                ),
+                            4 =>
+                                array (
+                                    'name' => 'type',
+                                    'sanitizedName' => 'type',
+                                    'type' => 'varchar',
+                                    'length' => '55',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 5,
+                                    'primaryKey' => false,
+                                ),
+                            5 =>
+                                array (
+                                    'name' => 'smalldatetime',
+                                    'sanitizedName' => 'smalldatetime',
+                                    'type' => 'smalldatetime',
+                                    'length' => NULL,
+                                    'nullable' => false,
+                                    'ordinalPosition' => 6,
+                                    'primaryKey' => false,
+                                ),
+                            6 =>
+                                array (
+                                    'name' => 'timestamp',
+                                    'sanitizedName' => 'timestamp',
+                                    'type' => 'datetime',
+                                    'length' => NULL,
+                                    'nullable' => false,
+                                    'ordinalPosition' => 7,
                                     'primaryKey' => false,
                                 ),
                         ),
