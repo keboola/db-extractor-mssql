@@ -83,6 +83,78 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertEquals(8, $newResult['state']['lastFetchedRow']);
         $this->assertEquals(3, $newResult['imported']['rows']);
     }
+    public function testIncrementalFetchingByDecimal(): void
+    {
+        $config = $this->getIncrementalFetchingConfig();
+        $config['parameters']['incrementalFetchingColumn'] = 'someDecimal';
+        $config['parameters']['nolock'] = true;
+        $result = ($this->createApplication($config))->run();
+        $outputFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv';
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(
+            [
+                'outputTable' => 'in.c-main.auto-increment-timestamp',
+                'rows' => 6,
+            ],
+            $result['imported']
+        );
+        //check that output state contains expected information
+        $this->assertArrayHasKey('state', $result);
+        $this->assertArrayHasKey('lastFetchedRow', $result['state']);
+        $this->assertEquals(6.6, $result['state']['lastFetchedRow']);
+        unlink($outputFile);
+        sleep(2);
+        // the next fetch should be empty
+        $emptyResult = ($this->createApplication($config, $result['state']))->run();
+        $this->assertEquals(1, $emptyResult['imported']['rows']);
+        // assert that the state is unchanged
+        $this->assertEquals($result['state'], $emptyResult['state']);
+        sleep(2);
+        //now add a couple rows and run it again.
+        $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [someDecimal]) VALUES (\'charles\', 12.2), (\'william\', 7.5)');
+        $newResult = ($this->createApplication($config, $result['state']))->run();
+        //check that output state contains expected information
+        $this->assertArrayHasKey('state', $newResult);
+        $this->assertArrayHasKey('lastFetchedRow', $newResult['state']);
+        $this->assertEquals("12.2", $newResult['state']['lastFetchedRow']);
+        $this->assertEquals(3, $newResult['imported']['rows']);
+    }
+    public function testIncrementalFetchingBySmalldatetime(): void
+    {
+        $config = $this->getIncrementalFetchingConfig();
+        $config['parameters']['incrementalFetchingColumn'] = 'smalldatetime';
+        $config['parameters']['nolock'] = true;
+        $result = ($this->createApplication($config))->run();
+        $outputFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv';
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(
+            [
+                'outputTable' => 'in.c-main.auto-increment-timestamp',
+                'rows' => 6,
+            ],
+            $result['imported']
+        );
+        //check that output state contains expected information
+        $this->assertArrayHasKey('state', $result);
+        $this->assertArrayHasKey('lastFetchedRow', $result['state']);
+        $this->assertEquals('2012-01-10 10:25:00', $result['state']['lastFetchedRow']);
+        unlink($outputFile);
+        sleep(2);
+        // the next fetch should contain the last 2 rows since they have the same value
+        $emptyResult = ($this->createApplication($config, $result['state']))->run();
+        $this->assertEquals(2, $emptyResult['imported']['rows']);
+        // assert that the state is unchanged
+        $this->assertEquals($result['state'], $emptyResult['state']);
+        sleep(2);
+        //now add a couple rows and run it again.
+        $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) VALUES (\'charles\', \'2012-01-10 10:55\'), (\'william\', \'2012-01-10 10:50\')');
+        $newResult = ($this->createApplication($config, $result['state']))->run();
+        //check that output state contains expected information (will contain the same last 2 rows as above, + 2 more
+        $this->assertArrayHasKey('state', $newResult);
+        $this->assertArrayHasKey('lastFetchedRow', $newResult['state']);
+        $this->assertEquals('2012-01-10 10:55:00', $newResult['state']['lastFetchedRow']);
+        $this->assertEquals(4, $newResult['imported']['rows']);
+    }
     public function testIncrementalFetchingLimit(): void
     {
         $config = $this->getIncrementalFetchingConfig();
