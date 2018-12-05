@@ -177,7 +177,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     "lastFetchedRow" => '2018-10-26 10:52:32',
                 ],
                 "SELECT TOP 1000 * FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) " .
-                "WHERE [timestamp] > '2018-10-26 10:52:32' ORDER BY [timestamp]",
+                "WHERE [timestamp] >= '2018-10-26 10:52:32' ORDER BY [timestamp]",
             ],
         ];
     }
@@ -427,7 +427,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [_Weir%d I-D] > 4 ORDER BY [_Weir%d I-D]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
         ];
     }
