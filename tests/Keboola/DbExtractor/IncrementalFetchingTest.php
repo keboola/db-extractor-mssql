@@ -30,10 +30,10 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         @unlink($outputFile);
         sleep(2);
         // the next fetch should be just the last fetched row from last time because of >=
-        $emptyResult = ($this->createApplication($config, $result['state']))->run();
-        $this->assertEquals(1, $emptyResult['imported']['rows']);
+        $noNewRowsResult = ($this->createApplication($config, $result['state']))->run();
+        $this->assertEquals(1, $noNewRowsResult['imported']['rows']);
         // assert that the state is unchanged
-        $this->assertEquals($result['state'], $emptyResult['state']);
+        $this->assertEquals($result['state'], $noNewRowsResult['state']);
         sleep(2);
         //now add a couple rows and run it again.
         $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me]) VALUES (\'charles\'), (\'william\')');
@@ -69,10 +69,10 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         unlink($outputFile);
         sleep(2);
         // the next fetch should be empty
-        $emptyResult = ($this->createApplication($config, $result['state']))->run();
-        $this->assertEquals(1, $emptyResult['imported']['rows']);
+        $noNewRowsResult = ($this->createApplication($config, $result['state']))->run();
+        $this->assertEquals(1, $noNewRowsResult['imported']['rows']);
         // assert that the state is unchanged
-        $this->assertEquals($result['state'], $emptyResult['state']);
+        $this->assertEquals($result['state'], $noNewRowsResult['state']);
         sleep(2);
         //now add a couple rows and run it again.
         $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me]) VALUES (\'charles\'), (\'william\')');
@@ -105,10 +105,10 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         unlink($outputFile);
         sleep(2);
         // the next fetch should be empty
-        $emptyResult = ($this->createApplication($config, $result['state']))->run();
-        $this->assertEquals(1, $emptyResult['imported']['rows']);
+        $noNewRowsResult = ($this->createApplication($config, $result['state']))->run();
+        $this->assertEquals(1, $noNewRowsResult['imported']['rows']);
         // assert that the state is unchanged
-        $this->assertEquals($result['state'], $emptyResult['state']);
+        $this->assertEquals($result['state'], $noNewRowsResult['state']);
         sleep(2);
         //now add a couple rows and run it again.
         $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [someDecimal]) VALUES (\'charles\', 12.2), (\'william\', 7.5)');
@@ -141,10 +141,10 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         unlink($outputFile);
         sleep(2);
         // the next fetch should contain the last 2 rows since they have the same value
-        $emptyResult = ($this->createApplication($config, $result['state']))->run();
-        $this->assertEquals(2, $emptyResult['imported']['rows']);
+        $noNewRowsResult = ($this->createApplication($config, $result['state']))->run();
+        $this->assertEquals(2, $noNewRowsResult['imported']['rows']);
         // assert that the state is unchanged
-        $this->assertEquals($result['state'], $emptyResult['state']);
+        $this->assertEquals($result['state'], $noNewRowsResult['state']);
         sleep(2);
         //now add a couple rows and run it again.
         $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) VALUES (\'charles\', \'2012-01-10 10:55\'), (\'william\', \'2012-01-10 10:50\')');
