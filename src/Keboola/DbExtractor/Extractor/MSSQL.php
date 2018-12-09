@@ -26,7 +26,7 @@ class MSSQL extends Extractor
         if (isset($params['#password'])) {
                 $params['password'] = $params['#password'];
         }
-        
+
         foreach (['host', 'database', 'user', 'password'] as $r) {
             if (!array_key_exists($r, $params)) {
                 throw new UserException(sprintf("Parameter %s is missing.", $r));
@@ -651,7 +651,7 @@ class MSSQL extends Extractor
         }
         return $query;
     }
-    
+
     public static function getColumnMetadata(array $column): array
     {
         $datatype = new MssqlDataType(
@@ -698,12 +698,8 @@ class MSSQL extends Extractor
                 )
             );
         }
-        $numericTypes = array_merge(
-            MssqlDataType::INTEGER_TYPES,
-            MssqlDataType::FLOATING_POINT_TYPES,
-            MssqlDataType::FIXED_NUMERIC_TYPES
-        );
-        if (in_array($columns[0]['data_type'], $numericTypes)) {
+
+        if (in_array($columns[0]['data_type'], MssqlDataType::getNumericTypes())) {
             $this->incrementalFetching['column'] = $columnName;
             $this->incrementalFetching['type'] = self::INCREMENT_TYPE_NUMERIC;
         } else if (in_array($columns[0]['data_type'], MssqlDataType::TIMESTAMP_TYPES)) {
