@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
+use Keboola\DbExtractor\Exception\UserException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
@@ -12,14 +13,26 @@ class ApplicationTest extends AbstractMSSQLTest
 {
     /** @var string */
     protected $rootPath = __DIR__ . '/../../..';
-    
+
+    private function replaceConfig(array $config, string $format): void
+    {
+        @unlink($this->dataDir . '/config.json');
+        @unlink($this->dataDir . '/config.yml');
+        if ($format === self::CONFIG_FORMAT_JSON) {
+            file_put_contents($this->dataDir . '/config.json', json_encode($config));
+        } else if ($format === self::CONFIG_FORMAT_YAML) {
+            file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+        } else {
+            throw new UserException("Invalid config format type [{$format}]");
+        }
+    }
+
     public function testTestConnectionAction(): void
     {
         $config = $this->getConfig('mssql');
         $config['action'] = 'testConnection';
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
 
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->run();
@@ -56,8 +69,7 @@ class ApplicationTest extends AbstractMSSQLTest
         array_shift($expectedCsv4);
 
         $config = $this->getConfig('mssql');
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -120,8 +132,7 @@ class ApplicationTest extends AbstractMSSQLTest
             'remotePort' => '1433',
             'localPort' => '1234',
         ];
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -150,9 +161,7 @@ class ApplicationTest extends AbstractMSSQLTest
     public function testRunActionJsonConfig(): void
     {
         $config = $this->getConfig('mssql', 'json');
-        @unlink($this->dataDir . '/config.yml');
-        @unlink($this->dataDir . '/config.json');
-        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -166,8 +175,7 @@ class ApplicationTest extends AbstractMSSQLTest
     {
         $config = $this->getConfig('mssql');
         $config['action'] = 'getTables';
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -186,7 +194,8 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][2]);
         unset($config['parameters']['tables'][3]['table']);
         $config['parameters']['tables'][3]['query'] = "SELECT SOMETHING INVALID FROM \"dbo\".\"special\"";
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -194,7 +203,6 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertEquals(1, $process->getExitCode());
 
-        var_dump($process->getErrorOutput());
         $this->assertContains("[in.c-main.special]: DB query failed:", $process->getErrorOutput());
 
         $this->assertContains("The BCP export failed:", $process->getOutput());
@@ -209,8 +217,7 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][3]);
         $config['parameters']['tables'][0]['query'] = "SELECT *  FROM \"special\";";
 
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -232,8 +239,8 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][2]);
         unset($config['parameters']['tables'][3]);
         $config['parameters']['tables'][0]['query'] = "SELECT \"usergender\", \"sku\"  FROM \"sales\" WHERE \"usergender\" LIKE 'male'";
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -263,8 +270,7 @@ class ApplicationTest extends AbstractMSSQLTest
             "schema" => "dbo",
         ];
 
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $dataFile = $this->dataDir . '/out/tables/in.c-main.simple_empty.csv';
         $manifestFile = $this->dataDir . '/out/tables/in.c-main.simple_empty.csv.manifest';
@@ -303,8 +309,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['tables'][0]['table'] = ["tableName" => "PDO_TEST", "schema" => "dbo"];
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.pdo_test';
 
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -334,8 +339,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['tables'][0]['table'] = ["tableName" => "SMALLDATETIME_TEST", "schema" => "dbo"];
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.smalldatetime_test';
 
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.yml', Yaml::dump($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -360,9 +364,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['primaryKey'] = ['_Weir%d I-D'];
         $config['parameters']['incrementalFetchingColumn'] = '_Weir%d I-D';
 
-        @unlink($this->dataDir . '/config.json');
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -383,9 +385,7 @@ class ApplicationTest extends AbstractMSSQLTest
         ];
         $config['parameters']['nolock'] = true;
 
-        @unlink($this->dataDir . '/config.json');
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -397,9 +397,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config = $this->getConfig(self::DRIVER, self::CONFIG_FORMAT_JSON);
         $config['parameters']['tables'][1]['nolock'] = true;
 
-        @unlink($this->dataDir . '/config.json');
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
@@ -413,9 +411,7 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['table']);
         $config['parameters']['query'] = "SELECT * FROM special";
 
-        @unlink($this->dataDir . '/config.json');
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
