@@ -28,6 +28,15 @@ class MssqlDataType extends GenericStorage
         "numeric", "decimal", "money", "smallmoney",
     ];
 
+    public static function getNumericTypes(): array
+    {
+        return array_merge(
+            MssqlDataType::INTEGER_TYPES,
+            MssqlDataType::FLOATING_POINT_TYPES,
+            MssqlDataType::FIXED_NUMERIC_TYPES
+        );
+    }
+
     public function getBasetype(): string
     {
         $type = strtolower($this->type);

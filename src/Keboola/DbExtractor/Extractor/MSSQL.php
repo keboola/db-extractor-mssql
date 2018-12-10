@@ -12,8 +12,8 @@ use Symfony\Component\Process\Process;
 
 class MSSQL extends Extractor
 {
-    public const TYPE_AUTO_INCREMENT = 'autoIncrement';
-    public const TYPE_TIMESTAMP = 'timestamp';
+    public const INCREMENT_TYPE_NUMERIC = 'numeric';
+    public const INCREMENT_TYPE_TIMESTAMP = 'timestamp';
 
     /**
      * @param array $params
@@ -26,7 +26,7 @@ class MSSQL extends Extractor
         if (isset($params['#password'])) {
                 $params['password'] = $params['#password'];
         }
-        
+
         foreach (['host', 'database', 'user', 'password'] as $r) {
             if (!array_key_exists($r, $params)) {
                 throw new UserException(sprintf("Parameter %s is missing.", $r));
@@ -186,12 +186,12 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
+                    if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
                             $this->getLastFetchedDatetimeQuery($table['table'], $columnMetadata)
                         );
-                    } else if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
+                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedId(
                             $columnMetadata,
                             $exportResult['lastFetchedRow']
@@ -651,7 +651,7 @@ class MSSQL extends Extractor
         }
         return $query;
     }
-    
+
     public static function getColumnMetadata(array $column): array
     {
         $datatype = new MssqlDataType(
@@ -699,16 +699,16 @@ class MSSQL extends Extractor
             );
         }
 
-        if ($columns[0]['is_identity']) {
+        if (in_array($columns[0]['data_type'], MssqlDataType::getNumericTypes())) {
             $this->incrementalFetching['column'] = $columnName;
-            $this->incrementalFetching['type'] = self::TYPE_AUTO_INCREMENT;
-        } else if ($columns[0]['data_type'] === 'datetime' || $columns[0]['data_type'] === 'datetime2') {
+            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_NUMERIC;
+        } else if (in_array($columns[0]['data_type'], MssqlDataType::TIMESTAMP_TYPES)) {
             $this->incrementalFetching['column'] = $columnName;
-            $this->incrementalFetching['type'] = self::TYPE_TIMESTAMP;
+            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_TIMESTAMP;
         } else {
             throw new UserException(
                 sprintf(
-                    'Column [%s] specified for incremental fetching is not an identity column or a datetime',
+                    'Column [%s] specified for incremental fetching is not numeric or datetime',
                     $columnName
                 )
             );
@@ -723,15 +723,15 @@ class MSSQL extends Extractor
         $incrementalAddon = null;
         if ($this->incrementalFetching) {
             if (isset($this->state['lastFetchedRow'])) {
-                if ($this->incrementalFetching['type'] === self::TYPE_AUTO_INCREMENT) {
+                if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
                     $incrementalAddon = sprintf(
-                        ' WHERE %s > %d',
+                        ' WHERE %s >= %d',
                         $this->quote($this->incrementalFetching['column']),
                         (int) $this->state['lastFetchedRow']
                     );
-                } else if ($this->incrementalFetching['type'] === self::TYPE_TIMESTAMP) {
+                } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
                     $incrementalAddon = sprintf(
-                        " WHERE %s > %s",
+                        " WHERE %s >= %s",
                         $this->quote($this->incrementalFetching['column']),
                         $this->db->quote($this->state['lastFetchedRow'])
                     );

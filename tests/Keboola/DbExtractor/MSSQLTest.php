@@ -502,7 +502,9 @@ class MSSQLTest extends AbstractMSSQLTest
         $outputData = iterator_to_array(
             new CsvFile($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
         );
-        $firstTimestamp = $outputData[0][3];
+        $this->assertEquals(1, (int) $outputData[0][2]);
+        $this->assertEquals("1.1", $outputData[0][3]);
+        $firstTimestamp = $outputData[0][5];
         // there should be no decimal separator present (it should be cast to datetime2(0) which does not include ms)
         $this->assertEquals(1, preg_match("/^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/", $firstTimestamp));
         $this->assertEquals(
@@ -573,7 +575,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 6 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => '1',
+                                        'value' => 1,
                                     ),
                                 7 =>
                                     array (
@@ -636,7 +638,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 7 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => '2',
+                                        'value' => 2,
                                     ),
                                 8 =>
                                     array (
@@ -652,6 +654,92 @@ class MSSQLTest extends AbstractMSSQLTest
                                     array (
                                         'key' => 'KBC.uniqueKeyName',
                                         'value' => 'UNI_KEY_1',
+                                    ),
+                            ),
+                        'someInteger' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'int',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'INTEGER',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '10',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'someInteger',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'someInteger',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 3,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                        'someDecimal' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'decimal',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => true,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'NUMERIC',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.length',
+                                        'value' => '10,2',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'someDecimal',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'someDecimal',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 4,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                             ),
                         'type' =>
@@ -689,7 +777,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 6 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => '3',
+                                        'value' => 5,
                                     ),
                                 7 =>
                                     array (
@@ -705,6 +793,49 @@ class MSSQLTest extends AbstractMSSQLTest
                                     array (
                                         'key' => 'KBC.uniqueKeyName',
                                         'value' => 'UNI_KEY_1',
+                                    ),
+                            ),
+                        'smalldatetime' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'smalldatetime',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => false,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'TIMESTAMP',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.datatype.default',
+                                        'value' => '(getdate())',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'smalldatetime',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'smalldatetime',
+                                    ),
+                                6 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 6,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                             ),
                         'timestamp' =>
@@ -742,7 +873,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 6 =>
                                     array (
                                         'key' => 'KBC.ordinalPosition',
-                                        'value' => '4',
+                                        'value' => 7,
                                     ),
                                 7 =>
                                     array (
@@ -755,8 +886,11 @@ class MSSQLTest extends AbstractMSSQLTest
                     array (
                         0 => 'Weir_d_I_D',
                         1 => 'Weir_d_Na_me',
-                        2 => 'type',
-                        3 => 'timestamp',
+                        2 => 'someInteger',
+                        3 => 'someDecimal',
+                        4 => 'type',
+                        5 => 'smalldatetime',
+                        6 => 'timestamp',
                     ),
             ),
             $manifest
@@ -929,7 +1063,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
         $this->assertCount(4, $result['tables']);
-
+        
         $expectedData = array (
             0 =>
                 array (
@@ -939,32 +1073,12 @@ class MSSQLTest extends AbstractMSSQLTest
                     'type' => 'BASE TABLE',
                     'columns' =>
                         array (
-                            2 =>
-                                array (
-                                    'name' => 'type',
-                                    'sanitizedName' => 'type',
-                                    'type' => 'varchar',
-                                    'length' => 55,
-                                    'nullable' => true,
-                                    'ordinalPosition' => 3,
-                                    'primaryKey' => false,
-                                ),
-                            3 =>
-                                array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
-                                    'type' => 'datetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 4,
-                                    'primaryKey' => false,
-                                ),
                             0 =>
                                 array (
                                     'name' => '_Weir%d I-D',
                                     'sanitizedName' => 'Weir_d_I_D',
                                     'type' => 'int',
-                                    'length' => 10,
+                                    'length' => '10',
                                     'nullable' => false,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => true,
@@ -976,9 +1090,59 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'Weir%d Na-me',
                                     'sanitizedName' => 'Weir_d_Na_me',
                                     'type' => 'varchar',
-                                    'length' => 55,
+                                    'length' => '55',
                                     'nullable' => false,
                                     'ordinalPosition' => 2,
+                                    'primaryKey' => false,
+                                ),
+                            2 =>
+                                array (
+                                    'name' => 'someInteger',
+                                    'sanitizedName' => 'someInteger',
+                                    'type' => 'int',
+                                    'length' => '10',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 3,
+                                    'primaryKey' => false,
+                                ),
+                            3 =>
+                                array (
+                                    'name' => 'someDecimal',
+                                    'sanitizedName' => 'someDecimal',
+                                    'type' => 'decimal',
+                                    'length' => '10,2',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 4,
+                                    'primaryKey' => false,
+                                ),
+                            4 =>
+                                array (
+                                    'name' => 'type',
+                                    'sanitizedName' => 'type',
+                                    'type' => 'varchar',
+                                    'length' => '55',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 5,
+                                    'primaryKey' => false,
+                                ),
+                            5 =>
+                                array (
+                                    'name' => 'smalldatetime',
+                                    'sanitizedName' => 'smalldatetime',
+                                    'type' => 'smalldatetime',
+                                    'length' => null,
+                                    'nullable' => false,
+                                    'ordinalPosition' => 6,
+                                    'primaryKey' => false,
+                                ),
+                            6 =>
+                                array (
+                                    'name' => 'timestamp',
+                                    'sanitizedName' => 'timestamp',
+                                    'type' => 'datetime',
+                                    'length' => null,
+                                    'nullable' => false,
+                                    'ordinalPosition' => 7,
                                     'primaryKey' => false,
                                 ),
                         ),
