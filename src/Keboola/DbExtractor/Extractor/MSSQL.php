@@ -80,18 +80,18 @@ class MSSQL extends Extractor
 
     private function getSqlServerVersion(): int
     {
-        $res = $this->db->query("SELECT @@VERSION AS version;");
+        $res = $this->db->query("SELECT SERVERPROPERTY('ProductVersion') AS version;");
 
         $versionString = $res->fetch(\PDO::FETCH_ASSOC);
 
-        if (!isset($versionString['version']) {
+        if (!isset($versionString['version'])) {
             throw new UserException("Unable to get SQL Server Version Information");
         }
-        $versionText = substr($versionString['version'], 0, 15);
+        $versionParts = explode('.', $versionString['version']);
         $this->logger->info(
-            sprintf("Found database server version: %s", $versionText)
+            sprintf("Found database server version: %s", $versionString['version'])
         );
-        return (int) $versionText;
+        return (int) $versionParts[0];
     }
 
     private function getLastFetchedDatetimeQuery(array $table, array $columnMetadata): string
