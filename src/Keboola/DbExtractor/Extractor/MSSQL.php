@@ -78,6 +78,22 @@ class MSSQL extends Extractor
         }
     }
 
+    private function getSqlServerVersion(): int
+    {
+        $res = $this->db->query("SELECT @@VERSION AS version;");
+
+        $versionString = $res->fetch(\PDO::FETCH_ASSOC);
+
+        if (!isset($versionString['version']) {
+            throw new UserException("Unable to get SQL Server Version Information");
+        }
+        $versionText = substr($versionString['version'], 0, 15);
+        $this->logger->info(
+            sprintf("Found database server version: %s", $versionText)
+        );
+        return (int) $versionText;
+    }
+
     private function getLastFetchedDatetimeQuery(array $table, array $columnMetadata): string
     {
         $whereClause = "";
@@ -161,8 +177,12 @@ class MSSQL extends Extractor
         }
         $this->logger->debug("Executing query: " . $query);
 
-        $this->logger->info("BCP export started");
         try {
+            $serverVersion = $this->getSqlServerVersion();
+            if ($isAdvancedQuery && $serverVersion <= 2008) {
+                throw new UserException("BCP is not supported for advanced queries in sql server 2008 or less.");
+            }
+            $this->logger->info("BCP export started");
             $bcp = new BCP($this->getDbParameters(), $this->logger);
             $exportResult = $bcp->export($query, (string) $csv);
             if ($exportResult['rows'] === 0) {
