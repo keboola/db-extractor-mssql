@@ -838,7 +838,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                         'value' => false,
                                     ),
                             ),
-                        'timestamp' =>
+                        'datetime' =>
                             array (
                                 0 =>
                                     array (
@@ -863,12 +863,12 @@ class MSSQLTest extends AbstractMSSQLTest
                                 4 =>
                                     array (
                                         'key' => 'KBC.sourceName',
-                                        'value' => 'timestamp',
+                                        'value' => 'datetime',
                                     ),
                                 5 =>
                                     array (
                                         'key' => 'KBC.sanitizedName',
-                                        'value' => 'timestamp',
+                                        'value' => 'datetime',
                                     ),
                                 6 =>
                                     array (
@@ -876,6 +876,44 @@ class MSSQLTest extends AbstractMSSQLTest
                                         'value' => 7,
                                     ),
                                 7 =>
+                                    array (
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
+                                    ),
+                            ),
+                        'timestamp' =>
+                            array (
+                                0 =>
+                                    array (
+                                        'key' => 'KBC.datatype.type',
+                                        'value' => 'timestamp',
+                                    ),
+                                1 =>
+                                    array (
+                                        'key' => 'KBC.datatype.nullable',
+                                        'value' => false,
+                                    ),
+                                2 =>
+                                    array (
+                                        'key' => 'KBC.datatype.basetype',
+                                        'value' => 'STRING',
+                                    ),
+                                3 =>
+                                    array (
+                                        'key' => 'KBC.sourceName',
+                                        'value' => 'timestamp',
+                                    ),
+                                4 =>
+                                    array (
+                                        'key' => 'KBC.sanitizedName',
+                                        'value' => 'timestamp',
+                                    ),
+                                5 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 8,
+                                    ),
+                                6 =>
                                     array (
                                         'key' => 'KBC.primaryKey',
                                         'value' => false,
@@ -890,7 +928,8 @@ class MSSQLTest extends AbstractMSSQLTest
                         3 => 'someDecimal',
                         4 => 'type',
                         5 => 'smalldatetime',
-                        6 => 'timestamp',
+                        6 => 'datetime',
+                        7 => 'timestamp',
                     ),
             ),
             $manifest
@@ -1063,7 +1102,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
         $this->assertCount(4, $result['tables']);
-        
+
         $expectedData = array (
             0 =>
                 array (
@@ -1137,12 +1176,22 @@ class MSSQLTest extends AbstractMSSQLTest
                                 ),
                             6 =>
                                 array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
+                                    'name' => 'datetime',
+                                    'sanitizedName' => 'datetime',
                                     'type' => 'datetime',
                                     'length' => null,
                                     'nullable' => false,
                                     'ordinalPosition' => 7,
+                                    'primaryKey' => false,
+                                ),
+                            7 =>
+                                array (
+                                    'name' => 'timestamp',
+                                    'sanitizedName' => 'timestamp',
+                                    'type' => 'timestamp',
+                                    'length' => '8',
+                                    'nullable' => false,
+                                    'ordinalPosition' => 8,
                                     'primaryKey' => false,
                                 ),
                         ),

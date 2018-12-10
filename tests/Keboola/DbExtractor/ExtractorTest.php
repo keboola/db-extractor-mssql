@@ -90,7 +90,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT [col1], [col2] FROM [testSchema].[test]",
             ],
-            'test simplePDO query with limit and timestamp column but no state' => [
+            'test simplePDO query with limit and datetime column but no state' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -98,10 +98,10 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => 10,
-                    'incrementalFetchingColumn' => 'timestamp',
+                    'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
+                "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
             ],
             'test simplePDO query with limit and idp column and previos state' => [
                 [
@@ -118,7 +118,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 "SELECT TOP 10 * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
-            'test simplePDO query timestamp column but no state and no limit' => [
+            'test simplePDO query datetime column but no state and no limit' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -126,10 +126,10 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => null,
-                    'incrementalFetchingColumn' => 'timestamp',
+                    'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT * FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
+                "SELECT * FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
             ],
             'test simplePDO query id column and previos state and no limit' => [
                 [
@@ -146,7 +146,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 "SELECT * FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
-            'test simplePDO query timestamp column and previos state and limit' => [
+            'test simplePDO query datetime column and previos state and limit' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -154,15 +154,15 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => 1000,
-                    'incrementalFetchingColumn' => 'timestamp',
+                    'incrementalFetchingColumn' => 'datetime',
                 ],
                 [
                     "lastFetchedRow" => '2018-10-26 10:52:32',
                 ],
                 "SELECT TOP 1000 * FROM [dbo].[auto Increment Timestamp] " .
-                "WHERE [timestamp] >= '2018-10-26 10:52:32' ORDER BY [timestamp]",
+                "WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
             ],
-            'test simplePDO query timestamp column and previos state and limit and NOLOCK' => [
+            'test simplePDO query datetime column and previos state and limit and NOLOCK' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -171,13 +171,13 @@ class ExtractorTest extends AbstractMSSQLTest
                     ],
                     'columns' => [],
                     'incrementalFetchingLimit' => 1000,
-                    'incrementalFetchingColumn' => 'timestamp',
+                    'incrementalFetchingColumn' => 'datetime',
                 ],
                 [
                     "lastFetchedRow" => '2018-10-26 10:52:32',
                 ],
                 "SELECT TOP 1000 * FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) " .
-                "WHERE [timestamp] >= '2018-10-26 10:52:32' ORDER BY [timestamp]",
+                "WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
             ],
         ];
     }
@@ -242,7 +242,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [testSchema].[test]",
             ],
-            'test simplePDO query with limit and timestamp column but no state' => [
+            'test query with limit and datetime column but no state' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -273,12 +273,12 @@ class ExtractorTest extends AbstractMSSQLTest
                             ),
                     ),
                     'incrementalFetchingLimit' => 10,
-                    'incrementalFetchingColumn' => 'timestamp',
+                    'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
+                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
             ],
-            'test simplePDO query with limit and idp column and previos state' => [
+            'test query with limit and idp column and previos state' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -316,7 +316,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
-            'test simplePDO query timestamp column but no state and no limit' => [
+            'test query datetime column but no state and no limit' => [
                 [
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
@@ -347,10 +347,10 @@ class ExtractorTest extends AbstractMSSQLTest
                             ),
                     ),
                     'incrementalFetchingLimit' => null,
-                    'incrementalFetchingColumn' => 'timestamp',
+                    'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [timestamp]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
             ],
             'test simplePDO query id column and previos state and no limit' => [
                 [
