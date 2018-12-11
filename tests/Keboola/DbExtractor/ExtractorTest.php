@@ -1004,7 +1004,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 [],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) FROM [testSchema].[test]",
-            ]
+            ],
         ];
     }
 }
