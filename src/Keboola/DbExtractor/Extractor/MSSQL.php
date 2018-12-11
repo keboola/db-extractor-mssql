@@ -15,6 +15,27 @@ class MSSQL extends Extractor
     public const INCREMENT_TYPE_NUMERIC = 'numeric';
     public const INCREMENT_TYPE_TIMESTAMP = 'timestamp';
 
+    /** @var  int */
+    private $sqlServerVersion;
+
+    public function __construct(array $parameters, array $state = [], $logger = null)
+    {
+        parent::__construct($parameters, $state, $logger);
+
+        // get the MSSQL Server version (note, 2008 is version 10.*
+        $res = $this->db->query("SELECT SERVERPROPERTY('ProductVersion') AS version;");
+
+        $versionString = $res->fetch(\PDO::FETCH_ASSOC);
+        if (!isset($versionString['version'])) {
+            throw new UserException("Unable to get SQL Server Version Information");
+        }
+        $versionParts = explode('.', $versionString['version']);
+        $this->logger->info(
+            sprintf("Found database server version: %s", $versionString['version'])
+        );
+        $this->sqlServerVersion = (int) $versionParts[0];
+    }
+
     /**
      * @param array $params
      * @return \PDO
@@ -76,22 +97,6 @@ class MSSQL extends Extractor
                 sprintf("Error Stripping Nulls: %s", $process->getErrorOutput())
             );
         }
-    }
-
-    private function getSqlServerVersion(): int
-    {
-        $res = $this->db->query("SELECT SERVERPROPERTY('ProductVersion') AS version;");
-
-        $versionString = $res->fetch(\PDO::FETCH_ASSOC);
-
-        if (!isset($versionString['version'])) {
-            throw new UserException("Unable to get SQL Server Version Information");
-        }
-        $versionParts = explode('.', $versionString['version']);
-        $this->logger->info(
-            sprintf("Found database server version: %s", $versionString['version'])
-        );
-        return (int) $versionParts[0];
     }
 
     private function getLastFetchedDatetimeQuery(array $table, array $columnMetadata): string
@@ -178,8 +183,7 @@ class MSSQL extends Extractor
         $this->logger->debug("Executing query: " . $query);
 
         try {
-            $serverVersion = $this->getSqlServerVersion();
-            if ($isAdvancedQuery && $serverVersion <= 2008) {
+            if ($isAdvancedQuery && $this->sqlServerVersion < 11) {
                 throw new UserException("BCP is not supported for advanced queries in sql server 2008 or less.");
             }
             $this->logger->info("BCP export started");
