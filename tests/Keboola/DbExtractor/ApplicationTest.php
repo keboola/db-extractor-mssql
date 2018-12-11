@@ -316,7 +316,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
-        $this->assertContains("Executing \"SELECT * FROM [dbo].[PDO_TEST]\" via PDO", $process->getOutput());
+        $this->assertContains("Executing \"SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]\" via PDO", $process->getOutput());
 
         $this->dropTable("PDO_TEST");
     }

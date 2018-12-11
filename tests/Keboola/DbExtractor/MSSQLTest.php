@@ -1102,7 +1102,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
         $this->assertCount(4, $result['tables']);
-
+        
         $expectedData = array (
             0 =>
                 array (
