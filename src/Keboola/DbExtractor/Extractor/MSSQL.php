@@ -600,7 +600,7 @@ class MSSQL extends Extractor
                             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
                         );
                         $colstr = $this->quote($column['name']);
-                        if ($datatype->getBasetype() === 'STRING') {
+                        if ($datatype->getBasetype() === 'STRING' && $datatype->getType() !== 'timestamp') {
                             if ($datatype->getType() === 'text'
                                 || $datatype->getType() === 'ntext'
                                 || $datatype->getType() === 'xml'
@@ -613,10 +613,11 @@ class MSSQL extends Extractor
                             }
                             $colstr = sprintf("char(34) + %s + char(34)", $colstr);
                         } else if ($datatype->getBasetype() === 'TIMESTAMP'
-                            && strtoupper($datatype->getType()) !== 'TIMESTAMP'
                             && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
                         ) {
                             $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
+                        } else if ($datatype->getType() === 'timestamp') {
+                            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
                         }
                         return $colstr;
                     },
@@ -660,14 +661,15 @@ class MSSQL extends Extractor
                                 array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
                             );
                             $colstr = $this->quote($column['name']);
-                            if ($datatype->getBasetype() === 'STRING') {
+                            if ($datatype->getBasetype() === 'STRING' && $datatype->getType() !== 'timestamp') {
                                 if ($datatype->getType() === 'text'
                                     || $datatype->getType() === 'ntext'
                                     || $datatype->getType() === 'xml'
-                                    || $datatype->getType() === 'timestamp'
                                 ) {
                                     $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
                                 }
+                            } else if ($datatype->getType() === 'timestamp') {
+                                $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
                             }
                             return $colstr;
                         },
