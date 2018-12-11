@@ -233,7 +233,7 @@ class MSSQL extends Extractor
             );
             try {
                 if (!$isAdvancedQuery) {
-                    $query = $this->getSimplePdoQuery($table['table'], $columns);
+                    $query = $this->getSimplePdoQuery($table['table'], $columnMetadata);
                 }
                 $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
                 /** @var \PDOStatement $stmt */
@@ -588,17 +588,16 @@ class MSSQL extends Extractor
             );
         }
 
-        $datatypeKeys = ['type', 'length', 'nullable', 'default', 'format'];
         $query = sprintf(
             "%s %s FROM %s.%s",
             $queryStart,
             implode(
                 ', ',
                 array_map(
-                    function ($column) use ($datatypeKeys) {
-                        $datatype = new GenericStorage(
+                    function ($column) {
+                        $datatype = new MssqlDataType(
                             $column['type'],
-                            array_intersect_key($column, array_flip($datatypeKeys))
+                            array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
                         );
                         $colstr = $this->quote($column['name']);
                         if ($datatype->getBasetype() === 'STRING') {
@@ -652,9 +651,29 @@ class MSSQL extends Extractor
             $query = sprintf(
                 "%s %s FROM %s.%s",
                 $queryStart,
-                implode(', ', array_map(function ($column) {
-                    return $this->quote($column);
-                }, $columns)),
+                implode(
+                    ', ',
+                    array_map(
+                        function ($column) {
+                            $datatype = new MssqlDataType(
+                                $column['type'],
+                                array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
+                            );
+                            $colstr = $this->quote($column['name']);
+                            if ($datatype->getBasetype() === 'STRING') {
+                                if ($datatype->getType() === 'text'
+                                    || $datatype->getType() === 'ntext'
+                                    || $datatype->getType() === 'xml'
+                                    || $datatype->getType() === 'timestamp'
+                                ) {
+                                    $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
+                                }
+                            }
+                            return $colstr;
+                        },
+                        $columns
+                    )
+                ),
                 $this->quote($table['schema']),
                 $this->quote($table['tableName'])
             );

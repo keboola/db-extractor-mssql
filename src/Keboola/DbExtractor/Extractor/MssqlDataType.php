@@ -8,6 +8,8 @@ use Keboola\Datatype\Definition\GenericStorage;
 
 class MssqlDataType extends GenericStorage
 {
+    public const DATATYPE_KEYS = ['type', 'length', 'nullable', 'default', 'format'];
+
     public const DATE_TYPES = ["date"];
 
     public const TIMESTAMP_TYPES = [
