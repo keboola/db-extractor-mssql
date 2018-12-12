@@ -583,6 +583,35 @@ class MSSQL extends Extractor
         );
     }
 
+    public function columnToBcpSql(array $column): string
+    {
+        $datatype = new MssqlDataType(
+            $column['type'],
+            array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
+        );
+        $colstr = $this->quote($column['name']);
+        if ($datatype->getType() === 'timestamp') {
+            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
+        } else if ($datatype->getBasetype() === 'STRING') {
+            if ($datatype->getType() === 'text'
+                || $datatype->getType() === 'ntext'
+                || $datatype->getType() === 'xml'
+            ) {
+                $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
+            }
+            $colstr = sprintf("REPLACE(%s, char(34), char(34) + char(34))", $colstr);
+            if ($datatype->isNullable()) {
+                $colstr = sprintf("COALESCE(%s,'')", $colstr);
+            }
+            $colstr = sprintf("char(34) + %s + char(34)", $colstr);
+        } else if ($datatype->getBasetype() === 'TIMESTAMP'
+            && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
+        ) {
+            $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
+        }
+        return $colstr;
+    }
+
     public function simpleQuery(array $table, array $columns = array()): string
     {
         $queryStart = "SELECT";
@@ -599,32 +628,8 @@ class MSSQL extends Extractor
             implode(
                 ', ',
                 array_map(
-                    function ($column) {
-                        $datatype = new MssqlDataType(
-                            $column['type'],
-                            array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
-                        );
-                        $colstr = $this->quote($column['name']);
-                        if ($datatype->getType() === 'timestamp') {
-                            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
-                        } else if ($datatype->getBasetype() === 'STRING') {
-                            if ($datatype->getType() === 'text'
-                                || $datatype->getType() === 'ntext'
-                                || $datatype->getType() === 'xml'
-                            ) {
-                                $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
-                            }
-                            $colstr = sprintf("REPLACE(%s, char(34), char(34) + char(34))", $colstr);
-                            if ($datatype->isNullable()) {
-                                $colstr = sprintf("COALESCE(%s,'')", $colstr);
-                            }
-                            $colstr = sprintf("char(34) + %s + char(34)", $colstr);
-                        } else if ($datatype->getBasetype() === 'TIMESTAMP'
-                            && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
-                        ) {
-                            $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
-                        }
-                        return $colstr;
+                    function (array $column): string {
+                        return $this->columnToBcpSql($column);
                     },
                     $columns
                 )
@@ -641,6 +646,26 @@ class MSSQL extends Extractor
             $query .= $incrementalAddon;
         }
         return $query;
+    }
+
+    public function columnToPdoSql(array $column): string
+    {
+        $datatype = new MssqlDataType(
+            $column['type'],
+            array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
+        );
+        $colstr = $this->quote($column['name']);
+        if ($datatype->getType() === 'timestamp') {
+            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
+        } else {
+            if ($datatype->getType() === 'text'
+                || $datatype->getType() === 'ntext'
+                || $datatype->getType() === 'xml'
+            ) {
+                $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
+            }
+        }
+        return $colstr;
     }
 
     public function getSimplePdoQuery(array $table, ?array $columns = []): string
@@ -661,22 +686,7 @@ class MSSQL extends Extractor
                     ', ',
                     array_map(
                         function (array $column): string {
-                            $datatype = new MssqlDataType(
-                                $column['type'],
-                                array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
-                            );
-                            $colstr = $this->quote($column['name']);
-                            if ($datatype->getType() === 'timestamp') {
-                                $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
-                            } else {
-                                if ($datatype->getType() === 'text'
-                                    || $datatype->getType() === 'ntext'
-                                    || $datatype->getType() === 'xml'
-                                ) {
-                                    $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
-                                }
-                            }
-                            return $colstr;
+                            return $this->columnToPdoSql($column);
                         },
                         $columns
                     )
