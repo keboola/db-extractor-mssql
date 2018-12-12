@@ -426,7 +426,7 @@ class ApplicationTest extends AbstractMSSQLTest
         );
     }
 
-    public function testTimestampNonUtf8Output(): void
+    public function testTimestampHasUtf8Output(): void
     {
         $config = $this->getConfigRow(self::DRIVER);
         unset($config['parameters']['query']);
