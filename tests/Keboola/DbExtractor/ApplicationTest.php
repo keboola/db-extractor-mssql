@@ -438,9 +438,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['name'] = 'auto-increment-timestamp';
         $config['parameters']['outputTable'] = 'in.c-main.auto-increment-timestamp';
 
-        @unlink($this->dataDir . '/config.json');
-        @unlink($this->dataDir . '/config.yml');
-        file_put_contents($this->dataDir . '/config.json', json_encode($config));
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
