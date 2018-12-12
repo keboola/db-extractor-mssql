@@ -137,90 +137,7 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => array (
-                            0 =>
-                                array (
-                                    'name' => '_Weir%d I-D',
-                                    'sanitizedName' => 'Weir_d_I_D',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 1,
-                                    'primaryKey' => true,
-                                    'primaryKeyName' => 'PK_AUTOINC',
-                                    'autoIncrement' => true,
-                                ),
-                            1 =>
-                                array (
-                                    'name' => 'Weir%d Na-me',
-                                    'sanitizedName' => 'Weir_d_Na_me',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 2,
-                                    'primaryKey' => false,
-                                ),
-                            2 =>
-                                array (
-                                    'name' => 'someInteger',
-                                    'sanitizedName' => 'someInteger',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 3,
-                                    'primaryKey' => false,
-                                ),
-                            3 =>
-                                array (
-                                    'name' => 'someDecimal',
-                                    'sanitizedName' => 'someDecimal',
-                                    'type' => 'decimal',
-                                    'length' => '10,2',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 4,
-                                    'primaryKey' => false,
-                                ),
-                            4 =>
-                                array (
-                                    'name' => 'type',
-                                    'sanitizedName' => 'type',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 5,
-                                    'primaryKey' => false,
-                                ),
-                            5 =>
-                                array (
-                                    'name' => 'smalldatetime',
-                                    'sanitizedName' => 'smalldatetime',
-                                    'type' => 'smalldatetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 6,
-                                    'primaryKey' => false,
-                                ),
-                            6 =>
-                                array (
-                                    'name' => 'datetime',
-                                    'sanitizedName' => 'datetime',
-                                    'type' => 'datetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 7,
-                                    'primaryKey' => false,
-                                ),
-                            7 =>
-                                array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
-                                    'type' => 'timestamp',
-                                    'length' => '8',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 8,
-                                    'primaryKey' => false,
-                                ),
-                        ),
+                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 10,
                     'incrementalFetchingColumn' => 'datetime',
                 ],
@@ -233,91 +150,7 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' =>
-                        array (
-                            0 =>
-                                array (
-                                    'name' => '_Weir%d I-D',
-                                    'sanitizedName' => 'Weir_d_I_D',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 1,
-                                    'primaryKey' => true,
-                                    'primaryKeyName' => 'PK_AUTOINC',
-                                    'autoIncrement' => true,
-                                ),
-                            1 =>
-                                array (
-                                    'name' => 'Weir%d Na-me',
-                                    'sanitizedName' => 'Weir_d_Na_me',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 2,
-                                    'primaryKey' => false,
-                                ),
-                            2 =>
-                                array (
-                                    'name' => 'someInteger',
-                                    'sanitizedName' => 'someInteger',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 3,
-                                    'primaryKey' => false,
-                                ),
-                            3 =>
-                                array (
-                                    'name' => 'someDecimal',
-                                    'sanitizedName' => 'someDecimal',
-                                    'type' => 'decimal',
-                                    'length' => '10,2',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 4,
-                                    'primaryKey' => false,
-                                ),
-                            4 =>
-                                array (
-                                    'name' => 'type',
-                                    'sanitizedName' => 'type',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 5,
-                                    'primaryKey' => false,
-                                ),
-                            5 =>
-                                array (
-                                    'name' => 'smalldatetime',
-                                    'sanitizedName' => 'smalldatetime',
-                                    'type' => 'smalldatetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 6,
-                                    'primaryKey' => false,
-                                ),
-                            6 =>
-                                array (
-                                    'name' => 'datetime',
-                                    'sanitizedName' => 'datetime',
-                                    'type' => 'datetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 7,
-                                    'primaryKey' => false,
-                                ),
-                            7 =>
-                                array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
-                                    'type' => 'timestamp',
-                                    'length' => '8',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 8,
-                                    'primaryKey' => false,
-                                ),
-                        ),
+                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 10,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
@@ -332,91 +165,7 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' =>
-                        array (
-                            0 =>
-                                array (
-                                    'name' => '_Weir%d I-D',
-                                    'sanitizedName' => 'Weir_d_I_D',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 1,
-                                    'primaryKey' => true,
-                                    'primaryKeyName' => 'PK_AUTOINC',
-                                    'autoIncrement' => true,
-                                ),
-                            1 =>
-                                array (
-                                    'name' => 'Weir%d Na-me',
-                                    'sanitizedName' => 'Weir_d_Na_me',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 2,
-                                    'primaryKey' => false,
-                                ),
-                            2 =>
-                                array (
-                                    'name' => 'someInteger',
-                                    'sanitizedName' => 'someInteger',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 3,
-                                    'primaryKey' => false,
-                                ),
-                            3 =>
-                                array (
-                                    'name' => 'someDecimal',
-                                    'sanitizedName' => 'someDecimal',
-                                    'type' => 'decimal',
-                                    'length' => '10,2',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 4,
-                                    'primaryKey' => false,
-                                ),
-                            4 =>
-                                array (
-                                    'name' => 'type',
-                                    'sanitizedName' => 'type',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 5,
-                                    'primaryKey' => false,
-                                ),
-                            5 =>
-                                array (
-                                    'name' => 'smalldatetime',
-                                    'sanitizedName' => 'smalldatetime',
-                                    'type' => 'smalldatetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 6,
-                                    'primaryKey' => false,
-                                ),
-                            6 =>
-                                array (
-                                    'name' => 'datetime',
-                                    'sanitizedName' => 'datetime',
-                                    'type' => 'datetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 7,
-                                    'primaryKey' => false,
-                                ),
-                            7 =>
-                                array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
-                                    'type' => 'timestamp',
-                                    'length' => '8',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 8,
-                                    'primaryKey' => false,
-                                ),
-                        ),
+                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => null,
                     'incrementalFetchingColumn' => 'datetime',
                 ],
@@ -429,91 +178,7 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' =>
-                        array (
-                            0 =>
-                                array (
-                                    'name' => '_Weir%d I-D',
-                                    'sanitizedName' => 'Weir_d_I_D',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 1,
-                                    'primaryKey' => true,
-                                    'primaryKeyName' => 'PK_AUTOINC',
-                                    'autoIncrement' => true,
-                                ),
-                            1 =>
-                                array (
-                                    'name' => 'Weir%d Na-me',
-                                    'sanitizedName' => 'Weir_d_Na_me',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 2,
-                                    'primaryKey' => false,
-                                ),
-                            2 =>
-                                array (
-                                    'name' => 'someInteger',
-                                    'sanitizedName' => 'someInteger',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 3,
-                                    'primaryKey' => false,
-                                ),
-                            3 =>
-                                array (
-                                    'name' => 'someDecimal',
-                                    'sanitizedName' => 'someDecimal',
-                                    'type' => 'decimal',
-                                    'length' => '10,2',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 4,
-                                    'primaryKey' => false,
-                                ),
-                            4 =>
-                                array (
-                                    'name' => 'type',
-                                    'sanitizedName' => 'type',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 5,
-                                    'primaryKey' => false,
-                                ),
-                            5 =>
-                                array (
-                                    'name' => 'smalldatetime',
-                                    'sanitizedName' => 'smalldatetime',
-                                    'type' => 'smalldatetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 6,
-                                    'primaryKey' => false,
-                                ),
-                            6 =>
-                                array (
-                                    'name' => 'datetime',
-                                    'sanitizedName' => 'datetime',
-                                    'type' => 'datetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 7,
-                                    'primaryKey' => false,
-                                ),
-                            7 =>
-                                array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
-                                    'type' => 'timestamp',
-                                    'length' => '8',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 8,
-                                    'primaryKey' => false,
-                                ),
-                        ),
+                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 0,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
@@ -528,91 +193,7 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' =>
-                        array (
-                            0 =>
-                                array (
-                                    'name' => '_Weir%d I-D',
-                                    'sanitizedName' => 'Weir_d_I_D',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 1,
-                                    'primaryKey' => true,
-                                    'primaryKeyName' => 'PK_AUTOINC',
-                                    'autoIncrement' => true,
-                                ),
-                            1 =>
-                                array (
-                                    'name' => 'Weir%d Na-me',
-                                    'sanitizedName' => 'Weir_d_Na_me',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 2,
-                                    'primaryKey' => false,
-                                ),
-                            2 =>
-                                array (
-                                    'name' => 'someInteger',
-                                    'sanitizedName' => 'someInteger',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 3,
-                                    'primaryKey' => false,
-                                ),
-                            3 =>
-                                array (
-                                    'name' => 'someDecimal',
-                                    'sanitizedName' => 'someDecimal',
-                                    'type' => 'decimal',
-                                    'length' => '10,2',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 4,
-                                    'primaryKey' => false,
-                                ),
-                            4 =>
-                                array (
-                                    'name' => 'type',
-                                    'sanitizedName' => 'type',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 5,
-                                    'primaryKey' => false,
-                                ),
-                            5 =>
-                                array (
-                                    'name' => 'smalldatetime',
-                                    'sanitizedName' => 'smalldatetime',
-                                    'type' => 'smalldatetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 6,
-                                    'primaryKey' => false,
-                                ),
-                            6 =>
-                                array (
-                                    'name' => 'datetime',
-                                    'sanitizedName' => 'datetime',
-                                    'type' => 'datetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 7,
-                                    'primaryKey' => false,
-                                ),
-                            7 =>
-                                array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
-                                    'type' => 'timestamp',
-                                    'length' => '8',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 8,
-                                    'primaryKey' => false,
-                                ),
-                        ),
+                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 1000,
                     'incrementalFetchingColumn' => 'datetime',
                 ],
@@ -628,91 +209,7 @@ class ExtractorTest extends AbstractMSSQLTest
                         'schema' => 'dbo',
                         'nolock' => 'true',
                     ],
-                    'columns' =>
-                        array (
-                            0 =>
-                                array (
-                                    'name' => '_Weir%d I-D',
-                                    'sanitizedName' => 'Weir_d_I_D',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 1,
-                                    'primaryKey' => true,
-                                    'primaryKeyName' => 'PK_AUTOINC',
-                                    'autoIncrement' => true,
-                                ),
-                            1 =>
-                                array (
-                                    'name' => 'Weir%d Na-me',
-                                    'sanitizedName' => 'Weir_d_Na_me',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 2,
-                                    'primaryKey' => false,
-                                ),
-                            2 =>
-                                array (
-                                    'name' => 'someInteger',
-                                    'sanitizedName' => 'someInteger',
-                                    'type' => 'int',
-                                    'length' => '10',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 3,
-                                    'primaryKey' => false,
-                                ),
-                            3 =>
-                                array (
-                                    'name' => 'someDecimal',
-                                    'sanitizedName' => 'someDecimal',
-                                    'type' => 'decimal',
-                                    'length' => '10,2',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 4,
-                                    'primaryKey' => false,
-                                ),
-                            4 =>
-                                array (
-                                    'name' => 'type',
-                                    'sanitizedName' => 'type',
-                                    'type' => 'varchar',
-                                    'length' => '55',
-                                    'nullable' => true,
-                                    'ordinalPosition' => 5,
-                                    'primaryKey' => false,
-                                ),
-                            5 =>
-                                array (
-                                    'name' => 'smalldatetime',
-                                    'sanitizedName' => 'smalldatetime',
-                                    'type' => 'smalldatetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 6,
-                                    'primaryKey' => false,
-                                ),
-                            6 =>
-                                array (
-                                    'name' => 'datetime',
-                                    'sanitizedName' => 'datetime',
-                                    'type' => 'datetime',
-                                    'length' => null,
-                                    'nullable' => false,
-                                    'ordinalPosition' => 7,
-                                    'primaryKey' => false,
-                                ),
-                            7 =>
-                                array (
-                                    'name' => 'timestamp',
-                                    'sanitizedName' => 'timestamp',
-                                    'type' => 'timestamp',
-                                    'length' => '8',
-                                    'nullable' => false,
-                                    'ordinalPosition' => 8,
-                                    'primaryKey' => false,
-                                ),
-                        ),
+                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 1000,
                     'incrementalFetchingColumn' => 'datetime',
                 ],
@@ -1006,5 +503,93 @@ class ExtractorTest extends AbstractMSSQLTest
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) FROM [testSchema].[test]",
             ],
         ];
+    }
+
+    private function getColumnMetadataForIncrementalFetchingTests(): array
+    {
+        return array (
+            0 =>
+                array (
+                    'name' => '_Weir%d I-D',
+                    'sanitizedName' => 'Weir_d_I_D',
+                    'type' => 'int',
+                    'length' => '10',
+                    'nullable' => false,
+                    'ordinalPosition' => 1,
+                    'primaryKey' => true,
+                    'primaryKeyName' => 'PK_AUTOINC',
+                    'autoIncrement' => true,
+                ),
+            1 =>
+                array (
+                    'name' => 'Weir%d Na-me',
+                    'sanitizedName' => 'Weir_d_Na_me',
+                    'type' => 'varchar',
+                    'length' => '55',
+                    'nullable' => false,
+                    'ordinalPosition' => 2,
+                    'primaryKey' => false,
+                ),
+            2 =>
+                array (
+                    'name' => 'someInteger',
+                    'sanitizedName' => 'someInteger',
+                    'type' => 'int',
+                    'length' => '10',
+                    'nullable' => true,
+                    'ordinalPosition' => 3,
+                    'primaryKey' => false,
+                ),
+            3 =>
+                array (
+                    'name' => 'someDecimal',
+                    'sanitizedName' => 'someDecimal',
+                    'type' => 'decimal',
+                    'length' => '10,2',
+                    'nullable' => true,
+                    'ordinalPosition' => 4,
+                    'primaryKey' => false,
+                ),
+            4 =>
+                array (
+                    'name' => 'type',
+                    'sanitizedName' => 'type',
+                    'type' => 'varchar',
+                    'length' => '55',
+                    'nullable' => true,
+                    'ordinalPosition' => 5,
+                    'primaryKey' => false,
+                ),
+            5 =>
+                array (
+                    'name' => 'smalldatetime',
+                    'sanitizedName' => 'smalldatetime',
+                    'type' => 'smalldatetime',
+                    'length' => null,
+                    'nullable' => false,
+                    'ordinalPosition' => 6,
+                    'primaryKey' => false,
+                ),
+            6 =>
+                array (
+                    'name' => 'datetime',
+                    'sanitizedName' => 'datetime',
+                    'type' => 'datetime',
+                    'length' => null,
+                    'nullable' => false,
+                    'ordinalPosition' => 7,
+                    'primaryKey' => false,
+                ),
+            7 =>
+                array (
+                    'name' => 'timestamp',
+                    'sanitizedName' => 'timestamp',
+                    'type' => 'timestamp',
+                    'length' => '8',
+                    'nullable' => false,
+                    'ordinalPosition' => 8,
+                    'primaryKey' => false,
+                ),
+        );
     }
 }
