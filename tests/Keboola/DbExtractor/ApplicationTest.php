@@ -217,7 +217,7 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][3]);
         $config['parameters']['tables'][0]['query'] = "SELECT *  FROM \"special\";";
 
-        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
