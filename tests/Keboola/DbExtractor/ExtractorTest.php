@@ -54,6 +54,112 @@ class ExtractorTest extends AbstractMSSQLTest
         $this->assertEquals($expected, $query);
     }
 
+    /**
+     * @dataProvider columnTypeProvider
+     * @param array $column
+     * @param array $sxpectedSql
+     */
+    public function testColumnCasting(array $column, array $expectedSql): void
+    {
+        $extractor = new MSSQL($this->config['parameters'], [], new Logger('mssql-extractor-test'));
+        $this->assertEquals($expectedSql['bcp'], $extractor->columnToBcpSql($column));
+        $this->assertEquals($expectedSql['pdo'], $extractor->columnToPdoSql($column));
+    }
+
+    public function columnTypeProvider(): array
+    {
+        return [
+            'timestamp column' => [
+                [
+                    'name' => 'timestampCol',
+                    'type' => 'timestamp',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'pdo' => 'CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1)',
+                    'bcp' => 'CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1)',
+                ],
+            ],
+            'xml column' => [
+                [
+                    'name' => 'xmlCol',
+                    'type' => 'xml',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'pdo' => 'CAST([xmlCol] as nvarchar(max))',
+                    'bcp' => 'char(34) + COALESCE(REPLACE(CAST([xmlCol] as nvarchar(max)), char(34), char(34) + char(34)),\'\') + char(34)',
+                ],
+            ],
+            'text column' => [
+                [
+                    'name' => 'textCol',
+                    'type' => 'text',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'pdo' => 'CAST([textCol] as nvarchar(max))',
+                    'bcp' => 'char(34) + COALESCE(REPLACE(CAST([textCol] as nvarchar(max)), char(34), char(34) + char(34)),\'\') + char(34)',
+                ],
+            ],
+            'int column' => [
+                [
+                    'name' => 'intCol',
+                    'type' => 'int',
+                    'basetype' => 'INTEGER',
+                ],
+                [
+                    'pdo' => '[intCol]',
+                    'bcp' => '[intCol]',
+                ],
+            ],
+            'nvarchar column' => [
+                [
+                    'name' => 'nvarCol',
+                    'type' => 'nvarchar',
+                    'basetype' => 'STRING',
+                ],
+                [
+                    'pdo' => '[nvarCol]',
+                    'bcp' => 'char(34) + COALESCE(REPLACE([nvarCol], char(34), char(34) + char(34)),\'\') + char(34)',
+                ],
+            ],
+            'datetime column' => [
+                [
+                    'name' => 'datetimeCol',
+                    'type' => 'datetime',
+                    'basetype' => 'TIMESTAMP',
+                ],
+                [
+                    'pdo' => '[datetimeCol]',
+                    'bcp' => 'CONVERT(DATETIME2(0),[datetimeCol])',
+                ],
+            ],
+            'smalldatetime column' => [
+                [
+                    'name' => 'smalldatetimeCol',
+                    'type' => 'smalldatetime',
+                    'basetype' => 'TIMESTAMP',
+                ],
+                [
+                    'pdo' => '[smalldatetimeCol]',
+                    'bcp' => '[smalldatetimeCol]',
+                ],
+            ],
+            'money column' => [
+                [
+                    'name' => 'moneyCol',
+                    'type' => 'money',
+                    'basetype' => 'NUMERIC',
+                ],
+                [
+                    'pdo' => '[moneyCol]',
+                    'bcp' => '[moneyCol]',
+                ],
+            ],
+        ];
+    }
+
     public function simpleTableColumnsDataProvider(): array
     {
         return [
