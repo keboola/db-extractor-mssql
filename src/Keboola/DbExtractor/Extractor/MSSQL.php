@@ -22,6 +22,11 @@ class MSSQL extends Extractor
     {
         parent::__construct($parameters, $state, $logger);
 
+        $this->sqlServerVersion = $this->getSqlServerVersion();
+    }
+
+    private function getSqlServerVersion(): int
+    {
         // get the MSSQL Server version (note, 2008 is version 10.*
         $res = $this->db->query("SELECT SERVERPROPERTY('ProductVersion') AS version;");
 
@@ -33,7 +38,7 @@ class MSSQL extends Extractor
         $this->logger->info(
             sprintf("Found database server version: %s", $versionString['version'])
         );
-        $this->sqlServerVersion = (int) $versionParts[0];
+        return (int) $versionParts[0];
     }
 
     /**
