@@ -118,11 +118,10 @@ class MSSQL extends Extractor
             }
             if ($column['name'] === $this->incrementalFetching['column'] && strtoupper($column['type']) !== 'SMALLDATETIME') {
                 $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
-                $whereValues[] = $lastExportedLine[$key];
             } else {
                 $whereClause .= $this->quote($column['name']) . " = ?";
-                $whereValues[] = $lastExportedLine[$key];
             }
+            $whereValues[] = $lastExportedLine[$key];
         }
         $query = sprintf(
             "SELECT %s FROM %s.%s WHERE %s;",
