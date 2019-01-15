@@ -82,7 +82,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             \"someInteger\" INT,
             \"someDecimal\" DECIMAL(10,2),
             \"type\" VARCHAR(55) NULL,
-            \"smalldatetime\" SMALLDATETIME NOT NULL DEFAULT GETDATE(),
+            \"smalldatetime\" SMALLDATETIME DEFAULT NULL,
             \"datetime\" DATETIME NOT NULL DEFAULT GETDATE(),
             \"timestamp\" TIMESTAMP
             )"
