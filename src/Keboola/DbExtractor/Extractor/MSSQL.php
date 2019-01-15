@@ -116,7 +116,7 @@ class MSSQL extends Extractor
             if ($whereClause !== "") {
                 $whereClause .= " AND ";
             }
-            if ($column['name'] === $this->incrementalFetching['column']) {
+            if ($column['name'] === $this->incrementalFetching['column'] && strtoupper($column['type']) !== 'SMALLDATETIME') {
                 $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
                 $whereValues[] = $lastExportedLine[$key];
             } else {
