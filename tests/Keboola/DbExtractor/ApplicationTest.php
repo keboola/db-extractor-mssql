@@ -375,6 +375,38 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(["lastFetchedRow" => 6], $state);
     }
 
+    public function testIncrementalFetchingWithDatetimeAndTimestampRun(): void
+    {
+        $config = $this->getConfigRow(self::DRIVER);
+        unset($config['parameters']['query']);
+        $config['parameters']['table'] = [
+            'tableName' => 'auto Increment Timestamp',
+            'schema' => 'dbo',
+        ];
+        $config['parameters']['incremental'] = true;
+        $config['parameters']['name'] = 'auto-increment-timestamp';
+        $config['parameters']['outputTable'] = 'in.c-main.auto-increment-timestamp';
+        $config['parameters']['primaryKey'] = ['_Weir%d I-D'];
+        $config['parameters']['incrementalFetchingColumn'] = 'datetime';
+
+        // add a TIMESTAMP column to the test table.
+        $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD [timestamp] TIMESTAMP');
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->mustRun();
+
+        $this->assertNotContains(
+            "The BCP export failed: SQLSTATE[42000]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Implicit conversion from data type nvarchar to timestamp is not allowed.",
+            $process->getOutput()
+        );
+        $this->assertFileExists($this->dataDir . '/out/state.json');
+        $state = json_decode(file_get_contents($this->dataDir . "/out/state.json"), true);
+        $this->assertEquals(["lastFetchedRow" => 6], $state);
+    }
+
     public function testRunWithNoLock(): void
     {
         $config = $this->getConfigRow(self::DRIVER);
