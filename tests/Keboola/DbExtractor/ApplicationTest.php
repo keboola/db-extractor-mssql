@@ -394,7 +394,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->mustRun();
-        
+
         $this->assertNotContains(
             "The BCP export failed: SQLSTATE[42000]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Implicit conversion from data type nvarchar to timestamp is not allowed.",
             $process->getOutput()
@@ -416,7 +416,6 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['name'] = 'auto-increment-timestamp';
         $config['parameters']['outputTable'] = 'in.c-main.auto-increment-timestamp';
         $config['parameters']['primaryKey'] = ['_Weir%d I-D'];
-        $config['parameters']['incrementalFetchingColumn'] = 'datetime';
         $config['parameters']['incrementalFetchingColumn'] = 'smalldatetime';
         $config['parameters']['nolock'] = true;
 
@@ -439,6 +438,10 @@ class ApplicationTest extends AbstractMSSQLTest
         //now add a couple rows and run it again.
         $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) VALUES (\'charles\', null), (\'william\', \'2012-01-10 10:55\')');
 
+        if (!is_dir($this->dataDir . '/in')) {
+            mkdir($this->dataDir . '/in');
+            touch($this->dataDir . '/in/state.json');
+        }
         // write state file
         file_put_contents($this->dataDir . '/in/state.json', json_encode($state));
 
