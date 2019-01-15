@@ -366,6 +366,8 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
+        $this->assertFileNotExists($this->dataDir . '/in/state.json');
+
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->mustRun();
