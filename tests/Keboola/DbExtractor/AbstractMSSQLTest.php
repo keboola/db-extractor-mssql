@@ -83,8 +83,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             \"someDecimal\" DECIMAL(10,2),
             \"type\" VARCHAR(55) NULL,
             \"smalldatetime\" SMALLDATETIME DEFAULT NULL,
-            \"datetime\" DATETIME NOT NULL DEFAULT GETDATE(),
-            \"timestamp\" TIMESTAMP
+            \"datetime\" DATETIME NOT NULL DEFAULT GETDATE()
             )"
         );
         $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY (\"_Weir%d I-D\")");
