@@ -116,7 +116,7 @@ class MSSQL extends Extractor
             if ($whereClause !== "") {
                 $whereClause .= " AND ";
             }
-            if ($column['name'] === $this->incrementalFetching['column'] && strtoupper($column['type']) !== 'SMALLDATETIME') {
+            if ($column['basetype'] === "TIMESTAMP" && strtoupper($column['type']) !== 'SMALLDATETIME') {
                 $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
             } else {
                 $whereClause .= $this->quote($column['name']) . " = ?";
@@ -130,7 +130,6 @@ class MSSQL extends Extractor
             $this->quote($table['tableName']),
             $whereClause
         );
-
         $stmt = $this->db->prepare($query);
         $stmt->execute($whereValues);
         $lastDatetimeRow = $stmt->fetch(\PDO::FETCH_ASSOC);
