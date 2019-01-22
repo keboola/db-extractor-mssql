@@ -366,6 +366,8 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
+        $this->assertFileNotExists($this->dataDir . '/in/state.json');
+
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
         $process->mustRun();
@@ -373,6 +375,90 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertFileExists($this->dataDir . '/out/state.json');
         $state = json_decode(file_get_contents($this->dataDir . "/out/state.json"), true);
         $this->assertEquals(["lastFetchedRow" => 6], $state);
+    }
+
+    public function testIncrementalFetchingWithDatetimeAndTimestampRun(): void
+    {
+        $config = $this->getConfigRow(self::DRIVER);
+        unset($config['parameters']['query']);
+        $config['parameters']['table'] = [
+            'tableName' => 'auto Increment Timestamp',
+            'schema' => 'dbo',
+        ];
+        $config['parameters']['incremental'] = true;
+        $config['parameters']['name'] = 'auto-increment-timestamp';
+        $config['parameters']['outputTable'] = 'in.c-main.auto-increment-timestamp';
+        $config['parameters']['primaryKey'] = ['_Weir%d I-D'];
+        $config['parameters']['incrementalFetchingColumn'] = 'datetime';
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->mustRun();
+
+        $this->assertNotContains(
+            "The BCP export failed: SQLSTATE[42000]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Implicit conversion from data type nvarchar to timestamp is not allowed.",
+            $process->getOutput()
+        );
+        $this->assertFileExists($this->dataDir . '/out/state.json');
+        $state = json_decode(file_get_contents($this->dataDir . "/out/state.json"), true);
+        $this->assertLessThanOrEqual(2, time() - strtotime($state['lastFetchedRow']));
+    }
+
+    public function testIncrementalFetchingWithNullSmalldatetimeValues(): void
+    {
+        $config = $this->getConfigRow(self::DRIVER);
+        unset($config['parameters']['query']);
+        $config['parameters']['table'] = [
+            'tableName' => 'auto Increment Timestamp',
+            'schema' => 'dbo',
+        ];
+        $config['parameters']['incremental'] = true;
+        $config['parameters']['name'] = 'auto-increment-timestamp';
+        $config['parameters']['outputTable'] = 'in.c-main.auto-increment-timestamp';
+        $config['parameters']['primaryKey'] = ['_Weir%d I-D'];
+        $config['parameters']['incrementalFetchingColumn'] = 'smalldatetime';
+        $config['parameters']['nolock'] = true;
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->mustRun();
+
+        $this->assertNotContains(
+            "The BCP export failed: Return value of Keboola\DbExtractor\Extractor\MSSQL::getLastFetchedDatetimeValue() must be of the type string, null returned.",
+            $process->getOutput()
+        );
+        $outputFile = $this->dataDir . '/out/tables/in.c-main.auto-increment-timestamp.csv';
+        $this->assertFileExists($this->dataDir . '/out/state.json');
+        $state = json_decode(file_get_contents($this->dataDir . "/out/state.json"), true);
+        $this->assertArrayHasKey('lastFetchedRow', $state);
+        $this->assertEquals('2012-01-10 10:25:00', $state['lastFetchedRow']);
+        unlink($outputFile);
+        sleep(2);
+        //now add a couple rows and run it again.
+        $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) VALUES (\'charles\', null), (\'william\', \'2012-01-10 10:55\')');
+
+        if (!is_dir($this->dataDir . '/in')) {
+            mkdir($this->dataDir . '/in');
+            touch($this->dataDir . '/in/state.json');
+        }
+        // write state file
+        file_put_contents($this->dataDir . '/in/state.json', json_encode($state));
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->mustRun();
+
+        $this->assertNotContains(
+            "The BCP export failed: Return value of Keboola\DbExtractor\Extractor\MSSQL::getLastFetchedDatetimeValue() must be of the type string, null returned.",
+            $process->getOutput()
+        );
+
+        //check that output state contains expected information (will contain the same last 2 rows as above, + 2 more
+        $state = json_decode(file_get_contents($this->dataDir . "/out/state.json"), true);
+        $this->assertEquals('2012-01-10 10:55:00', $state['lastFetchedRow']);
     }
 
     public function testRunWithNoLock(): void

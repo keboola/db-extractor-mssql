@@ -805,7 +805,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 1 =>
                                     array (
                                         'key' => 'KBC.datatype.nullable',
-                                        'value' => false,
+                                        'value' => true,
                                     ),
                                 2 =>
                                     array (
@@ -815,7 +815,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 3 =>
                                     array (
                                         'key' => 'KBC.datatype.default',
-                                        'value' => '(getdate())',
+                                        'value' => '(NULL)',
                                     ),
                                 4 =>
                                     array (
@@ -1102,7 +1102,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
         $this->assertCount(4, $result['tables']);
-        
+
         $expectedData = array (
             0 =>
                 array (
@@ -1170,7 +1170,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'sanitizedName' => 'smalldatetime',
                                     'type' => 'smalldatetime',
                                     'length' => null,
-                                    'nullable' => false,
+                                    'nullable' => true,
                                     'ordinalPosition' => 6,
                                     'primaryKey' => false,
                                 ),

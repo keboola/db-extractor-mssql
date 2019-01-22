@@ -25,6 +25,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             $this->makeConnection();
         }
         $this->setupTables();
+        $this->cleanupStateInDataDir();
     }
 
     private function makeConnection(): void
@@ -50,6 +51,11 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             CREATE DATABASE %s
         ", $params['database'], $params['database']));
         $this->pdo->exec(sprintf("USE %s", $params['database']));
+    }
+
+    private function cleanupStateInDataDir(): void
+    {
+        @unlink($this->dataDir . '/in/state.json');
     }
 
     private function setupTables(): void
@@ -82,7 +88,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             \"someInteger\" INT,
             \"someDecimal\" DECIMAL(10,2),
             \"type\" VARCHAR(55) NULL,
-            \"smalldatetime\" SMALLDATETIME NOT NULL DEFAULT GETDATE(),
+            \"smalldatetime\" SMALLDATETIME DEFAULT NULL,
             \"datetime\" DATETIME NOT NULL DEFAULT GETDATE(),
             \"timestamp\" TIMESTAMP
             )"
