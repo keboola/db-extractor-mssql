@@ -116,7 +116,7 @@ class MSSQL extends Extractor
             if ($whereClause !== "") {
                 $whereClause .= " AND ";
             }
-            if ($column['basetype'] === "TIMESTAMP" && strtoupper($column['type']) !== 'SMALLDATETIME') {
+            if (in_array(strtoupper($column['type']), ["DATETIME", "DATETIME2"])) {
                 $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
             } else {
                 $whereClause .= $this->quote($column['name']) . " = ?";
@@ -757,7 +757,7 @@ class MSSQL extends Extractor
             );
         }
 
-        if (in_array($columns[0]['data_type'], MssqlDataType::getNumericTypes())) {
+        if (in_array($columns[0]['data_type'], array_merge(MssqlDataType::getNumericTypes(), ['smalldatetime']))) {
             $this->incrementalFetching['column'] = $columnName;
             $this->incrementalFetching['type'] = self::INCREMENT_TYPE_NUMERIC;
         } else if (in_array($columns[0]['data_type'], MssqlDataType::TIMESTAMP_TYPES)) {
@@ -781,23 +781,11 @@ class MSSQL extends Extractor
         $incrementalAddon = null;
         if ($this->incrementalFetching) {
             if (isset($this->state['lastFetchedRow'])) {
-                if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
-                    $incrementalAddon = sprintf(
-                        ' WHERE %s >= %d',
-                        $this->quote($this->incrementalFetching['column']),
-                        (int) $this->state['lastFetchedRow']
-                    );
-                } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
-                    $incrementalAddon = sprintf(
-                        " WHERE %s >= %s",
-                        $this->quote($this->incrementalFetching['column']),
-                        $this->db->quote($this->state['lastFetchedRow'])
-                    );
-                } else {
-                    throw new ApplicationException(
-                        sprintf('Unknown incremental fetching column type %s', $this->incrementalFetching['type'])
-                    );
-                }
+                $incrementalAddon = sprintf(
+                    " WHERE %s >= %s",
+                    $this->quote($this->incrementalFetching['column']),
+                    is_numeric($this->state['lastFetchedRow']) ? $this->state['lastFetchedRow'] : $this->db->quote($this->state['lastFetchedRow'])
+                );
             }
             $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
         }
