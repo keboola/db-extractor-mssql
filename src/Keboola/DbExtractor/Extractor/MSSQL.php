@@ -533,9 +533,9 @@ class MSSQL extends Extractor
     public function validateIncrementalFetching(array $table, string $columnName, ?int $limit = null): void
     {
         $query = sprintf(
-            "SELECT is_identity, TYPE_NAME(system_type_id) AS data_type 
-            FROM sys.columns 
-            WHERE object_id = OBJECT_ID('[%s].[%s]') AND sys.columns.name = '%s'",
+            "SELECT [is_identity], TYPE_NAME([system_type_id]) AS [data_type]
+            FROM [sys].[columns]
+            WHERE [object_id] = OBJECT_ID('[%s].[%s]') AND [sys].[columns].[name] = '%s'",
             $table['schema'],
             $table['tableName'],
             $columnName
@@ -553,22 +553,8 @@ class MSSQL extends Extractor
         }
 
         $this->incrementalFetching['column'] = $columnName;
-        if (in_array($columns[0]['data_type'], MssqlDataType::getNumericTypes())) {
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_NUMERIC;
-        } else if ($columns[0]['data_type'] === 'timestamp') {
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_BINARY;
-        } else if ($columns[0]['data_type'] === 'smalldatetime') {
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_QUOTABLE;
-        } else if (in_array($columns[0]['data_type'], MssqlDataType::TIMESTAMP_TYPES)) {
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_DATETIME;
-        } else {
-            throw new UserException(
-                sprintf(
-                    'Column [%s] specified for incremental fetching is not numeric or datetime',
-                    $columnName
-                )
-            );
-        }
+        $this->incrementalFetching['type'] = MssqlDataType::getIncrementalFetchingType($columnName, $columns[0]['data_type']);
+
         if ($limit) {
             $this->incrementalFetching['limit'] = $limit;
         }
