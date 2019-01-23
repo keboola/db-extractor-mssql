@@ -12,6 +12,8 @@ use Symfony\Component\Process\Process;
 
 class MSSQL extends Extractor
 {
+    public const INCREMENT_TYPE_NUMERIC = 'numeric';
+    public const INCREMENT_TYPE_TIMESTAMP = 'timestamp';
 
     /** @var  int */
     private $sqlServerVersion;
@@ -210,13 +212,13 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_TIMESTAMP) {
+                    if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
                             $table['table'],
                             $columnMetadata
                         );
-                    } else if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_NUMERIC) {
+                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedId(
                             $columnMetadata,
                             $exportResult['lastFetchedRow']
@@ -755,14 +757,24 @@ class MSSQL extends Extractor
             );
         }
 
-        $this->incrementalFetching['column'] = $columnName;
-        $this->incrementalFetching['type'] = MssqlDataType::getIncrementalFetchingType($columnName, $columns[0]['data_type']);
-
+        if (in_array($columns[0]['data_type'], array_merge(MssqlDataType::getNumericTypes(), ['smalldatetime']))) {
+            $this->incrementalFetching['column'] = $columnName;
+            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_NUMERIC;
+        } else if (in_array($columns[0]['data_type'], MssqlDataType::TIMESTAMP_TYPES)) {
+            $this->incrementalFetching['column'] = $columnName;
+            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_TIMESTAMP;
+        } else {
+            throw new UserException(
+                sprintf(
+                    'Column [%s] specified for incremental fetching is not numeric or datetime',
+                    $columnName
+                )
+            );
+        }
         if ($limit) {
             $this->incrementalFetching['limit'] = $limit;
         }
     }
-
 
     private function getIncrementalQueryAddon(): ?string
     {
