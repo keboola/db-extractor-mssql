@@ -427,7 +427,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->mustRun();
 
         $this->assertNotContains(
-            "The BCP export failed: Return value of Keboola\DbExtractor\Extractor\MSSQL::getLastFetchedDatetimeValue() must be of the type string, null returned.",
+            "The BCP export failed",
             $process->getOutput()
         );
         $outputFile = $this->dataDir . '/out/tables/in.c-main.auto-increment-timestamp.csv';
@@ -452,7 +452,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->mustRun();
 
         $this->assertNotContains(
-            "The BCP export failed: Return value of Keboola\DbExtractor\Extractor\MSSQL::getLastFetchedDatetimeValue() must be of the type string, null returned.",
+            "The BCP export failed",
             $process->getOutput()
         );
 
