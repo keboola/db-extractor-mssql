@@ -784,7 +784,7 @@ class MSSQL extends Extractor
                 $incrementalAddon = sprintf(
                     " WHERE %s >= %s",
                     $this->quote($this->incrementalFetching['column']),
-                    (string) $this->db->quote($this->state['lastFetchedRow'])
+                    is_numeric($this->state['lastFetchedRow']) ? $this->state['lastFetchedRow'] : $this->db->quote($this->state['lastFetchedRow'])
                 );
             }
             $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
