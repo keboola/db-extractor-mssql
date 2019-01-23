@@ -781,23 +781,11 @@ class MSSQL extends Extractor
         $incrementalAddon = null;
         if ($this->incrementalFetching) {
             if (isset($this->state['lastFetchedRow'])) {
-                if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
-                    $incrementalAddon = sprintf(
-                        ' WHERE %s >= %d',
-                        $this->quote($this->incrementalFetching['column']),
-                        (int) $this->state['lastFetchedRow']
-                    );
-                } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
-                    $incrementalAddon = sprintf(
-                        " WHERE %s >= %s",
-                        $this->quote($this->incrementalFetching['column']),
-                        $this->db->quote($this->state['lastFetchedRow'])
-                    );
-                } else {
-                    throw new ApplicationException(
-                        sprintf('Unknown incremental fetching column type %s', $this->incrementalFetching['type'])
-                    );
-                }
+                $incrementalAddon = sprintf(
+                    " WHERE %s >= %s",
+                    $this->quote($this->incrementalFetching['column']),
+                    (string) $this->db->quote($this->state['lastFetchedRow'])
+                );
             }
             $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
         }
