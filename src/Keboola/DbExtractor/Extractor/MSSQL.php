@@ -116,7 +116,7 @@ class MSSQL extends Extractor
             if ($whereClause !== "") {
                 $whereClause .= " AND ";
             }
-            if ($column['basetype'] === "TIMESTAMP" && strtoupper($column['type']) !== 'SMALLDATETIME') {
+            if (in_array(strtoupper($column['type']), ["DATETIME", "DATETIME2"])) {
                 $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
             } else {
                 $whereClause .= $this->quote($column['name']) . " = ?";
@@ -757,7 +757,7 @@ class MSSQL extends Extractor
             );
         }
 
-        if (in_array($columns[0]['data_type'], MssqlDataType::getNumericTypes())) {
+        if (in_array($columns[0]['data_type'], array_merge(MssqlDataType::getNumericTypes(), ['smalldatetime']))) {
             $this->incrementalFetching['column'] = $columnName;
             $this->incrementalFetching['type'] = self::INCREMENT_TYPE_NUMERIC;
         } else if (in_array($columns[0]['data_type'], MssqlDataType::TIMESTAMP_TYPES)) {
