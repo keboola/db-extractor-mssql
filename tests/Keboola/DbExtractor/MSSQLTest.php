@@ -1592,7 +1592,10 @@ class MSSQLTest extends AbstractMSSQLTest
         $config['parameters']['tables'][0]['query'] = "SELECT usergender INTO #temptable FROM sales WHERE usergender LIKE 'undefined';  SELECT * FRoM sales WHERE usergender IN (SELECT * FROM #temptable);";
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.multipleselect_test';
 
-        $this->setExpectedException(UserException::class);
+        $this->setExpectedException(
+            UserException::class,
+            "Failed to retrieve results: SQLSTATE[IMSSP]: The active result for the query contains no fields. Code:IMSSP"
+        );
         $this->createApplication($config)->run();
     }
 }
