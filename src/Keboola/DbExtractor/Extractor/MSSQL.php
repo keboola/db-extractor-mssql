@@ -269,8 +269,8 @@ class MSSQL extends Extractor
                 throw new ApplicationException("Write to CSV failed: " . $e->getMessage(), 0, $e);
             } catch (\PDOException $PDOException) {
                 throw new UserException(
-                    "Failed to retrieve results: " . $PDOException->getMessage(),
-                    $PDOException->getCode(),
+                    "Failed to retrieve results: " . $PDOException->getMessage() . " Code:" . $PDOException->getCode(),
+                    0,
                     $PDOException
                 );
             }
