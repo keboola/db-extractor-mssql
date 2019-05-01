@@ -43,6 +43,6 @@ class CommonFunctionalityTest extends AbstractExtractorTest
 
     protected function getApplication(array $config, array $state = []): Application
     {
-        return new MSSQLApplication($config, new Logger(), $state);
+        return new MSSQLApplication($config, new Logger(), $state, $this->getDataDir());
     }
 }

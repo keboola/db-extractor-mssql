@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Mssql\Tests;
 
+use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Test\AbstractExtractorTest;
 use Keboola\DbExtractor\Test\AbstractPdoDataLoader;
 use UnexpectedValueException;
@@ -28,7 +29,16 @@ class MssqlDataLoader extends AbstractPdoDataLoader
 
     public function load(string $inputFile, string $destinationTable, int $ignoreLines = 1): void
     {
-        // TODO: Implement load() method.
+        $csv = new CsvFile($inputFile);
+        $rows = iterator_to_array($csv);
+        if ($ignoreLines === 1) {
+            $header = array_shift($rows);
+
+            foreach ($rows as $key => $row) {
+                $rows[$key] = array_combine($header, $row);
+            }
+        }
+        $this->addRows($destinationTable, $rows);
     }
 
     protected function generateColumnDefinition(
@@ -42,7 +52,7 @@ class MssqlDataLoader extends AbstractPdoDataLoader
         $result = $this->quoteIdentifier($columnName) . ' ';
         switch ($columnType) {
             case AbstractExtractorTest::COLUMN_TYPE_VARCHAR:
-                $result .= 'varchar';
+                $result .= 'nvarchar';
                 break;
             case AbstractExtractorTest::COLUMN_TYPE_INTEGER:
                 $result .= 'int';
@@ -116,10 +126,16 @@ CREATE TABLE %s (
 
     protected function getInsertSqlQuery(
         string $quotedTableName,
-        string $quotedTableColumnsSqlString,
+        ?string $quotedTableColumnsSqlString,
         string $valuesString
     ): string {
-        // TODO: Implement getInsertSqlQuery() method.
+        $query = sprintf(
+            'INSERT INTO %s %s VALUES %s',
+            $quotedTableName,
+            $quotedTableColumnsSqlString === null ? '' : '(' . $quotedTableColumnsSqlString . ')',
+            $valuesString
+        );
+        return $query;
     }
 
     protected function getDropTableSqlQuery(string $quotedTableName): string
