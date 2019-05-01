@@ -35,11 +35,15 @@ WORKDIR /code
 ## Composer - deps always cached unless changed
 # First copy only composer files
 COPY composer.* /code/
+RUN composer global require hirak/prestissimo
 # Download dependencies, but don't run scripts or init autoloaders as the app is missing
 RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 # copy rest of the app
 COPY . /code/
 # run normal composer - all deps are cached already
 RUN composer install $COMPOSER_FLAGS
+
+RUN pecl install xdebug \
+  && docker-php-ext-enable xdebug
 
 CMD php ./src/run.php --data=/data

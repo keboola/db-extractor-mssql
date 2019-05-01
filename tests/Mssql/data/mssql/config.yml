@@ -1,0 +1,32 @@
+parameters:
+    db:
+        host: localhost
+        database: testdb
+        user: travis
+        password:
+        port: 3306
+
+    tables:
+        -
+            id: 0
+            name: escaping
+            query: "SELECT * FROM escaping"
+            outputTable: in.c-main.escaping
+            incremental: false
+            primaryKey:
+              -
+                col1
+            enabled: true
+        -
+            id: 1
+            name: simple
+            outputTable: in.c-main.simple
+            incremental: false
+            primaryKey:
+              -
+                _weird-I-d
+            table:
+              schema: dbo
+              tableName: simple
+            retries: 1
+            columns:

@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "keboola/db-extractor-common": "^9.2",
+        "keboola/db-extractor-common": "dev-tf-testing-rf",
         "keboola/php-utils": "^2.3.1"
     },
     "require-dev": {
@@ -25,7 +25,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Keboola\\DbExtractor\\Tests\\": "tests/Keboola/DbExtractor"
+            "Keboola\\DbExtractor\\Tests\\": "tests/Keboola/DbExtractor",
+            "Keboola\\DbExtractor\\Mssql\\Tests\\": "tests/Mssql"
         }
     },
     "scripts": {

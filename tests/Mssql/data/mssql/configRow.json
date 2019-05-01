@@ -1,0 +1,22 @@
+{
+  "parameters": {
+    "db": {
+      "host": "localhost",
+      "database": "test",
+      "user": "travis",
+      "password": "",
+      "port": 3306
+    },
+    "id": 0,
+    "name": "escaping",
+    "outputTable": "in.c-main.simple",
+    "table": {
+      "schema": "testdb",
+      "tableName": "simple"
+    },
+    "incremental": false,
+    "primaryKey": ["_weird-I-d"],
+    "columns": ["_weird-I-d", "SãoPaulo"],
+    "enabled": true
+  }
+}
