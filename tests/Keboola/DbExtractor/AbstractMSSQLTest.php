@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\DbExtractor\Application;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
@@ -290,5 +291,15 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                 $this->getConfigRow(self::DRIVER),
             ],
         ];
+    }
+
+    protected function getDataDir(): string
+    {
+        return $this->dataDir;
+    }
+
+    protected function getApplication(array $config, array $state = []): Application
+    {
+        return $this->createApplication($config, $state);
     }
 }

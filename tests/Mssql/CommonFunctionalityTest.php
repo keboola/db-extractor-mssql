@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Keboola\DbExtractor\Tests;
+namespace Keboola\DbExtractor\Mssql\Tests;
 
 use Keboola\DbExtractor\Application;
 use Keboola\DbExtractor\Logger;
-use Keboola\DbExtractor\Mssql\Tests\MssqlDataLoader;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\AbstractExtractorTest;
 use Keboola\DbExtractor\Test\DataLoaderInterface;

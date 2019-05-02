@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
+use Keboola\DbExtractor\Application;
 use Keboola\DbExtractor\Exception\UserException;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
@@ -33,7 +34,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['action'] = 'testConnection';
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -71,7 +72,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config = $this->getConfig('mssql');
         $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -134,7 +135,7 @@ class ApplicationTest extends AbstractMSSQLTest
         ];
         $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -163,7 +164,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config = $this->getConfig('mssql', 'json');
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -177,7 +178,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['action'] = 'getTables';
         $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -197,7 +198,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -219,7 +220,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -242,7 +243,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -277,7 +278,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($dataFile);
         @unlink($manifestFile);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -311,7 +312,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -341,7 +342,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->mustRun();
 
@@ -368,7 +369,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertFileNotExists($this->dataDir . '/in/state.json');
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->mustRun();
 
@@ -393,7 +394,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->mustRun();
 
@@ -422,7 +423,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['nolock'] = true;
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->mustRun();
 
@@ -447,7 +448,7 @@ class ApplicationTest extends AbstractMSSQLTest
         // write state file
         file_put_contents($this->dataDir . '/in/state.json', json_encode($state));
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->mustRun();
 
@@ -473,7 +474,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->mustRun();
     }
@@ -485,7 +486,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->mustRun();
     }
@@ -499,7 +500,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->run();
 
@@ -526,7 +527,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
 
-        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = new Process(['php', $this->rootPath . '/src/run.php', '--data=' . $this->dataDir]);
         $process->setTimeout(300);
         $process->mustRun();
 

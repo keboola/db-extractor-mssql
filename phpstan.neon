@@ -1,2 +1,5 @@
 parameters:
+    excludes_analyse:
+        - src/Keboola/DbExtractor/Configuration/MssqlConfigurationDefinition.php
     ignoreErrors:
+     - '#Parameter \#1 \$command of class Symfony\\Component\\Process\\Process constructor expects mixed\[\], string given.#'
