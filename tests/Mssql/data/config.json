@@ -21,7 +21,7 @@
           "name": "simple",
           "table": {
             "tableName": "simple",
-            "schema": "testdb"
+            "schema": "dbo"
           },
           "outputTable": "in.c-main.simple",
           "incremental": false,
