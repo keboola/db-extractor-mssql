@@ -9,7 +9,7 @@ use Keboola\DbExtractor\Exception\UserException;
 
 class IncrementalFetchingTest extends AbstractMSSQLTest
 {
-    public function testIncrementalFetchingByTimestamp(): void
+    public function testIncrementalFetchingByDatetime(): void
     {
         $config = $this->getIncrementalFetchingConfig();
         $config['parameters']['incrementalFetchingColumn'] = 'datetime';
@@ -155,6 +155,44 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertEquals('2012-01-10 10:55:00', $newResult['state']['lastFetchedRow']);
         $this->assertEquals(4, $newResult['imported']['rows']);
     }
+
+    public function testIncrementalFetchingByTimestamp(): void
+    {
+        $config = $this->getIncrementalFetchingConfig();
+        $config['parameters']['incrementalFetchingColumn'] = 'timestamp';
+        $config['parameters']['nolock'] = true;
+        $result = ($this->createApplication($config))->run();
+        $outputFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv';
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(
+            [
+                'outputTable' => 'in.c-main.auto-increment-timestamp',
+                'rows' => 6,
+            ],
+            $result['imported']
+        );
+        //check that output state contains expected information
+        $this->assertArrayHasKey('state', $result);
+        $this->assertArrayHasKey('lastFetchedRow', $result['state']);
+        $this->assertNotEmpty($result['state']['lastFetchedRow']);
+        unlink($outputFile);
+        sleep(2);
+        // the next fetch should contain the last row since each row has a unique value
+        $noNewRowsResult = ($this->createApplication($config, $result['state']))->run();
+        $this->assertEquals(1, $noNewRowsResult['imported']['rows']);
+        // assert that the state is unchanged
+        $this->assertEquals($result['state'], $noNewRowsResult['state']);
+        sleep(2);
+        //now add a couple rows and run it again.
+        $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) VALUES (\'charles\', \'2012-01-10 10:55\'), (\'william\', \'2012-01-10 10:50\')');
+        $newResult = ($this->createApplication($config, $result['state']))->run();
+        //check that output state contains expected information (will contain the same last row as above, + 2 more
+        $this->assertArrayHasKey('state', $newResult);
+        $this->assertArrayHasKey('lastFetchedRow', $newResult['state']);
+        $this->assertNotEmpty($newResult['state']['lastFetchedRow']);
+        $this->assertEquals(3, $newResult['imported']['rows']);
+    }
+
     public function testIncrementalFetchingLimit(): void
     {
         $config = $this->getIncrementalFetchingConfig();
