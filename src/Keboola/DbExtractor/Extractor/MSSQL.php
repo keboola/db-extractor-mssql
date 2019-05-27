@@ -227,6 +227,9 @@ class MSSQL extends Extractor
                 }
             }
         } catch (\Throwable $e) {
+            if ($table['disableFallback']) {
+                throw $e;
+            }
             $this->logger->info(
                 sprintf(
                     "[%s]: The BCP export failed: %s. Attempting export using pdo_sqlsrv.",
