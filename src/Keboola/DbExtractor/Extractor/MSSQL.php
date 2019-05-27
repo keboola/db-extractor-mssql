@@ -795,7 +795,7 @@ class MSSQL extends Extractor
                 $incrementalAddon = sprintf(
                     " WHERE %s >= %s",
                     $this->quote($this->incrementalFetching['column']),
-                    $this->quoteComparison($this->incrementalFetching['type'])
+                    $this->shouldQuoteComparison($this->incrementalFetching['type'])
                         ? $this->db->quote($this->state['lastFetchedRow'])
                         : $this->state['lastFetchedRow']
                 );
@@ -805,7 +805,7 @@ class MSSQL extends Extractor
         return $incrementalAddon;
     }
 
-    private function quoteComparison(string $type): bool
+    private function shouldQuoteComparison(string $type): bool
     {
         if ($type === self::INCREMENT_TYPE_NUMERIC || $type === self::INCREMENT_TYPE_BINARY) {
             return false;
