@@ -78,6 +78,7 @@ class MssqlConfigurationDefinition extends ConfigDefinition
                                 ->min(0)
                             ->end()
                             ->booleanNode('nolock')->defaultValue(false)->end()
+                            ->booleanNode('disableFallback')->defaultFalse()->end()
                         ->end()
                     ->end()
                 ->end()
