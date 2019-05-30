@@ -232,6 +232,42 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertContains("Attempting export using pdo", $process->getOutput());
     }
 
+    public function testDisableFallback(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        $config['parameters']['tables'][0]['query'] = "SELECT *  FROM \"special\";";
+        $config['parameters']['tables'][0]['disableFallback'] = true;
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+        $this->assertEquals("The BCP command produced an invalid csv.\n", $process->getErrorOutput());
+    }
+
+    public function testDisableFallbackConfigRow(): void
+    {
+        $config = $this->getConfigRow(self::DRIVER);
+        unset($config['parameters']['table']);
+        $config['parameters']['query'] = "SELECT *  FROM \"special\";";
+        $config['parameters']['disableFallback'] = true;
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+        $this->assertEquals("The BCP command produced an invalid csv.\n", $process->getErrorOutput());
+    }
+
     public function testWhereClauseWithSingleQuotes(): void
     {
         $config = $this->getConfig('mssql');
