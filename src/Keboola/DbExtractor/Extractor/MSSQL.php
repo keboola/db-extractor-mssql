@@ -13,7 +13,9 @@ use Symfony\Component\Process\Process;
 class MSSQL extends Extractor
 {
     public const INCREMENT_TYPE_NUMERIC = 'numeric';
-    public const INCREMENT_TYPE_TIMESTAMP = 'timestamp';
+    public const INCREMENT_TYPE_DATETIME = 'datetime';
+    public const INCREMENT_TYPE_BINARY = 'binary';
+    public const INCREMENT_TYPE_QUOTABLE = 'quotable';
 
     /** @var  int */
     private $sqlServerVersion;
@@ -212,13 +214,13 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_TIMESTAMP) {
+                    if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
                             $table['table'],
                             $columnMetadata
                         );
-                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_NUMERIC) {
+                    } else {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedId(
                             $columnMetadata,
                             $exportResult['lastFetchedRow']
@@ -766,12 +768,15 @@ class MSSQL extends Extractor
             );
         }
 
-        if (in_array($columns[0]['data_type'], array_merge(MssqlDataType::getNumericTypes(), ['smalldatetime']))) {
-            $this->incrementalFetching['column'] = $columnName;
+        $this->incrementalFetching['column'] = $columnName;
+        if (in_array($columns[0]['data_type'], MssqlDataType::getNumericTypes())) {
             $this->incrementalFetching['type'] = self::INCREMENT_TYPE_NUMERIC;
+        } else if ($columns[0]['data_type'] === 'timestamp') {
+            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_BINARY;
+        } else if ($columns[0]['data_type'] === 'smalldatetime') {
+            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_QUOTABLE;
         } else if (in_array($columns[0]['data_type'], MssqlDataType::TIMESTAMP_TYPES)) {
-            $this->incrementalFetching['column'] = $columnName;
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_TIMESTAMP;
+            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_DATETIME;
         } else {
             throw new UserException(
                 sprintf(
@@ -793,12 +798,22 @@ class MSSQL extends Extractor
                 $incrementalAddon = sprintf(
                     " WHERE %s >= %s",
                     $this->quote($this->incrementalFetching['column']),
-                    is_numeric($this->state['lastFetchedRow']) ? $this->state['lastFetchedRow'] : $this->db->quote($this->state['lastFetchedRow'])
+                    $this->shouldQuoteComparison($this->incrementalFetching['type'])
+                        ? $this->db->quote($this->state['lastFetchedRow'])
+                        : $this->state['lastFetchedRow']
                 );
             }
             $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
         }
         return $incrementalAddon;
+    }
+
+    private function shouldQuoteComparison(string $type): bool
+    {
+        if ($type === self::INCREMENT_TYPE_NUMERIC || $type === self::INCREMENT_TYPE_BINARY) {
+            return false;
+        }
+        return true;
     }
 
     private function quote(string $obj): string
