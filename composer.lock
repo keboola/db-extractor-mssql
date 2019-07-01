@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bb2f9018cded361faab1c97faf637832",
+    "content-hash": "671e7fdc783da7875950a925d7e4ec25",
     "packages": [
         {
             "name": "keboola/csv",
@@ -40,7 +40,7 @@
             ],
             "authors": [
                 {
-                    "name": "Keboola",
+                    "name": "keboola",
                     "email": "devel@keboola.com"
                 }
             ],
@@ -54,33 +54,32 @@
         },
         {
             "name": "keboola/db-extractor-common",
-            "version": "9.2.1",
+            "version": "dev-ondra-severance-repository",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-common.git",
-                "reference": "3350d9a29116269e9d5d2d45e918a96ccd653728"
+                "reference": "4dc0fbce6f81054ea2c74dd00aea0eb33e27fe80"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/3350d9a29116269e9d5d2d45e918a96ccd653728",
-                "reference": "3350d9a29116269e9d5d2d45e918a96ccd653728",
+                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/4dc0fbce6f81054ea2c74dd00aea0eb33e27fe80",
+                "reference": "4dc0fbce6f81054ea2c74dd00aea0eb33e27fe80",
                 "shasum": ""
             },
             "require": {
                 "ext-pdo": "*",
                 "keboola/csv": "^1.1",
-                "keboola/php-datatypes": "^3.2",
+                "keboola/db-extractor-logger": "dev-ondra-init-repo",
+                "keboola/db-extractor-ssh-tunnel": "dev-ondra-init-repo",
+                "keboola/php-datatypes": "^4.0",
                 "keboola/php-utils": "^2.3",
-                "keboola/ssh-tunnel": "^1.0",
-                "monolog/monolog": "^1.17",
+                "keboola/retry": "^0.3.0",
                 "nette/utils": "^2.4",
                 "php": ">=7.1",
                 "pimple/pimple": "^3.0",
                 "symfony/config": "^3.0",
-                "symfony/process": "^3.0",
                 "symfony/serializer": "^3.1",
-                "symfony/yaml": "^3.0",
-                "vkartaviy/retry": "^0.2"
+                "symfony/yaml": "^3.0"
             },
             "require-dev": {
                 "aws/aws-sdk-php": "^3.67",
@@ -106,20 +105,93 @@
                 }
             ],
             "description": "Common library from Keboola Database Extractors",
-            "time": "2018-11-09T09:23:04+00:00"
+            "time": "2019-07-01T05:51:38+00:00"
         },
         {
-            "name": "keboola/php-datatypes",
-            "version": "3.2.1",
+            "name": "keboola/db-extractor-logger",
+            "version": "dev-ondra-init-repo",
             "source": {
                 "type": "git",
-                "url": "https://github.com/keboola/php-datatypes.git",
-                "reference": "f16967a5da1b67e4a9fb38b07a1b0df3e588abb8"
+                "url": "https://github.com/keboola/db-extractor-logger.git",
+                "reference": "bf37c7856034b1ce0effe168fe25de080a7cf2b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-datatypes/zipball/f16967a5da1b67e4a9fb38b07a1b0df3e588abb8",
-                "reference": "f16967a5da1b67e4a9fb38b07a1b0df3e588abb8",
+                "url": "https://api.github.com/repos/keboola/db-extractor-logger/zipball/bf37c7856034b1ce0effe168fe25de080a7cf2b1",
+                "reference": "bf37c7856034b1ce0effe168fe25de080a7cf2b1",
+                "shasum": ""
+            },
+            "require": {
+                "keboola/csv": "^1.1",
+                "monolog/monolog": "^1.17"
+            },
+            "require-dev": {
+                "keboola/coding-standard": "^2.0",
+                "phpstan/phpstan": "^0.8",
+                "phpunit/phpunit": "^8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Keboola\\DbExtractorLogger\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Print info from db-extractor",
+            "time": "2019-07-01T05:56:56+00:00"
+        },
+        {
+            "name": "keboola/db-extractor-ssh-tunnel",
+            "version": "dev-ondra-init-repo",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/db-extractor-ssh-tunnel.git",
+                "reference": "9105f7030913235546de6bf8b5c2aaff63007fb3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/db-extractor-ssh-tunnel/zipball/9105f7030913235546de6bf8b5c2aaff63007fb3",
+                "reference": "9105f7030913235546de6bf8b5c2aaff63007fb3",
+                "shasum": ""
+            },
+            "require": {
+                "keboola/db-extractor-logger": "dev-ondra-init-repo",
+                "keboola/retry": "^0.3",
+                "keboola/ssh-tunnel": "^2.0"
+            },
+            "require-dev": {
+                "keboola/coding-standard": "^2.0",
+                "phpstan/phpstan": "^0.8",
+                "phpunit/phpunit": "^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Keboola\\DbExtractorSSHTunnel\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Create SSH tunnel for DB Extractors",
+            "time": "2019-06-25T11:31:28+00:00"
+        },
+        {
+            "name": "keboola/php-datatypes",
+            "version": "4.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/php-datatypes.git",
+                "reference": "d7c6cb963d0d9d88372c0e1dd023f1ce1dc5b829"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/php-datatypes/zipball/d7c6cb963d0d9d88372c0e1dd023f1ce1dc5b829",
+                "reference": "d7c6cb963d0d9d88372c0e1dd023f1ce1dc5b829",
                 "shasum": ""
             },
             "require-dev": {
@@ -141,7 +213,7 @@
                     "email": "ondrej.hlavacek@keboola.com"
                 }
             ],
-            "time": "2018-08-02T15:13:46+00:00"
+            "time": "2019-06-24T11:55:04+00:00"
         },
         {
             "name": "keboola/php-temp",
@@ -259,24 +331,74 @@
             "time": "2018-04-11T14:40:53+00:00"
         },
         {
-            "name": "keboola/ssh-tunnel",
-            "version": "1.0.3",
+            "name": "keboola/retry",
+            "version": "0.3.1",
             "source": {
                 "type": "git",
-                "url": "https://github.com/keboola/ssh-tunnel.git",
-                "reference": "10f5cf523a47e1067a2f20dcac9090cf2f67a839"
+                "url": "https://github.com/keboola/retry.git",
+                "reference": "bd1769bc93e726a912c0a1f434fcde91cf015047"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/ssh-tunnel/zipball/10f5cf523a47e1067a2f20dcac9090cf2f67a839",
-                "reference": "10f5cf523a47e1067a2f20dcac9090cf2f67a839",
+                "url": "https://api.github.com/repos/keboola/retry/zipball/bd1769bc93e726a912c0a1f434fcde91cf015047",
+                "reference": "bd1769bc93e726a912c0a1f434fcde91cf015047",
                 "shasum": ""
             },
             "require": {
-                "symfony/process": "^3.1"
+                "php": ">=7.1",
+                "psr/log": "^1.1"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.5"
+                "keboola/coding-standard": "^7.0",
+                "phpstan/phpstan-shim": "^0.10",
+                "phpunit/phpunit": "7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Retry\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Keboola Dev",
+                    "email": "devel@keboola.com"
+                }
+            ],
+            "description": "Library for repeatable and retryable operations",
+            "keywords": [
+                "backoff",
+                "proxy",
+                "repeat",
+                "retry"
+            ],
+            "time": "2019-06-20T10:03:15+00:00"
+        },
+        {
+            "name": "keboola/ssh-tunnel",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/ssh-tunnel.git",
+                "reference": "1fef2ccc9614d50fdb5f14ba5a7b5345d89114ae"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/ssh-tunnel/zipball/1fef2ccc9614d50fdb5f14ba5a7b5345d89114ae",
+                "reference": "1fef2ccc9614d50fdb5f14ba5a7b5345d89114ae",
+                "shasum": ""
+            },
+            "require": {
+                "symfony/process": "^4.2"
+            },
+            "require-dev": {
+                "keboola/coding-standard": "^6.0",
+                "phpstan/phpstan": "^0.10.6",
+                "phpunit/phpunit": "^7.0"
             },
             "type": "library",
             "autoload": {
@@ -290,12 +412,12 @@
             ],
             "authors": [
                 {
-                    "name": "Miroslav Cillik",
-                    "email": "miro@keboola.com"
+                    "name": "keboola",
+                    "email": "devel@keboola.com"
                 }
             ],
-            "description": "Simple class for SSH tunneling",
-            "time": "2017-06-07T05:37:12+00:00"
+            "description": "Simple library for SSH tunneling",
+            "time": "2018-12-06T14:51:03+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -437,7 +559,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🛠 Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
+            "description": "? Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
             "homepage": "https://nette.org",
             "keywords": [
                 "array",
@@ -654,16 +776,16 @@
         },
         {
             "name": "symfony/config",
-            "version": "v3.4.19",
+            "version": "v3.4.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/config.git",
-                "reference": "8a660daeb65dedbe0b099529f65e61866c055081"
+                "reference": "29a33f66194fbe2ed4555981810f15fd8440e4a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/config/zipball/8a660daeb65dedbe0b099529f65e61866c055081",
-                "reference": "8a660daeb65dedbe0b099529f65e61866c055081",
+                "url": "https://api.github.com/repos/symfony/config/zipball/29a33f66194fbe2ed4555981810f15fd8440e4a8",
+                "reference": "29a33f66194fbe2ed4555981810f15fd8440e4a8",
                 "shasum": ""
             },
             "require": {
@@ -714,20 +836,20 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2018-11-26T10:17:44+00:00"
+            "time": "2019-05-30T15:47:52+00:00"
         },
         {
             "name": "symfony/filesystem",
-            "version": "v4.2.0",
+            "version": "v4.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "2f4c8b999b3b7cadb2a69390b01af70886753710"
+                "reference": "b9896d034463ad6fd2bf17e2bf9418caecd6313d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/2f4c8b999b3b7cadb2a69390b01af70886753710",
-                "reference": "2f4c8b999b3b7cadb2a69390b01af70886753710",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/b9896d034463ad6fd2bf17e2bf9418caecd6313d",
+                "reference": "b9896d034463ad6fd2bf17e2bf9418caecd6313d",
                 "shasum": ""
             },
             "require": {
@@ -737,7 +859,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "4.2-dev"
+                    "dev-master": "4.3-dev"
                 }
             },
             "autoload": {
@@ -764,20 +886,20 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2018-11-11T19:52:12+00:00"
+            "time": "2019-06-23T08:51:25+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.10.0",
+            "version": "v1.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
+                "reference": "82ebae02209c21113908c229e9883c419720738a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
-                "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/82ebae02209c21113908c229e9883c419720738a",
+                "reference": "82ebae02209c21113908c229e9883c419720738a",
                 "shasum": ""
             },
             "require": {
@@ -789,7 +911,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.9-dev"
+                    "dev-master": "1.11-dev"
                 }
             },
             "autoload": {
@@ -822,29 +944,29 @@
                 "polyfill",
                 "portable"
             ],
-            "time": "2018-08-06T14:22:27+00:00"
+            "time": "2019-02-06T07:57:58+00:00"
         },
         {
             "name": "symfony/process",
-            "version": "v3.4.19",
+            "version": "v4.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "abb46b909dd6ba0b50e10d4c10ffe6ee96dd70f2"
+                "reference": "856d35814cf287480465bb7a6c413bb7f5f5e69c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/abb46b909dd6ba0b50e10d4c10ffe6ee96dd70f2",
-                "reference": "abb46b909dd6ba0b50e10d4c10ffe6ee96dd70f2",
+                "url": "https://api.github.com/repos/symfony/process/zipball/856d35814cf287480465bb7a6c413bb7f5f5e69c",
+                "reference": "856d35814cf287480465bb7a6c413bb7f5f5e69c",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.5.9|>=7.0.8"
+                "php": "^7.1.3"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.4-dev"
+                    "dev-master": "4.3-dev"
                 }
             },
             "autoload": {
@@ -871,20 +993,20 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2018-11-20T16:10:26+00:00"
+            "time": "2019-05-30T16:10:05+00:00"
         },
         {
             "name": "symfony/serializer",
-            "version": "v3.4.19",
+            "version": "v3.4.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/serializer.git",
-                "reference": "3808566ba899afe9aa66c3d5d726c22230d5037d"
+                "reference": "c060c0e0b97dc13b3c3fd8f981a68fa32a24371c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/serializer/zipball/3808566ba899afe9aa66c3d5d726c22230d5037d",
-                "reference": "3808566ba899afe9aa66c3d5d726c22230d5037d",
+                "url": "https://api.github.com/repos/symfony/serializer/zipball/c060c0e0b97dc13b3c3fd8f981a68fa32a24371c",
+                "reference": "c060c0e0b97dc13b3c3fd8f981a68fa32a24371c",
                 "shasum": ""
             },
             "require": {
@@ -907,7 +1029,7 @@
                 "symfony/dependency-injection": "~3.2|~4.0",
                 "symfony/http-foundation": "~2.8|~3.0|~4.0",
                 "symfony/property-access": "~2.8|~3.0|~4.0",
-                "symfony/property-info": "~3.1|~4.0",
+                "symfony/property-info": "^3.4.13|~4.0",
                 "symfony/yaml": "~3.4|~4.0"
             },
             "suggest": {
@@ -915,7 +1037,7 @@
                 "doctrine/cache": "For using the default cached annotation reader and metadata cache.",
                 "psr/cache-implementation": "For using the metadata cache.",
                 "symfony/config": "For using the XML mapping loader.",
-                "symfony/http-foundation": "To use the DataUriNormalizer.",
+                "symfony/http-foundation": "For using a MIME type guesser within the DataUriNormalizer.",
                 "symfony/property-access": "For using the ObjectNormalizer.",
                 "symfony/property-info": "To deserialize relations.",
                 "symfony/yaml": "For using the default YAML mapping loader."
@@ -950,20 +1072,20 @@
             ],
             "description": "Symfony Serializer Component",
             "homepage": "https://symfony.com",
-            "time": "2018-11-11T19:48:54+00:00"
+            "time": "2019-06-14T05:50:06+00:00"
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.4.19",
+            "version": "v3.4.29",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "291e13d808bec481eab83f301f7bff3e699ef603"
+                "reference": "212a27b731e5bfb735679d1ffaac82bd6a1dc996"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/291e13d808bec481eab83f301f7bff3e699ef603",
-                "reference": "291e13d808bec481eab83f301f7bff3e699ef603",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/212a27b731e5bfb735679d1ffaac82bd6a1dc996",
+                "reference": "212a27b731e5bfb735679d1ffaac82bd6a1dc996",
                 "shasum": ""
             },
             "require": {
@@ -1009,54 +1131,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2018-11-11T19:48:54+00:00"
-        },
-        {
-            "name": "vkartaviy/retry",
-            "version": "v0.2.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/vkartaviy/retry.git",
-                "reference": "8d726458bec9a773e4ae8baf8afd9666f0d1142d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/vkartaviy/retry/zipball/8d726458bec9a773e4ae8baf8afd9666f0d1142d",
-                "reference": "8d726458bec9a773e4ae8baf8afd9666f0d1142d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.4"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "3.7.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Retry": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Vladimir Kartaviy",
-                    "email": "vkartaviy@gmail.com",
-                    "homepage": "http://vkartaviy.name"
-                }
-            ],
-            "description": "The library for repeatable and retryable operations",
-            "homepage": "https://github.com/vkartaviy/retry",
-            "keywords": [
-                "backoff",
-                "proxy",
-                "repeat",
-                "retry"
-            ],
-            "time": "2015-05-06T17:39:09+00:00"
+            "time": "2019-03-25T07:48:46+00:00"
         }
     ],
     "packages-dev": [
@@ -1258,7 +1333,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🅱 Nette Bootstrap: the simple way to configure and bootstrap your Nette application.",
+            "description": "? Nette Bootstrap: the simple way to configure and bootstrap your Nette application.",
             "homepage": "https://nette.org",
             "keywords": [
                 "bootstrapping",
@@ -1323,7 +1398,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "💎 Nette Dependency Injection Container: Flexible, compiled and full-featured DIC with perfectly usable autowiring and support for all new PHP 7.1 features.",
+            "description": "? Nette Dependency Injection Container: Flexible, compiled and full-featured DIC with perfectly usable autowiring and support for all new PHP 7.1 features.",
             "homepage": "https://nette.org",
             "keywords": [
                 "compiled",
@@ -1388,7 +1463,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🔍 Nette Finder: find files and directories with an intuitive API.",
+            "description": "? Nette Finder: find files and directories with an intuitive API.",
             "homepage": "https://nette.org",
             "keywords": [
                 "filesystem",
@@ -1448,7 +1523,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍸 Nette NEON: encodes and decodes NEON file format.",
+            "description": "? Nette NEON: encodes and decodes NEON file format.",
             "homepage": "http://ne-on.org",
             "keywords": [
                 "export",
@@ -1511,7 +1586,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🐘 Nette PHP Generator: generates neat PHP code for you. Supports new PHP 7.2 features.",
+            "description": "? Nette PHP Generator: generates neat PHP code for you. Supports new PHP 7.2 features.",
             "homepage": "https://nette.org",
             "keywords": [
                 "code",
@@ -1575,7 +1650,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🍀 Nette RobotLoader: high performance and comfortable autoloader that will search and autoload classes within your application.",
+            "description": "? Nette RobotLoader: high performance and comfortable autoloader that will search and autoload classes within your application.",
             "homepage": "https://nette.org",
             "keywords": [
                 "autoload",
@@ -2329,6 +2404,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2015-10-02T06:51:40+00:00"
         },
         {
@@ -3080,7 +3156,11 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "keboola/db-extractor-common": 20,
+        "keboola/db-extractor-logger": 20,
+        "keboola/db-extractor-ssh-tunnel": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

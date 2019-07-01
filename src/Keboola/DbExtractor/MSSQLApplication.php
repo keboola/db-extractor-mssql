@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor;
 
 use Keboola\DbExtractor\Configuration\MssqlConfigurationRowDefinition;
 use Keboola\DbExtractor\Configuration\MssqlConfigurationDefinition;
+use Keboola\DbExtractorLogger\Logger;
 
 class MSSQLApplication extends Application
 {

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\DbExtractor\Extractor\MSSQL;
-use Keboola\DbExtractor\Logger;
+use Keboola\DbExtractorLogger\Logger;
 
 class ExtractorTest extends AbstractMSSQLTest
 {

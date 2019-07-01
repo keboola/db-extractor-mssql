@@ -6,7 +6,7 @@ namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
-use Keboola\DbExtractor\Logger;
+use Keboola\DbExtractorLogger\Logger;
 use Symfony\Component\Process\Process;
 
 class BCP
@@ -25,7 +25,7 @@ class BCP
 
     public function export(string $query, string $filename): array
     {
-        $process = new Process($this->createBcpCommand($filename, $query));
+        $process = Process::fromShellCommandline($this->createBcpCommand($filename, $query));
         $process->setTimeout(null);
         $process->run();
 
