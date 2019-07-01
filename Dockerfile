@@ -1,3 +1,4 @@
+FROM db-ex-mssql-sshproxy AS sshproxy
 FROM php:7.2-cli-stretch
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -41,5 +42,7 @@ RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 COPY . /code/
 # run normal composer - all deps are cached already
 RUN composer install $COMPOSER_FLAGS
+
+COPY --from=sshproxy /root/.ssh /root/.ssh
 
 CMD php ./src/run.php --data=/data

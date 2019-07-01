@@ -6,8 +6,6 @@ services:
     command: composer ci
     tty: true
     stdin_open: true
-    env_file:
-      - ssh-keys.env
     environment:
       MSSQL_DB_HOST: mssql
       MSSQL_DB_PORT: 1433
@@ -25,8 +23,6 @@ services:
     command: composer ci
     tty: true
     stdin_open: true
-    env_file:
-      - ssh-keys.env
     environment:
       MSSQL_DB_HOST: mssql
       MSSQL_DB_PORT: 1433
@@ -46,6 +42,7 @@ services:
       - "1433:1433"
 
   sshproxy:
+    image: db-ex-mssql-sshproxy
     build: ./tests/env/sshproxy
     volumes:
         - ./tests/env/sshproxy:/code

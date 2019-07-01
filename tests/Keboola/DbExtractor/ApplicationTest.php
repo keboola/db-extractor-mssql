@@ -123,8 +123,8 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['db']['ssh'] = [
             'enabled' => true,
             'keys' => [
-                '#private' => $this->getPrivateKey('mssql'),
-                'public' => $this->getEnv('mssql', 'DB_SSH_KEY_PUBLIC'),
+                '#private' => $this->getPrivateKey(),
+                'public' => $this->getPublicKey(),
             ],
             'user' => 'root',
             'sshHost' => 'sshproxy',
