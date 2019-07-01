@@ -76,8 +76,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'basetype' => 'STRING',
                 ],
                 [
-                    'pdo' => 'CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1)',
-                    'bcp' => 'CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1)',
+                    'pdo' => 'CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) AS [timestampCol]',
+                    'bcp' => 'CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) AS [timestampCol]',
                 ],
             ],
             'xml column' => [
@@ -132,7 +132,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 [
                     'pdo' => '[datetimeCol]',
-                    'bcp' => 'CONVERT(DATETIME2(0),[datetimeCol])',
+                    'bcp' => 'CONVERT(DATETIME2(0),[datetimeCol]) AS [datetimeCol]',
                 ],
             ],
             'smalldatetime column' => [
@@ -606,7 +606,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     ),
                 ],
                 [],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) FROM [testSchema].[test]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) AS [timestampCol] FROM [testSchema].[test]",
             ],
         ];
     }

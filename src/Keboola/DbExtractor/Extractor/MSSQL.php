@@ -600,7 +600,7 @@ class MSSQL extends Extractor
         );
         $colstr = $this->quote($column['name']);
         if ($datatype->getType() === 'timestamp') {
-            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
+            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1) AS %s', $colstr, $colstr);
         } else if ($datatype->getBasetype() === 'STRING') {
             if ($datatype->getType() === 'text'
                 || $datatype->getType() === 'ntext'
@@ -616,7 +616,7 @@ class MSSQL extends Extractor
         } else if ($datatype->getBasetype() === 'TIMESTAMP'
             && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
         ) {
-            $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
+            $colstr = sprintf('CONVERT(DATETIME2(0),%s) AS %s', $colstr, $colstr);
         }
         return $colstr;
     }
@@ -665,7 +665,7 @@ class MSSQL extends Extractor
         );
         $colstr = $this->quote($column['name']);
         if ($datatype->getType() === 'timestamp') {
-            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
+            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1) AS %s', $colstr, $colstr);
         } else {
             if ($datatype->getType() === 'text'
                 || $datatype->getType() === 'ntext'
