@@ -87,8 +87,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'basetype' => 'STRING',
                 ],
                 [
-                    'pdo' => 'CAST([xmlCol] as nvarchar(max))',
-                    'bcp' => 'char(34) + COALESCE(REPLACE(CAST([xmlCol] as nvarchar(max)), char(34), char(34) + char(34)),\'\') + char(34)',
+                    'pdo' => 'CAST([xmlCol] as nvarchar(max)) AS [xmlCol]',
+                    'bcp' => 'char(34) + COALESCE(REPLACE(CAST([xmlCol] as nvarchar(max)), char(34), char(34) + char(34)),\'\') + char(34) AS [xmlCol]',
                 ],
             ],
             'text column' => [
@@ -98,8 +98,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'basetype' => 'STRING',
                 ],
                 [
-                    'pdo' => 'CAST([textCol] as nvarchar(max))',
-                    'bcp' => 'char(34) + COALESCE(REPLACE(CAST([textCol] as nvarchar(max)), char(34), char(34) + char(34)),\'\') + char(34)',
+                    'pdo' => 'CAST([textCol] as nvarchar(max)) AS [textCol]',
+                    'bcp' => 'char(34) + COALESCE(REPLACE(CAST([textCol] as nvarchar(max)), char(34), char(34) + char(34)),\'\') + char(34) AS [textCol]',
                 ],
             ],
             'int column' => [
@@ -121,7 +121,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 [
                     'pdo' => '[nvarCol]',
-                    'bcp' => 'char(34) + COALESCE(REPLACE([nvarCol], char(34), char(34) + char(34)),\'\') + char(34)',
+                    'bcp' => 'char(34) + COALESCE(REPLACE([nvarCol], char(34), char(34) + char(34)),\'\') + char(34) AS [nvarCol]',
                 ],
             ],
             'datetime column' => [
@@ -235,7 +235,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     ),
                 ],
                 [],
-                "SELECT CAST([col1] as nvarchar(max)), CAST([col2] as nvarchar(max)) FROM [testSchema].[test]",
+                "SELECT CAST([col1] as nvarchar(max)) AS [col1], CAST([col2] as nvarchar(max)) AS [col2] FROM [testSchema].[test]",
             ],
             'test simplePDO query with limit and datetime column but no state' => [
                 [
@@ -248,7 +248,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT TOP 10 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
+                "SELECT TOP 10 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
             ],
             'test simplePDO query with limit and idp column and previos state' => [
                 [
@@ -263,7 +263,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT TOP 10 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
+                "SELECT TOP 10 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
             'test simplePDO query datetime column but no state and no limit' => [
                 [
@@ -276,7 +276,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
+                "SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
             ],
             'test simplePDO query id column and previos state and no limit' => [
                 [
@@ -291,7 +291,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
+                "SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
             'test simplePDO query datetime column and previos state and limit' => [
                 [
@@ -306,7 +306,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => '2018-10-26 10:52:32',
                 ],
-                "SELECT TOP 1000 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) FROM [dbo].[auto Increment Timestamp] WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
+                "SELECT TOP 1000 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
             ],
             'test simplePDO query datetime column and previos state and limit and NOLOCK' => [
                 [
@@ -322,7 +322,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => '2018-10-26 10:52:32',
                 ],
-                "SELECT TOP 1000 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
+                "SELECT TOP 1000 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
             ],
         ];
     }
@@ -362,7 +362,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     ),
                 ],
                 [],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [testSchema].[test]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [testSchema].[test]",
             ],
             'simple table with 1 columns selected' => [
                 [
@@ -385,7 +385,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     ),
                 ],
                 [],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [testSchema].[test]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1] FROM [testSchema].[test]",
             ],
             'test query with limit and datetime column but no state' => [
                 [
@@ -421,7 +421,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
+                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
             ],
             'test query with limit and idp column and previos state' => [
                 [
@@ -459,7 +459,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
+                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
             'test query datetime column but no state and no limit' => [
                 [
@@ -495,7 +495,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
             ],
             'test simplePDO query id column and previos state and no limit' => [
                 [
@@ -533,7 +533,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
             'test query with NOLOCK' => [
                 [
@@ -572,7 +572,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
             ],
             'test query with timestamp datatype column' => [
                 [
@@ -606,7 +606,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     ),
                 ],
                 [],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34), CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) AS [timestampCol] FROM [testSchema].[test]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) AS [timestampCol] FROM [testSchema].[test]",
             ],
         ];
     }

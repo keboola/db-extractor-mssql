@@ -598,9 +598,9 @@ class MSSQL extends Extractor
             $column['type'],
             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
         );
-        $colstr = $this->quote($column['name']);
+        $colstr = $escapedColumnName = $this->quote($column['name']);
         if ($datatype->getType() === 'timestamp') {
-            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1) AS %s', $colstr, $colstr);
+            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
         } else if ($datatype->getBasetype() === 'STRING') {
             if ($datatype->getType() === 'text'
                 || $datatype->getType() === 'ntext'
@@ -616,7 +616,10 @@ class MSSQL extends Extractor
         } else if ($datatype->getBasetype() === 'TIMESTAMP'
             && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
         ) {
-            $colstr = sprintf('CONVERT(DATETIME2(0),%s) AS %s', $colstr, $colstr);
+            $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
+        }
+        if ($colstr !== $escapedColumnName) {
+            return $colstr . ' AS ' . $escapedColumnName;
         }
         return $colstr;
     }
@@ -663,9 +666,9 @@ class MSSQL extends Extractor
             $column['type'],
             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
         );
-        $colstr = $this->quote($column['name']);
+        $colstr = $escapedColumnName = $this->quote($column['name']);
         if ($datatype->getType() === 'timestamp') {
-            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1) AS %s', $colstr, $colstr);
+            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
         } else {
             if ($datatype->getType() === 'text'
                 || $datatype->getType() === 'ntext'
@@ -673,6 +676,9 @@ class MSSQL extends Extractor
             ) {
                 $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
             }
+        }
+        if ($colstr !== $escapedColumnName) {
+            return $colstr . ' AS ' . $escapedColumnName;
         }
         return $colstr;
     }
