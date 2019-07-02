@@ -598,7 +598,7 @@ class MSSQL extends Extractor
             $column['type'],
             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
         );
-        $colstr = $this->quote($column['name']);
+        $colstr = $escapedColumnName = $this->quote($column['name']);
         if ($datatype->getType() === 'timestamp') {
             $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
         } else if ($datatype->getBasetype() === 'STRING') {
@@ -617,6 +617,9 @@ class MSSQL extends Extractor
             && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
         ) {
             $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
+        }
+        if ($colstr !== $escapedColumnName) {
+            return $colstr . ' AS ' . $escapedColumnName;
         }
         return $colstr;
     }
@@ -663,7 +666,7 @@ class MSSQL extends Extractor
             $column['type'],
             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
         );
-        $colstr = $this->quote($column['name']);
+        $colstr = $escapedColumnName = $this->quote($column['name']);
         if ($datatype->getType() === 'timestamp') {
             $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
         } else {
@@ -673,6 +676,9 @@ class MSSQL extends Extractor
             ) {
                 $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
             }
+        }
+        if ($colstr !== $escapedColumnName) {
+            return $colstr . ' AS ' . $escapedColumnName;
         }
         return $colstr;
     }
