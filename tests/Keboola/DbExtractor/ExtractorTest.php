@@ -276,7 +276,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
+                "SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp]",
             ],
             'test simplePDO query id column and previos state and no limit' => [
                 [
@@ -291,7 +291,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
+                "SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4",
             ],
             'test simplePDO query datetime column and previos state and limit' => [
                 [
@@ -495,7 +495,7 @@ class ExtractorTest extends AbstractMSSQLTest
                     'incrementalFetchingColumn' => 'datetime',
                 ],
                 [],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp]",
             ],
             'test simplePDO query id column and previos state and no limit' => [
                 [
@@ -533,7 +533,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4",
             ],
             'test query with NOLOCK' => [
                 [
@@ -572,7 +572,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     "lastFetchedRow" => 4,
                 ],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [_Weir%d I-D] >= 4 ORDER BY [_Weir%d I-D]",
+                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [_Weir%d I-D] >= 4",
             ],
             'test query with timestamp datatype column' => [
                 [
