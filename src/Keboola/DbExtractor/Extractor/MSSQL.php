@@ -558,7 +558,9 @@ class MSSQL extends Extractor
                         : $this->state['lastFetchedRow']
                 );
             }
-            $incrementalAddon .= sprintf(" ORDER BY %s", $this->db->quoteIdentifier($this->incrementalFetching['column']));
+            if (isset($this->incrementalFetching['limit'])) {
+                $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
+            }
         }
         return $incrementalAddon;
     }
