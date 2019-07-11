@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\Csv\Exception as CsvException;
-use Keboola\Datatype\Definition\GenericStorage;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
 use Symfony\Component\Process\Process;
@@ -23,6 +22,9 @@ class MSSQL extends Extractor
     /** @var MetadataProvider */
     private $metadataProvider;
 
+    /** @var DbAdapter\MssqlAdapter */
+    protected $db;
+
     public function __construct(array $parameters, array $state = [], $logger = null)
     {
         parent::__construct($parameters, $state, $logger);
@@ -33,26 +35,15 @@ class MSSQL extends Extractor
 
     private function getSqlServerVersion(): int
     {
-        // get the MSSQL Server version (note, 2008 is version 10.*
-        $res = $this->db->query("SELECT SERVERPROPERTY('ProductVersion') AS version;");
-
-        $versionString = $res->fetch(\PDO::FETCH_ASSOC);
-        if (!isset($versionString['version'])) {
-            throw new UserException("Unable to get SQL Server Version Information");
-        }
-        $versionParts = explode('.', $versionString['version']);
+        $versionString = $this->db->fetchServerVersion();
+        $versionParts = explode('.', $versionString);
         $this->logger->info(
-            sprintf("Found database server version: %s", $versionString['version'])
+            sprintf("Found database server version: %s", $versionString)
         );
         return (int) $versionParts[0];
     }
 
-    /**
-     * @param array $params
-     * @return \PDO
-     * @throws UserException
-     */
-    public function createConnection(array $params): \PDO
+    public function createConnection(array $params): DbAdapter\MssqlAdapter
     {
         // check params
         if (isset($params['#password'])) {
@@ -75,19 +66,19 @@ class MSSQL extends Extractor
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
 
         // ms sql doesn't support options
-        $pdo = new \PDO($dsn, $params['user'], $params['password']);
+        $pdo = new DbAdapter\MssqlAdapter($dsn, $params['user'], $params['password']);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         return $pdo;
     }
 
-    public function getConnection(): \PDO
+    public function getConnection(): DbAdapter\MssqlAdapter
     {
         return $this->db;
     }
 
     public function testConnection(): void
     {
-        $this->db->query('SELECT GETDATE() AS CurrentDateTime')->execute();
+        $this->db->testConnection();
     }
 
     private function stripNullBytesInEmptyFields(string $fileName): void
@@ -123,17 +114,17 @@ class MSSQL extends Extractor
                 $whereClause .= " AND ";
             }
             if (in_array(strtoupper($column['type']), ["DATETIME", "DATETIME2"])) {
-                $whereClause .= "CONVERT(DATETIME2(0), " . $this->quote($column['name']) . ") = ?";
+                $whereClause .= "CONVERT(DATETIME2(0), " . $this->db->quoteIdentifier($column['name']) . ") = ?";
             } else {
-                $whereClause .= $this->quote($column['name']) . " = ?";
+                $whereClause .= $this->db->quoteIdentifier($column['name']) . " = ?";
             }
             $whereValues[] = $lastExportedLine[$key];
         }
         $query = sprintf(
             "SELECT %s FROM %s.%s WHERE %s;",
-            $this->quote($this->incrementalFetching['column']),
-            $this->quote($table['schema']),
-            $this->quote($table['tableName']),
+            $this->db->quoteIdentifier($this->incrementalFetching['column']),
+            $this->db->quoteIdentifier($table['schema']),
+            $this->db->quoteIdentifier($table['tableName']),
             $whereClause
         );
         $stmt = $this->db->prepare($query);
@@ -341,7 +332,7 @@ class MSSQL extends Extractor
             $column['type'],
             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
         );
-        $colstr = $escapedColumnName = $this->quote($column['name']);
+        $colstr = $escapedColumnName = $this->db->quoteIdentifier($column['name']);
         if ($datatype->getType() === 'timestamp') {
             $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
         } else if ($datatype->getBasetype() === 'STRING') {
@@ -389,8 +380,8 @@ class MSSQL extends Extractor
                     $columns
                 )
             ),
-            $this->quote($table['schema']),
-            $this->quote($table['tableName'])
+            $this->db->quoteIdentifier($table['schema']),
+            $this->db->quoteIdentifier($table['tableName'])
         );
 
         if ($table['nolock']) {
@@ -409,7 +400,7 @@ class MSSQL extends Extractor
             $column['type'],
             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
         );
-        $colstr = $escapedColumnName = $this->quote($column['name']);
+        $colstr = $escapedColumnName = $this->db->quoteIdentifier($column['name']);
         if ($datatype->getType() === 'timestamp') {
             $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
         } else {
@@ -449,15 +440,15 @@ class MSSQL extends Extractor
                         $columns
                     )
                 ),
-                $this->quote($table['schema']),
-                $this->quote($table['tableName'])
+                $this->db->quoteIdentifier($table['schema']),
+                $this->db->quoteIdentifier($table['tableName'])
             );
         } else {
             $query = sprintf(
                 "%s * FROM %s.%s",
                 $queryStart,
-                $this->quote($table['schema']),
-                $this->quote($table['tableName'])
+                $this->db->quoteIdentifier($table['schema']),
+                $this->db->quoteIdentifier($table['tableName'])
             );
         }
         if ($table['nolock']) {
@@ -546,13 +537,13 @@ class MSSQL extends Extractor
             if (isset($this->state['lastFetchedRow'])) {
                 $incrementalAddon = sprintf(
                     " WHERE %s >= %s",
-                    $this->quote($this->incrementalFetching['column']),
+                    $this->db->quoteIdentifier($this->incrementalFetching['column']),
                     $this->shouldQuoteComparison($this->incrementalFetching['type'])
                         ? $this->db->quote($this->state['lastFetchedRow'])
                         : $this->state['lastFetchedRow']
                 );
             }
-            $incrementalAddon .= sprintf(" ORDER BY %s", $this->quote($this->incrementalFetching['column']));
+            $incrementalAddon .= sprintf(" ORDER BY %s", $this->db->quoteIdentifier($this->incrementalFetching['column']));
         }
         return $incrementalAddon;
     }
@@ -563,10 +554,5 @@ class MSSQL extends Extractor
             return false;
         }
         return true;
-    }
-
-    private function quote(string $obj): string
-    {
-        return "[{$obj}]";
     }
 }
