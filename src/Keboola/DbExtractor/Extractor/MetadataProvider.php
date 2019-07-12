@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\DbExtractor\Extractor\DbAdapter\MssqlAdapter;
+
 class MetadataProvider
 {
-    /** @var \PDO */
+    /** @var MssqlAdapter */
     private $db;
 
     public function __construct(
-        \PDO $db
+        MssqlAdapter $db
     ) {
         $this->db = $db;
     }
