@@ -329,8 +329,10 @@ class MSSQL extends Extractor
             try {
                 return $this->metadataProvider->getTables($tables);
             } catch (\Throwable $exception) {
-                $this->db = $this->createConnection($this->getDbParameters());
-                $this->metadataProvider = new MetadataProvider($this->db);
+                if (!$this->isAlive()) {
+                    $this->db = $this->createConnection($this->getDbParameters());
+                    $this->metadataProvider = new MetadataProvider($this->db);
+                }
                 throw $exception;
             }
         });
