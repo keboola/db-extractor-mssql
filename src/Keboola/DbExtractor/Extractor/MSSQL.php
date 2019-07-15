@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\DbExtractor\Exception\DeadConnectionException;
 use Symfony\Component\Process\Process;
 use Keboola\Csv\Exception as CsvException;
 use Keboola\DbExtractor\Exception\ApplicationException;
@@ -329,7 +330,9 @@ class MSSQL extends Extractor
             try {
                 return $this->metadataProvider->getTables($tables);
             } catch (\Throwable $exception) {
-                if (!$this->isAlive()) {
+                try {
+                    $this->isAlive();
+                } catch (DeadConnectionException $deadConnectionException) {
                     $this->db = $this->createConnection($this->getDbParameters());
                     $this->metadataProvider = new MetadataProvider($this->db);
                 }
