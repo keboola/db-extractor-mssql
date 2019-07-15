@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Symfony\Component\Process\Process;
 use Keboola\Csv\Exception as CsvException;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
-use Symfony\Component\Process\Process;
+use Keboola\DbExtractor\RetryProxy;
 
 class MSSQL extends Extractor
 {
@@ -47,7 +48,7 @@ class MSSQL extends Extractor
     {
         // check params
         if (isset($params['#password'])) {
-                $params['password'] = $params['#password'];
+            $params['password'] = $params['#password'];
         }
 
         foreach (['host', 'database', 'user', 'password'] as $r) {
@@ -323,7 +324,16 @@ class MSSQL extends Extractor
 
     public function getTables(?array $tables = null): array
     {
-        return $this->metadataProvider->getTables($tables);
+        $proxy = new RetryProxy($this->logger);
+        return $proxy->call(function () use ($tables): array {
+            try {
+                return $this->metadataProvider->getTables($tables);
+            } catch (\Throwable $exception) {
+                $this->db = $this->createConnection($this->getDbParameters());
+                $this->metadataProvider = new MetadataProvider($this->db);
+                throw $exception;
+            }
+        });
     }
 
     public function columnToBcpSql(array $column): string
