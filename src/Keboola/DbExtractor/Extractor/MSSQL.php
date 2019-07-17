@@ -148,10 +148,11 @@ class MSSQL extends Extractor
     private function getMaxOfIncrementalFetchingColumn(array $table): string
     {
         $sql = sprintf(
-            "SELECT MAX(%s) FROM %s.%s",
+            "SELECT MAX(%s) %s FROM %s.%s",
             $this->db->quoteIdentifier($this->incrementalFetching['column']),
-            $table['schema'],
-            $table['tableName']
+            $this->db->quoteIdentifier($this->incrementalFetching['column']),
+            $this->db->quoteIdentifier($table['schema']),
+            $this->db->quoteIdentifier($table['tableName'])
         );
         $retryProxy = new RetryProxy($this->logger);
         $maxValue = $retryProxy->call(function () use ($sql) {
@@ -593,11 +594,6 @@ class MSSQL extends Extractor
             }
         }
         return $incrementalAddon;
-    }
-
-    private function getMaxOfResult(string $query): string
-    {
-
     }
 
     private function shouldQuoteComparison(string $type): bool
