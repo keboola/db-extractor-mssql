@@ -149,7 +149,7 @@ class MSSQL extends Extractor
     {
         $sql = "SELECT MAX(%s) %s FROM %s.%s";
         if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_BINARY) {
-            $sql = "CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s";
+            $sql = "SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s";
         }
         $fullsql = sprintf(
             $sql,
@@ -244,7 +244,7 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if (!isset($this->incrementalFetching['limit']) || (int) $this->incrementalFetching['limit'] === 0) {
+                    if ($this->hasNoIncrementalLimit()) {
                         $exportResult['lastFetchedRow'] = $this->getMaxOfIncrementalFetchingColumn($table['table']);
                     } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
@@ -291,6 +291,9 @@ class MSSQL extends Extractor
             try {
                 $exportResult = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
                 if ($exportResult['rows'] > 0) {
+                    if ($this->hasNoIncrementalLimit()) {
+                        $exportResult['lastFetchedRow'] = $this->getMaxOfIncrementalFetchingColumn($table['table']);
+                    }
                     $this->createManifest($table);
                 } else {
                     if ($this->incrementalFetching['column'] && isset($this->state['lastFetchedRow'])) {
@@ -593,11 +596,22 @@ class MSSQL extends Extractor
                         : $this->state['lastFetchedRow']
                 );
             }
-            if (isset($this->incrementalFetching['limit']) && (int) $this->incrementalFetching['limit'] > 0) {
+            if (!$this->hasNoIncrementalLimit()) {
                 $incrementalAddon .= sprintf(" ORDER BY %s", $this->db->quoteIdentifier($this->incrementalFetching['column']));
             }
         }
         return $incrementalAddon;
+    }
+
+    private function hasNoIncrementalLimit(): bool
+    {
+        if (!$this->incrementalFetching) {
+            return false;
+        }
+        if (!isset($this->incrementalFetching['limit']) || (int) $this->incrementalFetching['limit'] <= 0) {
+            return true;
+        }
+        return false;
     }
 
     private function shouldQuoteComparison(string $type): bool
