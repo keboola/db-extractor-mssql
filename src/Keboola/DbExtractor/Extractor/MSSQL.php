@@ -147,18 +147,22 @@ class MSSQL extends Extractor
 
     private function getMaxOfIncrementalFetchingColumn(array $table): string
     {
-        $sql = sprintf(
-            "SELECT MAX(%s) %s FROM %s.%s",
+        $sql = "SELECT MAX(%s) %s FROM %s.%s";
+        if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_BINARY) {
+            $sql = "CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s";
+        }
+        $fullsql = sprintf(
+            $sql,
             $this->db->quoteIdentifier($this->incrementalFetching['column']),
             $this->db->quoteIdentifier($this->incrementalFetching['column']),
             $this->db->quoteIdentifier($table['schema']),
             $this->db->quoteIdentifier($table['tableName'])
         );
         $retryProxy = new RetryProxy($this->logger);
-        $maxValue = $retryProxy->call(function () use ($sql) {
+        $maxValue = $retryProxy->call(function () use ($fullsql) {
             try {
                 /** @var \PDOStatement $stmt */
-                $stmt = $this->db->query($sql);
+                $stmt = $this->db->query($fullsql);
                 $result = $stmt->fetch(\PDO::FETCH_ASSOC);
                 return $result[$this->incrementalFetching['column']];
             } catch (\Throwable $exception) {
