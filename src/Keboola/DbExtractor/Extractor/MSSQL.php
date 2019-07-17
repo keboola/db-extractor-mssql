@@ -145,6 +145,34 @@ class MSSQL extends Extractor
         }
     }
 
+    private function getMaxOfIncrementalFetchingColumn(array $table): string
+    {
+        $sql = sprintf(
+            "SELECT MAX(%s) FROM %s.%s",
+            $this->db->quoteIdentifier($this->incrementalFetching['column']),
+            $table['schema'],
+            $table['tableName']
+        );
+        $retryProxy = new RetryProxy($this->logger);
+        $maxValue = $retryProxy->call(function () use ($sql) {
+            try {
+                /** @var \PDOStatement $stmt */
+                $stmt = $this->db->query($sql);
+                $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+                return $result[$this->incrementalFetching['column']];
+            } catch (\Throwable $exception) {
+                try {
+                    $this->isAlive();
+                } catch (DeadConnectionException $deadConnectionException) {
+                    $this->db = $this->createConnection($this->getDbParameters());
+                    $this->metadataProvider = new MetadataProvider($this->db);
+                }
+                throw $exception;
+            }
+        });
+        return $maxValue;
+    }
+
     public function export(array $table): array
     {
         $outputTable = $table['outputTable'];
@@ -211,7 +239,9 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
+                    if (!isset($this->incrementalFetching['limit']) || (int) $this->incrementalFetching['limit'] === 0) {
+                        $exportResult['lastFetchedRow'] = $this->getMaxOfIncrementalFetchingColumn($table['table']);
+                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
                             $table['table'],
@@ -563,6 +593,11 @@ class MSSQL extends Extractor
             }
         }
         return $incrementalAddon;
+    }
+
+    private function getMaxOfResult(string $query): string
+    {
+
     }
 
     private function shouldQuoteComparison(string $type): bool
