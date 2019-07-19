@@ -279,7 +279,7 @@ class MSSQL extends Extractor
             try {
                 $exportResult = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
                 if ($exportResult['rows'] > 0) {
-                    if (!$this->hasIncrementalLimit()) {
+                    if (!$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit()) {
                         $exportResult['lastFetchedRow'] = $this->getMaxOfIncrementalFetchingColumn($table['table']);
                     }
                     $this->createManifest($table);
