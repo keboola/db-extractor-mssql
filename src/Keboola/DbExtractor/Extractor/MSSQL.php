@@ -244,7 +244,7 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if ($this->hasNoIncrementalLimit()) {
+                    if (!$this->hasIncrementalLimit()) {
                         $exportResult['lastFetchedRow'] = $this->getMaxOfIncrementalFetchingColumn($table['table']);
                     } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
@@ -291,7 +291,7 @@ class MSSQL extends Extractor
             try {
                 $exportResult = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
                 if ($exportResult['rows'] > 0) {
-                    if ($this->hasNoIncrementalLimit()) {
+                    if (!$this->hasIncrementalLimit()) {
                         $exportResult['lastFetchedRow'] = $this->getMaxOfIncrementalFetchingColumn($table['table']);
                     }
                     $this->createManifest($table);
@@ -596,19 +596,19 @@ class MSSQL extends Extractor
                         : $this->state['lastFetchedRow']
                 );
             }
-            if (!$this->hasNoIncrementalLimit()) {
+            if ($this->hasIncrementalLimit()) {
                 $incrementalAddon .= sprintf(" ORDER BY %s", $this->db->quoteIdentifier($this->incrementalFetching['column']));
             }
         }
         return $incrementalAddon;
     }
 
-    private function hasNoIncrementalLimit(): bool
+    private function hasIncrementalLimit(): bool
     {
         if (!$this->incrementalFetching) {
             return false;
         }
-        if (!isset($this->incrementalFetching['limit']) || (int) $this->incrementalFetching['limit'] <= 0) {
+        if (isset($this->incrementalFetching['limit']) && (int) $this->incrementalFetching['limit'] > 0) {
             return true;
         }
         return false;
