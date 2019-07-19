@@ -213,7 +213,7 @@ class MSSQL extends Extractor
             $bcp = new BCP($this->getDbParameters(), $this->logger);
             // fetch max value for incremental fetching without limit before execution
             $maxValue = null;
-            if (!$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit()) {
+            if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
                 $maxValue = $this->getMaxOfIncrementalFetchingColumn($table['table']);
             }
             $exportResult = $bcp->export($query, (string) $csv);
@@ -272,7 +272,7 @@ class MSSQL extends Extractor
                 $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
                 // fetch max value if incremental without limit
                 $maxValue = null;
-                if (!$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit()) {
+                if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
                     $maxValue = $this->getMaxOfIncrementalFetchingColumn($table['table']);
                 }
                 /** @var \PDOStatement $stmt */
@@ -636,5 +636,10 @@ class MSSQL extends Extractor
             return false;
         }
         return true;
+    }
+
+    private function canFetchMaxIncrementalValueSeparately(bool $isAdvancedQuery): bool
+    {
+        return !$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit();
     }
 }
