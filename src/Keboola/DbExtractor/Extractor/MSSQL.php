@@ -130,10 +130,11 @@ class MSSQL extends Extractor
             $whereClause
         );
 
-        $result = $this->runRetryablePreparedStatement($query, $whereValues);
+        $result = $this->runRetriableQuery($query, $whereValues);
         if (count($result) > 0) {
             return $result[0][$this->incrementalFetching['column']];
         }
+        throw new ApplicationException("Fetching last datetime value returned no results");
     }
 
     private function getLastFetchedId(array $columnMetadata, array $lastExportedLine): string
@@ -583,22 +584,7 @@ class MSSQL extends Extractor
         return $incrementalAddon;
     }
 
-    private function runRetriableQuery(string $query): array
-    {
-        $retryProxy = new RetryProxy($this->logger);
-        return $retryProxy->call(function () use ($query) {
-            try {
-                /** @var \PDOStatement $stmt */
-                $stmt = $this->db->query($query);
-                return $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            } catch (\Throwable $exception) {
-                $this->tryReconnect();
-                throw $exception;
-            }
-        });
-    }
-
-    private function runRetryablePreparedStatement(string $query, array $values): array
+    private function runRetriableQuery(string $query, array $values = []): array
     {
         $retryProxy = new RetryProxy($this->logger);
         return $retryProxy->call(function () use ($query, $values) {
