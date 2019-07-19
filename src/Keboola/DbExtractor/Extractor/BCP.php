@@ -25,7 +25,7 @@ class BCP
 
     public function export(string $query, string $filename): array
     {
-        $process = Process::fromShellCommandline($this->createBcpCommand($filename, $query));
+        $process = new Process($this->createBcpCommand($filename, $query));
         $process->setTimeout(null);
         $process->run();
 
