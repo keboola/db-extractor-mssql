@@ -129,10 +129,12 @@ class MSSQL extends Extractor
             $this->db->quoteIdentifier($table['tableName']),
             $whereClause
         );
-        $stmt = $this->db->prepare($query);
-        $stmt->execute($whereValues);
-        $lastDatetimeRow = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $lastDatetimeRow[$this->incrementalFetching['column']];
+
+        $result = $this->runRetriableQuery($query, $whereValues);
+        if (count($result) > 0) {
+            return $result[0][$this->incrementalFetching['column']];
+        }
+        throw new ApplicationException("Fetching last datetime value returned no results");
     }
 
     private function getLastFetchedId(array $columnMetadata, array $lastExportedLine): string
@@ -143,6 +145,26 @@ class MSSQL extends Extractor
                 return $lastExportedLine[$key];
             }
         }
+    }
+
+    private function getMaxOfIncrementalFetchingColumn(array $table): ?string
+    {
+        $sql = "SELECT MAX(%s) %s FROM %s.%s";
+        if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_BINARY) {
+            $sql = "SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s";
+        }
+        $fullsql = sprintf(
+            $sql,
+            $this->db->quoteIdentifier($this->incrementalFetching['column']),
+            $this->db->quoteIdentifier($this->incrementalFetching['column']),
+            $this->db->quoteIdentifier($table['schema']),
+            $this->db->quoteIdentifier($table['tableName'])
+        );
+        $result = $this->runRetriableQuery($fullsql);
+        if (count($result) > 0) {
+            return $result[0][$this->incrementalFetching['column']];
+        }
+        return null;
     }
 
     public function export(array $table): array
@@ -189,6 +211,11 @@ class MSSQL extends Extractor
             }
             $this->logger->info("BCP export started");
             $bcp = new BCP($this->getDbParameters(), $this->logger);
+            // fetch max value for incremental fetching without limit before execution
+            $maxValue = null;
+            if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
+                $maxValue = $this->getMaxOfIncrementalFetchingColumn($table['table']);
+            }
             $exportResult = $bcp->export($query, (string) $csv);
             if ($exportResult['rows'] === 0) {
                 // BCP will create an empty file for no rows case
@@ -211,7 +238,9 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
+                    if ($maxValue) {
+                        $exportResult['lastFetchedRow'] = $maxValue;
+                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
                             $table['table'],
@@ -241,6 +270,11 @@ class MSSQL extends Extractor
                     $query = $this->getSimplePdoQuery($table['table'], $columnMetadata);
                 }
                 $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
+                // fetch max value if incremental without limit
+                $maxValue = null;
+                if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
+                    $maxValue = $this->getMaxOfIncrementalFetchingColumn($table['table']);
+                }
                 /** @var \PDOStatement $stmt */
                 $stmt = $this->executeQuery(
                     $query,
@@ -256,6 +290,9 @@ class MSSQL extends Extractor
             try {
                 $exportResult = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
                 if ($exportResult['rows'] > 0) {
+                    if ($maxValue) {
+                        $exportResult['lastFetchedRow'] = $maxValue;
+                    }
                     $this->createManifest($table);
                 } else {
                     if ($this->incrementalFetching['column'] && isset($this->state['lastFetchedRow'])) {
@@ -302,9 +339,7 @@ class MSSQL extends Extractor
             rtrim(trim(str_replace("'", "''", $query)), ';')
         );
         try {
-            /** @var \PDOStatement $stmt */
-            $stmt = $this->db->query($sql);
-            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $result = $this->runRetriableQuery($sql);
             if (is_array($result) && !empty($result)) {
                 return array_map(
                     function ($row) {
@@ -330,12 +365,7 @@ class MSSQL extends Extractor
             try {
                 return $this->metadataProvider->getTables($tables);
             } catch (\Throwable $exception) {
-                try {
-                    $this->isAlive();
-                } catch (DeadConnectionException $deadConnectionException) {
-                    $this->db = $this->createConnection($this->getDbParameters());
-                    $this->metadataProvider = new MetadataProvider($this->db);
-                }
+                $this->tryReconnect();
                 throw $exception;
             }
         });
@@ -511,8 +541,7 @@ class MSSQL extends Extractor
             $columnName
         );
 
-        $res = $this->db->query($query);
-        $columns = $res->fetchAll();
+        $columns = $this->runRetriableQuery($query);
 
         if (count($columns) === 0) {
             throw new UserException(
@@ -558,9 +587,47 @@ class MSSQL extends Extractor
                         : $this->state['lastFetchedRow']
                 );
             }
-            $incrementalAddon .= sprintf(" ORDER BY %s", $this->db->quoteIdentifier($this->incrementalFetching['column']));
+            if ($this->hasIncrementalLimit()) {
+                $incrementalAddon .= sprintf(" ORDER BY %s", $this->db->quoteIdentifier($this->incrementalFetching['column']));
+            }
         }
         return $incrementalAddon;
+    }
+
+    private function runRetriableQuery(string $query, array $values = []): array
+    {
+        $retryProxy = new RetryProxy($this->logger);
+        return $retryProxy->call(function () use ($query, $values) {
+            try {
+                $stmt = $this->db->prepare($query);
+                $stmt->execute($values);
+                return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } catch (\Throwable $exception) {
+                $this->tryReconnect();
+                throw $exception;
+            }
+        });
+    }
+
+    private function tryReconnect(): void
+    {
+        try {
+            $this->isAlive();
+        } catch (DeadConnectionException $deadConnectionException) {
+            $this->db = $this->createConnection($this->getDbParameters());
+            $this->metadataProvider = new MetadataProvider($this->db);
+        }
+    }
+
+    private function hasIncrementalLimit(): bool
+    {
+        if (!$this->incrementalFetching) {
+            return false;
+        }
+        if (isset($this->incrementalFetching['limit']) && (int) $this->incrementalFetching['limit'] > 0) {
+            return true;
+        }
+        return false;
     }
 
     private function shouldQuoteComparison(string $type): bool
@@ -569,5 +636,10 @@ class MSSQL extends Extractor
             return false;
         }
         return true;
+    }
+
+    private function canFetchMaxIncrementalValueSeparately(bool $isAdvancedQuery): bool
+    {
+        return !$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit();
     }
 }
