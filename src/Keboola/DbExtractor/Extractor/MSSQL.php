@@ -129,10 +129,11 @@ class MSSQL extends Extractor
             $this->db->quoteIdentifier($table['tableName']),
             $whereClause
         );
-        $stmt = $this->db->prepare($query);
-        $stmt->execute($whereValues);
-        $lastDatetimeRow = $stmt->fetch(\PDO::FETCH_ASSOC);
-        return $lastDatetimeRow[$this->incrementalFetching['column']];
+
+        $result = $this->runRetryablePreparedStatement($query, $whereValues);
+        if (count($result) > 0) {
+            return $result[0][$this->incrementalFetching['column']];
+        }
     }
 
     private function getLastFetchedId(array $columnMetadata, array $lastExportedLine): string
@@ -145,7 +146,7 @@ class MSSQL extends Extractor
         }
     }
 
-    private function getMaxOfIncrementalFetchingColumn(array $table): string
+    private function getMaxOfIncrementalFetchingColumn(array $table): ?string
     {
         $sql = "SELECT MAX(%s) %s FROM %s.%s";
         if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_BINARY) {
@@ -158,19 +159,11 @@ class MSSQL extends Extractor
             $this->db->quoteIdentifier($table['schema']),
             $this->db->quoteIdentifier($table['tableName'])
         );
-        $retryProxy = new RetryProxy($this->logger);
-        $maxValue = $retryProxy->call(function () use ($fullsql) {
-            try {
-                /** @var \PDOStatement $stmt */
-                $stmt = $this->db->query($fullsql);
-                $result = $stmt->fetch(\PDO::FETCH_ASSOC);
-                return $result[$this->incrementalFetching['column']];
-            } catch (\Throwable $exception) {
-                $this->tryReconnect();
-                throw $exception;
-            }
-        });
-        return $maxValue;
+        $result = $this->runRetriableQuery($fullsql);
+        if (count($result) > 0) {
+            return $result[0][$this->incrementalFetching['column']];
+        }
+        return null;
     }
 
     public function export(array $table): array
@@ -335,9 +328,7 @@ class MSSQL extends Extractor
             rtrim(trim(str_replace("'", "''", $query)), ';')
         );
         try {
-            /** @var \PDOStatement $stmt */
-            $stmt = $this->db->query($sql);
-            $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $result = $this->runRetriableQuery($sql);
             if (is_array($result) && !empty($result)) {
                 return array_map(
                     function ($row) {
@@ -539,8 +530,7 @@ class MSSQL extends Extractor
             $columnName
         );
 
-        $res = $this->db->query($query);
-        $columns = $res->fetchAll();
+        $columns = $this->runRetriableQuery($query);
 
         if (count($columns) === 0) {
             throw new UserException(
@@ -591,6 +581,36 @@ class MSSQL extends Extractor
             }
         }
         return $incrementalAddon;
+    }
+
+    private function runRetriableQuery(string $query): array
+    {
+        $retryProxy = new RetryProxy($this->logger);
+        return $retryProxy->call(function () use ($query) {
+            try {
+                /** @var \PDOStatement $stmt */
+                $stmt = $this->db->query($query);
+                return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } catch (\Throwable $exception) {
+                $this->tryReconnect();
+                throw $exception;
+            }
+        });
+    }
+
+    private function runRetryablePreparedStatement(string $query, array $values): array
+    {
+        $retryProxy = new RetryProxy($this->logger);
+        return $retryProxy->call(function () use ($query, $values) {
+            try {
+                $stmt = $this->db->prepare($query);
+                $stmt->execute($values);
+                return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            } catch (\Throwable $exception) {
+                $this->tryReconnect();
+                throw $exception;
+            }
+        });
     }
 
     private function tryReconnect(): void
