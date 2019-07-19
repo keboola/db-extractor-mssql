@@ -211,6 +211,11 @@ class MSSQL extends Extractor
             }
             $this->logger->info("BCP export started");
             $bcp = new BCP($this->getDbParameters(), $this->logger);
+            // fetch max value for incremental fetching without limit before execution
+            $maxValue = null;
+            if (!$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit()) {
+                $maxValue = $this->getMaxOfIncrementalFetchingColumn($table['table']);
+            }
             $exportResult = $bcp->export($query, (string) $csv);
             if ($exportResult['rows'] === 0) {
                 // BCP will create an empty file for no rows case
@@ -233,8 +238,8 @@ class MSSQL extends Extractor
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
                 } else if (isset($this->incrementalFetching['column'])) {
-                    if (!$this->hasIncrementalLimit()) {
-                        $exportResult['lastFetchedRow'] = $this->getMaxOfIncrementalFetchingColumn($table['table']);
+                    if ($maxValue) {
+                        $exportResult['lastFetchedRow'] = $maxValue;
                     } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
@@ -265,6 +270,11 @@ class MSSQL extends Extractor
                     $query = $this->getSimplePdoQuery($table['table'], $columnMetadata);
                 }
                 $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
+                // fetch max value if incremental without limit
+                $maxValue = null;
+                if (!$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit()) {
+                    $maxValue = $this->getMaxOfIncrementalFetchingColumn($table['table']);
+                }
                 /** @var \PDOStatement $stmt */
                 $stmt = $this->executeQuery(
                     $query,
@@ -280,8 +290,8 @@ class MSSQL extends Extractor
             try {
                 $exportResult = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
                 if ($exportResult['rows'] > 0) {
-                    if (!$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit()) {
-                        $exportResult['lastFetchedRow'] = $this->getMaxOfIncrementalFetchingColumn($table['table']);
+                    if ($maxValue) {
+                        $exportResult['lastFetchedRow'] = $maxValue;
                     }
                     $this->createManifest($table);
                 } else {
