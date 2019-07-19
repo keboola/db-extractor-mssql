@@ -166,12 +166,7 @@ class MSSQL extends Extractor
                 $result = $stmt->fetch(\PDO::FETCH_ASSOC);
                 return $result[$this->incrementalFetching['column']];
             } catch (\Throwable $exception) {
-                try {
-                    $this->isAlive();
-                } catch (DeadConnectionException $deadConnectionException) {
-                    $this->db = $this->createConnection($this->getDbParameters());
-                    $this->metadataProvider = new MetadataProvider($this->db);
-                }
+                $this->tryReconnect();
                 throw $exception;
             }
         });
@@ -368,12 +363,7 @@ class MSSQL extends Extractor
             try {
                 return $this->metadataProvider->getTables($tables);
             } catch (\Throwable $exception) {
-                try {
-                    $this->isAlive();
-                } catch (DeadConnectionException $deadConnectionException) {
-                    $this->db = $this->createConnection($this->getDbParameters());
-                    $this->metadataProvider = new MetadataProvider($this->db);
-                }
+                $this->tryReconnect();
                 throw $exception;
             }
         });
@@ -601,6 +591,16 @@ class MSSQL extends Extractor
             }
         }
         return $incrementalAddon;
+    }
+
+    private function tryReconnect(): void
+    {
+        try {
+            $this->isAlive();
+        } catch (DeadConnectionException $deadConnectionException) {
+            $this->db = $this->createConnection($this->getDbParameters());
+            $this->metadataProvider = new MetadataProvider($this->db);
+        }
     }
 
     private function hasIncrementalLimit(): bool
