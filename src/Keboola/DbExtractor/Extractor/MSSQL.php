@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\DbExtractor\Exception\DeadConnectionException;
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 use Symfony\Component\Process\Process;
 use Keboola\Csv\Exception as CsvException;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
-use Keboola\DbExtractor\RetryProxy;
 
 class MSSQL extends Extractor
 {
@@ -355,7 +357,16 @@ class MSSQL extends Extractor
 
     public function getTables(?array $tables = null): array
     {
-        $proxy = new RetryProxy($this->logger);
+        $simplyRetryPolicy = new SimpleRetryPolicy(
+            self::DEFAULT_MAX_TRIES
+        );
+        $exponentialBackOffPolicy = new ExponentialBackOffPolicy();
+
+        $proxy = new RetryProxy(
+            $simplyRetryPolicy,
+            $exponentialBackOffPolicy,
+            $this->logger
+        );
         return $proxy->call(function () use ($tables): array {
             try {
                 return $this->metadataProvider->getTables($tables);
@@ -577,8 +588,17 @@ class MSSQL extends Extractor
 
     private function runRetriableQuery(string $query, array $values = []): array
     {
-        $retryProxy = new RetryProxy($this->logger);
-        return $retryProxy->call(function () use ($query, $values) {
+        $simplyRetryPolicy = new SimpleRetryPolicy(
+            self::DEFAULT_MAX_TRIES
+        );
+        $exponentialBackOffPolicy = new ExponentialBackOffPolicy();
+
+        $proxy = new RetryProxy(
+            $simplyRetryPolicy,
+            $exponentialBackOffPolicy,
+            $this->logger
+        );
+        return $proxy->call(function () use ($query, $values) {
             try {
                 $stmt = $this->db->prepare($query);
                 $stmt->execute($values);
