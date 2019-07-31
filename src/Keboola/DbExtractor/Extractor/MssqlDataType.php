@@ -9,6 +9,11 @@ use Keboola\DbExtractor\Exception\UserException;
 
 class MssqlDataType extends GenericStorage
 {
+    public const INCREMENT_TYPE_BINARY = 'binary';
+    public const INCREMENT_TYPE_DATETIME = 'datetime';
+    public const INCREMENT_TYPE_NUMERIC = 'numeric';
+    public const INCREMENT_TYPE_QUOTABLE = 'quotable';
+
     public const DATATYPE_KEYS = ['type', 'length', 'nullable', 'default', 'format'];
 
     public const DATE_TYPES = ["date"];
@@ -43,16 +48,16 @@ class MssqlDataType extends GenericStorage
     public static function getIncrementalFetchingType(string $columnName, string $dataType): string
     {
         if (in_array($dataType, MssqlDataType::getNumericTypes())) {
-            return MSSQL::INCREMENT_TYPE_NUMERIC;
+            return self::INCREMENT_TYPE_NUMERIC;
         }
         if ($dataType === 'timestamp') {
-            return MSSQL::INCREMENT_TYPE_BINARY;
+            return self::INCREMENT_TYPE_BINARY;
         }
         if ($dataType === 'smalldatetime') {
-            return MSSQL::INCREMENT_TYPE_QUOTABLE;
+            return self::INCREMENT_TYPE_QUOTABLE;
         }
         if (in_array($dataType, MssqlDataType::TIMESTAMP_TYPES)) {
-            return MSSQL::INCREMENT_TYPE_DATETIME;
+            return self::INCREMENT_TYPE_DATETIME;
         }
         throw new UserException(
             sprintf(

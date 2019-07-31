@@ -13,11 +13,6 @@ use Keboola\DbExtractor\RetryProxy;
 
 class MSSQL extends Extractor
 {
-    public const INCREMENT_TYPE_NUMERIC = 'numeric';
-    public const INCREMENT_TYPE_DATETIME = 'datetime';
-    public const INCREMENT_TYPE_BINARY = 'binary';
-    public const INCREMENT_TYPE_QUOTABLE = 'quotable';
-
     /** @var  int */
     private $sqlServerVersion;
 
@@ -150,7 +145,7 @@ class MSSQL extends Extractor
     private function getMaxOfIncrementalFetchingColumn(array $table): ?string
     {
         $sql = "SELECT MAX(%s) %s FROM %s.%s";
-        if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_BINARY) {
+        if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_BINARY) {
             $sql = "SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s";
         }
         $fullsql = sprintf(
@@ -240,7 +235,7 @@ class MSSQL extends Extractor
                 } else if (isset($this->incrementalFetching['column'])) {
                     if ($maxValue) {
                         $exportResult['lastFetchedRow'] = $maxValue;
-                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
+                    } else if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
                             $table['table'],
@@ -618,7 +613,7 @@ class MSSQL extends Extractor
 
     private function shouldQuoteComparison(string $type): bool
     {
-        if ($type === self::INCREMENT_TYPE_NUMERIC || $type === self::INCREMENT_TYPE_BINARY) {
+        if ($type === MssqlDataType::INCREMENT_TYPE_NUMERIC || $type === MssqlDataType::INCREMENT_TYPE_BINARY) {
             return false;
         }
         return true;

@@ -6,18 +6,10 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
+use PHPUnit\Framework\TestCase;
 
-class MssqlDataTypeTest extends AbstractMSSQLTest
+class MssqlDataTypeTest extends TestCase
 {
-    /** @var array */
-    private $config;
-
-    public function setUp(): void
-    {
-        $this->config = $this->getConfig('mssql');
-        $this->config['parameters']['extractor_class'] = 'MSSQL';
-    }
-
     /**
      * @dataProvider columnDataTypeProvider
      */
@@ -30,33 +22,37 @@ class MssqlDataTypeTest extends AbstractMSSQLTest
     public function columnDataTypeProvider(): array
     {
         return [
-            [
+            'integer' => [
                 ['name' => 'intColumn', 'type' => 'integer'],
                 MssqlDataType::INCREMENT_TYPE_NUMERIC,
             ],
-            [
+            'decimal' => [
                 ['name' => 'decColumn', 'type' => 'decimal'],
                 MssqlDataType::INCREMENT_TYPE_NUMERIC,
             ],
-            [
+            'money' => [
                 ['name' => 'moneyColumn', 'type' => 'money'],
                 MssqlDataType::INCREMENT_TYPE_NUMERIC,
             ],
-            [
+            'smalldatetime' => [
                 ['name' => 'smalldatetimeColumn', 'type' => 'smalldatetime'],
-                MssqlDataType::INCREMENT_TYPE_NUMERIC,
+                MssqlDataType::INCREMENT_TYPE_QUOTABLE,
             ],
-            [
+            'float' => [
                 ['name' => 'floatCol', 'type' => 'float'],
                 MssqlDataType::INCREMENT_TYPE_NUMERIC,
             ],
-            [
+            'datetime' => [
                 ['name' => 'datetimeColumn', 'type' => 'datetime'],
-                MssqlDataType::INCREMENT_TYPE_TIMESTAMP,
+                MssqlDataType::INCREMENT_TYPE_DATETIME,
             ],
-            [
+            'datetime2' => [
                 ['name' => 'datetime2Column', 'type' => 'datetime2'],
-                MssqlDataType::INCREMENT_TYPE_TIMESTAMP,
+                MssqlDataType::INCREMENT_TYPE_DATETIME,
+            ],
+            'timestamp' => [
+                ['name' => 'lastUpdate', 'type' => 'timestamp'],
+                MssqlDataType::INCREMENT_TYPE_BINARY,
             ],
         ];
     }
