@@ -13,11 +13,6 @@ use Keboola\DbExtractor\RetryProxy;
 
 class MSSQL extends Extractor
 {
-    public const INCREMENT_TYPE_NUMERIC = 'numeric';
-    public const INCREMENT_TYPE_DATETIME = 'datetime';
-    public const INCREMENT_TYPE_BINARY = 'binary';
-    public const INCREMENT_TYPE_QUOTABLE = 'quotable';
-
     /** @var  int */
     private $sqlServerVersion;
 
@@ -150,7 +145,7 @@ class MSSQL extends Extractor
     private function getMaxOfIncrementalFetchingColumn(array $table): ?string
     {
         $sql = "SELECT MAX(%s) %s FROM %s.%s";
-        if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_BINARY) {
+        if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_BINARY) {
             $sql = "SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s";
         }
         $fullsql = sprintf(
@@ -240,7 +235,7 @@ class MSSQL extends Extractor
                 } else if (isset($this->incrementalFetching['column'])) {
                     if ($maxValue) {
                         $exportResult['lastFetchedRow'] = $maxValue;
-                    } else if ($this->incrementalFetching['type'] === self::INCREMENT_TYPE_DATETIME) {
+                    } else if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
                             $table['table'],
@@ -533,9 +528,9 @@ class MSSQL extends Extractor
     public function validateIncrementalFetching(array $table, string $columnName, ?int $limit = null): void
     {
         $query = sprintf(
-            "SELECT is_identity, TYPE_NAME(system_type_id) AS data_type 
-            FROM sys.columns 
-            WHERE object_id = OBJECT_ID('[%s].[%s]') AND sys.columns.name = '%s'",
+            "SELECT [is_identity], TYPE_NAME([system_type_id]) AS [data_type]
+            FROM [sys].[columns]
+            WHERE [object_id] = OBJECT_ID('[%s].[%s]') AND [sys].[columns].[name] = '%s'",
             $table['schema'],
             $table['tableName'],
             $columnName
@@ -553,22 +548,8 @@ class MSSQL extends Extractor
         }
 
         $this->incrementalFetching['column'] = $columnName;
-        if (in_array($columns[0]['data_type'], MssqlDataType::getNumericTypes())) {
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_NUMERIC;
-        } else if ($columns[0]['data_type'] === 'timestamp') {
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_BINARY;
-        } else if ($columns[0]['data_type'] === 'smalldatetime') {
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_QUOTABLE;
-        } else if (in_array($columns[0]['data_type'], MssqlDataType::TIMESTAMP_TYPES)) {
-            $this->incrementalFetching['type'] = self::INCREMENT_TYPE_DATETIME;
-        } else {
-            throw new UserException(
-                sprintf(
-                    'Column [%s] specified for incremental fetching is not numeric or datetime',
-                    $columnName
-                )
-            );
-        }
+        $this->incrementalFetching['type'] = MssqlDataType::getIncrementalFetchingType($columnName, $columns[0]['data_type']);
+
         if ($limit) {
             $this->incrementalFetching['limit'] = $limit;
         }
@@ -632,7 +613,7 @@ class MSSQL extends Extractor
 
     private function shouldQuoteComparison(string $type): bool
     {
-        if ($type === self::INCREMENT_TYPE_NUMERIC || $type === self::INCREMENT_TYPE_BINARY) {
+        if ($type === MssqlDataType::INCREMENT_TYPE_NUMERIC || $type === MssqlDataType::INCREMENT_TYPE_BINARY) {
             return false;
         }
         return true;

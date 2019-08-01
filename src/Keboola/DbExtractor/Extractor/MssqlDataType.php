@@ -5,9 +5,15 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\Datatype\Definition\GenericStorage;
+use Keboola\DbExtractor\Exception\UserException;
 
 class MssqlDataType extends GenericStorage
 {
+    public const INCREMENT_TYPE_BINARY = 'binary';
+    public const INCREMENT_TYPE_DATETIME = 'datetime';
+    public const INCREMENT_TYPE_NUMERIC = 'numeric';
+    public const INCREMENT_TYPE_QUOTABLE = 'quotable';
+
     public const DATATYPE_KEYS = ['type', 'length', 'nullable', 'default', 'format'];
 
     public const DATE_TYPES = ["date"];
@@ -36,6 +42,28 @@ class MssqlDataType extends GenericStorage
             MssqlDataType::INTEGER_TYPES,
             MssqlDataType::FLOATING_POINT_TYPES,
             MssqlDataType::FIXED_NUMERIC_TYPES
+        );
+    }
+
+    public static function getIncrementalFetchingType(string $columnName, string $dataType): string
+    {
+        if (in_array($dataType, MssqlDataType::getNumericTypes())) {
+            return self::INCREMENT_TYPE_NUMERIC;
+        }
+        if ($dataType === 'timestamp') {
+            return self::INCREMENT_TYPE_BINARY;
+        }
+        if ($dataType === 'smalldatetime') {
+            return self::INCREMENT_TYPE_QUOTABLE;
+        }
+        if (in_array($dataType, MssqlDataType::TIMESTAMP_TYPES)) {
+            return self::INCREMENT_TYPE_DATETIME;
+        }
+        throw new UserException(
+            sprintf(
+                'Column [%s] specified for incremental fetching is not numeric or datetime',
+                $columnName
+            )
         );
     }
 
