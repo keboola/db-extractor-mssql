@@ -32,7 +32,8 @@ class ExtractorTest extends AbstractMSSQLTest
                 isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
             );
         }
-        $query = $extractor->getSimplePdoQuery($params['table'], $params['columns']);
+        $extractor->attemptingFallback = true;
+        $query = $extractor->simpleQuery($params['table'], $params['columns']);
         $this->assertEquals($expected, $query);
     }
 
@@ -170,17 +171,6 @@ class ExtractorTest extends AbstractMSSQLTest
                         'schema' => 'testSchema',
                     ],
                     'columns' => [],
-                ],
-                [],
-                "SELECT * FROM [testSchema].[test]",
-            ],
-            'simple table select with all columns (columns as null)' => [
-                [
-                    'table' => [
-                        'tableName' => 'test',
-                        'schema' => 'testSchema',
-                    ],
-                    'columns' => null,
                 ],
                 [],
                 "SELECT * FROM [testSchema].[test]",

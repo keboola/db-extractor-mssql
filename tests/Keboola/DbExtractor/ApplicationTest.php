@@ -349,9 +349,8 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
         $process->setTimeout(300);
-        $process->run();
+        $process->mustRun();
 
-        $this->assertEquals(0, $process->getExitCode());
         $this->assertContains("Executing \"SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]\" via PDO", $process->getOutput());
 
         $this->dropTable("PDO_TEST");
