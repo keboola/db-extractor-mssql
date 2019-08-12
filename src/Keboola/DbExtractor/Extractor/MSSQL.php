@@ -404,6 +404,11 @@ class MSSQL extends Extractor
 
     public function simpleQuery(array $table, array $columns = array()): string
     {
+        throw new ApplicationException('This method is deprecated and should never get called');
+    }
+
+    public function getSimpleQuery(array $table, array $columns = array(), string $format = 'BCP'): string
+    {
         $queryStart = "SELECT";
         if (isset($this->incrementalFetching['limit'])) {
             $queryStart .= sprintf(
@@ -412,33 +417,40 @@ class MSSQL extends Extractor
             );
         }
 
-        if ($this->attemptingFallback && count($columns) === 0) {
-            $query = sprintf(
-                "%s * FROM %s.%s",
-                $queryStart,
-                $this->db->quoteIdentifier($table['schema']),
-                $this->db->quoteIdentifier($table['tableName'])
+        if ($format === 'BCP') {
+            $escapedColumnList = implode(
+                ', ',
+                array_map(
+                    function (array $column): string {
+                        if ($this->attemptingFallback) {
+                            return $this->columnToPdoSql($column);
+                        }
+                        return $this->columnToBcpSql($column);
+                    },
+                    $columns
+                )
+            );
+        } else if (count($columns) > 0) {
+            $escapedColumnList = implode(
+                ', ',
+                array_map(
+                    function (array $column): string {
+                        return $this->columnToPdoSql($column);
+                    },
+                    $columns
+                )
             );
         } else {
-            $query = sprintf(
-                "%s %s FROM %s.%s",
-                $queryStart,
-                implode(
-                    ', ',
-                    array_map(
-                        function (array $column): string {
-                            if ($this->attemptingFallback) {
-                                return $this->columnToPdoSql($column);
-                            }
-                            return $this->columnToBcpSql($column);
-                        },
-                        $columns
-                    )
-                ),
-                $this->db->quoteIdentifier($table['schema']),
-                $this->db->quoteIdentifier($table['tableName'])
-            );
+            $escapedColumnList = "*";
         }
+
+        $query = sprintf(
+            "%s %s FROM %s.%s",
+            $queryStart,
+            $escapedColumnList,
+            $this->db->quoteIdentifier($table['schema']),
+            $this->db->quoteIdentifier($table['tableName'])
+        );
 
         if ($table['nolock']) {
             $query .= " WITH(NOLOCK)";
