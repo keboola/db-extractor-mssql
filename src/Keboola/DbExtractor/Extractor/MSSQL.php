@@ -22,6 +22,9 @@ class MSSQL extends Extractor
     /** @var DbAdapter\MssqlAdapter */
     protected $db;
 
+    /** @var bool */
+    public $attemptingFallback = false;
+
     public function __construct(array $parameters, array $state = [], $logger = null)
     {
         parent::__construct($parameters, $state, $logger);
@@ -260,9 +263,10 @@ class MSSQL extends Extractor
                     $e->getMessage()
                 )
             );
+            $this->attemptingFallback = true;
             try {
                 if (!$isAdvancedQuery) {
-                    $query = $this->getSimplePdoQuery($table['table'], $columnMetadata);
+                    $query = $this->simpleQuery($table['table'], $columnMetadata);
                 }
                 $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
                 // fetch max value if incremental without limit
@@ -408,21 +412,33 @@ class MSSQL extends Extractor
             );
         }
 
-        $query = sprintf(
-            "%s %s FROM %s.%s",
-            $queryStart,
-            implode(
-                ', ',
-                array_map(
-                    function (array $column): string {
-                        return $this->columnToBcpSql($column);
-                    },
-                    $columns
-                )
-            ),
-            $this->db->quoteIdentifier($table['schema']),
-            $this->db->quoteIdentifier($table['tableName'])
-        );
+        if ($this->attemptingFallback && count($columns) === 0) {
+            $query = sprintf(
+                "%s * FROM %s.%s",
+                $queryStart,
+                $this->db->quoteIdentifier($table['schema']),
+                $this->db->quoteIdentifier($table['tableName'])
+            );
+        } else {
+            $query = sprintf(
+                "%s %s FROM %s.%s",
+                $queryStart,
+                implode(
+                    ', ',
+                    array_map(
+                        function (array $column): string {
+                            if ($this->attemptingFallback) {
+                                return $this->columnToPdoSql($column);
+                            }
+                            return $this->columnToBcpSql($column);
+                        },
+                        $columns
+                    )
+                ),
+                $this->db->quoteIdentifier($table['schema']),
+                $this->db->quoteIdentifier($table['tableName'])
+            );
+        }
 
         if ($table['nolock']) {
             $query .= " WITH(NOLOCK)";
@@ -455,50 +471,6 @@ class MSSQL extends Extractor
             return $colstr . ' AS ' . $escapedColumnName;
         }
         return $colstr;
-    }
-
-    public function getSimplePdoQuery(array $table, ?array $columns = []): string
-    {
-        $queryStart = "SELECT";
-        if (isset($this->incrementalFetching['limit'])) {
-            $queryStart .= sprintf(
-                " TOP %d",
-                $this->incrementalFetching['limit']
-            );
-        }
-
-        if ($columns && count($columns) > 0) {
-            $query = sprintf(
-                "%s %s FROM %s.%s",
-                $queryStart,
-                implode(
-                    ', ',
-                    array_map(
-                        function (array $column): string {
-                            return $this->columnToPdoSql($column);
-                        },
-                        $columns
-                    )
-                ),
-                $this->db->quoteIdentifier($table['schema']),
-                $this->db->quoteIdentifier($table['tableName'])
-            );
-        } else {
-            $query = sprintf(
-                "%s * FROM %s.%s",
-                $queryStart,
-                $this->db->quoteIdentifier($table['schema']),
-                $this->db->quoteIdentifier($table['tableName'])
-            );
-        }
-        if ($table['nolock']) {
-            $query .= " WITH(NOLOCK)";
-        }
-        $incrementalAddon = $this->getIncrementalQueryAddon();
-        if ($incrementalAddon) {
-            $query .= $incrementalAddon;
-        }
-        return $query;
     }
 
     public static function getColumnMetadata(array $column): array
