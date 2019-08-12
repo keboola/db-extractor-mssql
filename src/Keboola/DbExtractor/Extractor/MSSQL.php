@@ -13,6 +13,9 @@ use Keboola\DbExtractor\RetryProxy;
 
 class MSSQL extends Extractor
 {
+    const ESCAPING_TYPE_BCP = 'BCP';
+    const ESCAPING_TYPE_PDO = 'PDO';
+
     /** @var  int */
     private $sqlServerVersion;
 
@@ -21,9 +24,6 @@ class MSSQL extends Extractor
 
     /** @var DbAdapter\MssqlAdapter */
     protected $db;
-
-    /** @var bool */
-    public $attemptingFallback = false;
 
     public function __construct(array $parameters, array $state = [], $logger = null)
     {
@@ -197,7 +197,7 @@ class MSSQL extends Extractor
                 });
             }
             $table['table']['nolock'] = $table['nolock'];
-            $query = $this->simpleQuery($table['table'], $columnMetadata);
+            $query = $this->getSimpleQuery($table['table'], $columnMetadata, self::ESCAPING_TYPE_BCP);
         } else {
             $query = $table['query'];
         }
@@ -263,10 +263,9 @@ class MSSQL extends Extractor
                     $e->getMessage()
                 )
             );
-            $this->attemptingFallback = true;
             try {
                 if (!$isAdvancedQuery) {
-                    $query = $this->simpleQuery($table['table'], $columnMetadata);
+                    $query = $this->getSimpleQuery($table['table'], $columnMetadata, self::ESCAPING_TYPE_PDO);
                 }
                 $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
                 // fetch max value if incremental without limit
@@ -407,7 +406,7 @@ class MSSQL extends Extractor
         throw new ApplicationException('This method is deprecated and should never get called');
     }
 
-    public function getSimpleQuery(array $table, array $columns = array(), string $format = 'BCP'): string
+    public function getSimpleQuery(array $table, array $columns = array(), string $format = self::ESCAPING_TYPE_BCP): string
     {
         $queryStart = "SELECT";
         if (isset($this->incrementalFetching['limit'])) {
@@ -422,9 +421,6 @@ class MSSQL extends Extractor
                 ', ',
                 array_map(
                     function (array $column): string {
-                        if ($this->attemptingFallback) {
-                            return $this->columnToPdoSql($column);
-                        }
                         return $this->columnToBcpSql($column);
                     },
                     $columns
