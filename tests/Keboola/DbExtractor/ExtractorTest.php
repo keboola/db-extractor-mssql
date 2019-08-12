@@ -174,6 +174,17 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT * FROM [testSchema].[test]",
             ],
+            'simple table select with all columns (columns as null)' => [
+                [
+                    'table' => [
+                        'tableName' => 'test',
+                        'schema' => 'testSchema',
+                    ],
+                    'columns' => null,
+                ],
+                [],
+                "SELECT * FROM [testSchema].[test]",
+            ],
             'simple table with 2 columns selected' => [
                 [
                     'table' => [
