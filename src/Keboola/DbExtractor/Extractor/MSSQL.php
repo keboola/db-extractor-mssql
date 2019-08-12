@@ -401,7 +401,7 @@ class MSSQL extends Extractor
         return $colstr;
     }
 
-    public function simpleQuery(array $table, array $columns = array()): string
+    public function simpleQuery(array $table, ?array $columns = array()): string
     {
         throw new ApplicationException('This method is deprecated and should never get called');
     }
@@ -416,7 +416,7 @@ class MSSQL extends Extractor
             );
         }
 
-        if ($format === 'BCP') {
+        if ($format === self::ESCAPING_TYPE_BCP) {
             $escapedColumnList = implode(
                 ', ',
                 array_map(
@@ -426,7 +426,7 @@ class MSSQL extends Extractor
                     $columns
                 )
             );
-        } else if (count($columns) > 0) {
+        } else if ($columns && count($columns) > 0) {
             $escapedColumnList = implode(
                 ', ',
                 array_map(
