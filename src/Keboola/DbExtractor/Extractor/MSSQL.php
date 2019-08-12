@@ -13,8 +13,8 @@ use Keboola\DbExtractor\RetryProxy;
 
 class MSSQL extends Extractor
 {
-    const ESCAPING_TYPE_BCP = 'BCP';
-    const ESCAPING_TYPE_PDO = 'PDO';
+    public const ESCAPING_TYPE_BCP = 'BCP';
+    public const ESCAPING_TYPE_PDO = 'PDO';
 
     /** @var  int */
     private $sqlServerVersion;
