@@ -401,12 +401,12 @@ class MSSQL extends Extractor
         return $colstr;
     }
 
-    public function simpleQuery(array $table, ?array $columns = array()): string
+    public function simpleQuery(array $table, array $columns = array()): string
     {
         throw new ApplicationException('This method is deprecated and should never get called');
     }
 
-    public function getSimpleQuery(array $table, array $columns = array(), string $format = self::ESCAPING_TYPE_BCP): string
+    public function getSimpleQuery(array $table, ?array $columns = array(), string $format = self::ESCAPING_TYPE_BCP): string
     {
         $queryStart = "SELECT";
         if (isset($this->incrementalFetching['limit'])) {
