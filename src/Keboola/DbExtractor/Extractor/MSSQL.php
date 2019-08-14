@@ -577,8 +577,12 @@ class MSSQL extends Extractor
         } catch (DeadConnectionException $deadConnectionException) {
             try {
                 $this->db = $this->createConnection($this->getDbParameters());
-            } catch (\Throwable $e) {
-                throw new UserException("Unable to reconnect to the database", 1, $e);
+            } catch (\Throwable $reconnectException) {
+                throw new UserException(
+                    "Unable to reconnect to the database: " . $reconnectException->getMessage(),
+                    $reconnectException->getCode(),
+                    $reconnectException
+                );
             }
             $this->metadataProvider = new MetadataProvider($this->db);
         }
