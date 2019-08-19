@@ -32,7 +32,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
             );
         }
-        $query = $extractor->getSimplePdoQuery($params['table'], $params['columns']);
+        $query = $extractor->getSimpleQuery($params['table'], $params['columns'], MSSQL::ESCAPING_TYPE_PDO);
         $this->assertEquals($expected, $query);
     }
 
@@ -50,7 +50,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
             );
         }
-        $query = $extractor->simpleQuery($params['table'], $params['columns'] ?? []);
+        $query = $extractor->getSimpleQuery($params['table'], $params['columns'] ?? [], MSSQL::ESCAPING_TYPE_BCP);
         $this->assertEquals($expected, $query);
     }
 
