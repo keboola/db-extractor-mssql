@@ -89,7 +89,7 @@ class MSSQL extends Extractor
         $sedCommand = sprintf('sed -e \'%s;%s;%s\' -i %s', $nullAtStart, $nullInTheMiddle, $nullAtEnd, $fileName);
 
         $process = new Process($sedCommand);
-        $process->setTimeout(300);
+        $process->setTimeout(1800);
         $process->run();
         if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
             throw new ApplicationException(
