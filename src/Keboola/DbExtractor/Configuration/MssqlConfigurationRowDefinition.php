@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Configuration;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 class MssqlConfigurationRowDefinition extends ConfigRowDefinition
 {
@@ -14,6 +15,16 @@ class MssqlConfigurationRowDefinition extends ConfigRowDefinition
         $rootNode = $treeBuilder->root('parameters');
         // @formatter:off
         $rootNode
+            ->validate()->always(function ($v) {
+                if (isset($v['disableFallback'])
+                    && $v['disableFallback'] === true
+                    && isset($v['disableBcp'])
+                    && $v['disableBcp'] === true
+                ) {
+                    throw new InvalidConfigurationException('Can\'t disable both BCP and fallback to PDO');
+                }
+                return $v;
+            })->end()
             ->children()
                 ->scalarNode('data_dir')
                     ->isRequired()

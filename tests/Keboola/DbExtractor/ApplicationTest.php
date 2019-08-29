@@ -273,6 +273,51 @@ class ApplicationTest extends AbstractMSSQLTest
         );
     }
 
+    public function testDisableBcpAndFallbackIsInvalidForTables(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        $config['parameters']['tables'][0]['query'] = "SELECT *  FROM \"special\";";
+        $config['parameters']['tables'][0]['disableBcp'] = true;
+        $config['parameters']['tables'][0]['disableFallback'] = true;
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+        $this->assertContains(
+            'Can\'t disable both BCP and fallback to PDO',
+            $process->getErrorOutput()
+        );
+    }
+
+    public function testDisableBcpAndFallbackIsInvalidForConfigRow(): void
+    {
+        $config = $this->getConfigRow('mssql');
+        $config['parameters']['query'] = "SELECT *  FROM \"special\";";
+        $config['parameters']['disableBcp'] = true;
+        $config['parameters']['disableFallback'] = true;
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_JSON);
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+        $this->assertContains(
+            'Can\'t disable both BCP and fallback to PDO',
+            $process->getErrorOutput()
+        );
+    }
+
+
+
     public function testDisableFallbackConfigRow(): void
     {
         $config = $this->getConfigRow(self::DRIVER);
