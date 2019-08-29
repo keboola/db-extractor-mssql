@@ -70,6 +70,7 @@ class MssqlConfigurationRowDefinition extends ConfigRowDefinition
                 ->booleanNode('nolock')->defaultValue(false)->end()
                 ->booleanNode('advancedMode')->end()
                 ->booleanNode('disableFallback')->defaultFalse()->end()
+                ->booleanNode('disableBcp')->defaultFalse()->end()
             ->end()
         ;
         // @formatter:on

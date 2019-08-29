@@ -251,6 +251,28 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals("The BCP command produced an invalid csv.\n", $process->getErrorOutput());
     }
 
+    public function testDisableBcp(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        $config['parameters']['tables'][0]['query'] = "SELECT *  FROM \"special\";";
+        $config['parameters']['tables'][0]['disableBcp'] = true;
+
+        $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
+
+        $process = new Process('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $this->assertEquals(0, $process->getExitCode());
+        $this->assertContains(
+            "The BCP export failed: BCP export was disabled by configuration. Attempting export using pdo_sqlsrv",
+            $process->getOutput()
+        );
+    }
+
     public function testDisableFallbackConfigRow(): void
     {
         $config = $this->getConfigRow(self::DRIVER);
