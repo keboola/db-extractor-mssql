@@ -204,6 +204,9 @@ class MSSQL extends Extractor
         $this->logger->debug("Executing query: " . $query);
 
         try {
+            if ($table['disableBcp']) {
+                throw new UserException('BCP export was disabled by configuration');
+            }
             if ($isAdvancedQuery && $this->sqlServerVersion < 11) {
                 throw new UserException("BCP is not supported for advanced queries in sql server 2008 or less.");
             }
