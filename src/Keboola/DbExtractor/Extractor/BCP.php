@@ -31,7 +31,7 @@ class BCP
 
         if (!$process->isSuccessful()) {
             throw new UserException(sprintf(
-                "Export process failed. Output: %s. \n\n Error Output: %s.",
+                'Export process failed. Output: %s. \n\n Error Output: %s.',
                 $process->getOutput(),
                 $process->getErrorOutput()
             ));
