@@ -239,9 +239,6 @@ class MetadataProvider
 
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
-            if (!array_key_exists('columns', $tableDefs[$curTable])) {
-                $tableDefs[$curTable]['columns'] = [];
-            }
 
             $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
             if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
