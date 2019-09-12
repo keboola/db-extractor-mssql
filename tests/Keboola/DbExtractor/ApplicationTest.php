@@ -289,7 +289,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
-        $this->assertEquals(1, $process->getExitCode());
+        $this->assertEquals(2, $process->getExitCode());
         $this->assertStringContainsString(
             'Can\'t disable both BCP and fallback to PDO',
             $process->getErrorOutput()
@@ -309,7 +309,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->run();
 
-        $this->assertEquals(1, $process->getExitCode());
+        $this->assertEquals(2, $process->getExitCode());
         $this->assertStringContainsString(
             'Can\'t disable both BCP and fallback to PDO',
             $process->getErrorOutput()

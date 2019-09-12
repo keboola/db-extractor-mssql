@@ -7,7 +7,7 @@ namespace Keboola\DbExtractor\Tests;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Logger;
+use Keboola\DbExtractorLogger\Logger;
 
 abstract class AbstractMSSQLTest extends ExtractorTest
 {

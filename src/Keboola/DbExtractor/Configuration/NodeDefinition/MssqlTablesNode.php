@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Keboola\DbExtractor\Configuration;
+namespace Keboola\DbExtractor\Configuration\NodeDefinition;
 
-use Symfony\Component\Config\Definition\Builder\TreeBuilder;
+use Keboola\DbExtractorConfig\Configuration\NodeDefinition\TablesNode;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
-class MssqlConfigurationRowDefinition extends ConfigRowDefinition
+class MssqlTablesNode extends TablesNode
 {
-    public function getConfigTreeBuilder(): TreeBuilder
+    protected function init(): void
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('parameters');
         // @formatter:off
-        $rootNode
+        $this
+            ->prototype('array')
             ->validate()->always(function ($v) {
                 if (isset($v['disableFallback'])
                     && $v['disableFallback'] === true
@@ -23,33 +22,26 @@ class MssqlConfigurationRowDefinition extends ConfigRowDefinition
                 ) {
                     throw new InvalidConfigurationException('Can\'t disable both BCP and fallback to PDO');
                 }
+                if (isset($v['query']) && $v['query'] !== '' && isset($v['table'])) {
+                    throw new InvalidConfigurationException('Both table and query cannot be set together.');
+                }
+                if (isset($v['query']) && $v['query'] !== '' && isset($v['incrementalFetchingColumn'])) {
+                    $message = 'Incremental fetching is not supported for advanced queries.';
+                    throw new InvalidConfigurationException($message);
+                }
+                if (!isset($v['table']) && !isset($v['query'])) {
+                    throw new InvalidConfigurationException('One of table or query is required');
+                }
                 return $v;
             })->end()
             ->children()
-                ->scalarNode('data_dir')
-                    ->isRequired()
-                    ->cannotBeEmpty()
-                ->end()
-                ->scalarNode('extractor_class')
-                    ->isRequired()
-                    ->cannotBeEmpty()
-                ->end()
-                ->arrayNode('db')
-                    ->children()
-                        ->scalarNode('driver')->end()
-                        ->scalarNode('host')->end()
-                        ->scalarNode('port')->end()
-                        ->scalarNode('database')->end()
-                        ->scalarNode('user')
-                            ->isRequired()
-                        ->end()
-                        ->scalarNode('#password')->end()
-                        ->append($this->addSshNode())
-                    ->end()
-                ->end()
                 ->integerNode('id')
+                    ->isRequired()
+                    ->min(0)
                 ->end()
                 ->scalarNode('name')
+                    ->isRequired()
+                    ->cannotBeEmpty()
                 ->end()
                 ->scalarNode('query')->end()
                 ->arrayNode('table')
@@ -63,12 +55,11 @@ class MssqlConfigurationRowDefinition extends ConfigRowDefinition
                 ->end()
                 ->scalarNode('outputTable')
                     ->isRequired()
+                    ->cannotBeEmpty()
                 ->end()
                 ->booleanNode('incremental')
                     ->defaultValue(false)
                 ->end()
-                ->scalarNode('incrementalFetchingColumn')->end()
-                ->scalarNode('incrementalFetchingLimit')->end()
                 ->booleanNode('enabled')
                     ->defaultValue(true)
                 ->end()
@@ -76,15 +67,13 @@ class MssqlConfigurationRowDefinition extends ConfigRowDefinition
                     ->prototype('scalar')->end()
                 ->end()
                 ->integerNode('retries')
-                    ->min(1)
+                    ->min(0)
                 ->end()
                 ->booleanNode('nolock')->defaultValue(false)->end()
-                ->booleanNode('advancedMode')->end()
                 ->booleanNode('disableFallback')->defaultFalse()->end()
                 ->booleanNode('disableBcp')->defaultFalse()->end()
             ->end()
         ;
         // @formatter:on
-        return $treeBuilder;
     }
 }

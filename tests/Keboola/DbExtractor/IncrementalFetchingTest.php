@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
+use Keboola\DbExtractorConfig\Exception\UserException as ConfigUserException;
 
 class IncrementalFetchingTest extends AbstractMSSQLTest
 {
@@ -259,12 +260,11 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $config = $this->getIncrementalFetchingConfig();
         $config['parameters']['query'] = 'SELECT * FROM auto_increment_timestamp';
         unset($config['parameters']['table']);
-        try {
-            ($this->createApplication($config))->run();
-            $this->fail('cannot use incremental fetching with advanced query, should fail.');
-        } catch (UserException $e) {
-            $this->assertStringStartsWith('Invalid Configuration', $e->getMessage());
-        }
+
+        $this->expectException(ConfigUserException::class);
+        $this->expectExceptionMessage('Incremental fetching is not supported for advanced queries.');
+        $app = $this->createApplication($config);
+        $app->run();
     }
 
     protected function getIncrementalFetchingConfig(): array

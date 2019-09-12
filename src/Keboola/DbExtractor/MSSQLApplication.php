@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor;
 
-use Keboola\DbExtractor\Configuration\MssqlConfigurationRowDefinition;
-use Keboola\DbExtractor\Configuration\MssqlConfigurationDefinition;
+use Keboola\DbExtractor\Configuration\MssqlConfigRowDefinition;
+use Keboola\DbExtractor\Configuration\NodeDefinition\MssqlTablesNode;
+use Keboola\DbExtractorConfig\Config;
+use Keboola\DbExtractorConfig\Configuration\ConfigDefinition;
+use Keboola\DbExtractorLogger\Logger;
 
 class MSSQLApplication extends Application
 {
@@ -15,12 +18,14 @@ class MSSQLApplication extends Application
         $config['parameters']['extractor_class'] = 'MSSQL';
 
         parent::__construct($config, ($logger) ? $logger : new Logger('ex-db-mssql'), $state);
+    }
 
-        // override with mssql specific config definitions
-        if (isset($this['parameters']['tables'])) {
-            $this->setConfigDefinition(new MssqlConfigurationDefinition());
+    protected function buildConfig(array $config): void
+    {
+        if (isset($config['parameters']['tables'])) {
+            $this->config = new Config($config, new ConfigDefinition(null, null, new MssqlTablesNode()));
         } else if ($this['action'] === 'run') {
-            $this->setConfigDefinition(new MssqlConfigurationRowDefinition());
+            $this->config = new Config($config, new MssqlConfigRowDefinition());
         }
     }
 }
