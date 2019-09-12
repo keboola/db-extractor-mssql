@@ -15,7 +15,7 @@
     },
     "require-dev": {
         "keboola/coding-standard": "^8.0",
-        "phpstan/phpstan": "^0.8",
+        "phpstan/phpstan-shim": "^0.11.15",
         "phpunit/phpunit": "^8.3"
     },
     "autoload": {

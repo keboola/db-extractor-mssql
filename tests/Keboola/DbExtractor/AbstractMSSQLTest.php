@@ -21,7 +21,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function setUp(): void
     {
-        if (!$this->pdo) {
+        if (!($this->pdo instanceof \PDO)) {
             $this->makeConnection();
         }
         $this->setupTables();
@@ -209,10 +209,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                                 '/[\x0e-\x1f]/'             // 14-31
                                 );
                                 foreach ($nonDisplayables as $regex) {
-                                    $data = preg_replace($regex, '', $data);
+                                    $data = (string) preg_replace($regex, '', $data);
                                 }
 
-                                $data = str_replace("'", "''", $data);
+                                $data = (string) str_replace("'", "''", $data);
 
                                 return "'" . $data . "'";
                             },

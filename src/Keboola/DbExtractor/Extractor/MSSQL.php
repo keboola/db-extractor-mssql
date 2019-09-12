@@ -234,7 +234,7 @@ class MSSQL extends Extractor
                 if ($isAdvancedQuery) {
                     $manifestFile = $this->getOutputFilename($table['outputTable']) . '.manifest';
                     $columnsArray = $this->getAdvancedQueryColumns($query);
-                    $manifest = json_decode(file_get_contents($manifestFile), true);
+                    $manifest = json_decode((string) file_get_contents($manifestFile), true);
                     $manifest['columns'] = $columnsArray;
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
@@ -419,7 +419,7 @@ class MSSQL extends Extractor
             );
         }
 
-        if ($format === self::ESCAPING_TYPE_BCP) {
+        if ($columns && count($columns) > 0 && $format === self::ESCAPING_TYPE_BCP) {
             $escapedColumnList = implode(
                 ', ',
                 array_map(

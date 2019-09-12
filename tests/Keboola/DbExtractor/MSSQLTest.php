@@ -100,7 +100,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $specialManifest = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($specialManifest), true);
+        $manifest = json_decode((string) file_get_contents($specialManifest), true);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.special',
@@ -257,7 +257,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $salesManifestFile = $this->dataDir . '/out/tables/' . $result['imported'][0]['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($salesManifestFile), true);
+        $manifest = json_decode((string) file_get_contents($salesManifestFile), true);
         $this->assertEquals(
             [
                 'destination' => 'in.c-main.sales',
@@ -282,7 +282,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $tableColumnsManifest = $this->dataDir . '/out/tables/' . $result['imported'][1]['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($tableColumnsManifest), true);
+        $manifest = json_decode((string) file_get_contents($tableColumnsManifest), true);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.tablecolumns',
@@ -497,7 +497,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $weirdManifest = $this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($weirdManifest), true);
+        $manifest = json_decode((string) file_get_contents($weirdManifest), true);
         // assert the timestamp column has the correct date format
         $outputData = iterator_to_array(
             new CsvFile($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
@@ -936,7 +936,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $specialManifest = $this->dataDir . '/out/tables/' . $result['imported'][3]['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($specialManifest), true);
+        $manifest = json_decode((string) file_get_contents($specialManifest), true);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.special',
@@ -1512,7 +1512,7 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $this->assertEquals('success', $result['status']);
         $outputManifestFile = $this->dataDir . '/out/tables/in.c-main.columnscheck.csv.manifest';
-        $outputManifest = json_decode(file_get_contents($outputManifestFile), true);
+        $outputManifest = json_decode((string) file_get_contents($outputManifestFile), true);
         // check that the manifest has the correct column ordering
         $this->assertEquals($config['parameters']['tables'][0]['columns'], $outputManifest['columns']);
         // check the data

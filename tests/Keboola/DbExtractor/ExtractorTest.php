@@ -56,8 +56,6 @@ class ExtractorTest extends AbstractMSSQLTest
 
     /**
      * @dataProvider columnTypeProvider
-     * @param array $column
-     * @param array $sxpectedSql
      */
     public function testColumnCasting(array $column, array $expectedSql): void
     {

@@ -200,7 +200,7 @@ class MetadataProvider
         }
         $stmt = $this->db->query($sql);
 
-        $arr = $stmt->fetchAll();
+        $arr = (array) $stmt->fetchAll();
         if (count($arr) === 0) {
             return [];
         }
@@ -214,6 +214,7 @@ class MetadataProvider
                 'catalog' => (isset($table['TABLE_CATALOG'])) ? $table['TABLE_CATALOG'] : '',
                 'schema' => (isset($table['TABLE_SCHEMA'])) ? $table['TABLE_SCHEMA'] : '',
                 'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : '',
+                'columns' => [],
             ];
         }
         ksort($tableDefs);
@@ -230,7 +231,7 @@ class MetadataProvider
 
         $res = $this->db->query($sql);
 
-        $rows = $res->fetchAll();
+        $rows = (array) $res->fetchAll();
 
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];

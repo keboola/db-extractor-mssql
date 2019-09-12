@@ -475,7 +475,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->mustRun();
 
         $this->assertFileExists($this->dataDir . '/out/state.json');
-        $state = json_decode(file_get_contents($this->dataDir . '/out/state.json'), true);
+        $state = json_decode((string) file_get_contents($this->dataDir . '/out/state.json'), true);
         $this->assertEquals(['lastFetchedRow' => 6], $state);
     }
 
@@ -504,7 +504,7 @@ class ApplicationTest extends AbstractMSSQLTest
             $process->getOutput()
         );
         $this->assertFileExists($this->dataDir . '/out/state.json');
-        $state = json_decode(file_get_contents($this->dataDir . '/out/state.json'), true);
+        $state = json_decode((string) file_get_contents($this->dataDir . '/out/state.json'), true);
         $this->assertLessThanOrEqual(2, time() - strtotime($state['lastFetchedRow']));
     }
 
@@ -534,7 +534,7 @@ class ApplicationTest extends AbstractMSSQLTest
         );
         $outputFile = $this->dataDir . '/out/tables/in.c-main.auto-increment-timestamp.csv';
         $this->assertFileExists($this->dataDir . '/out/state.json');
-        $state = json_decode(file_get_contents($this->dataDir . '/out/state.json'), true);
+        $state = json_decode((string) file_get_contents($this->dataDir . '/out/state.json'), true);
         $this->assertArrayHasKey('lastFetchedRow', $state);
         $this->assertEquals('2012-01-10 10:25:00', $state['lastFetchedRow']);
         unlink($outputFile);
@@ -559,7 +559,7 @@ class ApplicationTest extends AbstractMSSQLTest
         );
 
         //check that output state contains expected information (will contain the same last 2 rows as above, + 2 more
-        $state = json_decode(file_get_contents($this->dataDir . '/out/state.json'), true);
+        $state = json_decode((string) file_get_contents($this->dataDir . '/out/state.json'), true);
         $this->assertEquals('2012-01-10 10:55:00', $state['lastFetchedRow']);
     }
 
