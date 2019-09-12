@@ -294,11 +294,11 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function getPrivateKey(): string
     {
-        return file_get_contents('/root/.ssh/id_rsa');
+        return (string) file_get_contents('/root/.ssh/id_rsa');
     }
 
     public function getPublicKey(): string
     {
-        return file_get_contents('/root/.ssh/id_rsa.pub');
+        return (string) file_get_contents('/root/.ssh/id_rsa.pub');
     }
 }

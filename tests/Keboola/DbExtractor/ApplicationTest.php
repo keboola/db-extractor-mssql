@@ -141,7 +141,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals("", $process->getErrorOutput());
         // verify that the bcp command uses the proxy
-        $this->assertContains("-S \"127.0.0.1,1234\"", $process->getOutput());
+        $this->assertStringContainsString("-S \"127.0.0.1,1234\"", $process->getOutput());
 
         $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
         $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
@@ -203,10 +203,10 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertEquals(1, $process->getExitCode());
 
-        $this->assertContains("[in.c-main.special]: DB query failed:", $process->getErrorOutput());
+        $this->assertStringContainsString("[in.c-main.special]: DB query failed:", $process->getErrorOutput());
 
-        $this->assertContains("The BCP export failed:", $process->getOutput());
-        $this->assertContains("Attempting export using pdo", $process->getOutput());
+        $this->assertStringContainsString("The BCP export failed:", $process->getOutput());
+        $this->assertStringContainsString("Attempting export using pdo", $process->getOutput());
     }
 
     public function testPdoFallback(): void
@@ -228,8 +228,8 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode(), $output);
         $this->assertEquals('', $process->getErrorOutput());
 
-        $this->assertContains("The BCP export failed:", $process->getOutput());
-        $this->assertContains("Attempting export using pdo", $process->getOutput());
+        $this->assertStringContainsString("The BCP export failed:", $process->getOutput());
+        $this->assertStringContainsString("Attempting export using pdo", $process->getOutput());
     }
 
     public function testDisableFallback(): void
@@ -267,7 +267,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
-        $this->assertContains(
+        $this->assertStringContainsString(
             "The BCP export failed: BCP export was disabled by configuration. Attempting export using pdo_sqlsrv",
             $process->getOutput()
         );
@@ -290,7 +290,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Can\'t disable both BCP and fallback to PDO',
             $process->getErrorOutput()
         );
@@ -310,7 +310,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
-        $this->assertContains(
+        $this->assertStringContainsString(
             'Can\'t disable both BCP and fallback to PDO',
             $process->getErrorOutput()
         );
@@ -354,8 +354,8 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode(), $output);
         $this->assertEquals('', $process->getErrorOutput());
 
-        $this->assertContains("BCP successfully exported", $process->getOutput());
-        $this->assertNotContains("The BCP export failed:", $process->getOutput());
+        $this->assertStringContainsString("BCP successfully exported", $process->getOutput());
+        $this->assertStringNotContainsString("The BCP export failed:", $process->getOutput());
     }
 
     public function testPDOFallbackSimpleNoData(): void
@@ -385,10 +385,10 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
-        $this->assertContains('[in.c-main.simple_empty]: Query returned empty result so nothing was imported', $process->getErrorOutput());
+        $this->assertStringContainsString('[in.c-main.simple_empty]: Query returned empty result so nothing was imported', $process->getErrorOutput());
 
-        $this->assertContains("[in.c-main.simple_empty]: The BCP export failed:", $process->getOutput());
-        $this->assertContains("Attempting export using pdo", $process->getOutput());
+        $this->assertStringContainsString("[in.c-main.simple_empty]: The BCP export failed:", $process->getOutput());
+        $this->assertStringContainsString("Attempting export using pdo", $process->getOutput());
 
         $this->assertFileNotExists($dataFile);
         $this->assertFileNotExists($manifestFile);
@@ -418,7 +418,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
-        $this->assertContains("Executing \"SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]\" via PDO", $process->getOutput());
+        $this->assertStringContainsString("Executing \"SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]\" via PDO", $process->getOutput());
 
         $this->dropTable("PDO_TEST");
     }
@@ -447,8 +447,8 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
-        $this->assertContains("SELECT [ID], [SMALLDATE] FROM [dbo].[SMALLDATETIME_TEST]", $process->getOutput());
-        $this->assertNotContains("CONVERT(DATETIME2(0),[SMALLDATE])", $process->getOutput());
+        $this->assertStringContainsString("SELECT [ID], [SMALLDATE] FROM [dbo].[SMALLDATETIME_TEST]", $process->getOutput());
+        $this->assertStringNotContainsString("CONVERT(DATETIME2(0),[SMALLDATE])", $process->getOutput());
         $this->dropTable("SMALLDATETIME_TEST");
     }
 
@@ -499,7 +499,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
-        $this->assertNotContains(
+        $this->assertStringNotContainsString(
             "The BCP export failed: SQLSTATE[42000]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Implicit conversion from data type nvarchar to timestamp is not allowed.",
             $process->getOutput()
         );
@@ -528,7 +528,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
-        $this->assertNotContains(
+        $this->assertStringNotContainsString(
             "The BCP export failed",
             $process->getOutput()
         );
@@ -553,7 +553,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
-        $this->assertNotContains(
+        $this->assertStringNotContainsString(
             "The BCP export failed",
             $process->getOutput()
         );
@@ -606,11 +606,10 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
-        $this->assertNotContains(
+        $this->assertStringNotContainsString(
             "nolock",
             $process->getOutput(),
-            "Failed to assert that advanced query with nolock set didn't have nolock in the query",
-            true
+            "Failed to assert that advanced query with nolock set didn't have nolock in the query"
         );
     }
 

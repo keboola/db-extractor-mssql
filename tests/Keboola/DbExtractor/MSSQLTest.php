@@ -34,7 +34,7 @@ class MSSQLTest extends AbstractMSSQLTest
             $app->run();
             $this->fail('Must raise exception');
         } catch (UserException $e) {
-            $this->assertContains('Cannot open database "nonExistentDb" requested by the login.', $e->getMessage());
+            $this->assertStringContainsString('Cannot open database "nonExistentDb" requested by the login.', $e->getMessage());
         }
     }
 
@@ -503,7 +503,7 @@ class MSSQLTest extends AbstractMSSQLTest
             new CsvFile($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
         );
         $this->assertEquals(1, (int) $outputData[0][2]);
-        $this->assertEquals("1.1", $outputData[0][3]);
+        $this->assertEquals("1.10", $outputData[0][3]);
         $firstTimestamp = $outputData[0][5];
         // there should be no decimal separator present (it should be cast to datetime2(0) which does not include ms)
         $this->assertEquals(1, preg_match("/^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/", $firstTimestamp));
@@ -1570,13 +1570,13 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $outputData = iterator_to_array(new CsvFile($this->dataDir . '/out/tables/in.c-main.null_test.csv'));
 
-        $this->assertNotContains(chr(0), $outputData[0][0]);
-        $this->assertNotContains(chr(0), $outputData[0][1]);
+        $this->assertStringNotContainsString(chr(0), $outputData[0][0]);
+        $this->assertStringNotContainsString(chr(0), $outputData[0][1]);
         $this->assertEquals("test with " . chr(0) . " inside", $outputData[0][2]);
-        $this->assertNotContains(chr(0), $outputData[1][0]);
-        $this->assertNotContains(chr(0), $outputData[1][1]);
-        $this->assertNotContains(chr(0), $outputData[1][2]);
-        $this->assertNotContains(chr(0), $outputData[2][1]);
+        $this->assertStringNotContainsString(chr(0), $outputData[1][0]);
+        $this->assertStringNotContainsString(chr(0), $outputData[1][1]);
+        $this->assertStringNotContainsString(chr(0), $outputData[1][2]);
+        $this->assertStringNotContainsString(chr(0), $outputData[2][1]);
         $this->assertEquals('success', $result['status']);
 
         $this->dropTable("NULL_TEST");
@@ -1592,10 +1592,8 @@ class MSSQLTest extends AbstractMSSQLTest
         $config['parameters']['tables'][0]['query'] = "SELECT usergender INTO #temptable FROM sales WHERE usergender LIKE 'undefined';  SELECT * FRoM sales WHERE usergender IN (SELECT * FROM #temptable);";
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.multipleselect_test';
 
-        $this->setExpectedException(
-            UserException::class,
-            "Failed to retrieve results: SQLSTATE[IMSSP]: The active result for the query contains no fields. Code:IMSSP"
-        );
+        $this->expectException(UserException::class);
+        $this->expectExceptionMessage("Failed to retrieve results: SQLSTATE[IMSSP]: The active result for the query contains no fields. Code:IMSSP");
         $this->createApplication($config)->run();
     }
 }

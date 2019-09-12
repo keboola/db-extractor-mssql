@@ -116,7 +116,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         //check that output state contains expected information
         $this->assertArrayHasKey('state', $newResult);
         $this->assertArrayHasKey('lastFetchedRow', $newResult['state']);
-        $this->assertEquals("12.2", $newResult['state']['lastFetchedRow']);
+        $this->assertEquals("12.20", $newResult['state']['lastFetchedRow']);
         $this->assertEquals(3, $newResult['imported']['rows']);
     }
     public function testIncrementalFetchingBySmalldatetime(): void
@@ -235,8 +235,8 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $config = $this->getIncrementalFetchingConfig();
         $config['parameters']['incrementalFetchingColumn'] = $column;
 
-        $this->setExpectedException(UserException::class, $expectedExceptionMessage);
-
+        $this->expectException(UserException::class);
+        $this->expectExceptionMessage($expectedExceptionMessage);
         ($this->createApplication($config))->run();
     }
 
