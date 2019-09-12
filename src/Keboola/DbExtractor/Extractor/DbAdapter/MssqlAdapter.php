@@ -26,7 +26,7 @@ class MssqlAdapter extends PDO
 
         $versionString = $res->fetch(\PDO::FETCH_ASSOC);
         if (!isset($versionString['version'])) {
-            throw new UserException("Unable to get SQL Server Version Information");
+            throw new UserException('Unable to get SQL Server Version Information');
         }
         return $versionString['version'];
     }

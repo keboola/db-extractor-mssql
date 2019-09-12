@@ -39,18 +39,18 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
         // create test database
         $this->pdo = new \PDO(
-            sprintf("sqlsrv:Server=%s", $params['host']),
+            sprintf('sqlsrv:Server=%s', $params['host']),
             $params['user'],
             $params['password']
         );
         $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        $this->pdo->exec("USE master");
+        $this->pdo->exec('USE master');
         $this->pdo->exec(sprintf("
             IF NOT EXISTS(select * from sys.databases where name='%s') 
             CREATE DATABASE %s
         ", $params['database'], $params['database']));
-        $this->pdo->exec(sprintf("USE %s", $params['database']));
+        $this->pdo->exec(sprintf('USE %s', $params['database']));
     }
 
     private function cleanupStateInDataDir(): void
@@ -60,26 +60,26 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     private function setupTables(): void
     {
-        $csv1 = new CsvFile($this->dataDir . "/mssql/sales.csv");
-        $specialCsv = new CsvFile($this->dataDir . "/mssql/special.csv");
+        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
+        $specialCsv = new CsvFile($this->dataDir . '/mssql/special.csv');
 
-        $this->dropTable("Empty Test");
-        $this->dropTable("sales2");
-        $this->dropTable("sales");
-        $this->dropTable("special");
+        $this->dropTable('Empty Test');
+        $this->dropTable('sales2');
+        $this->dropTable('sales');
+        $this->dropTable('special');
 
-        $this->createTextTable($csv1, ['createdat'], "sales");
-        $this->createTextTable($csv1, null, "sales2");
-        $this->createTextTable($specialCsv, null, "special");
+        $this->createTextTable($csv1, ['createdat'], 'sales');
+        $this->createTextTable($csv1, null, 'sales2');
+        $this->createTextTable($specialCsv, null, 'special');
         // drop the t1 demo table if it exists
         $this->dropTable('t1');
 
         // set up a foreign key relationship
-        $this->pdo->exec("ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL");
-        $this->pdo->exec("ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)");
+        $this->pdo->exec('ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL');
+        $this->pdo->exec('ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)');
 
         // create another table with an auto_increment ID
-        $this->dropTable("auto Increment Timestamp");
+        $this->dropTable('auto Increment Timestamp');
 
         $this->pdo->exec(
             "CREATE TABLE [auto Increment Timestamp] (
@@ -93,8 +93,8 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             \"timestamp\" TIMESTAMP
             )"
         );
-        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY (\"_Weir%d I-D\")");
-        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK (\"_Weir%d I-D\" > 0 AND \"_Weir%d I-D\" < 20)");
+        $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY ("_Weir%d I-D")');
+        $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK ("_Weir%d I-D" > 0 AND "_Weir%d I-D" < 20)');
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type, someInteger, someDecimal, smalldatetime) VALUES ('mario', 'plumber', 1, 1.1, '2012-01-10 10:00')");
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type, someInteger, someDecimal, smalldatetime) VALUES ('luigi', 'plumber', 2, 2.2, '2012-01-10 10:05')");
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type, someInteger, someDecimal, smalldatetime) VALUES ('toad', 'mushroom', 3, 3.3, '2012-01-10 10:10')");
@@ -103,7 +103,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         sleep(1); // stagger the timestamps
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type, someInteger, someDecimal, smalldatetime) VALUES ('yoshi', 'horse?', 6, 6.6, '2012-01-10 10:25')");
         // add unique key
-        $this->pdo->exec("ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE (\"Weir%d Na-me\", Type)");
+        $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE ("Weir%d Na-me", Type)');
     }
 
     protected function dropTable(string $tableName, ?string $schema = 'dbo'): void
@@ -161,7 +161,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         // create the primary key if supplied
         if ($primaryKey && is_array($primaryKey) && !empty($primaryKey)) {
             foreach ($primaryKey as $pk) {
-                $sql = sprintf("ALTER TABLE %s ALTER COLUMN %s varchar(64) NOT NULL", $tableName, $pk);
+                $sql = sprintf('ALTER TABLE %s ALTER COLUMN %s varchar(64) NOT NULL', $tableName, $pk);
                 $this->pdo->exec($sql);
             }
 
@@ -181,20 +181,19 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $columnsCount = count($file->current());
         $rowsPerInsert = intval((1000 / $columnsCount) - 1);
 
-
         while ($file->current() !== false) {
-            $sqlInserts = "";
+            $sqlInserts = '';
 
             for ($i=0; $i<$rowsPerInsert && $file->current() !== false; $i++) {
-                $sqlInserts = "";
+                $sqlInserts = '';
 
                 $sqlInserts .= sprintf(
-                    "(%s),",
+                    '(%s),',
                     implode(
                         ',',
                         array_map(
                             function ($data) {
-                                if ($data == "") {
+                                if ($data === '') {
                                     return 'null';
                                 }
                                 if (is_numeric($data)) {
@@ -269,7 +268,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     {
         $res = $this->pdo->query(
             sprintf(
-                "SELECT * FROM information_schema.tables WHERE TABLE_NAME = %s",
+                'SELECT * FROM information_schema.tables WHERE TABLE_NAME = %s',
                 $this->pdo->quote($tableName)
             )
         );

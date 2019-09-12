@@ -38,7 +38,7 @@ class MSSQL extends Extractor
         $versionString = $this->db->fetchServerVersion();
         $versionParts = explode('.', $versionString);
         $this->logger->info(
-            sprintf("Found database server version: %s", $versionString)
+            sprintf('Found database server version: %s', $versionString)
         );
         return (int) $versionParts[0];
     }
@@ -52,7 +52,7 @@ class MSSQL extends Extractor
 
         foreach (['host', 'database', 'user', 'password'] as $r) {
             if (!array_key_exists($r, $params)) {
-                throw new UserException(sprintf("Parameter %s is missing.", $r));
+                throw new UserException(sprintf('Parameter %s is missing.', $r));
             }
         }
 
@@ -62,7 +62,7 @@ class MSSQL extends Extractor
         $host .= empty($params['instance']) ? '' : '\\\\' . $params['instance'];
         $options[] = 'Server=' . $host;
         $options[] = 'Database=' . $params['database'];
-        $dsn = sprintf("sqlsrv:%s", implode(';', $options));
+        $dsn = sprintf('sqlsrv:%s', implode(';', $options));
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
 
         // ms sql doesn't support options
@@ -96,32 +96,32 @@ class MSSQL extends Extractor
         $process->run();
         if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
             throw new ApplicationException(
-                sprintf("Error Stripping Nulls: %s", $process->getErrorOutput())
+                sprintf('Error Stripping Nulls: %s', $process->getErrorOutput())
             );
         }
     }
 
     private function getLastFetchedDatetimeValue(array $lastExportedLine, array $table, array $columnMetadata): string
     {
-        $whereClause = "";
+        $whereClause = '';
         $whereValues = [];
 
         foreach ($columnMetadata as $key => $column) {
-            if (strtoupper($column['type']) === "TIMESTAMP") {
+            if (strtoupper($column['type']) === 'TIMESTAMP') {
                 continue;
             }
-            if ($whereClause !== "") {
-                $whereClause .= " AND ";
+            if ($whereClause !== '') {
+                $whereClause .= ' AND ';
             }
-            if (in_array(strtoupper($column['type']), ["DATETIME", "DATETIME2"])) {
-                $whereClause .= "CONVERT(DATETIME2(0), " . $this->db->quoteIdentifier($column['name']) . ") = ?";
+            if (in_array(strtoupper($column['type']), ['DATETIME", "DATETIME2'])) {
+                $whereClause .= 'CONVERT(DATETIME2(0), ' . $this->db->quoteIdentifier($column['name']) . ') = ?';
             } else {
-                $whereClause .= $this->db->quoteIdentifier($column['name']) . " = ?";
+                $whereClause .= $this->db->quoteIdentifier($column['name']) . ' = ?';
             }
             $whereValues[] = $lastExportedLine[$key];
         }
         $query = sprintf(
-            "SELECT %s FROM %s.%s WHERE %s;",
+            'SELECT %s FROM %s.%s WHERE %s;',
             $this->db->quoteIdentifier($this->incrementalFetching['column']),
             $this->db->quoteIdentifier($table['schema']),
             $this->db->quoteIdentifier($table['tableName']),
@@ -132,7 +132,7 @@ class MSSQL extends Extractor
         if (count($result) > 0) {
             return $result[0][$this->incrementalFetching['column']];
         }
-        throw new ApplicationException("Fetching last datetime value returned no results");
+        throw new ApplicationException('Fetching last datetime value returned no results');
     }
 
     private function getLastFetchedId(array $columnMetadata, array $lastExportedLine): string
@@ -147,9 +147,9 @@ class MSSQL extends Extractor
 
     private function getMaxOfIncrementalFetchingColumn(array $table): ?string
     {
-        $sql = "SELECT MAX(%s) %s FROM %s.%s";
+        $sql = 'SELECT MAX(%s) %s FROM %s.%s';
         if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_BINARY) {
-            $sql = "SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s";
+            $sql = 'SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s';
         }
         $fullsql = sprintf(
             $sql,
@@ -170,7 +170,7 @@ class MSSQL extends Extractor
         $outputTable = $table['outputTable'];
         $csv = $this->createOutputCsv($outputTable);
 
-        $this->logger->info("Exporting to " . $outputTable);
+        $this->logger->info('Exporting to ' . $outputTable);
 
         $columns = $table['columns'];
         $isAdvancedQuery = true;
@@ -180,7 +180,7 @@ class MSSQL extends Extractor
             $tableMetadata = $this->getTables([$table['table']]);
             if (count($tableMetadata) === 0) {
                 throw new UserException(sprintf(
-                    "Could not find the table: [%s].[%s]",
+                    'Could not find the table: [%s].[%s]',
                     $table['table']['schema'],
                     $table['table']['tableName']
                 ));
@@ -201,16 +201,16 @@ class MSSQL extends Extractor
         } else {
             $query = $table['query'];
         }
-        $this->logger->debug("Executing query: " . $query);
+        $this->logger->debug('Executing query: ' . $query);
 
         try {
             if ($table['disableBcp']) {
                 throw new UserException('BCP export was disabled by configuration');
             }
             if ($isAdvancedQuery && $this->sqlServerVersion < 11) {
-                throw new UserException("BCP is not supported for advanced queries in sql server 2008 or less.");
+                throw new UserException('BCP is not supported for advanced queries in sql server 2008 or less.');
             }
-            $this->logger->info("BCP export started");
+            $this->logger->info('BCP export started');
             $bcp = new BCP($this->getDbParameters(), $this->logger);
             // fetch max value for incremental fetching without limit before execution
             $maxValue = null;
@@ -226,7 +226,7 @@ class MSSQL extends Extractor
                     $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
                 }
                 $this->logger->warning(sprintf(
-                    "[%s]: Query returned empty result so nothing was imported",
+                    '[%s]: Query returned empty result so nothing was imported',
                     $outputTable
                 ));
             } else {
@@ -261,7 +261,7 @@ class MSSQL extends Extractor
             }
             $this->logger->info(
                 sprintf(
-                    "[%s]: The BCP export failed: %s. Attempting export using pdo_sqlsrv.",
+                    '[%s]: The BCP export failed: %s. Attempting export using pdo_sqlsrv.',
                     $outputTable,
                     $e->getMessage()
                 )
@@ -270,7 +270,7 @@ class MSSQL extends Extractor
                 if (!$isAdvancedQuery) {
                     $query = $this->getSimpleQuery($table['table'], $columnMetadata, self::ESCAPING_TYPE_PDO);
                 }
-                $this->logger->info(sprintf("Executing \"%s\" via PDO", $query));
+                $this->logger->info(sprintf('Executing "%s" via PDO', $query));
                 // fetch max value if incremental without limit
                 $maxValue = null;
                 if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
@@ -283,7 +283,7 @@ class MSSQL extends Extractor
                 );
             } catch (\Exception $e) {
                 throw new UserException(
-                    sprintf("[%s]: DB query failed: %s.", $outputTable, $e->getMessage()),
+                    sprintf('[%s]: DB query failed: %s.', $outputTable, $e->getMessage()),
                     0,
                     $e
                 );
@@ -300,16 +300,16 @@ class MSSQL extends Extractor
                         $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
                     }
                     $this->logger->warning(sprintf(
-                        "[%s]: Query returned empty result so nothing was imported",
+                        '[%s]: Query returned empty result so nothing was imported',
                         $outputTable
                     ));
                     @unlink((string) $csv);
                 }
             } catch (CsvException $e) {
-                throw new ApplicationException("Write to CSV failed: " . $e->getMessage(), 0, $e);
+                throw new ApplicationException('Write to CSV failed: ' . $e->getMessage(), 0, $e);
             } catch (\PDOException $PDOException) {
                 throw new UserException(
-                    "Failed to retrieve results: " . $PDOException->getMessage() . " Code:" . $PDOException->getCode(),
+                    'Failed to retrieve results: ' . $PDOException->getMessage() . ' Code:' . $PDOException->getCode(),
                     0,
                     $PDOException
                 );
@@ -317,12 +317,12 @@ class MSSQL extends Extractor
         }
 
         $output = [
-            "outputTable"=> $outputTable,
-            "rows" => $exportResult['rows'],
+            'outputTable'=> $outputTable,
+            'rows' => $exportResult['rows'],
         ];
         // output state
         if (isset($exportResult['lastFetchedRow']) && !is_array($exportResult['lastFetchedRow'])) {
-            $output["state"]['lastFetchedRow'] = $exportResult['lastFetchedRow'];
+            $output['state']['lastFetchedRow'] = $exportResult['lastFetchedRow'];
         }
         return $output;
     }
@@ -388,11 +388,11 @@ class MSSQL extends Extractor
             ) {
                 $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
             }
-            $colstr = sprintf("REPLACE(%s, char(34), char(34) + char(34))", $colstr);
+            $colstr = sprintf('REPLACE(%s, char(34), char(34) + char(34))', $colstr);
             if ($datatype->isNullable()) {
                 $colstr = sprintf("COALESCE(%s,'')", $colstr);
             }
-            $colstr = sprintf("char(34) + %s + char(34)", $colstr);
+            $colstr = sprintf('char(34) + %s + char(34)', $colstr);
         } else if ($datatype->getBasetype() === 'TIMESTAMP'
             && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
         ) {
@@ -411,10 +411,10 @@ class MSSQL extends Extractor
 
     public function getSimpleQuery(array $table, ?array $columns = array(), string $format = self::ESCAPING_TYPE_BCP): string
     {
-        $queryStart = "SELECT";
+        $queryStart = 'SELECT';
         if (isset($this->incrementalFetching['limit'])) {
             $queryStart .= sprintf(
-                " TOP %d",
+                ' TOP %d',
                 $this->incrementalFetching['limit']
             );
         }
@@ -440,11 +440,11 @@ class MSSQL extends Extractor
                 )
             );
         } else {
-            $escapedColumnList = "*";
+            $escapedColumnList = '*';
         }
 
         $query = sprintf(
-            "%s %s FROM %s.%s",
+            '%s %s FROM %s.%s',
             $queryStart,
             $escapedColumnList,
             $this->db->quoteIdentifier($table['schema']),
@@ -452,7 +452,7 @@ class MSSQL extends Extractor
         );
 
         if ($table['nolock']) {
-            $query .= " WITH(NOLOCK)";
+            $query .= ' WITH(NOLOCK)';
         }
         $incrementalAddon = $this->getIncrementalQueryAddon();
         if ($incrementalAddon) {
@@ -495,12 +495,12 @@ class MSSQL extends Extractor
         foreach ($nonDatatypeKeys as $key => $value) {
             if ($key === 'name') {
                 $columnMetadata[] = [
-                    'key' => "KBC.sourceName",
+                    'key' => 'KBC.sourceName',
                     'value' => $value,
                 ];
             } else {
                 $columnMetadata[] = [
-                    'key' => "KBC." . $key,
+                    'key' => 'KBC.' . $key,
                     'value' => $value,
                 ];
             }
@@ -544,7 +544,7 @@ class MSSQL extends Extractor
         if ($this->incrementalFetching) {
             if (isset($this->state['lastFetchedRow'])) {
                 $incrementalAddon = sprintf(
-                    " WHERE %s >= %s",
+                    ' WHERE %s >= %s',
                     $this->db->quoteIdentifier($this->incrementalFetching['column']),
                     $this->shouldQuoteComparison($this->incrementalFetching['type'])
                         ? $this->db->quote($this->state['lastFetchedRow'])
@@ -552,7 +552,7 @@ class MSSQL extends Extractor
                 );
             }
             if ($this->hasIncrementalLimit()) {
-                $incrementalAddon .= sprintf(" ORDER BY %s", $this->db->quoteIdentifier($this->incrementalFetching['column']));
+                $incrementalAddon .= sprintf(' ORDER BY %s', $this->db->quoteIdentifier($this->incrementalFetching['column']));
             }
         }
         return $incrementalAddon;
@@ -585,7 +585,7 @@ class MSSQL extends Extractor
                 });
             } catch (\Throwable $reconnectException) {
                 throw new UserException(
-                    "Unable to reconnect to the database: " . $reconnectException->getMessage(),
+                    'Unable to reconnect to the database: ' . $reconnectException->getMessage(),
                     $reconnectException->getCode(),
                     $reconnectException
                 );

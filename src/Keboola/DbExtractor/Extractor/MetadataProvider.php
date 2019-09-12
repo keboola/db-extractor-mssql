@@ -111,7 +111,7 @@ class MetadataProvider
         }
         if ($column['NUMERIC_PRECISION'] > 0) {
             if ($column['NUMERIC_SCALE'] > 0) {
-                return $column['NUMERIC_PRECISION'] . "," . $column['NUMERIC_SCALE'];
+                return $column['NUMERIC_PRECISION'] . ',' . $column['NUMERIC_SCALE'];
             } else {
                 return $column['NUMERIC_PRECISION'];
             }
@@ -177,7 +177,7 @@ class MetadataProvider
 
         if (!is_null($tables) && count($tables) > 0) {
             $sql .= sprintf(
-                " AND TABLE_NAME IN (%s) AND TABLE_SCHEMA IN (%s)",
+                ' AND TABLE_NAME IN (%s) AND TABLE_SCHEMA IN (%s)',
                 implode(
                     ',',
                     array_map(
@@ -241,13 +241,13 @@ class MetadataProvider
             $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
             if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
                 $tableDefs[$curTable]['columns'][$curColumnIndex] = [
-                    "name" => $column['COLUMN_NAME'],
-                    "sanitizedName" => \Keboola\Utils\sanitizeColumnName($column['COLUMN_NAME']),
-                    "type" => $column['DATA_TYPE'],
-                    "length" => $this->getFieldLength($column),
-                    "nullable" => ($column['IS_NULLABLE'] === "YES" || $column['IS_NULLABLE'] === '1') ? true : false,
-                    "ordinalPosition" => (int) $column['ORDINAL_POSITION'],
-                    "primaryKey" => false,
+                    'name' => $column['COLUMN_NAME'],
+                    'sanitizedName' => \Keboola\Utils\sanitizeColumnName($column['COLUMN_NAME']),
+                    'type' => $column['DATA_TYPE'],
+                    'length' => $this->getFieldLength($column),
+                    'nullable' => ($column['IS_NULLABLE'] === 'YES' || $column['IS_NULLABLE'] === '1') ? true : false,
+                    'ordinalPosition' => (int) $column['ORDINAL_POSITION'],
+                    'primaryKey' => false,
                 ];
             }
 
@@ -267,9 +267,9 @@ class MetadataProvider
                 $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKeyName'] = $column['uk_name'];
             }
             if (array_key_exists('chk_name', $column) && $column['chk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]["checkConstraint"] = $column['chk_name'];
+                $tableDefs[$curTable]['columns'][$curColumnIndex]['checkConstraint'] = $column['chk_name'];
                 if (isset($column['CHECK_CLAUSE']) && $column['CHECK_CLAUSE'] !== null) {
-                    $tableDefs[$curTable]['columns'][$curColumnIndex]["checkClause"] = $column['CHECK_CLAUSE'];
+                    $tableDefs[$curTable]['columns'][$curColumnIndex]['checkClause'] = $column['CHECK_CLAUSE'];
                 }
             }
             if (array_key_exists('fk_name', $column) && $column['fk_name'] !== null) {

@@ -9,24 +9,24 @@ use Keboola\DbExtractor\Logger;
 use Monolog\Handler\NullHandler;
 use Symfony\Component\Yaml\Yaml;
 
-require_once(dirname(__FILE__) . "/../vendor/autoload.php");
+require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 
 $logger = new Logger('ex-db-mssql');
 $runAction = true;
 
 try {
-    $arguments = getopt("d::", ["data::"]);
-    if (!isset($arguments["data"])) {
+    $arguments = getopt('d::', ['data::']);
+    if (!isset($arguments['data'])) {
         throw new UserException('Data folder not set.');
     }
 
-    if (file_exists($arguments["data"] . "/config.yml")) {
+    if (file_exists($arguments['data'] . '/config.yml')) {
         $config = Yaml::parse(
-            file_get_contents($arguments["data"] . "/config.yml")
+            file_get_contents($arguments['data'] . '/config.yml')
         );
-    } else if (file_exists($arguments["data"] . "/config.json")) {
+    } else if (file_exists($arguments['data'] . '/config.json')) {
         $config = json_decode(
-            file_get_contents($arguments["data"] . '/config.json'),
+            file_get_contents($arguments['data'] . '/config.json'),
             true
         );
     } else {
@@ -44,7 +44,7 @@ try {
         $config,
         $logger,
         $inputState,
-        $arguments["data"]
+        $arguments['data']
     );
 
     if ($app['action'] !== 'run') {
@@ -64,7 +64,7 @@ try {
         }
     }
 
-    $app['logger']->log('info', "Extractor finished successfully.");
+    $app['logger']->log('info', 'Extractor finished successfully.');
     exit(0);
 } catch (UserException $e) {
     $logger->log('error', $e->getMessage());

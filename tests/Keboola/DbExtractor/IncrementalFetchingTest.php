@@ -116,7 +116,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         //check that output state contains expected information
         $this->assertArrayHasKey('state', $newResult);
         $this->assertArrayHasKey('lastFetchedRow', $newResult['state']);
-        $this->assertEquals("12.20", $newResult['state']['lastFetchedRow']);
+        $this->assertEquals('12.20', $newResult['state']['lastFetchedRow']);
         $this->assertEquals(3, $newResult['imported']['rows']);
     }
     public function testIncrementalFetchingBySmalldatetime(): void
@@ -244,12 +244,12 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
     {
         return [
             'column does not exist' => [
-                "fakeCol",
-                "Column [fakeCol] specified for incremental fetching was not found in the table",
+                'fakeCol',
+                'Column [fakeCol] specified for incremental fetching was not found in the table',
             ],
             'column exists but is not numeric nor datetime so should fail' => [
-                "Weir%d Na-me",
-                "Column [Weir%d Na-me] specified for incremental fetching is not numeric or datetime",
+                'Weir%d Na-me',
+                'Column [Weir%d Na-me] specified for incremental fetching is not numeric or datetime',
             ],
         ];
     }
@@ -263,7 +263,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
             ($this->createApplication($config))->run();
             $this->fail('cannot use incremental fetching with advanced query, should fail.');
         } catch (UserException $e) {
-            $this->assertStringStartsWith("Invalid Configuration", $e->getMessage());
+            $this->assertStringStartsWith('Invalid Configuration', $e->getMessage());
         }
     }
 

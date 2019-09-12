@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a408184d8ade559e4d24b396791988fc",
+    "content-hash": "ca0d550ac6663138901485c5d33dc453",
     "packages": [
         {
             "name": "keboola/csv",
@@ -1169,20 +1169,20 @@
         },
         {
             "name": "keboola/coding-standard",
-            "version": "2.0.0",
+            "version": "8.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/phpcs-standard.git",
-                "reference": "3cbf99b16b6445758dfe965943a4ac6778e32c41"
+                "reference": "605196b652aa608eec6744184d20569fd17f150f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/phpcs-standard/zipball/3cbf99b16b6445758dfe965943a4ac6778e32c41",
-                "reference": "3cbf99b16b6445758dfe965943a4ac6778e32c41",
+                "url": "https://api.github.com/repos/keboola/phpcs-standard/zipball/605196b652aa608eec6744184d20569fd17f150f",
+                "reference": "605196b652aa608eec6744184d20569fd17f150f",
                 "shasum": ""
             },
             "require": {
-                "slevomat/coding-standard": "4.4.6",
+                "slevomat/coding-standard": "^4.8.6",
                 "squizlabs/php_codesniffer": "^3.2"
             },
             "type": "phpcodesniffer-standard",
@@ -1191,7 +1191,7 @@
                 "MIT"
             ],
             "description": "Keboola coding standard",
-            "time": "2018-04-04T12:22:17+00:00"
+            "time": "2019-03-05T12:36:08+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -3059,30 +3059,29 @@
         },
         {
             "name": "slevomat/coding-standard",
-            "version": "4.4.6",
+            "version": "4.8.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slevomat/coding-standard.git",
-                "reference": "861e7b55d348c81a9dd0b3655dbbc83076d60c05"
+                "reference": "bff96313d8c7c2ba57a4edb13c1c141df8988c58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/861e7b55d348c81a9dd0b3655dbbc83076d60c05",
-                "reference": "861e7b55d348c81a9dd0b3655dbbc83076d60c05",
+                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/bff96313d8c7c2ba57a4edb13c1c141df8988c58",
+                "reference": "bff96313d8c7c2ba57a4edb13c1c141df8988c58",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1",
-                "squizlabs/php_codesniffer": "^3.0.2"
+                "squizlabs/php_codesniffer": "^3.4.0"
             },
             "require-dev": {
-                "jakub-onderka/php-parallel-lint": "0.9.2",
-                "phing/phing": "2.16",
+                "jakub-onderka/php-parallel-lint": "1.0.0",
+                "phing/phing": "2.16.1",
                 "phpstan/phpstan": "0.9.2",
                 "phpstan/phpstan-phpunit": "0.9.4",
                 "phpstan/phpstan-strict-rules": "0.9",
-                "phpunit/php-code-coverage": "6.0.1",
-                "phpunit/phpunit": "7.0.0"
+                "phpunit/phpunit": "7.5.1"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -3095,20 +3094,20 @@
                 "MIT"
             ],
             "description": "Slevomat Coding Standard for PHP_CodeSniffer complements Consistence Coding Standard by providing sniffs with additional checks.",
-            "time": "2018-02-15T17:13:28+00:00"
+            "time": "2019-01-03T13:15:50+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.3.2",
+            "version": "3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "6ad28354c04b364c3c71a34e4a18b629cc3b231e"
+                "reference": "b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/6ad28354c04b364c3c71a34e4a18b629cc3b231e",
-                "reference": "6ad28354c04b364c3c71a34e4a18b629cc3b231e",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8",
+                "reference": "b8a7362af1cc1aadb5bd36c3defc4dda2cf5f0a8",
                 "shasum": ""
             },
             "require": {
@@ -3141,12 +3140,12 @@
                 }
             ],
             "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
-            "homepage": "http://www.squizlabs.com/php-codesniffer",
+            "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
             "keywords": [
                 "phpcs",
                 "standards"
             ],
-            "time": "2018-09-23T23:08:17+00:00"
+            "time": "2019-04-10T23:49:02+00:00"
         },
         {
             "name": "symfony/console",

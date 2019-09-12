@@ -43,7 +43,7 @@ class BCP
         $colCount = $outputFile->getColumnsCount();
         while ($outputFile->valid()) {
             if (count($outputFile->current()) !== $colCount) {
-                throw new UserException("The BCP command produced an invalid csv.");
+                throw new UserException('The BCP command produced an invalid csv.');
             }
             $lastRow = $outputFile->current();
             $outputFile->next();
@@ -52,7 +52,7 @@ class BCP
             }
             $numRows++;
         }
-        $this->logger->info(sprintf("BCP successfully exported %d rows.", $numRows));
+        $this->logger->info(sprintf('BCP successfully exported %d rows.', $numRows));
         $output = ['rows' => $numRows];
         if ($lastFetchedRow) {
             $output['lastFetchedRow'] = $lastFetchedRow;
@@ -64,7 +64,7 @@ class BCP
     {
         $serverName = $this->dbParams['host'];
         $serverName .= !empty($this->dbParams['instance']) ? '\\' . $this->dbParams['instance'] : '';
-        $serverName .= "," . $this->dbParams['port'];
+        $serverName .= ',' . $this->dbParams['port'];
 
         $cmd = sprintf(
             'bcp "%s" queryout %s -S "%s" -U %s -P "%s" -d %s -k -b50000 -m1 -t, -r"\n" -c',
@@ -77,7 +77,7 @@ class BCP
         );
 
         $this->logger->info(sprintf(
-            "Executing this BCP command: %s",
+            'Executing this BCP command: %s',
             preg_replace('/\-P.".*".\-d/', '-P "*****" -d', $cmd)
         ));
 
