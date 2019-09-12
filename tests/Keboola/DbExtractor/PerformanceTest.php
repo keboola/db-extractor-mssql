@@ -29,11 +29,11 @@ class PerformanceTest extends AbstractMSSQLTest
                     )
                 );
                 $this->dropTable(
-                    sprintf("testtable_%d", $tableCount),
-                    sprintf("testschema_%d", $schemaCount)
+                    sprintf('testtable_%d', $tableCount),
+                    sprintf('testschema_%d', $schemaCount)
                 );
             }
-            $this->pdo->exec(sprintf("DROP SCHEMA IF EXISTS [testschema_%d]", $schemaCount));
+            $this->pdo->exec(sprintf('DROP SCHEMA IF EXISTS [testschema_%d]', $schemaCount));
         }
     }
 
@@ -49,17 +49,17 @@ class PerformanceTest extends AbstractMSSQLTest
         $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
 
         // gen columns
-        $columnsSql = "";
+        $columnsSql = '';
         for ($columnCount = 0; $columnCount < $numberOfColumnsPerTable; $columnCount++) {
             $columnsSql .= sprintf(", [col_%d] VARCHAR(50) NOT NULL DEFAULT ''", $columnCount);
         }
 
         for ($schemaCount = 0; $schemaCount < $numberOfSchemas; $schemaCount++) {
-            $this->pdo->exec(sprintf("CREATE SCHEMA [testschema_%d]", $schemaCount));
+            $this->pdo->exec(sprintf('CREATE SCHEMA [testschema_%d]', $schemaCount));
             for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount++) {
                 $this->pdo->exec(
                     sprintf(
-                        "CREATE TABLE [testschema_%d].[testtable_%d] ([ID] INT IDENTITY(1,1) NOT NULL%s, CONSTRAINT pk_%d_%d PRIMARY KEY ([ID]))",
+                        'CREATE TABLE [testschema_%d].[testtable_%d] ([ID] INT IDENTITY(1,1) NOT NULL%s, CONSTRAINT pk_%d_%d PRIMARY KEY ([ID]))',
                         $schemaCount,
                         $tableCount,
                         $columnsSql,

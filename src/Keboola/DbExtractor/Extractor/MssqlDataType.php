@@ -16,24 +16,24 @@ class MssqlDataType extends GenericStorage
 
     public const DATATYPE_KEYS = ['type', 'length', 'nullable', 'default', 'format'];
 
-    public const DATE_TYPES = ["date"];
+    public const DATE_TYPES = ['date'];
 
     public const TIMESTAMP_TYPES = [
-        "datetime", "datetime2", "smalldatetime", "datetimeoffset",
+        'datetime', 'datetime2', 'smalldatetime', 'datetimeoffset',
     ];
 
     public const FLOATING_POINT_TYPES = [
-        "real", "float",
+        'real', 'float',
     ];
 
-    public const BOOLEAN_TYPES = ["bit"];
+    public const BOOLEAN_TYPES = ['bit'];
 
     public const INTEGER_TYPES = [
-        "integer", "int", "smallint", "tinyint", "bigint",
+        'integer', 'int', 'smallint', 'tinyint', 'bigint',
     ];
 
     public const FIXED_NUMERIC_TYPES = [
-        "numeric", "decimal", "money", "smallmoney",
+        'numeric', 'decimal', 'money', 'smallmoney',
     ];
 
     public static function getNumericTypes(): array
@@ -70,24 +70,24 @@ class MssqlDataType extends GenericStorage
     public function getBasetype(): string
     {
         $type = strtolower($this->type);
-        $baseType = "STRING";
+        $baseType = 'STRING';
         if (in_array($type, self::DATE_TYPES)) {
-            $baseType = "DATE";
+            $baseType = 'DATE';
         }
         if (in_array($type, self::TIMESTAMP_TYPES)) {
-            $baseType = "TIMESTAMP";
+            $baseType = 'TIMESTAMP';
         }
         if (in_array($type, self::INTEGER_TYPES)) {
-            $baseType = "INTEGER";
+            $baseType = 'INTEGER';
         }
         if (in_array($type, self::FIXED_NUMERIC_TYPES)) {
-            $baseType = "NUMERIC";
+            $baseType = 'NUMERIC';
         }
         if (in_array($type, self::FLOATING_POINT_TYPES)) {
-            $baseType = "FLOAT";
+            $baseType = 'FLOAT';
         }
         if (in_array($type, self::BOOLEAN_TYPES)) {
-            $baseType = "BOOLEAN";
+            $baseType = 'BOOLEAN';
         }
         return $baseType;
     }

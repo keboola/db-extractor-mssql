@@ -6,8 +6,9 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\MSSQL;
+use PHPUnit\Framework\TestCase;
 
-class DatatypeMappingTest extends \PHPUnit_Framework_TestCase
+class DatatypeMappingTest extends TestCase
 {
     /**
      * @dataProvider columnMetadataProvider

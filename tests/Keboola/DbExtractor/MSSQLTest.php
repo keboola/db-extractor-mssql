@@ -34,7 +34,7 @@ class MSSQLTest extends AbstractMSSQLTest
             $app->run();
             $this->fail('Must raise exception');
         } catch (UserException $e) {
-            $this->assertContains('Cannot open database "nonExistentDb" requested by the login.', $e->getMessage());
+            $this->assertStringContainsString('Cannot open database "nonExistentDb" requested by the login.', $e->getMessage());
         }
     }
 
@@ -100,7 +100,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $specialManifest = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($specialManifest), true);
+        $manifest = json_decode((string) file_get_contents($specialManifest), true);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.special',
@@ -257,7 +257,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $salesManifestFile = $this->dataDir . '/out/tables/' . $result['imported'][0]['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($salesManifestFile), true);
+        $manifest = json_decode((string) file_get_contents($salesManifestFile), true);
         $this->assertEquals(
             [
                 'destination' => 'in.c-main.sales',
@@ -282,7 +282,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $tableColumnsManifest = $this->dataDir . '/out/tables/' . $result['imported'][1]['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($tableColumnsManifest), true);
+        $manifest = json_decode((string) file_get_contents($tableColumnsManifest), true);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.tablecolumns',
@@ -497,16 +497,16 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $weirdManifest = $this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($weirdManifest), true);
+        $manifest = json_decode((string) file_get_contents($weirdManifest), true);
         // assert the timestamp column has the correct date format
         $outputData = iterator_to_array(
             new CsvFile($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
         );
         $this->assertEquals(1, (int) $outputData[0][2]);
-        $this->assertEquals("1.1", $outputData[0][3]);
+        $this->assertEquals('1.10', $outputData[0][3]);
         $firstTimestamp = $outputData[0][5];
         // there should be no decimal separator present (it should be cast to datetime2(0) which does not include ms)
-        $this->assertEquals(1, preg_match("/^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/", $firstTimestamp));
+        $this->assertEquals(1, preg_match('/^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d$/', $firstTimestamp));
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.auto-increment-timestamp',
@@ -936,7 +936,7 @@ class MSSQLTest extends AbstractMSSQLTest
         );
 
         $specialManifest = $this->dataDir . '/out/tables/' . $result['imported'][3]['outputTable'] . '.csv.manifest';
-        $manifest = json_decode(file_get_contents($specialManifest), true);
+        $manifest = json_decode((string) file_get_contents($specialManifest), true);
         $this->assertEquals(
             array (
                 'destination' => 'in.c-main.special',
@@ -1506,13 +1506,13 @@ class MSSQLTest extends AbstractMSSQLTest
 
         unset($config['parameters']['tables'][0]['query']);
         $config['parameters']['tables'][0]['table'] = ['tableName' => 'sales', 'schema' => 'dbo'];
-        $config['parameters']['tables'][0]['columns'] = ["createdat", "categorygroup", "sku", "zipcode", "userstate"];
+        $config['parameters']['tables'][0]['columns'] = ['createdat', 'categorygroup', 'sku', 'zipcode', 'userstate'];
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.columnsCheck';
         $result = $this->createApplication($config)->run();
 
         $this->assertEquals('success', $result['status']);
         $outputManifestFile = $this->dataDir . '/out/tables/in.c-main.columnscheck.csv.manifest';
-        $outputManifest = json_decode(file_get_contents($outputManifestFile), true);
+        $outputManifest = json_decode((string) file_get_contents($outputManifestFile), true);
         // check that the manifest has the correct column ordering
         $this->assertEquals($config['parameters']['tables'][0]['columns'], $outputManifest['columns']);
         // check the data
@@ -1528,8 +1528,8 @@ class MSSQLTest extends AbstractMSSQLTest
 
     public function testXMLtoNVarchar(): void
     {
-        $this->dropTable("XML_TEST");
-        $this->pdo->exec("CREATE TABLE [XML_TEST] ([ID] INT NOT NULL, [XML_COL] XML NULL);");
+        $this->dropTable('XML_TEST');
+        $this->pdo->exec('CREATE TABLE [XML_TEST] ([ID] INT NOT NULL, [XML_COL] XML NULL);');
         $this->pdo->exec(
             "INSERT INTO [XML_TEST] VALUES (1, '<test>some test xml </test>'), (2, null), (3, '<test>some test xml </test>')"
         );
@@ -1545,12 +1545,12 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $this->assertEquals('success', $result['status']);
 
-        $this->dropTable("XML_TEST");
+        $this->dropTable('XML_TEST');
     }
 
     public function testStripNulls(): void
     {
-        $this->dropTable("NULL_TEST");
+        $this->dropTable('NULL_TEST');
         $this->pdo->exec("CREATE TABLE [NULL_TEST] ([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));");
         $this->pdo->exec(
             "INSERT INTO [NULL_TEST] VALUES 
@@ -1563,23 +1563,23 @@ class MSSQLTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][2]);
         unset($config['parameters']['tables'][3]);
         unset($config['parameters']['tables'][0]['table']);
-        $config['parameters']['tables'][0]['query'] = "SELECT * FROM [NULL_TEST]";
+        $config['parameters']['tables'][0]['query'] = 'SELECT * FROM [NULL_TEST]';
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.null_test';
 
         $result = $this->createApplication($config)->run();
 
         $outputData = iterator_to_array(new CsvFile($this->dataDir . '/out/tables/in.c-main.null_test.csv'));
 
-        $this->assertNotContains(chr(0), $outputData[0][0]);
-        $this->assertNotContains(chr(0), $outputData[0][1]);
-        $this->assertEquals("test with " . chr(0) . " inside", $outputData[0][2]);
-        $this->assertNotContains(chr(0), $outputData[1][0]);
-        $this->assertNotContains(chr(0), $outputData[1][1]);
-        $this->assertNotContains(chr(0), $outputData[1][2]);
-        $this->assertNotContains(chr(0), $outputData[2][1]);
+        $this->assertStringNotContainsString(chr(0), $outputData[0][0]);
+        $this->assertStringNotContainsString(chr(0), $outputData[0][1]);
+        $this->assertEquals('test with ' . chr(0) . ' inside', $outputData[0][2]);
+        $this->assertStringNotContainsString(chr(0), $outputData[1][0]);
+        $this->assertStringNotContainsString(chr(0), $outputData[1][1]);
+        $this->assertStringNotContainsString(chr(0), $outputData[1][2]);
+        $this->assertStringNotContainsString(chr(0), $outputData[2][1]);
         $this->assertEquals('success', $result['status']);
 
-        $this->dropTable("NULL_TEST");
+        $this->dropTable('NULL_TEST');
     }
 
     public function testMultipleSelectStatements(): void
@@ -1592,10 +1592,8 @@ class MSSQLTest extends AbstractMSSQLTest
         $config['parameters']['tables'][0]['query'] = "SELECT usergender INTO #temptable FROM sales WHERE usergender LIKE 'undefined';  SELECT * FRoM sales WHERE usergender IN (SELECT * FROM #temptable);";
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.multipleselect_test';
 
-        $this->setExpectedException(
-            UserException::class,
-            "Failed to retrieve results: SQLSTATE[IMSSP]: The active result for the query contains no fields. Code:IMSSP"
-        );
+        $this->expectException(UserException::class);
+        $this->expectExceptionMessage('Failed to retrieve results: SQLSTATE[IMSSP]: The active result for the query contains no fields. Code:IMSSP');
         $this->createApplication($config)->run();
     }
 }

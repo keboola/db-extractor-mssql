@@ -1,5 +1,5 @@
 FROM db-ex-mssql-sshproxy AS sshproxy
-FROM php:7.2-cli-stretch
+FROM php:7.3-cli-stretch
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"

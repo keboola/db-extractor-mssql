@@ -9,24 +9,25 @@ use Keboola\DbExtractor\Logger;
 use Monolog\Handler\NullHandler;
 use Symfony\Component\Yaml\Yaml;
 
-require_once(dirname(__FILE__) . "/../vendor/autoload.php");
+require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 
 $logger = new Logger('ex-db-mssql');
 $runAction = true;
 
 try {
-    $arguments = getopt("d::", ["data::"]);
-    if (!isset($arguments["data"])) {
+    $arguments = getopt('d::', ['data::']);
+    if (!isset($arguments['data']) || !is_string($arguments['data'])) {
         throw new UserException('Data folder not set.');
     }
+    $dataFolder = $arguments['data'];
 
-    if (file_exists($arguments["data"] . "/config.yml")) {
+    if (file_exists($dataFolder . '/config.yml')) {
         $config = Yaml::parse(
-            file_get_contents($arguments["data"] . "/config.yml")
+            (string) file_get_contents($dataFolder . '/config.yml')
         );
-    } else if (file_exists($arguments["data"] . "/config.json")) {
+    } else if (file_exists($dataFolder . '/config.json')) {
         $config = json_decode(
-            file_get_contents($arguments["data"] . '/config.json'),
+            (string) file_get_contents($dataFolder . '/config.json'),
             true
         );
     } else {
@@ -35,16 +36,16 @@ try {
 
     // get the state
     $inputState = [];
-    $inputStateFile = $arguments['data'] . '/in/state.json';
+    $inputStateFile = $dataFolder . '/in/state.json';
     if (file_exists($inputStateFile)) {
-        $inputState = json_decode(file_get_contents($inputStateFile), true);
+        $inputState = json_decode((string) file_get_contents($inputStateFile), true);
     }
 
     $app = new MSSQLApplication(
         $config,
         $logger,
         $inputState,
-        $arguments["data"]
+        $dataFolder
     );
 
     if ($app['action'] !== 'run') {
@@ -59,12 +60,12 @@ try {
     } else {
         if (!empty($result['state'])) {
             // write state
-            $outputStateFile = $arguments['data'] . '/out/state.json';
+            $outputStateFile = $dataFolder . '/out/state.json';
             file_put_contents($outputStateFile, json_encode($result['state']));
         }
     }
 
-    $app['logger']->log('info', "Extractor finished successfully.");
+    $app['logger']->log('info', 'Extractor finished successfully.');
     exit(0);
 } catch (UserException $e) {
     $logger->log('error', $e->getMessage());
@@ -80,7 +81,7 @@ try {
             'errLine' => $e->getLine(),
             'errCode' => $e->getCode(),
             'errTrace' => $e->getTraceAsString(),
-            'errPrevious' => $e->getPrevious() ? get_class($e->getPrevious()) : '',
+            'errPrevious' => is_object($e->getPrevious()) ? get_class($e->getPrevious()) : '',
         ]
     );
     exit(2);

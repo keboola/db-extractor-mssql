@@ -9,7 +9,7 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 class MssqlConfigurationDefinition extends ConfigDefinition
 {
-    public function getConfigTreeBuilder() : TreeBuilder
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder();
         $rootNode = $treeBuilder->root('parameters');

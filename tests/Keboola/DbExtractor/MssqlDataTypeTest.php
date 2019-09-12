@@ -59,7 +59,7 @@ class MssqlDataTypeTest extends TestCase
 
     public function testInvalidIncrementalFetchingType(): void
     {
-        $this->setExpectedException(UserException::class);
+        $this->expectException(UserException::class);
         MssqlDataType::getIncrementalFetchingType('varcharColumn', 'varchar');
     }
 }
