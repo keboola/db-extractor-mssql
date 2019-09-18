@@ -11,7 +11,7 @@ class MssqlAdapter extends PDO
 {
     public function testConnection(): void
     {
-        $this->prepare('SELECT GETDATE() AS CurrentDateTime')->execute();
+        $this->query('SELECT GETDATE() AS CurrentDateTime')->execute();
     }
 
     public function quoteIdentifier(string $obj): string

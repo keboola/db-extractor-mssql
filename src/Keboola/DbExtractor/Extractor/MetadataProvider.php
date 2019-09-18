@@ -55,11 +55,7 @@ class MetadataProvider
             ) AS [FK_REFS]
             ON [FK_REFS].[FK_TABLE_NAME] = [c].[TABLE_NAME] AND [FK_REFS].[FK_COLUMN_NAME] = [c].[COLUMN_NAME]
             LEFT JOIN (
-                SELECT [tc2].[CONSTRAINT_TYPE], 
-                    [tc2].[TABLE_NAME], 
-                    [ccu2].[COLUMN_NAME], 
-                    [ccu2].[CONSTRAINT_NAME] as [chk_name], 
-                    [CHK].[CHECK_CLAUSE] 
+                SELECT [tc2].[CONSTRAINT_TYPE], [tc2].[TABLE_NAME], [ccu2].[COLUMN_NAME], [ccu2].[CONSTRAINT_NAME] as [chk_name], [CHK].[CHECK_CLAUSE] 
                 FROM [INFORMATION_SCHEMA].[CONSTRAINT_COLUMN_USAGE] AS [ccu2] 
                 JOIN [INFORMATION_SCHEMA].[TABLE_CONSTRAINTS] AS [tc2] 
                 ON [ccu2].[TABLE_NAME] = [tc2].[TABLE_NAME]
@@ -239,6 +235,9 @@ class MetadataProvider
 
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
+            if (!array_key_exists('columns', $tableDefs[$curTable])) {
+                $tableDefs[$curTable]['columns'] = [];
+            }
 
             $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
             if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {

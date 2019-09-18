@@ -4,5 +4,6 @@ parameters:
         - '#Cannot call method scalarNode\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\|null\.#'
         - '#Cannot call method fetch\(\) on PDOStatement\|false\.#'
         - '#Cannot call method fetchAll\(\) on PDOStatement\|false\.#'
+        - '#Cannot call method execute\(\) on PDOStatement\|false\.#'
         - '#Cannot call method fetchColumn\(\) on PDOStatement\|false\.#'
         - '#Cannot call method rowCount\(\) on PDOStatement\|false\.#'
