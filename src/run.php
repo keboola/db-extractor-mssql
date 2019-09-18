@@ -68,13 +68,7 @@ try {
 
     $app['logger']->log('info', 'Extractor finished successfully.');
     exit(0);
-} catch (UserException $e) {
-    $logger->log('error', $e->getMessage());
-    if (!$runAction) {
-        echo $e->getMessage();
-    }
-    exit(1);
-} catch (ConfigUserException $e) {
+} catch (UserException|ConfigUserException $e) {
     $logger->log('error', $e->getMessage());
     if (!$runAction) {
         echo $e->getMessage();
