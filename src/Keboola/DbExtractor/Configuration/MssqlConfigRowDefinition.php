@@ -14,14 +14,14 @@ class MssqlConfigRowDefinition extends ConfigRowDefinition
 {
     protected function getParametersDefinition(): ArrayNodeDefinition
     {
-        $treeBuilder = new TreeBuilder();
+        $treeBuilder = new TreeBuilder('parameters');
 
-        /** @var ArrayNodeDefinition $parametersNode */
-        $parametersNode = $treeBuilder->root('parameters');
-        $this->addValidation($parametersNode);
+        /** @var ArrayNodeDefinition $rootNode */
+        $rootNode = $treeBuilder->getRootNode();
+        $this->addValidation($rootNode);
 
         // @formatter:off
-        $parametersNode
+        $rootNode
             ->children()
                 ->scalarNode('data_dir')
                     ->isRequired()
@@ -73,7 +73,7 @@ class MssqlConfigRowDefinition extends ConfigRowDefinition
             ->end();
         // @formatter:on
 
-        return $parametersNode;
+        return $rootNode;
     }
 
     protected function addValidation(NodeDefinition $definition): NodeDefinition
