@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c03e0385f508bb03c0b370e832e7e759",
+    "content-hash": "e8240a7aaf735309607cd6a9a5b069cb",
     "packages": [
         {
             "name": "keboola/csv",
@@ -314,70 +314,21 @@
             "time": "2019-06-24T11:55:04+00:00"
         },
         {
-            "name": "keboola/php-temp",
-            "version": "1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/keboola/php-temp.git",
-                "reference": "2e3c2fc4cce8536a84cbad2a1586eb2eaebe5d3b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-temp/zipball/2e3c2fc4cce8536a84cbad2a1586eb2eaebe5d3b",
-                "reference": "2e3c2fc4cce8536a84cbad2a1586eb2eaebe5d3b",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3",
-                "symfony/filesystem": ">2.1.0"
-            },
-            "require-dev": {
-                "codeclimate/php-test-reporter": "dev-master",
-                "phpunit/phpunit": "^5.2"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Keboola\\Temp": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Miro Cillik",
-                    "email": "miro@keboola.cz"
-                },
-                {
-                    "name": "Ondrej Vana",
-                    "email": "kachna@keboola.cz"
-                }
-            ],
-            "description": "Temp service - handles application's temporary files",
-            "keywords": [
-                "filesystem",
-                "temp"
-            ],
-            "time": "2017-11-13T13:02:19+00:00"
-        },
-        {
             "name": "keboola/php-utils",
-            "version": "2.3.1",
+            "version": "4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-utils.git",
-                "reference": "ec4d582994f2961bd16a6f6be40d3e8608ef5ec3"
+                "reference": "59b15ad7ec5a9a774ab31bef7939eddad016c3aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-utils/zipball/ec4d582994f2961bd16a6f6be40d3e8608ef5ec3",
-                "reference": "ec4d582994f2961bd16a6f6be40d3e8608ef5ec3",
+                "url": "https://api.github.com/repos/keboola/php-utils/zipball/59b15ad7ec5a9a774ab31bef7939eddad016c3aa",
+                "reference": "59b15ad7ec5a9a774ab31bef7939eddad016c3aa",
                 "shasum": ""
             },
             "require": {
-                "keboola/php-temp": "^1.0",
+                "keboola/sanitizer": "^0.1",
                 "php": ">=5.6.0",
                 "seld/jsonlint": "^1.4"
             },
@@ -426,7 +377,7 @@
             "keywords": [
                 "utility"
             ],
-            "time": "2018-04-11T14:40:53+00:00"
+            "time": "2019-09-02T10:42:41+00:00"
         },
         {
             "name": "keboola/retry",
@@ -478,6 +429,47 @@
                 "retry"
             ],
             "time": "2019-08-19T13:47:21+00:00"
+        },
+        {
+            "name": "keboola/sanitizer",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/sanitizer.git",
+                "reference": "6edda00cd177409a33f180b8f12bdad89bf893c5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/sanitizer/zipball/6edda00cd177409a33f180b8f12bdad89bf893c5",
+                "reference": "6edda00cd177409a33f180b8f12bdad89bf893c5",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "jakub-onderka/php-parallel-lint": "^1.0",
+                "phpunit/phpunit": "^5.7",
+                "squizlabs/php_codesniffer": "^3.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Keboola\\Utils\\Sanitizer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Keboola",
+                    "email": "devel@keboola.com"
+                }
+            ],
+            "description": "Column name sanitizer",
+            "time": "2019-01-11T10:21:17+00:00"
         },
         {
             "name": "keboola/ssh-tunnel",
@@ -1367,6 +1359,54 @@
             ],
             "description": "Keboola coding standard",
             "time": "2019-03-05T12:36:08+00:00"
+        },
+        {
+            "name": "keboola/php-temp",
+            "version": "2.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/php-temp.git",
+                "reference": "cbdb4dd0dfe548d7bffd74a0e66294981aea49ce"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/php-temp/zipball/cbdb4dd0dfe548d7bffd74a0e66294981aea49ce",
+                "reference": "cbdb4dd0dfe548d7bffd74a0e66294981aea49ce",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1",
+                "symfony/filesystem": ">2.8"
+            },
+            "require-dev": {
+                "infection/infection": "^0.12",
+                "jakub-onderka/php-parallel-lint": "^1.0",
+                "keboola/coding-standard": "^8.0",
+                "phpstan/phpstan-shim": "^0.11",
+                "phpunit/phpunit": "^7.0|^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Keboola\\Temp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Keboola",
+                    "email": "devel@keboola.com"
+                }
+            ],
+            "description": "Temp library handles application temporary files",
+            "keywords": [
+                "filesystem",
+                "temp"
+            ],
+            "time": "2019-04-26T07:18:24+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -2911,6 +2951,10 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": "^7.3",
+        "ext-pdo": "*",
+        "ext-json": "*"
+    },
     "platform-dev": []
 }
