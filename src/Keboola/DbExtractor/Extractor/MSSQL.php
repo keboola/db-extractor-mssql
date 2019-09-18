@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\DeadConnectionException;
 use Symfony\Component\Process\Process;
 use Keboola\Csv\Exception as CsvException;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
-use Keboola\DbExtractor\RetryProxy;
 
 class MSSQL extends Extractor
 {
@@ -361,7 +361,7 @@ class MSSQL extends Extractor
 
     public function getTables(?array $tables = null): array
     {
-        $proxy = new RetryProxy($this->logger);
+        $proxy = new DbRetryProxy($this->logger);
         return $proxy->call(function () use ($tables): array {
             try {
                 return $this->metadataProvider->getTables($tables);
@@ -560,7 +560,7 @@ class MSSQL extends Extractor
 
     private function runRetriableQuery(string $query, array $values = []): array
     {
-        $retryProxy = new RetryProxy($this->logger);
+        $retryProxy = new DbRetryProxy($this->logger);
         return $retryProxy->call(function () use ($query, $values) {
             try {
                 $stmt = $this->db->prepare($query);
@@ -578,7 +578,7 @@ class MSSQL extends Extractor
         try {
             $this->isAlive();
         } catch (DeadConnectionException $deadConnectionException) {
-            $reconnectionRetryProxy = new RetryProxy($this->logger, self::DEFAULT_MAX_TRIES, 1000);
+            $reconnectionRetryProxy = new DbRetryProxy($this->logger, self::DEFAULT_MAX_TRIES, null, 1000);
             try {
                 $this->db = $reconnectionRetryProxy->call(function () {
                     return $this->createConnection($this->getDbParameters());
