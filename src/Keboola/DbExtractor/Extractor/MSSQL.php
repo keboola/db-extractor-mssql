@@ -91,7 +91,7 @@ class MSSQL extends Extractor
         $nullInTheMiddle = 's/,\x00,/,,/g';
         $sedCommand = sprintf('sed -e \'%s;%s;%s\' -i %s', $nullAtStart, $nullInTheMiddle, $nullAtEnd, $fileName);
 
-        $process = new Process($sedCommand);
+        $process = Process::fromShellCommandline($sedCommand);
         $process->setTimeout(1800);
         $process->run();
         if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {

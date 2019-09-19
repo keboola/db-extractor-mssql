@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use Keboola\DbExtractor\MSSQLApplication;
-use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractorConfig\Exception\UserException as ConfigUserException;
 use Keboola\DbExtractorLogger\Logger;
