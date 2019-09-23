@@ -26,6 +26,8 @@ class MSSQLApplication extends Application
             $this->config = new Config($config, new ConfigDefinition(null, null, new MssqlTablesNode()));
         } else if ($this['action'] === 'run') {
             $this->config = new Config($config, new MssqlConfigRowDefinition());
+        } else {
+            parent::buildConfig($config);
         }
     }
 }
