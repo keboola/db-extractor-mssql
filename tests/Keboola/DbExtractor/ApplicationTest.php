@@ -33,8 +33,8 @@ class ApplicationTest extends AbstractMSSQLTest
             'action' => 'testConnection',
             'parameters' => [
                 'extractor_class' => ucfirst(self::DRIVER),
-                'db' => $this->getConfigDbNode(self::DRIVER)
-            ]
+                'db' => $this->getConfigDbNode(self::DRIVER),
+            ],
         ];
 
         $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
