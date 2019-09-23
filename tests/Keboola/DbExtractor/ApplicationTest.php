@@ -178,8 +178,13 @@ class ApplicationTest extends AbstractMSSQLTest
 
     public function testGetTablesAction(): void
     {
-        $config = $this->getConfig('mssql');
-        $config['action'] = 'getTables';
+        $config = [
+            'action' => 'getTables',
+            'parameters' => [
+                'extractor_class' => ucfirst(self::DRIVER),
+                'db' => $this->getConfigDbNode(self::DRIVER),
+            ],
+        ];
         $this->replaceConfig($config, self::CONFIG_FORMAT_YAML);
 
         $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
