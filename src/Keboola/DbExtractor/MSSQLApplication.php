@@ -22,11 +22,12 @@ class MSSQLApplication extends Application
 
     protected function buildConfig(array $config): void
     {
-        parent::buildConfig($config);
         if (isset($config['parameters']['tables'])) {
             $this->config = new Config($config, new ConfigDefinition(null, null, new MssqlTablesNode()));
         } else if ($this['action'] === 'run') {
             $this->config = new Config($config, new MssqlConfigRowDefinition());
+        } else {
+            parent::buildConfig($config);
         }
     }
 }
