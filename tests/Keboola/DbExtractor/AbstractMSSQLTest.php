@@ -119,9 +119,9 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         );
     }
 
-    public function getConfig(string $driver = self::DRIVER, string $format = ExtractorTest::CONFIG_FORMAT_YAML): array
+    public function getConfig(string $driver = self::DRIVER): array
     {
-        $config = parent::getConfig($driver, $format);
+        $config = parent::getConfig($driver);
         $config['parameters']['extractor_class'] = 'MSSQL';
         return $config;
     }
@@ -280,10 +280,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->dataDir = __DIR__ . '/../../data';
         return [
             [
-                $this->getConfig(self::DRIVER, ExtractorTest::CONFIG_FORMAT_YAML),
-            ],
-            [
-                $this->getConfig(self::DRIVER, ExtractorTest::CONFIG_FORMAT_JSON),
+                $this->getConfig(self::DRIVER),
             ],
             [
                 $this->getConfigRow(self::DRIVER),
