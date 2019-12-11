@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f888b771ce606bf9819f19679440bcd",
+    "content-hash": "273a1ba500c37aea6f3620d5c80f91d5",
     "packages": [
         {
             "name": "keboola/csv",
@@ -1752,6 +1752,7 @@
                 "MIT"
             ],
             "description": "PHPStan Phar distribution",
+            "abandoned": "phpstan/phpstan",
             "time": "2019-09-17T11:49:39+00:00"
         },
         {
