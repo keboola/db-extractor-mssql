@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2171dff0f6bb082ba5c0274078201652",
+    "content-hash": "7f888b771ce606bf9819f19679440bcd",
     "packages": [
         {
             "name": "keboola/csv",
@@ -54,16 +54,16 @@
         },
         {
             "name": "keboola/db-extractor-common",
-            "version": "11.0.0",
+            "version": "12.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-common.git",
-                "reference": "bcf61dfcb62281aa8ab5ba1ba6bfbbe08f375267"
+                "reference": "71b94319c42b648be5fb9263ddc656b03f58a69c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/bcf61dfcb62281aa8ab5ba1ba6bfbbe08f375267",
-                "reference": "bcf61dfcb62281aa8ab5ba1ba6bfbbe08f375267",
+                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/71b94319c42b648be5fb9263ddc656b03f58a69c",
+                "reference": "71b94319c42b648be5fb9263ddc656b03f58a69c",
                 "shasum": ""
             },
             "require": {
@@ -109,7 +109,7 @@
                 }
             ],
             "description": "Common library from Keboola Database Extractors",
-            "time": "2019-10-01T06:01:44+00:00"
+            "time": "2019-12-11T09:19:12+00:00"
         },
         {
             "name": "keboola/db-extractor-config",
