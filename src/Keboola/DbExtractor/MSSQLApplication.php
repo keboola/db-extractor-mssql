@@ -7,6 +7,7 @@ namespace Keboola\DbExtractor;
 use Keboola\DbExtractor\Configuration\MssqlConfigRowDefinition;
 use Keboola\DbExtractor\Configuration\NodeDefinition\MssqlTablesNode;
 use Keboola\DbExtractorConfig\Config;
+use Keboola\DbExtractorConfig\Configuration\ActionConfigRowDefinition;
 use Keboola\DbExtractorConfig\Configuration\ConfigDefinition;
 use Keboola\DbExtractorLogger\Logger;
 
@@ -22,12 +23,14 @@ class MSSQLApplication extends Application
 
     protected function buildConfig(array $config): void
     {
-        if (isset($config['parameters']['tables'])) {
-            $this->config = new Config($config, new ConfigDefinition(null, null, new MssqlTablesNode()));
-        } else if ($this['action'] === 'run') {
-            $this->config = new Config($config, new MssqlConfigRowDefinition());
+        if ($this->isRowConfiguration($config)) {
+            if ($this['action'] === 'run') {
+                $this->config = new Config($config, new MssqlConfigRowDefinition());
+            } else {
+                $this->config = new Config($config, new ActionConfigRowDefinition());
+            }
         } else {
-            parent::buildConfig($config);
+            $this->config = new Config($config, new ConfigDefinition(null, null, new MssqlTablesNode()));
         }
     }
 }
