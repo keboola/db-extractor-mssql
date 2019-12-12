@@ -145,7 +145,7 @@ class MSSQL extends Extractor
         }
     }
 
-    private function getMaxOfIncrementalFetchingColumn(array $table): ?string
+    public function getMaxOfIncrementalFetchingColumn(array $table): ?string
     {
         $sql = 'SELECT MAX(%s) %s FROM %s.%s';
         if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_BINARY) {
@@ -594,7 +594,7 @@ class MSSQL extends Extractor
         }
     }
 
-    private function hasIncrementalLimit(): bool
+    protected function hasIncrementalLimit(): bool
     {
         if (!$this->incrementalFetching) {
             return false;
@@ -613,7 +613,7 @@ class MSSQL extends Extractor
         return true;
     }
 
-    private function canFetchMaxIncrementalValueSeparately(bool $isAdvancedQuery): bool
+    protected function canFetchMaxIncrementalValueSeparately(bool $isAdvancedQuery): bool
     {
         return !$isAdvancedQuery && isset($this->incrementalFetching) && !$this->hasIncrementalLimit();
     }
