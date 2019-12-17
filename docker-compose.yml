@@ -42,11 +42,7 @@ services:
       - "1433:1433"
 
   sshproxy:
-    image: db-ex-mssql-sshproxy
-    build: ./tests/env/sshproxy
-    volumes:
-        - ./tests/env/sshproxy:/code
-    working_dir: /code
+    image: keboola/db-component-ssh-proxy:latest
     ports:
       - "2222:22"
     links:

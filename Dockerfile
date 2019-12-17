@@ -1,4 +1,4 @@
-FROM db-ex-mssql-sshproxy AS sshproxy
+FROM keboola/db-component-ssh-proxy:latest AS sshproxy
 FROM php:7.3-cli-stretch
 
 ARG DEBIAN_FRONTEND=noninteractive
