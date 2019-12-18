@@ -1,5 +1,5 @@
 FROM keboola/db-component-ssh-proxy:latest AS sshproxy
-FROM php:7.3-cli-stretch
+FROM php:7.4-cli
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
@@ -15,7 +15,7 @@ RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
   && apt-get update \
   && ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
 
-RUN pecl install pdo_sqlsrv sqlsrv \
+RUN pecl install pdo_sqlsrv-5.7.1preview sqlsrv-5.7.1preview \
   && docker-php-ext-enable sqlsrv pdo_sqlsrv \
   && docker-php-ext-install xml
 
