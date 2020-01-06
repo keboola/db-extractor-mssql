@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\DbExtractor\Extractor\DbAdapter\MssqlAdapter;
+use Keboola\DbExtractor\TableResultFormat\ForeignKey;
+use Keboola\DbExtractor\TableResultFormat\Table;
+use Keboola\DbExtractor\TableResultFormat\TableColumn;
 
 class MetadataProvider
 {
@@ -206,16 +209,18 @@ class MetadataProvider
         }
 
         $tableNameArray = [];
+        /** @var Table[] $tableDefs */
         $tableDefs = [];
         foreach ($arr as $table) {
             $tableNameArray[] = $table['TABLE_NAME'];
-            $tableDefs[$table['TABLE_SCHEMA'] . '.' . $table['TABLE_NAME']] = [
-                'name' => $table['TABLE_NAME'],
-                'catalog' => (isset($table['TABLE_CATALOG'])) ? $table['TABLE_CATALOG'] : '',
-                'schema' => (isset($table['TABLE_SCHEMA'])) ? $table['TABLE_SCHEMA'] : '',
-                'type' => (isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : '',
-                'columns' => [],
-            ];
+            $tableFormat = new Table();
+            $tableFormat
+                ->setName($table['TABLE_NAME'])
+                ->setCatalog((isset($table['TABLE_CATALOG'])) ? $table['TABLE_CATALOG'] : '')
+                ->setSchema((isset($table['TABLE_SCHEMA'])) ? $table['TABLE_SCHEMA'] : '')
+                ->setType((isset($table['TABLE_TYPE'])) ? $table['TABLE_TYPE'] : '');
+
+            $tableDefs[$table['TABLE_SCHEMA'] . '.' . $table['TABLE_NAME']] = $tableFormat;
         }
         ksort($tableDefs);
 
@@ -235,52 +240,43 @@ class MetadataProvider
 
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
-            if (!array_key_exists('columns', $tableDefs[$curTable])) {
-                $tableDefs[$curTable]['columns'] = [];
-            }
 
-            $curColumnIndex = $column['ORDINAL_POSITION'] - 1;
-            if (!array_key_exists($curColumnIndex, $tableDefs[$curTable]['columns'])) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex] = [
-                    'name' => $column['COLUMN_NAME'],
-                    'sanitizedName' => \Keboola\Utils\sanitizeColumnName($column['COLUMN_NAME']),
-                    'type' => $column['DATA_TYPE'],
-                    'length' => $this->getFieldLength($column),
-                    'nullable' => ($column['IS_NULLABLE'] === 'YES' || $column['IS_NULLABLE'] === '1') ? true : false,
-                    'ordinalPosition' => (int) $column['ORDINAL_POSITION'],
-                    'primaryKey' => false,
-                ];
-            }
+            $columnFormat = new TableColumn();
+            $columnFormat
+                ->setName($column['COLUMN_NAME'])
+                ->setType($column['DATA_TYPE'])
+                ->setLength($this->getFieldLength($column))
+                ->setNullable(($column['IS_NULLABLE'] === 'YES' || $column['IS_NULLABLE'] === '1') ? true : false)
+                ->setOrdinalPosition((int) $column['ORDINAL_POSITION']);
 
             if (array_key_exists('COLUMN_DEFAULT', $column)) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['default'] = $column['COLUMN_DEFAULT'];
+                $columnFormat->setDefault($column['COLUMN_DEFAULT']);
             }
 
             if (array_key_exists('pk_name', $column) && $column['pk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKey'] = true;
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['primaryKeyName'] = $column['pk_name'];
+                $columnFormat->setPrimaryKey(true);
             }
             if (array_key_exists('is_identity', $column) && $column['is_identity']) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['autoIncrement'] = true;
+                $columnFormat->setAutoIncrement(true);
             }
             if (array_key_exists('uk_name', $column) && $column['uk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKey'] = true;
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['uniqueKeyName'] = $column['uk_name'];
+                $columnFormat->setUniqueKey(true);
             }
-            if (array_key_exists('chk_name', $column) && $column['chk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['checkConstraint'] = $column['chk_name'];
-                if (isset($column['CHECK_CLAUSE']) && $column['CHECK_CLAUSE'] !== null) {
-                    $tableDefs[$curTable]['columns'][$curColumnIndex]['checkClause'] = $column['CHECK_CLAUSE'];
-                }
-            }
+
             if (array_key_exists('fk_name', $column) && $column['fk_name'] !== null) {
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKey'] = true;
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyName'] = $column['fk_name'];
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefSchema'] = $column['REFERENCED_SCHEMA_NAME'];
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefTable'] = $column['REFERENCED_TABLE_NAME'];
-                $tableDefs[$curTable]['columns'][$curColumnIndex]['foreignKeyRefColumn'] = $column['REFERENCED_COLUMN_NAME'];
+                $foreignKeyFormat = new ForeignKey();
+                $foreignKeyFormat
+                    ->setName($column['fk_name'])
+                    ->setRefSchema($column['REFERENCED_SCHEMA_NAME'])
+                    ->setRefTable($column['REFERENCED_TABLE_NAME'])
+                    ->setRefColumn($column['REFERENCED_COLUMN_NAME']);
+                $columnFormat->setForeignKey($foreignKeyFormat);
             }
+            $tableDefs[$curTable]->addColumn($columnFormat);
         }
+        array_walk($tableDefs, function (Table &$item): void {
+            $item = $item->getOutput();
+        });
         return array_values($tableDefs);
     }
 }

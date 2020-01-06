@@ -296,7 +296,7 @@ class MSSQL extends Extractor
                     }
                     $this->createManifest($table);
                 } else {
-                    if ($this->incrementalFetching['column'] && isset($this->state['lastFetchedRow'])) {
+                    if (isset($this->incrementalFetching['column']) && isset($this->state['lastFetchedRow'])) {
                         $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
                     }
                     $this->logger->warning(sprintf(

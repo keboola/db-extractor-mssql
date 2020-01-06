@@ -114,13 +114,13 @@ class MSSQLTest extends AbstractMSSQLTest
                             ),
                         1 =>
                             array (
-                                'key' => 'KBC.catalog',
-                                'value' => 'test',
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
                             ),
                         2 =>
                             array (
-                                'key' => 'KBC.schema',
-                                'value' => 'dbo',
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
                             ),
                         3 =>
                             array (
@@ -164,13 +164,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => '1',
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '1',
                                     ),
                             ),
                         'col2' =>
@@ -207,13 +212,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => '2',
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '2',
                                     ),
                             ),
                     ),
@@ -296,13 +306,13 @@ class MSSQLTest extends AbstractMSSQLTest
                             ),
                         1 =>
                             array (
-                                'key' => 'KBC.catalog',
-                                'value' => 'test',
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
                             ),
                         2 =>
                             array (
-                                'key' => 'KBC.schema',
-                                'value' => 'dbo',
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
                             ),
                         3 =>
                             array (
@@ -346,13 +356,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 1,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 1,
                                     ),
                             ),
                         'usercity' =>
@@ -389,13 +404,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 2,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 2,
                                     ),
                             ),
                         'usersentiment' =>
@@ -432,13 +452,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 3,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 3,
                                     ),
                             ),
                         'zipcode' =>
@@ -475,13 +500,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 4,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 4,
                                     ),
                             ),
                     ),
@@ -524,13 +554,13 @@ class MSSQLTest extends AbstractMSSQLTest
                             ),
                         1 =>
                             array (
-                                'key' => 'KBC.catalog',
-                                'value' => 'test',
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
                             ),
                         2 =>
                             array (
-                                'key' => 'KBC.schema',
-                                'value' => 'dbo',
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
                             ),
                         3 =>
                             array (
@@ -574,28 +604,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 1,
-                                    ),
-                                7 =>
-                                    array (
                                         'key' => 'KBC.primaryKey',
                                         'value' => true,
                                     ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.uniqueKey',
+                                        'value' => false,
+                                    ),
                                 8 =>
                                     array (
-                                        'key' => 'KBC.primaryKeyName',
-                                        'value' => 'PK_AUTOINC',
-                                    ),
-                                9 =>
-                                    array (
-                                        'key' => 'KBC.checkConstraint',
-                                        'value' => 'CHK_ID_CONTSTRAINT',
-                                    ),
-                                10 =>
-                                    array (
-                                        'key' => 'KBC.checkClause',
-                                        'value' => '([_Weir%d I-D]>(0) AND [_Weir%d I-D]<(20))',
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 1,
                                     ),
                             ),
                         'Weir_d_Na_me' =>
@@ -637,23 +657,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 2,
-                                    ),
-                                8 =>
-                                    array (
                                         'key' => 'KBC.primaryKey',
                                         'value' => false,
                                     ),
-                                9 =>
+                                8 =>
                                     array (
                                         'key' => 'KBC.uniqueKey',
                                         'value' => true,
                                     ),
-                                10 =>
+                                9 =>
                                     array (
-                                        'key' => 'KBC.uniqueKeyName',
-                                        'value' => 'UNI_KEY_1',
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 2,
                                     ),
                             ),
                         'someInteger' =>
@@ -690,13 +705,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 3,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 3,
                                     ),
                             ),
                         'someDecimal' =>
@@ -733,13 +753,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 4,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 4,
                                     ),
                             ),
                         'type' =>
@@ -776,23 +801,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 5,
-                                    ),
-                                7 =>
-                                    array (
                                         'key' => 'KBC.primaryKey',
                                         'value' => false,
                                     ),
-                                8 =>
+                                7 =>
                                     array (
                                         'key' => 'KBC.uniqueKey',
                                         'value' => true,
                                     ),
-                                9 =>
+                                8 =>
                                     array (
-                                        'key' => 'KBC.uniqueKeyName',
-                                        'value' => 'UNI_KEY_1',
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 5,
                                     ),
                             ),
                         'smalldatetime' =>
@@ -829,13 +849,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 6,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 6,
                                     ),
                             ),
                         'datetime' =>
@@ -872,13 +897,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 7,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 7,
                                     ),
                             ),
                         'timestamp' =>
@@ -910,13 +940,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 5 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => 8,
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                7 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => 8,
                                     ),
                             ),
                     ),
@@ -950,13 +985,13 @@ class MSSQLTest extends AbstractMSSQLTest
                             ),
                         1 =>
                             array (
-                                'key' => 'KBC.catalog',
-                                'value' => 'test',
+                                'key' => 'KBC.schema',
+                                'value' => 'dbo',
                             ),
                         2 =>
                             array (
-                                'key' => 'KBC.schema',
-                                'value' => 'dbo',
+                                'key' => 'KBC.catalog',
+                                'value' => 'test',
                             ),
                         3 =>
                             array (
@@ -1000,13 +1035,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => '1',
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '1',
                                     ),
                             ),
                         'col2' =>
@@ -1043,13 +1083,18 @@ class MSSQLTest extends AbstractMSSQLTest
                                     ),
                                 6 =>
                                     array (
-                                        'key' => 'KBC.ordinalPosition',
-                                        'value' => '2',
+                                        'key' => 'KBC.primaryKey',
+                                        'value' => false,
                                     ),
                                 7 =>
                                     array (
-                                        'key' => 'KBC.primaryKey',
+                                        'key' => 'KBC.uniqueKey',
                                         'value' => false,
+                                    ),
+                                8 =>
+                                    array (
+                                        'key' => 'KBC.ordinalPosition',
+                                        'value' => '2',
                                     ),
                             ),
                     ),
@@ -1121,8 +1166,8 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'nullable' => false,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => true,
-                                    'primaryKeyName' => 'PK_AUTOINC',
                                     'autoIncrement' => true,
+                                    'uniqueKey' => false,
                                 ),
                             1 =>
                                 array (
@@ -1133,6 +1178,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'nullable' => false,
                                     'ordinalPosition' => 2,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             2 =>
                                 array (
@@ -1143,6 +1189,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'nullable' => true,
                                     'ordinalPosition' => 3,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             3 =>
                                 array (
@@ -1153,6 +1200,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'nullable' => true,
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             4 =>
                                 array (
@@ -1163,26 +1211,27 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'nullable' => true,
                                     'ordinalPosition' => 5,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             5 =>
                                 array (
                                     'name' => 'smalldatetime',
                                     'sanitizedName' => 'smalldatetime',
                                     'type' => 'smalldatetime',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 6,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             6 =>
                                 array (
                                     'name' => 'datetime',
                                     'sanitizedName' => 'datetime',
                                     'type' => 'datetime',
-                                    'length' => null,
                                     'nullable' => false,
                                     'ordinalPosition' => 7,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             7 =>
                                 array (
@@ -1193,6 +1242,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'nullable' => false,
                                     'ordinalPosition' => 8,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                         ),
                 ),
@@ -1209,121 +1259,121 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'usergender',
                                     'sanitizedName' => 'usergender',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             1 =>
                                 array (
                                     'name' => 'usercity',
                                     'sanitizedName' => 'usercity',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 2,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             2 =>
                                 array (
                                     'name' => 'usersentiment',
                                     'sanitizedName' => 'usersentiment',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 3,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             3 =>
                                 array (
                                     'name' => 'zipcode',
                                     'sanitizedName' => 'zipcode',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             4 =>
                                 array (
                                     'name' => 'sku',
                                     'sanitizedName' => 'sku',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 5,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             5 =>
                                 array (
                                     'name' => 'createdat',
                                     'sanitizedName' => 'createdat',
                                     'type' => 'varchar',
-                                    'length' => 64,
+                                    'length' => '64',
                                     'nullable' => false,
                                     'ordinalPosition' => 6,
                                     'primaryKey' => true,
-                                    'primaryKeyName' => 'PK_sales',
+                                    'uniqueKey' => false,
                                 ),
                             6 =>
                                 array (
                                     'name' => 'category',
                                     'sanitizedName' => 'category',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 7,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             7 =>
                                 array (
                                     'name' => 'price',
                                     'sanitizedName' => 'price',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 8,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             8 =>
                                 array (
                                     'name' => 'county',
                                     'sanitizedName' => 'county',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 9,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             9 =>
                                 array (
                                     'name' => 'countycode',
                                     'sanitizedName' => 'countycode',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 10,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             10 =>
                                 array (
                                     'name' => 'userstate',
                                     'sanitizedName' => 'userstate',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 11,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             11 =>
                                 array (
                                     'name' => 'categorygroup',
                                     'sanitizedName' => 'categorygroup',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 12,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                         ),
                 ),
@@ -1340,50 +1390,50 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'usergender',
                                     'sanitizedName' => 'usergender',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             1 =>
                                 array (
                                     'name' => 'usercity',
                                     'sanitizedName' => 'usercity',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 2,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             2 =>
                                 array (
                                     'name' => 'usersentiment',
                                     'sanitizedName' => 'usersentiment',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 3,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             3 =>
                                 array (
                                     'name' => 'zipcode',
                                     'sanitizedName' => 'zipcode',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 4,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             4 =>
                                 array (
                                     'name' => 'sku',
                                     'sanitizedName' => 'sku',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 5,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             5 =>
                                 array (
@@ -1394,66 +1444,67 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'nullable' => false,
                                     'ordinalPosition' => 6,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             6 =>
                                 array (
                                     'name' => 'category',
                                     'sanitizedName' => 'category',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 7,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             7 =>
                                 array (
                                     'name' => 'price',
                                     'sanitizedName' => 'price',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 8,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             8 =>
                                 array (
                                     'name' => 'county',
                                     'sanitizedName' => 'county',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 9,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             9 =>
                                 array (
                                     'name' => 'countycode',
                                     'sanitizedName' => 'countycode',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 10,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             10 =>
                                 array (
                                     'name' => 'userstate',
                                     'sanitizedName' => 'userstate',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 11,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             11 =>
                                 array (
                                     'name' => 'categorygroup',
                                     'sanitizedName' => 'categorygroup',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 12,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                         ),
                 ),
@@ -1470,20 +1521,20 @@ class MSSQLTest extends AbstractMSSQLTest
                                     'name' => 'col1',
                                     'sanitizedName' => 'col1',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 1,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                             1 =>
                                 array (
                                     'name' => 'col2',
                                     'sanitizedName' => 'col2',
                                     'type' => 'text',
-                                    'length' => null,
                                     'nullable' => true,
                                     'ordinalPosition' => 2,
                                     'primaryKey' => false,
+                                    'uniqueKey' => false,
                                 ),
                         ),
                 ),
