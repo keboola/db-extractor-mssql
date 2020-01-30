@@ -1691,485 +1691,484 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertCount(12, $outputManifest['column_metadata']);
 
         $expectedColumnMetadata = [
-            "usergender" => [
+            'usergender' => [
                 [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
                 ],
                 [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
                 ],
                 [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
                 ],
                 [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
                 ],
                 [
-                    "key" => "KBC.sourceName",
-                    "value" => "usergender",
+                    'key' => 'KBC.sourceName',
+                    'value' => 'usergender',
                 ],
                 [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "usergender",
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'usergender',
                 ],
                 [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 1,
-                ],
-            ],
-            "usercity" => [
-                [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
-                ],
-                [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
-                ],
-                [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
-                ],
-                [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
-                ],
-                [
-                    "key" => "KBC.sourceName",
-                    "value" => "usercity",
-                ],
-                [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "usercity",
-                ],
-                [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 2,
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 1,
                 ],
             ],
-            "usersentiment" => [
+            'usercity' => [
                 [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
                 ],
                 [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
                 ],
                 [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
                 ],
                 [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
                 ],
                 [
-                    "key" => "KBC.sourceName",
-                    "value" => "usersentiment",
+                    'key' => 'KBC.sourceName',
+                    'value' => 'usercity',
                 ],
                 [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "usersentiment",
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'usercity',
                 ],
                 [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 3,
-                ],
-            ],
-            "zipcode" => [
-                [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
-                ],
-                [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
-                ],
-                [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
-                ],
-                [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
-                ],
-                [
-                    "key" => "KBC.sourceName",
-                    "value" => "zipcode",
-                ],
-                [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "zipcode",
-                ],
-                [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 4,
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 2,
                 ],
             ],
-            "sku" => [
+            'usersentiment' => [
                 [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
                 ],
                 [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
                 ],
                 [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
                 ],
                 [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
                 ],
                 [
-                    "key" => "KBC.sourceName",
-                    "value" => "sku",
+                    'key' => 'KBC.sourceName',
+                    'value' => 'usersentiment',
                 ],
                 [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "sku",
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'usersentiment',
                 ],
                 [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 5,
-                ],
-            ],
-            "createdat" => [
-                [
-                    "key" => "KBC.datatype.type",
-                    "value" => "varchar",
-                ],
-                [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
-                ],
-                [
-                    "key" => "KBC.datatype.length",
-                    "value" => "64",
-                ],
-                [
-                    "key" => "KBC.sourceName",
-                    "value" => "createdat",
-                ],
-                [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "createdat",
-                ],
-                [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 6,
-                ],
-                [
-                    "key" => "KBC.foreignKey",
-                    "value" => true,
-                ],
-                [
-                    "key" => "KBC.foreignKeyName",
-                    "value" => "FK_sales_sales2",
-                ],
-                [
-                    "key" => "KBC.foreignKeyRefSchema",
-                    "value" => "dbo",
-                ],
-                [
-                    "key" => "KBC.foreignKeyRefTable",
-                    "value" => "sales",
-                ],
-                [
-                    "key" => "KBC.foreignKeyRefColumn",
-                    "value" => "createdat",
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 3,
                 ],
             ],
-            "category" => [
+            'zipcode' => [
                 [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
                 ],
                 [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
                 ],
                 [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
                 ],
                 [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
                 ],
                 [
-                    "key" => "KBC.sourceName",
-                    "value" => "category",
+                    'key' => 'KBC.sourceName',
+                    'value' => 'zipcode',
                 ],
                 [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "category",
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'zipcode',
                 ],
                 [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 7,
-                ],
-            ],
-            "price" => [
-                [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
-                ],
-                [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
-                ],
-                [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
-                ],
-                [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
-                ],
-                [
-                    "key" => "KBC.sourceName",
-                    "value" => "price",
-                ],
-                [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "price",
-                ],
-                [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 8,
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 4,
                 ],
             ],
-            "county" => [
+            'sku' => [
                 [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
                 ],
                 [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
                 ],
                 [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
                 ],
                 [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
                 ],
                 [
-                    "key" => "KBC.sourceName",
-                    "value" => "county",
+                    'key' => 'KBC.sourceName',
+                    'value' => 'sku',
                 ],
                 [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "county",
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'sku',
                 ],
                 [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 9,
-                ],
-            ],
-            "countycode" => [
-                [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
-                ],
-                [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
-                ],
-                [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
-                ],
-                [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
-                ],
-                [
-                    "key" => "KBC.sourceName",
-                    "value" => "countycode",
-                ],
-                [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "countycode",
-                ],
-                [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
-                ],
-                [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 10,
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 5,
                 ],
             ],
-            "userstate" => [
+            'createdat' => [
                 [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'varchar',
                 ],
                 [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
                 ],
                 [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
+                    'key' => 'KBC.datatype.length',
+                    'value' => '64',
                 ],
                 [
-                    "key" => "KBC.sourceName",
-                    "value" => "userstate",
+                    'key' => 'KBC.sourceName',
+                    'value' => 'createdat',
                 ],
                 [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "userstate",
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'createdat',
                 ],
                 [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 11,
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 6,
+                ],
+                [
+                    'key' => 'KBC.foreignKey',
+                    'value' => true,
+                ],
+                [
+                    'key' => 'KBC.foreignKeyName',
+                    'value' => 'FK_sales_sales2',
+                ],
+                [
+                    'key' => 'KBC.foreignKeyRefSchema',
+                    'value' => 'dbo',
+                ],
+                [
+                    'key' => 'KBC.foreignKeyRefTable',
+                    'value' => 'sales',
+                ],
+                [
+                    'key' => 'KBC.foreignKeyRefColumn',
+                    'value' => 'createdat',
                 ],
             ],
-            "categorygroup" => [
+            'category' => [
                 [
-                    "key" => "KBC.datatype.type",
-                    "value" => "text",
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
                 ],
                 [
-                    "key" => "KBC.datatype.nullable",
-                    "value" => true,
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
                 ],
                 [
-                    "key" => "KBC.datatype.basetype",
-                    "value" => "STRING",
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
                 ],
                 [
-                    "key" => "KBC.datatype.length",
-                    "value" => "2147483647",
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
                 ],
                 [
-                    "key" => "KBC.sourceName",
-                    "value" => "categorygroup",
+                    'key' => 'KBC.sourceName',
+                    'value' => 'category',
                 ],
                 [
-                    "key" => "KBC.sanitizedName",
-                    "value" => "categorygroup",
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'category',
                 ],
                 [
-                    "key" => "KBC.primaryKey",
-                    "value" => false,
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.uniqueKey",
-                    "value" => false,
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
                 ],
                 [
-                    "key" => "KBC.ordinalPosition",
-                    "value" => 12,
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 7,
+                ],
+            ],
+            'price' => [
+                [
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
+                ],
+                [
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
+                ],
+                [
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
+                ],
+                [
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
+                ],
+                [
+                    'key' => 'KBC.sourceName',
+                    'value' => 'price',
+                ],
+                [
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'price',
+                ],
+                [
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 8,
+                ],
+            ],
+            'county' => [
+                [
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
+                ],
+                [
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
+                ],
+                [
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
+                ],
+                [
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
+                ],
+                [
+                    'key' => 'KBC.sourceName',
+                    'value' => 'county',
+                ],
+                [
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'county',
+                ],
+                [
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 9,
+                ],
+            ],
+            'countycode' => [
+                [
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
+                ],
+                [
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
+                ],
+                [
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
+                ],
+                [
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
+                ],
+                [
+                    'key' => 'KBC.sourceName',
+                    'value' => 'countycode',
+                ],
+                [
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'countycode',
+                ],
+                [
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 10,
+                ],
+            ],
+            'userstate' => [
+                [
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
+                ],
+                [
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
+                ],
+                [
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
+                ],
+                [
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
+                ],
+                [
+                    'key' => 'KBC.sourceName',
+                    'value' => 'userstate',
+                ],
+                [
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'userstate',
+                ],
+                [
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 11,
+                ],
+            ],
+            'categorygroup' => [
+                [
+                    'key' => 'KBC.datatype.type',
+                    'value' => 'text',
+                ],
+                [
+                    'key' => 'KBC.datatype.nullable',
+                    'value' => true,
+                ],
+                [
+                    'key' => 'KBC.datatype.basetype',
+                    'value' => 'STRING',
+                ],
+                [
+                    'key' => 'KBC.datatype.length',
+                    'value' => '2147483647',
+                ],
+                [
+                    'key' => 'KBC.sourceName',
+                    'value' => 'categorygroup',
+                ],
+                [
+                    'key' => 'KBC.sanitizedName',
+                    'value' => 'categorygroup',
+                ],
+                [
+                    'key' => 'KBC.primaryKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.uniqueKey',
+                    'value' => false,
+                ],
+                [
+                    'key' => 'KBC.ordinalPosition',
+                    'value' => 12,
                 ],
             ],
         ];
 
         $this->assertEquals($expectedColumnMetadata, $outputManifest['column_metadata']);
-
     }
 }
