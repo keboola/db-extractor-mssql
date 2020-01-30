@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\UserException;
+use Symfony\Component\Process\Process;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -1646,5 +1647,529 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->expectException(UserException::class);
         $this->expectExceptionMessage('Failed to retrieve results: SQLSTATE[IMSSP]: The active result for the query contains no fields. Code:IMSSP');
         $this->createApplication($config)->run();
+    }
+
+    /**
+     * @dataProvider configProvider
+     */
+    public function testManifestMetadata(array $config): void
+    {
+        $isConfigRow = !isset($config['parameters']['tables']);
+
+        $tableParams = ($isConfigRow) ? $config['parameters'] : $config['parameters']['tables'][0];
+        unset($tableParams['query']);
+        $tableParams['name'] = 'sales2';
+        $tableParams['outputTable'] = 'in.c-main.sales2';
+        $tableParams['primaryKey'] = ['createdat'];
+        $tableParams['table'] = [
+            'tableName' => 'sales2',
+            'schema' => 'dbo',
+        ];
+        if ($isConfigRow) {
+            $config['parameters'] = $tableParams;
+        } else {
+            $config['parameters']['tables'][0] = $tableParams;
+            unset($config['parameters']['tables'][1]);
+            unset($config['parameters']['tables'][2]);
+            unset($config['parameters']['tables'][3]);
+        }
+
+        $result = $this->createApplication($config)->run();
+
+        $importedTable = ($isConfigRow) ? $result['imported']['outputTable'] : $result['imported'][0]['outputTable'];
+
+        $outputManifest = json_decode(
+            (string) file_get_contents($this->dataDir . '/out/tables/' . $importedTable . '.csv.manifest'),
+            true
+        );
+
+        $this->assertArrayHasKey('destination', $outputManifest);
+        $this->assertArrayHasKey('incremental', $outputManifest);
+        $this->assertArrayHasKey('metadata', $outputManifest);
+
+        $this->assertArrayHasKey('column_metadata', $outputManifest);
+        $this->assertCount(12, $outputManifest['column_metadata']);
+
+        $expectedColumnMetadata = [
+            "usergender" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "usergender",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "usergender",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 1,
+                ],
+            ],
+            "usercity" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "usercity",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "usercity",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 2,
+                ],
+            ],
+            "usersentiment" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "usersentiment",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "usersentiment",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 3,
+                ],
+            ],
+            "zipcode" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "zipcode",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "zipcode",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 4,
+                ],
+            ],
+            "sku" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "sku",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "sku",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 5,
+                ],
+            ],
+            "createdat" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "varchar",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "64",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "createdat",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "createdat",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 6,
+                ],
+                [
+                    "key" => "KBC.foreignKey",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.foreignKeyName",
+                    "value" => "FK_sales_sales2",
+                ],
+                [
+                    "key" => "KBC.foreignKeyRefSchema",
+                    "value" => "dbo",
+                ],
+                [
+                    "key" => "KBC.foreignKeyRefTable",
+                    "value" => "sales",
+                ],
+                [
+                    "key" => "KBC.foreignKeyRefColumn",
+                    "value" => "createdat",
+                ],
+            ],
+            "category" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "category",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "category",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 7,
+                ],
+            ],
+            "price" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "price",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "price",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 8,
+                ],
+            ],
+            "county" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "county",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "county",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 9,
+                ],
+            ],
+            "countycode" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "countycode",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "countycode",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 10,
+                ],
+            ],
+            "userstate" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "userstate",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "userstate",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 11,
+                ],
+            ],
+            "categorygroup" => [
+                [
+                    "key" => "KBC.datatype.type",
+                    "value" => "text",
+                ],
+                [
+                    "key" => "KBC.datatype.nullable",
+                    "value" => true,
+                ],
+                [
+                    "key" => "KBC.datatype.basetype",
+                    "value" => "STRING",
+                ],
+                [
+                    "key" => "KBC.datatype.length",
+                    "value" => "2147483647",
+                ],
+                [
+                    "key" => "KBC.sourceName",
+                    "value" => "categorygroup",
+                ],
+                [
+                    "key" => "KBC.sanitizedName",
+                    "value" => "categorygroup",
+                ],
+                [
+                    "key" => "KBC.primaryKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.uniqueKey",
+                    "value" => false,
+                ],
+                [
+                    "key" => "KBC.ordinalPosition",
+                    "value" => 12,
+                ],
+            ],
+        ];
+
+        $this->assertEquals($expectedColumnMetadata, $outputManifest['column_metadata']);
+
     }
 }
