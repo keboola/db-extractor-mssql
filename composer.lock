@@ -260,16 +260,16 @@
         },
         {
             "name": "keboola/db-extractor-table-format",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-table-format.git",
-                "reference": "2df3f6def018cd0fecd3de4bfd1b1ed983283999"
+                "reference": "a0d1ff6219f4a8dd58e459a270b217dccd9f3302"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-table-format/zipball/2df3f6def018cd0fecd3de4bfd1b1ed983283999",
-                "reference": "2df3f6def018cd0fecd3de4bfd1b1ed983283999",
+                "url": "https://api.github.com/repos/keboola/db-extractor-table-format/zipball/a0d1ff6219f4a8dd58e459a270b217dccd9f3302",
+                "reference": "a0d1ff6219f4a8dd58e459a270b217dccd9f3302",
                 "shasum": ""
             },
             "require": {
@@ -299,7 +299,7 @@
                 }
             ],
             "description": "PHP class for formating table result",
-            "time": "2020-01-29T13:34:36+00:00"
+            "time": "2020-01-30T12:52:19+00:00"
         },
         {
             "name": "keboola/php-component",
