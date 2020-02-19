@@ -244,15 +244,19 @@ class MetadataProvider
             $columnFormat = new TableColumn();
             $columnFormat
                 ->setName($column['COLUMN_NAME'])
-                ->setType($column['DATA_TYPE'])
-                ->setLength($this->getFieldLength($column))
-                ->setNullable(($column['IS_NULLABLE'] === 'YES' || $column['IS_NULLABLE'] === '1') ? true : false)
                 ->setOrdinalPosition((int) $column['ORDINAL_POSITION']);
 
+            if (array_key_exists('DATA_TYPE', $column)) {
+                $columnFormat
+                    ->setType($column['DATA_TYPE'])
+                    ->setLength($this->getFieldLength($column));
+            }
+            if (array_key_exists('IS_NULLABLE', $column)) {
+                $columnFormat->setNullable(($column['IS_NULLABLE'] === 'YES' || $column['IS_NULLABLE'] === '1') ? true : false);
+            }
             if (array_key_exists('COLUMN_DEFAULT', $column)) {
                 $columnFormat->setDefault($column['COLUMN_DEFAULT']);
             }
-
             if (array_key_exists('pk_name', $column) && $column['pk_name'] !== null) {
                 $columnFormat->setPrimaryKey(true);
             }
