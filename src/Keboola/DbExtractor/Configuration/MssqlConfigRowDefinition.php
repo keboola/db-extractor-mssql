@@ -43,6 +43,7 @@ class MssqlConfigRowDefinition extends ConfigRowDefinition
                     ->children()
                         ->scalarNode('schema')->isRequired()->end()
                         ->scalarNode('tableName')->isRequired()->end()
+                        ->booleanNode('changeTracking')->defaultValue(false)->end()
                     ->end()
                 ->end()
                 ->arrayNode('columns')

@@ -1147,7 +1147,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('status', $result);
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
-        $this->assertCount(4, $result['tables']);
+        $this->assertCount(5, $result['tables']);
 
         $expectedData = array (
             0 =>
@@ -1248,6 +1248,103 @@ class MSSQLTest extends AbstractMSSQLTest
                         ),
                 ),
             1 =>
+                array (
+                    'name' => 'change Tracking',
+                    'catalog' => 'test',
+                    'schema' => 'dbo',
+                    'type' => 'BASE TABLE',
+                    'columns' =>
+                        array (
+                            0 =>
+                                array (
+                                    'name' => 'id',
+                                    'sanitizedName' => 'id',
+                                    'type' => 'int',
+                                    'length' => '10',
+                                    'nullable' => false,
+                                    'ordinalPosition' => 1,
+                                    'primaryKey' => true,
+                                    'autoIncrement' => true,
+                                    'uniqueKey' => false,
+                                ),
+                            1 =>
+                                array (
+                                    'name' => 'name',
+                                    'sanitizedName' => 'name',
+                                    'type' => 'varchar',
+                                    'length' => '55',
+                                    'nullable' => false,
+                                    'ordinalPosition' => 2,
+                                    'primaryKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            2 =>
+                                array (
+                                    'name' => 'someInteger',
+                                    'sanitizedName' => 'someInteger',
+                                    'type' => 'int',
+                                    'length' => '10',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 3,
+                                    'primaryKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            3 =>
+                                array (
+                                    'name' => 'someDecimal',
+                                    'sanitizedName' => 'someDecimal',
+                                    'type' => 'decimal',
+                                    'length' => '10,2',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 4,
+                                    'primaryKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            4 =>
+                                array (
+                                    'name' => 'type',
+                                    'sanitizedName' => 'type',
+                                    'type' => 'varchar',
+                                    'length' => '55',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 5,
+                                    'primaryKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            5 =>
+                                array (
+                                    'name' => 'smalldatetime',
+                                    'sanitizedName' => 'smalldatetime',
+                                    'type' => 'smalldatetime',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 6,
+                                    'primaryKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            6 =>
+                                array (
+                                    'name' => 'datetime',
+                                    'sanitizedName' => 'datetime',
+                                    'type' => 'datetime',
+                                    'nullable' => false,
+                                    'ordinalPosition' => 7,
+                                    'primaryKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                            7 =>
+                                array (
+                                    'name' => 'timestamp',
+                                    'sanitizedName' => 'timestamp',
+                                    'type' => 'timestamp',
+                                    'length' => '8',
+                                    'nullable' => false,
+                                    'ordinalPosition' => 8,
+                                    'primaryKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                        ),
+                ),
+            2 =>
                 array (
                     'name' => 'sales',
                     'catalog' => 'test',
@@ -1378,7 +1475,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 ),
                         ),
                 ),
-            2 =>
+            3 =>
                 array (
                     'name' => 'sales2',
                     'catalog' => 'test',
@@ -1509,7 +1606,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 ),
                         ),
                 ),
-            3 =>
+            4 =>
                 array (
                     'name' => 'special',
                     'catalog' => 'test',
@@ -1605,9 +1702,9 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->dropTable('NULL_TEST');
         $this->pdo->exec("CREATE TABLE [NULL_TEST] ([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));");
         $this->pdo->exec(
-            "INSERT INTO [NULL_TEST] VALUES 
-            ('', '', 'test with ' + CHAR(0) + ' inside'), 
-            ('', '', ''), 
+            "INSERT INTO [NULL_TEST] VALUES
+            ('', '', 'test with ' + CHAR(0) + ' inside'),
+            ('', '', ''),
             ('3', '', 'test')"
         );
         $config = $this->getConfig('mssql');
