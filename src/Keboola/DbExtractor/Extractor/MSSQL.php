@@ -481,7 +481,16 @@ class MSSQL extends Extractor
             $escapedColumnList = implode(
                 ', ',
                 array_map(
-                    function (array $column): string {
+                    function (array $column) use ($table): string {
+                        if ($this->changeTracking && $this->incrementalFetching['column'] === $column['name']) {
+                            return sprintf(
+                                '%s.%s.%s',
+                                $this->db->quoteIdentifier($table['schema']),
+                                $this->db->quoteIdentifier($table['tableName']),
+                                $this->db->quoteIdentifier($column['name'])
+                            );
+                        }
+
                         return $this->columnToBcpSql($column);
                     },
                     $columns

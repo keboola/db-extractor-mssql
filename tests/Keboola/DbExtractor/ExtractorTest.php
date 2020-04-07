@@ -535,7 +535,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 0) AS cht ON cht.id = [dbo].[change Tracking].id WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
             ],
-            'test query with limit and idp column and previos state' => [
+            'test query with limit and id column and previos state' => [
                 [
                     'table' => [
                         'tableName' => 'change Tracking',
@@ -545,23 +545,35 @@ class ExtractorTest extends AbstractMSSQLTest
                     'columns' => array (
                         0 =>
                             array (
+                                'name' => 'id',
+                                'sanitizedName' => 'id',
+                                'type' => 'int',
+                                'length' => '10',
+                                'nullable' => false,
+                                'ordinalPosition' => 1,
+                                'primaryKey' => true,
+                                'primaryKeyName' => 'PK_AUTOINC_2',
+                                'autoIncrement' => true,
+                            ),
+                        1 =>
+                            array (
                                 'name' => 'col1',
                                 'sanitizedName' => 'col1',
                                 'type' => 'text',
                                 'length' => '2147483647',
                                 'nullable' => true,
-                                'ordinalPosition' => 1,
+                                'ordinalPosition' => 2,
                                 'primaryKey' => false,
                                 'default' => null,
                             ),
-                        1 =>
+                        2 =>
                             array (
                                 'name' => 'col2',
                                 'sanitizedName' => 'col2',
                                 'type' => 'text',
                                 'length' => '2147483647',
                                 'nullable' => true,
-                                'ordinalPosition' => 2,
+                                'ordinalPosition' => 3,
                                 'primaryKey' => false,
                                 'default' => null,
                             ),
@@ -572,7 +584,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [
                     'lastFetchedRow' => 4,
                 ],
-                "SELECT TOP 10 char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 4) AS cht ON cht.id = [dbo].[change Tracking].id WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
+                "SELECT TOP 10 [dbo].[change Tracking].[id], char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 4) AS cht ON cht.id = [dbo].[change Tracking].id WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
             ],
             'test query with limit and change tracking type and previous state' => [
                 [
