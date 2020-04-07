@@ -48,7 +48,6 @@ class MssqlTablesNode extends TablesNode
                     ->children()
                         ->scalarNode('schema')->end()
                         ->scalarNode('tableName')->end()
-                        ->booleanNode('changeTracking')->defaultValue(false)->end()
                     ->end()
                 ->end()
                 ->arrayNode('columns')
