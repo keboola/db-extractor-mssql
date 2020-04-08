@@ -40,45 +40,7 @@ class ChangeTrackingTest extends AbstractMSSQLTest
             $nextResult['state']['lastFetchedRow']
         );
         $this->assertEquals(2, $nextResult['imported']['rows']);
-    }
-
-    public function testIncrementalFetchingLimit(): void
-    {
-        $config = $this->getChangeTrackingConfig();
-        $config['parameters']['incrementalFetchingLimit'] = 1;
-        $result = ($this->createApplication($config))->run();
-        $outputFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv';
-        $this->assertEquals('success', $result['status']);
-        $this->assertEquals(
-            [
-                'outputTable' => 'in.c-main.change-tracking',
-                // incrementalFetchingLimit is ignored because lastFetchedRow is not set
-                'rows' => 6,
-            ],
-            $result['imported']
-        );
-        //check that output state contains expected information
-        $this->assertArrayHasKey('state', $result);
-        $this->assertArrayHasKey('lastFetchedRow', $result['state']);
-        @unlink($outputFile);
-
-        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'charles\')');
-        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'william\')');
-        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'jack\')');
-        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'john\')');
-        $config['parameters']['incrementalFetchingLimit'] = 3;
-        $nextResult = ($this->createApplication($config, $result['state']))->run();
-        //check that output state contains expected information
-        $this->assertEquals(
-            [
-                'outputTable' => 'in.c-main.change-tracking',
-                'rows' => 3,
-            ],
-            $nextResult['imported']
-        );
-        $this->assertArrayHasKey('state', $nextResult);
-        $this->assertArrayHasKey('lastFetchedRow', $nextResult['state']);
-        $this->assertTrue(intval($result['state']['lastFetchedRow']) + 3 === intval($nextResult['state']['lastFetchedRow']));
+        $this->assertTrue(intval($result['state']['lastFetchedRow']) + 2 === intval($nextResult['state']['lastFetchedRow']));
     }
 
     public function testChangeTrackingInvalidColumn(): void
@@ -110,6 +72,17 @@ class ChangeTrackingTest extends AbstractMSSQLTest
         $config['parameters']['incrementalFetchingColumn'] = '_Weir%d I-D';
         $this->expectException(UserException::class);
         $this->expectExceptionMessage('Change tracking for table [auto Increment Timestamp] is not enabled');
+        $app = $this->createApplication($config);
+        $app->run();
+    }
+
+    public function testChangeTrackingIncrementalFetchingLimit(): void
+    {
+        $config = $this->getChangeTrackingConfig();
+        $config['parameters']['incrementalFetchingLimit'] = 1;
+
+        $this->expectException(UserException::class);
+        $this->expectExceptionMessage('Incremental fetching limit is not supported for change tracking');
         $app = $this->createApplication($config);
         $app->run();
     }

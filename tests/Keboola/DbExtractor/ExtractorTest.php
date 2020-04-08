@@ -322,7 +322,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 "SELECT TOP 1000 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
             ],
-            'test simplePDO query without limit and change tracking type but no state' => [
+            'test simplePDO query with change tracking type but no state' => [
                 [
                     'table' => [
                         'tableName' => 'change Tracking',
@@ -335,21 +335,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 'SELECT [dbo].[change Tracking].[id], [name], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[change Tracking]',
             ],
-            'test simplePDO query with limit and change tracking type but no state' => [
-                [
-                    'table' => [
-                        'tableName' => 'change Tracking',
-                        'schema' => 'dbo',
-                        'changeTracking' => true,
-                    ],
-                    'columns' => $this->getColumnMetadataForChangeTrackingFetchingTests(),
-                    'incrementalFetchingColumn' => 'id',
-                    'incrementalFetchingLimit' => 10,
-                ],
-                [],
-                'SELECT [dbo].[change Tracking].[id], [name], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[change Tracking]',
-            ],
-            'test simplePDO query without limit and change tracking type and previous state' => [
+            'test simplePDO query with change tracking type and previous state' => [
                 [
                     'table' => [
                         'tableName' => 'change Tracking',
@@ -364,23 +350,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
                 "SELECT [dbo].[change Tracking].[id], [name], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 4) AS cht ON cht.id = [dbo].[change Tracking].id WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
             ],
-            'test simplePDO query with limit and change tracking type and previous state' => [
-                [
-                    'table' => [
-                        'tableName' => 'change Tracking',
-                        'schema' => 'dbo',
-                        'changeTracking' => true,
-                    ],
-                    'columns' => $this->getColumnMetadataForChangeTrackingFetchingTests(),
-                    'incrementalFetchingColumn' => 'id',
-                    'incrementalFetchingLimit' => 10,
-                ],
-                [
-                    'lastFetchedRow' => 4,
-                ],
-                "SELECT TOP 10 [dbo].[change Tracking].[id], [name], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 4) AS cht ON cht.id = [dbo].[change Tracking].id WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
-            ],
-            'test simplePDO query without limit and change tracking type with custom id but no state' => [
+            'test simplePDO query with change tracking type with custom id but no state' => [
                 [
                     'table' => [
                         'tableName' => 'change Tracking',
@@ -414,7 +384,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 'SELECT [dbo].[change Tracking].[someInteger], [name] FROM [dbo].[change Tracking]',
             ],
-            'test simplePDO query without limit and change tracking type with custom id and previous state' => [
+            'test simplePDO query with change tracking type with custom id and previous state' => [
                 [
                     'table' => [
                         'tableName' => 'change Tracking',
@@ -734,7 +704,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) AS [timestampCol] FROM [testSchema].[test]",
             ],
-            'test query without limit and change tracking type but no state' => [
+            'test query with change tracking type but no state' => [
                 [
                     'table' => [
                         'tableName' => 'change Tracking',
@@ -770,44 +740,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 [],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[change Tracking]",
             ],
-            'test query with limit and change tracking type but no state' => [
-                [
-                    'table' => [
-                        'tableName' => 'change Tracking',
-                        'schema' => 'dbo',
-                        'changeTracking' => true,
-                    ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 2,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                    ),
-                    'incrementalFetchingLimit' => 10,
-                    'incrementalFetchingColumn' => 'id',
-                ],
-                [],
-                "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[change Tracking]",
-            ],
-            'test query with limit and id column and previos state' => [
+            'test query with change tracking type and id column and previos state' => [
                 [
                     'table' => [
                         'tableName' => 'change Tracking',
@@ -850,13 +783,12 @@ class ExtractorTest extends AbstractMSSQLTest
                                 'default' => null,
                             ),
                     ),
-                    'incrementalFetchingLimit' => 10,
                     'incrementalFetchingColumn' => 'id',
                 ],
                 [
                     'lastFetchedRow' => 4,
                 ],
-                "SELECT TOP 10 [dbo].[change Tracking].[id], char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 4) AS cht ON cht.id = [dbo].[change Tracking].id WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
+                "SELECT [dbo].[change Tracking].[id], char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 4) AS cht ON cht.id = [dbo].[change Tracking].id WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
             ],
         ];
     }

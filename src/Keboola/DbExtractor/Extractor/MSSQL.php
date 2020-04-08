@@ -475,13 +475,11 @@ class MSSQL extends Extractor
     public function getSimpleQuery(array $table, ?array $columns = array(), string $format = self::ESCAPING_TYPE_BCP): string
     {
         $queryStart = 'SELECT';
-        if ($this->shouldApplyLimit()) {
+        if (isset($this->incrementalFetching['limit'])) {
             $queryStart .= sprintf(
                 ' TOP %d',
                 $this->incrementalFetching['limit']
             );
-        } else {
-            unset($this->incrementalFetching['limit']);
         }
 
         if ($columns && count($columns) > 0 && $format === self::ESCAPING_TYPE_BCP) {
@@ -570,23 +568,6 @@ class MSSQL extends Extractor
         return $query;
     }
 
-    private function shouldApplyLimit(): bool
-    {
-        if (! $this->hasIncrementalLimit()) {
-            return false;
-        }
-
-        if (! $this->changeTracking) {
-            return true;
-        }
-
-        if (isset($this->state['lastFetchedRow'])) {
-            return true;
-        }
-
-        return false;
-    }
-
     public function columnToPdoSql(array $column): string
     {
         $datatype = new MssqlDataType(
@@ -673,6 +654,10 @@ class MSSQL extends Extractor
 
     private function validateChangeTracking(array $table, string $columnName, ?int $limit = null): void
     {
+        if ($limit) {
+            throw new UserException('Incremental fetching limit is not supported for change tracking');
+        }
+
         $query = sprintf(
             "SELECT [is_identity], TYPE_NAME([system_type_id]) AS [data_type]
             FROM [sys].[columns]
@@ -713,10 +698,6 @@ class MSSQL extends Extractor
 
         $this->changeTracking = true;
         $this->incrementalFetching['column'] = $columnName;
-
-        if ($limit) {
-            $this->incrementalFetching['limit'] = $limit;
-        }
     }
 
     private function getIncrementalQueryAddon(): ?string
