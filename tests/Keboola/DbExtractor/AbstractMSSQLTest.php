@@ -133,7 +133,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         // enable change tracking
         $this->pdo->exec('ALTER DATABASE test SET READ_COMMITTED_SNAPSHOT ON');
         $this->pdo->exec('ALTER DATABASE test SET CHANGE_TRACKING = ON (CHANGE_RETENTION = 5 DAYS, AUTO_CLEANUP = ON)');
-        $this->pdo->exec('ALTER TABLE [dbo].[change Tracking]  ENABLE CHANGE_TRACKING WITH (TRACK_COLUMNS_UPDATED = ON)');
+        $this->pdo->exec('ALTER TABLE [dbo].[change Tracking] ENABLE CHANGE_TRACKING WITH (TRACK_COLUMNS_UPDATED = ON)');
 
         $this->pdo->exec("INSERT INTO [change Tracking] (\"name\", Type, someInteger, someDecimal, smalldatetime) VALUES ('mario', 'plumber', 1, 1.1, '2012-01-10 10:00')");
         $this->pdo->exec("INSERT INTO [change Tracking] (\"name\", Type, someInteger, someDecimal, smalldatetime) VALUES ('luigi', 'plumber', 2, 2.2, '2012-01-10 10:05')");
