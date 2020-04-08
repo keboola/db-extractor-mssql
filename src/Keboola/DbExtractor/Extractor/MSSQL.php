@@ -160,7 +160,8 @@ class MSSQL extends Extractor
         if (count($result) > 0) {
             return $result[0]['version'];
         }
-        throw new ApplicationException('Fetching last version value returned no results');
+
+        return '0';
     }
 
     private function getLastFetchedId(array $columnMetadata, array $lastExportedLine): string
@@ -383,7 +384,7 @@ class MSSQL extends Extractor
             'rows' => $exportResult['rows'],
         ];
         // output state
-        if (isset($exportResult['lastFetchedRow']) && !is_array($exportResult['lastFetchedRow'])) {
+        if (isset($exportResult['lastFetchedRow']) && ! is_array($exportResult['lastFetchedRow'])) {
             $output['state']['lastFetchedRow'] = $exportResult['lastFetchedRow'];
         }
         return $output;
@@ -474,11 +475,13 @@ class MSSQL extends Extractor
     public function getSimpleQuery(array $table, ?array $columns = array(), string $format = self::ESCAPING_TYPE_BCP): string
     {
         $queryStart = 'SELECT';
-        if (isset($this->incrementalFetching['limit'])) {
+        if ($this->shouldApplyLimit()) {
             $queryStart .= sprintf(
                 ' TOP %d',
                 $this->incrementalFetching['limit']
             );
+        } else {
+            unset($this->incrementalFetching['limit']);
         }
 
         if ($columns && count($columns) > 0 && $format === self::ESCAPING_TYPE_BCP) {
@@ -544,17 +547,19 @@ class MSSQL extends Extractor
         }
 
         if ($this->changeTracking) {
-            $query = sprintf(
-                '%s INNER JOIN CHANGETABLE(CHANGES %s.%s, %d) AS cht ON cht.%s = %s.%s.%s WHERE cht.sys_change_operation <> \'D\' ORDER BY cht.sys_change_version',
-                $query,
-                $this->db->quoteIdentifier($table['schema']),
-                $this->db->quoteIdentifier($table['tableName']),
-                $this->state['lastFetchedRow'] ?? 0,
-                $this->incrementalFetching['column'],
-                $this->db->quoteIdentifier($table['schema']),
-                $this->db->quoteIdentifier($table['tableName']),
-                $this->incrementalFetching['column']
-            );
+            if (isset($this->state['lastFetchedRow'])) {
+                $query = sprintf(
+                    '%s INNER JOIN CHANGETABLE(CHANGES %s.%s, %d) AS cht ON cht.%s = %s.%s.%s WHERE cht.sys_change_operation <> \'D\' ORDER BY cht.sys_change_version',
+                    $query,
+                    $this->db->quoteIdentifier($table['schema']),
+                    $this->db->quoteIdentifier($table['tableName']),
+                    $this->state['lastFetchedRow'] ?? 0,
+                    $this->incrementalFetching['column'],
+                    $this->db->quoteIdentifier($table['schema']),
+                    $this->db->quoteIdentifier($table['tableName']),
+                    $this->incrementalFetching['column']
+                );
+            }
         } else if ($this->incrementalFetching) {
             $incrementalAddon = $this->getIncrementalQueryAddon();
             if ($incrementalAddon) {
@@ -563,6 +568,23 @@ class MSSQL extends Extractor
         }
 
         return $query;
+    }
+
+    private function shouldApplyLimit(): bool
+    {
+        if (! $this->hasIncrementalLimit()) {
+            return false;
+        }
+
+        if (! $this->changeTracking) {
+            return true;
+        }
+
+        if (isset($this->state['lastFetchedRow'])) {
+            return true;
+        }
+
+        return false;
     }
 
     public function columnToPdoSql(array $column): string

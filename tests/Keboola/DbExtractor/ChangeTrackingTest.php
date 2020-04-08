@@ -29,16 +29,17 @@ class ChangeTrackingTest extends AbstractMSSQLTest
         $this->assertNotEmpty($result['state']['lastFetchedRow']);
         @unlink($outputFile);
 
-        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'charles\'), (\'william\')');
-        $newResult = ($this->createApplication($config, $result['state']))->run();
+        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'charles\')');
+        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'william\')');
+        $nextResult = ($this->createApplication($config, $result['state']))->run();
         //check that output state contains expected information
-        $this->assertArrayHasKey('state', $newResult);
-        $this->assertArrayHasKey('lastFetchedRow', $newResult['state']);
+        $this->assertArrayHasKey('state', $nextResult);
+        $this->assertArrayHasKey('lastFetchedRow', $nextResult['state']);
         $this->assertGreaterThan(
             $result['state']['lastFetchedRow'],
-            $newResult['state']['lastFetchedRow']
+            $nextResult['state']['lastFetchedRow']
         );
-        $this->assertEquals(2, $newResult['imported']['rows']);
+        $this->assertEquals(2, $nextResult['imported']['rows']);
     }
 
     public function testIncrementalFetchingLimit(): void
@@ -46,31 +47,38 @@ class ChangeTrackingTest extends AbstractMSSQLTest
         $config = $this->getChangeTrackingConfig();
         $config['parameters']['incrementalFetchingLimit'] = 1;
         $result = ($this->createApplication($config))->run();
+        $outputFile = $this->dataDir . '/out/tables/' . $result['imported']['outputTable'] . '.csv';
         $this->assertEquals('success', $result['status']);
         $this->assertEquals(
             [
                 'outputTable' => 'in.c-main.change-tracking',
-                'rows' => 1,
+                // incrementalFetchingLimit is ignored because lastFetchedRow is not set
+                'rows' => 6,
             ],
             $result['imported']
         );
         //check that output state contains expected information
         $this->assertArrayHasKey('state', $result);
         $this->assertArrayHasKey('lastFetchedRow', $result['state']);
+        @unlink($outputFile);
 
-        $config['parameters']['incrementalFetchingLimit'] = 2;
+        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'charles\')');
+        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'william\')');
+        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'jack\')');
+        $this->pdo->exec('INSERT INTO [change Tracking] ([name]) VALUES (\'john\')');
+        $config['parameters']['incrementalFetchingLimit'] = 3;
         $nextResult = ($this->createApplication($config, $result['state']))->run();
+        //check that output state contains expected information
         $this->assertEquals(
             [
                 'outputTable' => 'in.c-main.change-tracking',
-                'rows' => 2,
+                'rows' => 3,
             ],
             $nextResult['imported']
         );
-        //check that output state contains expected information
         $this->assertArrayHasKey('state', $nextResult);
         $this->assertArrayHasKey('lastFetchedRow', $nextResult['state']);
-        $this->assertTrue(intval($result['state']['lastFetchedRow']) + 2 === intval($nextResult['state']['lastFetchedRow']));
+        $this->assertTrue(intval($result['state']['lastFetchedRow']) + 3 === intval($nextResult['state']['lastFetchedRow']));
     }
 
     public function testChangeTrackingInvalidColumn(): void
