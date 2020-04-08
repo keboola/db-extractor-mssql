@@ -290,6 +290,10 @@ class MSSQL extends Extractor
                     if ($maxValue) {
                         $exportResult['lastFetchedRow'] = $maxValue;
                     } else if ($this->changeTracking) {
+                        $columnNames = array_map(function ($column) {
+                            return $column['name'];
+                        }, $columnMetadata);
+                        $exportResult['lastFetchedRow'] = array_combine($columnNames, $exportResult['lastFetchedRow']);
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedChangeTrackingValue(
                             $exportResult['lastFetchedRow'],
                             $table['table']
