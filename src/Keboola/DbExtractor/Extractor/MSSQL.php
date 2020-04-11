@@ -38,17 +38,12 @@ class MSSQL extends Extractor
         $this->sqlServerVersion = $this->getSqlServerVersion();
         $this->metadataProvider = new MetadataProvider($this->db);
 
-        if (isset($parameters['table'])) {
-            $table = $parameters['table'];
-            $changeTracking = isset($table['changeTracking']) ? $table['changeTracking'] : false;
-
-            if ($changeTracking) {
-                $this->validateChangeTracking(
-                    $table,
-                    isset($parameters['incrementalFetchingColumn']) ? $parameters['incrementalFetchingColumn'] : null,
-                    isset($parameters['incrementalFetchingLimit']) ? $parameters['incrementalFetchingLimit'] : null
-                );
-            }
+        if (isset($parameters['changeTracking']) && $parameters['changeTracking']) {
+            $this->validateChangeTracking(
+                $parameters['table'],
+                isset($parameters['incrementalFetchingColumn']) ? $parameters['incrementalFetchingColumn'] : null,
+                isset($parameters['incrementalFetchingLimit']) ? $parameters['incrementalFetchingLimit'] : null
+            );
         }
     }
 

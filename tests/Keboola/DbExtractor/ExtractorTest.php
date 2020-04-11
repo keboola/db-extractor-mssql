@@ -32,7 +32,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
             );
         }
-        if (isset($params['table']['changeTracking']) && $params['table']['changeTracking']) {
+        if (isset($params['changeTracking']) && $params['changeTracking']) {
             $extractor->validateChangeTracking(
                 $params['table'],
                 isset($params['incrementalFetchingColumn']) ? $params['incrementalFetchingColumn'] : null,
@@ -57,7 +57,7 @@ class ExtractorTest extends AbstractMSSQLTest
                 isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
             );
         }
-        if (isset($params['table']['changeTracking']) && $params['table']['changeTracking']) {
+        if (isset($params['changeTracking']) && $params['changeTracking']) {
             $extractor->validateChangeTracking(
                 $params['table'],
                 isset($params['incrementalFetchingColumn']) ? $params['incrementalFetchingColumn'] : null,
@@ -341,8 +341,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'change Tracking',
                         'schema' => 'dbo',
-                        'changeTracking' => true,
                     ],
+                    'changeTracking' => true,
                     'columns' => $this->getColumnMetadataForChangeTrackingTests(),
                 ],
                 [],
@@ -353,8 +353,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'change Tracking',
                         'schema' => 'dbo',
-                        'changeTracking' => true,
                     ],
+                    'changeTracking' => true,
                     'columns' => $this->getColumnMetadataForChangeTrackingTests(),
                 ],
                 [
@@ -367,8 +367,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'change Tracking 2',
                         'schema' => 'dbo',
-                        'changeTracking' => true,
                     ],
+                    'changeTracking' => true,
                     'columns' => $this->getColumnMetadataForChangeTrackingTestsWithTwoPrimaryKeys(),
                 ],
                 [],
@@ -379,8 +379,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'change Tracking 2',
                         'schema' => 'dbo',
-                        'changeTracking' => true,
                     ],
+                    'changeTracking' => true,
                     'columns' => $this->getColumnMetadataForChangeTrackingTestsWithTwoPrimaryKeys(),
                 ],
                 [
@@ -677,8 +677,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'change Tracking',
                         'schema' => 'dbo',
-                        'changeTracking' => true,
                     ],
+                    'changeTracking' => true,
                     'columns' => array (
                         0 =>
                             array (
@@ -712,8 +712,8 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'change Tracking',
                         'schema' => 'dbo',
-                        'changeTracking' => true,
                     ],
+                    'changeTracking' => true,
                     'columns' => array (
                         0 =>
                             array (

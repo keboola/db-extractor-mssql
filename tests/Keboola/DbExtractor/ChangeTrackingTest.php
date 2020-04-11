@@ -191,12 +191,12 @@ class ChangeTrackingTest extends AbstractMSSQLTest
         $config['parameters']['table'] = [
             'tableName' => 'change Tracking',
             'schema' => 'dbo',
-            'changeTracking' => true,
         ];
         $config['parameters']['nolock'] = true;
         $config['parameters']['name'] = 'change-tracking';
         $config['parameters']['outputTable'] = 'in.c-main.change-tracking';
         $config['parameters']['primaryKey'] = ['id'];
+        $config['parameters']['changeTracking'] = true;
 
         return $config;
     }
