@@ -32,6 +32,13 @@ class ExtractorTest extends AbstractMSSQLTest
                 isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
             );
         }
+        if (isset($params['table']['changeTracking']) && $params['table']['changeTracking']) {
+            $extractor->validateChangeTracking(
+                $params['table'],
+                isset($params['incrementalFetchingColumn']) ? $params['incrementalFetchingColumn'] : null,
+                isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
+            );
+        }
         $query = $extractor->getSimpleQuery($params['table'], $params['columns'], MSSQL::ESCAPING_TYPE_PDO);
         $this->assertEquals($expected, $query);
     }
@@ -47,6 +54,13 @@ class ExtractorTest extends AbstractMSSQLTest
             $extractor->validateIncrementalFetching(
                 $params['table'],
                 $params['incrementalFetchingColumn'],
+                isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
+            );
+        }
+        if (isset($params['table']['changeTracking']) && $params['table']['changeTracking']) {
+            $extractor->validateChangeTracking(
+                $params['table'],
+                isset($params['incrementalFetchingColumn']) ? $params['incrementalFetchingColumn'] : null,
                 isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
             );
         }
@@ -329,8 +343,7 @@ class ExtractorTest extends AbstractMSSQLTest
                         'schema' => 'dbo',
                         'changeTracking' => true,
                     ],
-                    'columns' => $this->getColumnMetadataForChangeTrackingFetchingTests(),
-                    'incrementalFetchingColumn' => 'id',
+                    'columns' => $this->getColumnMetadataForChangeTrackingTests(),
                 ],
                 [],
                 'SELECT [dbo].[change Tracking].[id], [name], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[change Tracking]',
@@ -342,83 +355,38 @@ class ExtractorTest extends AbstractMSSQLTest
                         'schema' => 'dbo',
                         'changeTracking' => true,
                     ],
-                    'columns' => $this->getColumnMetadataForChangeTrackingFetchingTests(),
-                    'incrementalFetchingColumn' => 'id',
+                    'columns' => $this->getColumnMetadataForChangeTrackingTests(),
                 ],
                 [
                     'lastFetchedRow' => 4,
                 ],
                 "SELECT [dbo].[change Tracking].[id], [name], [someInteger], [someDecimal], [type], [smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 4) AS cht ON cht.id = [dbo].[change Tracking].id WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
             ],
-            'test simplePDO query with change tracking type with custom id but no state' => [
+            'test simplePDO query with change tracking type but no state with two primary keys' => [
                 [
                     'table' => [
-                        'tableName' => 'change Tracking',
+                        'tableName' => 'change Tracking 2',
                         'schema' => 'dbo',
                         'changeTracking' => true,
                     ],
-                    'columns' => [
-                        [
-                            'name' => 'someInteger',
-                            'sanitizedName' => 'someInteger',
-                            'type' => 'int',
-                            'length' => '10',
-                            'nullable' => false,
-                            'ordinalPosition' => 1,
-                            'primaryKey' => true,
-                            'primaryKeyName' => 'PK_AUTOINC',
-                            'autoIncrement' => true,
-                        ],
-                        [
-                            'name' => 'name',
-                            'sanitizedName' => 'Weir_d_Na_me',
-                            'type' => 'varchar',
-                            'length' => '55',
-                            'nullable' => false,
-                            'ordinalPosition' => 2,
-                            'primaryKey' => false,
-                        ],
-                    ],
-                    'incrementalFetchingColumn' => 'someInteger',
+                    'columns' => $this->getColumnMetadataForChangeTrackingTestsWithTwoPrimaryKeys(),
                 ],
                 [],
-                'SELECT [dbo].[change Tracking].[someInteger], [name] FROM [dbo].[change Tracking]',
+                'SELECT [dbo].[change Tracking 2].[id], [dbo].[change Tracking 2].[name], [someInteger] FROM [dbo].[change Tracking 2]',
             ],
-            'test simplePDO query with change tracking type with custom id and previous state' => [
+            'test simplePDO query with change tracking type and previous state with two primary keys' => [
                 [
                     'table' => [
-                        'tableName' => 'change Tracking',
+                        'tableName' => 'change Tracking 2',
                         'schema' => 'dbo',
                         'changeTracking' => true,
                     ],
-                    'columns' => [
-                        [
-                            'name' => 'someInteger',
-                            'sanitizedName' => 'someInteger',
-                            'type' => 'int',
-                            'length' => '10',
-                            'nullable' => false,
-                            'ordinalPosition' => 1,
-                            'primaryKey' => true,
-                            'primaryKeyName' => 'PK_AUTOINC',
-                            'autoIncrement' => true,
-                        ],
-                        [
-                            'name' => 'name',
-                            'sanitizedName' => 'Weir_d_Na_me',
-                            'type' => 'varchar',
-                            'length' => '55',
-                            'nullable' => false,
-                            'ordinalPosition' => 2,
-                            'primaryKey' => false,
-                        ],
-                    ],
-                    'incrementalFetchingColumn' => 'someInteger',
+                    'columns' => $this->getColumnMetadataForChangeTrackingTestsWithTwoPrimaryKeys(),
                 ],
                 [
                     'lastFetchedRow' => 4,
                 ],
-                "SELECT [dbo].[change Tracking].[someInteger], [name] FROM [dbo].[change Tracking] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking], 4) AS cht ON cht.someInteger = [dbo].[change Tracking].someInteger WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
+                "SELECT [dbo].[change Tracking 2].[id], [dbo].[change Tracking 2].[name], [someInteger] FROM [dbo].[change Tracking 2] INNER JOIN CHANGETABLE(CHANGES [dbo].[change Tracking 2], 4) AS cht ON cht.id = [dbo].[change Tracking 2].id AND cht.name = [dbo].[change Tracking 2].name WHERE cht.sys_change_operation <> 'D' ORDER BY cht.sys_change_version",
             ],
         ];
     }
@@ -735,7 +703,6 @@ class ExtractorTest extends AbstractMSSQLTest
                                 'default' => null,
                             ),
                     ),
-                    'incrementalFetchingColumn' => 'id',
                 ],
                 [],
                 "SELECT char(34) + COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col1], char(34) + COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [col2] FROM [dbo].[change Tracking]",
@@ -783,7 +750,6 @@ class ExtractorTest extends AbstractMSSQLTest
                                 'default' => null,
                             ),
                     ),
-                    'incrementalFetchingColumn' => 'id',
                 ],
                 [
                     'lastFetchedRow' => 4,
@@ -881,7 +847,7 @@ class ExtractorTest extends AbstractMSSQLTest
         );
     }
 
-    private function getColumnMetadataForChangeTrackingFetchingTests(): array
+    private function getColumnMetadataForChangeTrackingTests(): array
     {
         return array (
             0 =>
@@ -965,6 +931,46 @@ class ExtractorTest extends AbstractMSSQLTest
                     'nullable' => false,
                     'ordinalPosition' => 8,
                     'primaryKey' => false,
+                ),
+        );
+    }
+
+    private function getColumnMetadataForChangeTrackingTestsWithTwoPrimaryKeys(): array
+    {
+        return array (
+            0 =>
+                array (
+                    'name' => 'id',
+                    'sanitizedName' => 'id',
+                    'type' => 'int',
+                    'length' => '10',
+                    'nullable' => false,
+                    'ordinalPosition' => 1,
+                    'primaryKey' => true,
+                    'uniqueKey' => false,
+                    'autoIncrement' => true,
+                ),
+            1 =>
+                array (
+                    'name' => 'name',
+                    'sanitizedName' => 'name',
+                    'type' => 'varchar',
+                    'length' => '55',
+                    'nullable' => false,
+                    'ordinalPosition' => 2,
+                    'primaryKey' => true,
+                    'uniqueKey' => false,
+                ),
+            2 =>
+                array (
+                    'name' => 'someInteger',
+                    'sanitizedName' => 'someInteger',
+                    'type' => 'int',
+                    'length' => '10',
+                    'nullable' => true,
+                    'ordinalPosition' => 3,
+                    'primaryKey' => false,
+                    'uniqueKey' => false,
                 ),
         );
     }

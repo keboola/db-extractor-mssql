@@ -25,6 +25,9 @@ class MSSQL extends Extractor
     /** @var bool */
     protected $changeTracking = false;
 
+    /** @var array */
+    protected $primaryKeys = [];
+
     /** @var DbAdapter\MssqlAdapter */
     protected $db;
 
@@ -34,6 +37,19 @@ class MSSQL extends Extractor
 
         $this->sqlServerVersion = $this->getSqlServerVersion();
         $this->metadataProvider = new MetadataProvider($this->db);
+
+        if (isset($parameters['table'])) {
+            $table = $parameters['table'];
+            $changeTracking = isset($table['changeTracking']) ? $table['changeTracking'] : false;
+
+            if ($changeTracking) {
+                $this->validateChangeTracking(
+                    $table,
+                    isset($parameters['incrementalFetchingColumn']) ? $parameters['incrementalFetchingColumn'] : null,
+                    isset($parameters['incrementalFetchingLimit']) ? $parameters['incrementalFetchingLimit'] : null
+                );
+            }
+        }
     }
 
     private function getSqlServerVersion(): int
@@ -138,32 +154,6 @@ class MSSQL extends Extractor
         throw new ApplicationException('Fetching last datetime value returned no results');
     }
 
-    private function getLastFetchedChangeTrackingValue(array $lastExportedLine, array $table): string
-    {
-        if (! isset($lastExportedLine[$this->incrementalFetching['column']])) {
-            throw new ApplicationException(sprintf(
-                'Last exported line does not have column %s',
-                $this->incrementalFetching['column']
-            ));
-        }
-
-        $query = sprintf(
-            'SELECT cht.sys_change_version version
-            FROM CHANGETABLE(CHANGES %s.%s, 0) AS cht
-            WHERE %s = ?;',
-            $this->db->quoteIdentifier($table['schema']),
-            $this->db->quoteIdentifier($table['tableName']),
-            $this->incrementalFetching['column']
-        );
-
-        $result = $this->runRetriableQuery($query, [$lastExportedLine[$this->incrementalFetching['column']]]);
-        if (count($result) > 0) {
-            return $result[0]['version'];
-        }
-
-        return '0';
-    }
-
     private function getLastFetchedId(array $columnMetadata, array $lastExportedLine): string
     {
         $incrementalFetchingColumnIndex = null;
@@ -176,10 +166,6 @@ class MSSQL extends Extractor
 
     public function getMaxOfIncrementalFetchingColumn(array $table): ?string
     {
-        if ($this->changeTracking) {
-            return $this->getMaxOfChangeTrackingTable($table);
-        }
-
         $sql = 'SELECT MAX(%s) %s FROM %s.%s';
         if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_BINARY) {
             $sql = 'SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s';
@@ -208,10 +194,10 @@ class MSSQL extends Extractor
         $result = $this->runRetriableQuery($sql);
 
         if (count($result) > 0) {
-            return $result[0]['version'];
+            return $result[0]['version'] ?? '0';
         }
 
-        return null;
+        return '0';
     }
 
     public function export(array $table): array
@@ -263,15 +249,17 @@ class MSSQL extends Extractor
             $bcp = new BCP($this->getDbParameters(), $this->logger);
             // fetch max value for incremental fetching without limit before execution
             $maxValue = null;
-            if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
+            if ($this->changeTracking) {
+                $maxValue = $this->getMaxOfChangeTrackingTable($table['table']);
+            } else if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
                 $maxValue = $this->getMaxOfIncrementalFetchingColumn($table['table']);
             }
             $exportResult = $bcp->export($query, (string) $csv);
             if ($exportResult['rows'] === 0) {
                 // BCP will create an empty file for no rows case
                 @unlink((string) $csv);
-                // no rows found.  If incremental fetching is turned on, we need to preserve the last state
-                if ($this->incrementalFetching['column'] && isset($this->state['lastFetchedRow'])) {
+                // no rows found. If incremental fetching is turned on, we need to preserve the last state
+                if ($this->isIncremental() && isset($this->state['lastFetchedRow'])) {
                     $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
                 }
                 $this->logger->warning(sprintf(
@@ -287,18 +275,9 @@ class MSSQL extends Extractor
                     $manifest['columns'] = $columnsArray;
                     file_put_contents($manifestFile, json_encode($manifest));
                     $this->stripNullBytesInEmptyFields($this->getOutputFilename($table['outputTable']));
-                } else if (isset($this->incrementalFetching['column'])) {
-                    if ($maxValue) {
+                } else if ($this->isIncremental()) {
+                    if (! is_null($maxValue)) {
                         $exportResult['lastFetchedRow'] = $maxValue;
-                    } else if ($this->changeTracking) {
-                        $columnNames = array_map(function ($column) {
-                            return $column['name'];
-                        }, $columnMetadata);
-                        $exportResult['lastFetchedRow'] = array_combine($columnNames, $exportResult['lastFetchedRow']);
-                        $exportResult['lastFetchedRow'] = $this->getLastFetchedChangeTrackingValue(
-                            $exportResult['lastFetchedRow'],
-                            $table['table']
-                        );
                     } else if ($this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_DATETIME) {
                         $exportResult['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
                             $exportResult['lastFetchedRow'],
@@ -331,7 +310,9 @@ class MSSQL extends Extractor
                 $this->logger->info(sprintf('Executing "%s" via PDO', $query));
                 // fetch max value if incremental without limit
                 $maxValue = null;
-                if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
+                if ($this->changeTracking) {
+                    $maxValue = $this->getMaxOfChangeTrackingTable($table['table']);
+                } else if ($this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery)) {
                     $maxValue = $this->getMaxOfIncrementalFetchingColumn($table['table']);
                 }
                 /** @var \PDOStatement $stmt */
@@ -349,17 +330,12 @@ class MSSQL extends Extractor
             try {
                 $exportResult = $this->writeToCsv($stmt, $csv, $isAdvancedQuery);
                 if ($exportResult['rows'] > 0) {
-                    if ($maxValue) {
+                    if (! is_null($maxValue)) {
                         $exportResult['lastFetchedRow'] = $maxValue;
-                    } else if ($this->changeTracking) {
-                        $exportResult['lastFetchedRow'] = $this->getLastFetchedChangeTrackingValue(
-                            [$this->incrementalFetching['column'] => $exportResult['lastFetchedRow']],
-                            $table['table']
-                        );
                     }
                     $this->createManifest($table);
                 } else {
-                    if (isset($this->incrementalFetching['column']) && isset($this->state['lastFetchedRow'])) {
+                    if ($this->isIncremental() && isset($this->state['lastFetchedRow'])) {
                         $exportResult['lastFetchedRow'] = $this->state['lastFetchedRow'];
                     }
                     $this->logger->warning(sprintf(
@@ -388,6 +364,11 @@ class MSSQL extends Extractor
             $output['state']['lastFetchedRow'] = $exportResult['lastFetchedRow'];
         }
         return $output;
+    }
+
+    private function isIncremental(): bool
+    {
+        return isset($this->incrementalFetching['column']) || $this->changeTracking;
     }
 
     /**
@@ -487,7 +468,7 @@ class MSSQL extends Extractor
                 ', ',
                 array_map(
                     function (array $column) use ($table): string {
-                        if ($this->changeTracking && $this->incrementalFetching['column'] === $column['name']) {
+                        if ($this->changeTracking && in_array($column['name'], $this->primaryKeys)) {
                             return sprintf(
                                 '%s.%s.%s',
                                 $this->db->quoteIdentifier($table['schema']),
@@ -506,7 +487,7 @@ class MSSQL extends Extractor
                 ', ',
                 array_map(
                     function (array $column) use ($table): string {
-                        if ($this->changeTracking && $this->incrementalFetching['column'] === $column['name']) {
+                        if ($this->changeTracking && in_array($column['name'], $this->primaryKeys)) {
                             return sprintf(
                                 '%s.%s.%s',
                                 $this->db->quoteIdentifier($table['schema']),
@@ -546,16 +527,23 @@ class MSSQL extends Extractor
 
         if ($this->changeTracking) {
             if (isset($this->state['lastFetchedRow'])) {
+                 $joinConditions = array_map(function ($key) use ($table) {
+                    return sprintf(
+                        'cht.%s = %s.%s.%s',
+                        $key,
+                        $this->db->quoteIdentifier($table['schema']),
+                        $this->db->quoteIdentifier($table['tableName']),
+                        $key
+                    );
+                 }, $this->primaryKeys);
+
                 $query = sprintf(
-                    '%s INNER JOIN CHANGETABLE(CHANGES %s.%s, %d) AS cht ON cht.%s = %s.%s.%s WHERE cht.sys_change_operation <> \'D\' ORDER BY cht.sys_change_version',
+                    '%s INNER JOIN CHANGETABLE(CHANGES %s.%s, %d) AS cht ON %s WHERE cht.sys_change_operation <> \'D\' ORDER BY cht.sys_change_version',
                     $query,
                     $this->db->quoteIdentifier($table['schema']),
                     $this->db->quoteIdentifier($table['tableName']),
                     $this->state['lastFetchedRow'] ?? 0,
-                    $this->incrementalFetching['column'],
-                    $this->db->quoteIdentifier($table['schema']),
-                    $this->db->quoteIdentifier($table['tableName']),
-                    $this->incrementalFetching['column']
+                    implode(' AND ', $joinConditions)
                 );
             }
         } else if ($this->incrementalFetching) {
@@ -617,13 +605,6 @@ class MSSQL extends Extractor
 
     public function validateIncrementalFetching(array $table, string $columnName, ?int $limit = null): void
     {
-        $changeTracking = isset($table['changeTracking']) ? $table['changeTracking'] : false;
-
-        if ($changeTracking) {
-            $this->validateChangeTracking($table, $columnName, $limit);
-            return;
-        }
-
         $query = sprintf(
             "SELECT [is_identity], TYPE_NAME([system_type_id]) AS [data_type]
             FROM [sys].[columns]
@@ -652,30 +633,14 @@ class MSSQL extends Extractor
         }
     }
 
-    private function validateChangeTracking(array $table, string $columnName, ?int $limit = null): void
+    public function validateChangeTracking(array $table, ?string $incrementalFetchingColumn, ?int $incrementalFetchingLimit = null): void
     {
-        if ($limit) {
-            throw new UserException('Incremental fetching limit is not supported for change tracking');
+        if ($incrementalFetchingColumn) {
+            throw new UserException('Incremental fetching is enabled. Disable change tracking or incremental fetching');
         }
 
-        $query = sprintf(
-            "SELECT [is_identity], TYPE_NAME([system_type_id]) AS [data_type]
-            FROM [sys].[columns]
-            WHERE [object_id] = OBJECT_ID('[%s].[%s]') AND [sys].[columns].[name] = '%s'",
-            $table['schema'],
-            $table['tableName'],
-            $columnName
-        );
-
-        $columns = $this->runRetriableQuery($query);
-
-        if (count($columns) === 0) {
-            throw new UserException(
-                sprintf(
-                    'Column [%s] specified for incremental fetching was not found in the table',
-                    $columnName
-                )
-            );
+        if ($incrementalFetchingLimit) {
+            throw new UserException('Incremental fetching limit is not supported for change tracking');
         }
 
         $query = sprintf(
@@ -696,8 +661,23 @@ class MSSQL extends Extractor
             );
         }
 
+        $query = '
+            SELECT col.[name] as column_name
+            FROM sys.tables tab
+            INNER JOIN sys.indexes pk ON tab.object_id = pk.object_id AND pk.is_primary_key = 1
+            INNER JOIN sys.index_columns ic ON ic.object_id = pk.object_id AND ic.index_id = pk.index_id
+            INNER JOIN sys.columns col ON pk.object_id = col.object_id AND col.column_id = ic.column_id
+            WHERE schema_name(tab.schema_id) = ? AND tab.[name] = ?
+        ';
+
+        $columns = $this->runRetriableQuery($query, [$table['schema'], $table['tableName']]);
+
+        $this->primaryKeys = array_map(function ($column) {
+            return $column['column_name'];
+        }, $columns);
+
         $this->changeTracking = true;
-        $this->incrementalFetching['column'] = $columnName;
+        $this->incrementalFetching = null;
     }
 
     private function getIncrementalQueryAddon(): ?string

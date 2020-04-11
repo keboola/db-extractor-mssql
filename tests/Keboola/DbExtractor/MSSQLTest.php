@@ -1147,7 +1147,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('status', $result);
         $this->assertArrayHasKey('tables', $result);
         $this->assertEquals('success', $result['status']);
-        $this->assertCount(5, $result['tables']);
+        $this->assertCount(6, $result['tables']);
 
         $expectedData = array (
             0 =>
@@ -1346,6 +1346,50 @@ class MSSQLTest extends AbstractMSSQLTest
                 ),
             2 =>
                 array (
+                    'name' => 'change Tracking 2',
+                    'catalog' => 'test',
+                    'schema' => 'dbo',
+                    'type' => 'BASE TABLE',
+                    'columns' =>
+                        array (
+                            0 =>
+                                array (
+                                    'name' => 'id',
+                                    'sanitizedName' => 'id',
+                                    'type' => 'int',
+                                    'length' => '10',
+                                    'nullable' => false,
+                                    'ordinalPosition' => 1,
+                                    'primaryKey' => true,
+                                    'uniqueKey' => false,
+                                    'autoIncrement' => true,
+                                ),
+                            1 =>
+                                array (
+                                    'name' => 'name',
+                                    'sanitizedName' => 'name',
+                                    'type' => 'varchar',
+                                    'length' => '55',
+                                    'nullable' => false,
+                                    'ordinalPosition' => 2,
+                                    'primaryKey' => true,
+                                    'uniqueKey' => false,
+                                ),
+                            2 =>
+                                array (
+                                    'name' => 'someInteger',
+                                    'sanitizedName' => 'someInteger',
+                                    'type' => 'int',
+                                    'length' => '10',
+                                    'nullable' => true,
+                                    'ordinalPosition' => 3,
+                                    'primaryKey' => false,
+                                    'uniqueKey' => false,
+                                ),
+                        ),
+                ),
+            3 =>
+                array (
                     'name' => 'sales',
                     'catalog' => 'test',
                     'schema' => 'dbo',
@@ -1475,7 +1519,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 ),
                         ),
                 ),
-            3 =>
+            4 =>
                 array (
                     'name' => 'sales2',
                     'catalog' => 'test',
@@ -1606,7 +1650,7 @@ class MSSQLTest extends AbstractMSSQLTest
                                 ),
                         ),
                 ),
-            4 =>
+            5 =>
                 array (
                     'name' => 'special',
                     'catalog' => 'test',

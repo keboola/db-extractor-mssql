@@ -105,13 +105,34 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         // add unique key
         $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE ("Weir%d Na-me", Type)');
 
-        $this->dropTable('change Tracking');
+        // disable change tracking
+        $this->pdo->exec("
+            IF (SELECT count(*) FROM sys.change_tracking_tables  WHERE object_id = OBJECT_ID('dbo.change Tracking')) <> 0
+            BEGIN
+                ALTER TABLE [dbo].[change Tracking] DISABLE CHANGE_TRACKING
+            END
+        ");
+
+        $this->pdo->exec("
+            IF (SELECT count(*) FROM sys.change_tracking_tables  WHERE object_id = OBJECT_ID('dbo.change Tracking 2')) <> 0
+            BEGIN
+                ALTER TABLE [dbo].[change Tracking 2] DISABLE CHANGE_TRACKING
+            END
+        ");
+
         $this->pdo->exec("
             IF (SELECT count(*) FROM sys.change_tracking_databases WHERE database_id = DB_ID('test')) <> 0
             BEGIN
                 ALTER DATABASE test SET CHANGE_TRACKING = OFF
             END
         ");
+
+        // enable change tracking
+        $this->pdo->exec('ALTER DATABASE test SET READ_COMMITTED_SNAPSHOT ON');
+        $this->pdo->exec('ALTER DATABASE test SET CHANGE_TRACKING = ON (CHANGE_RETENTION = 5 DAYS, AUTO_CLEANUP = ON)');
+
+        // create table for change tracking
+        $this->dropTable('change Tracking');
 
         $this->pdo->exec(
             "CREATE TABLE [change Tracking] (
@@ -130,17 +151,21 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec('ALTER TABLE [change Tracking] ADD CONSTRAINT CHK_ID_CONTSTRAINT_2 CHECK ("id" > 0 AND "id" < 20)');
         $this->pdo->exec('ALTER TABLE [change Tracking] ADD CONSTRAINT UNI_KEY_2 UNIQUE ("name", Type)');
 
-        // enable change tracking
-        $this->pdo->exec('ALTER DATABASE test SET READ_COMMITTED_SNAPSHOT ON');
-        $this->pdo->exec('ALTER DATABASE test SET CHANGE_TRACKING = ON (CHANGE_RETENTION = 5 DAYS, AUTO_CLEANUP = ON)');
         $this->pdo->exec('ALTER TABLE [dbo].[change Tracking] ENABLE CHANGE_TRACKING WITH (TRACK_COLUMNS_UPDATED = ON)');
 
-        $this->pdo->exec("INSERT INTO [change Tracking] (\"name\", Type, someInteger, someDecimal, smalldatetime) VALUES ('mario', 'plumber', 1, 1.1, '2012-01-10 10:00')");
-        $this->pdo->exec("INSERT INTO [change Tracking] (\"name\", Type, someInteger, someDecimal, smalldatetime) VALUES ('luigi', 'plumber', 2, 2.2, '2012-01-10 10:05')");
-        $this->pdo->exec("INSERT INTO [change Tracking] (\"name\", Type, someInteger, someDecimal, smalldatetime) VALUES ('toad', 'mushroom', 3, 3.3, '2012-01-10 10:10')");
-        $this->pdo->exec("INSERT INTO [change Tracking] (\"name\", Type, someInteger, someDecimal, smalldatetime) VALUES ('princess', 'royalty', 4, 4.4, '2012-01-10 10:15')");
-        $this->pdo->exec("INSERT INTO [change Tracking] (\"name\", Type, someInteger, someDecimal, smalldatetime) VALUES ('wario', 'badguy', 5, 5.5, '2012-01-10 10:25')");
-        $this->pdo->exec("INSERT INTO [change Tracking] (\"name\", Type, someInteger, someDecimal, smalldatetime) VALUES ('yoshi', 'horse?', 6, 6.6, '2012-01-10 10:25')");
+        // create another table for change tracking with two primary keys
+        $this->dropTable('change Tracking 2');
+
+        $this->pdo->exec(
+            'CREATE TABLE [change Tracking 2] (
+            id INT IDENTITY(1,1) NOT NULL,
+            name VARCHAR (55) NOT NULL,
+            someInteger INT,
+            PRIMARY KEY (id, name)
+            )'
+        );
+
+        $this->pdo->exec('ALTER TABLE [dbo].[change Tracking 2] ENABLE CHANGE_TRACKING WITH (TRACK_COLUMNS_UPDATED = ON)');
     }
 
     protected function dropTable(string $tableName, ?string $schema = 'dbo'): void
