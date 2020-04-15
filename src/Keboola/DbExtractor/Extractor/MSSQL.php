@@ -179,7 +179,7 @@ class MSSQL extends Extractor
         return null;
     }
 
-    private function getMaxOfChangeTrackingTable(array $table): ?string
+    private function getMaxOfChangeTrackingTable(array $table): string
     {
         $sql = sprintf(
             'SELECT MAX(cht.sys_change_version) version FROM CHANGETABLE(CHANGES %s.%s, 0) cht',
@@ -188,11 +188,7 @@ class MSSQL extends Extractor
         );
         $result = $this->runRetriableQuery($sql);
 
-        if (count($result) > 0) {
-            return $result[0]['version'] ?? '0';
-        }
-
-        return '0';
+        return $result[0]['version'] ?? '0';
     }
 
     public function export(array $table): array
