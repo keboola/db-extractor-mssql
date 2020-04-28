@@ -70,6 +70,10 @@ class MssqlConfigRowDefinition extends ConfigRowDefinition
                 ->booleanNode('advancedMode')->end()
                 ->booleanNode('disableFallback')->defaultFalse()->end()
                 ->booleanNode('disableBcp')->defaultFalse()->end()
+                ->enumNode('exportMethod')
+                    ->values(['auto', 'bcp', 'pdo'])
+                    ->defaultValue('auto')
+                ->end()
             ->end();
         // @formatter:on
 

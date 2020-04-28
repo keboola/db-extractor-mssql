@@ -207,6 +207,9 @@ class MSSQL extends Extractor
             if ($table['disableBcp']) {
                 throw new UserException('BCP export was disabled by configuration');
             }
+            if (!in_array($table['exportMethod'], ['auto', 'bcp'])) {
+                throw new UserException('BCP export was disabled by configuration');
+            }
             if ($isAdvancedQuery && $this->sqlServerVersion < 11) {
                 throw new UserException('BCP is not supported for advanced queries in sql server 2008 or less.');
             }
@@ -258,6 +261,9 @@ class MSSQL extends Extractor
         } catch (\Throwable $e) {
             if ($table['disableFallback']) {
                 throw $e;
+            }
+            if (!in_array($table['exportMethod'], ['auto', 'pdo'])) {
+                throw new UserException('PDO export was disabled by configuration');
             }
             $this->logger->info(
                 sprintf(
