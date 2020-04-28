@@ -72,6 +72,10 @@ class MssqlTablesNode extends TablesNode
                 ->booleanNode('nolock')->defaultValue(false)->end()
                 ->booleanNode('disableFallback')->defaultFalse()->end()
                 ->booleanNode('disableBcp')->defaultFalse()->end()
+                ->enumNode('exportMethod')
+                    ->values(['auto', 'bcp', 'pdo'])
+                    ->defaultValue('auto')
+                ->end()
             ->end()
         ;
         // @formatter:on
