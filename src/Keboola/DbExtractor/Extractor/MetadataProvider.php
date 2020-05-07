@@ -145,6 +145,7 @@ class MetadataProvider
                   [sys].[columns].[column_id] AS [ORDINAL_POSITION],
                   [sys].[columns].[name] AS [COLUMN_NAME],
                   TYPE_NAME([sys].[columns].[system_type_id]) AS [DATA_TYPE],
+                  [sys].[columns].[system_type_id] AS [SYSTEM_TYPE_ID],
                   [sys].[columns].[is_nullable] AS [IS_NULLABLE],
                   [sys].[columns].[precision] AS [NUMERIC_PRECISION],
                   [sys].[columns].[scale] AS [NUMERIC_SCALE],
@@ -247,9 +248,13 @@ class MetadataProvider
                 ->setOrdinalPosition((int) $column['ORDINAL_POSITION']);
 
             if (array_key_exists('DATA_TYPE', $column)) {
-                $columnFormat
-                    ->setType($column['DATA_TYPE'])
-                    ->setLength($this->getFieldLength($column));
+                if (empty($column['DATA_TYPE'])) {
+                    $columnFormat->setType('USER_DEFINED_TYPE');
+                } else {
+                    $columnFormat
+                        ->setType($column['DATA_TYPE'])
+                        ->setLength($this->getFieldLength($column));
+                }
             }
             if (array_key_exists('IS_NULLABLE', $column)) {
                 $columnFormat->setNullable(($column['IS_NULLABLE'] === 'YES' || $column['IS_NULLABLE'] === '1') ? true : false);
