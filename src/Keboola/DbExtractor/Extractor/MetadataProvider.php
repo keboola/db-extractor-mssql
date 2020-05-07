@@ -145,7 +145,6 @@ class MetadataProvider
                   [sys].[columns].[column_id] AS [ORDINAL_POSITION],
                   [sys].[columns].[name] AS [COLUMN_NAME],
                   TYPE_NAME([sys].[columns].[system_type_id]) AS [DATA_TYPE],
-                  [sys].[columns].[system_type_id] AS [SYSTEM_TYPE_ID],
                   [sys].[columns].[is_nullable] AS [IS_NULLABLE],
                   [sys].[columns].[precision] AS [NUMERIC_PRECISION],
                   [sys].[columns].[scale] AS [NUMERIC_SCALE],
