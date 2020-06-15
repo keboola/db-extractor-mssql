@@ -637,7 +637,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         foreach ($output as $line) {
             // assert the timestamp column is valid UTF-8
-            $this->assertTrue(mb_check_encoding($output[7], 'UTF-8'));
+            $this->assertTrue(mb_check_encoding($line[7], 'UTF-8'));
         }
     }
 }

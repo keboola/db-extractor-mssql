@@ -451,7 +451,7 @@ class MSSQL extends Extractor
             $this->db->quoteIdentifier($table['tableName'])
         );
 
-        if ($table['nolock']) {
+        if ($table['nolock'] ?? false) {
             $query .= ' WITH(NOLOCK)';
         }
         $incrementalAddon = $this->getIncrementalQueryAddon();
