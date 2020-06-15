@@ -1,4 +1,3 @@
-FROM keboola/db-component-ssh-proxy:latest AS sshproxy
 FROM php:7.4-cli
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -42,7 +41,5 @@ RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 COPY . /code/
 # run normal composer - all deps are cached already
 RUN composer install $COMPOSER_FLAGS
-
-COPY --from=sshproxy /root/.ssh /root/.ssh
 
 CMD php ./src/run.php --data=/data

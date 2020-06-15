@@ -1,4 +1,4 @@
-version: "2"
+version: "3"
 services:
   app:
     build: .
@@ -6,6 +6,8 @@ services:
     command: composer ci
     tty: true
     stdin_open: true
+    volumes:
+      - ssh-keys:/root/.ssh
     environment:
       MSSQL_DB_HOST: mssql
       MSSQL_DB_PORT: 1433
@@ -19,6 +21,7 @@ services:
   dev:
     image: keboola/ex-db-mssql
     volumes:
+      - ssh-keys:/root/.ssh
       - .:/code
     command: composer ci
     tty: true
@@ -45,5 +48,10 @@ services:
     image: keboola/db-component-ssh-proxy:latest
     ports:
       - "2222:22"
+    volumes:
+      - ssh-keys:/root/.ssh
     links:
       - mssql
+
+volumes:
+  ssh-keys:
