@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use PDO;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
@@ -13,15 +14,15 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 {
     public const DRIVER = 'mssql';
 
-    /** @var \PDO */
+    /** @var PDO */
     protected $pdo;
 
-    /** @var string  */
+    /** @var string */
     protected $dataDir = __DIR__ . '/../../data';
 
-    public function setUp(): void
+    protected function setUp(): void
     {
-        if (!($this->pdo instanceof \PDO)) {
+        if (!($this->pdo instanceof PDO)) {
             $this->makeConnection();
         }
         $this->setupTables();

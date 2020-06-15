@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Exception\UserException;
 use Symfony\Component\Process\Process;
 
 class ApplicationTest extends AbstractMSSQLTest
 {
-    /** @var string */
-    protected $rootPath = __DIR__ . '/../../..';
+    protected string $rootPath = __DIR__ . '/../../..';
 
     private function replaceConfig(array $config): void
     {

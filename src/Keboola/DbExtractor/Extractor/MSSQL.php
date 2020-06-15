@@ -16,11 +16,9 @@ class MSSQL extends Extractor
     public const ESCAPING_TYPE_BCP = 'BCP';
     public const ESCAPING_TYPE_PDO = 'PDO';
 
-    /** @var  int */
-    private $sqlServerVersion;
+    private int $sqlServerVersion;
 
-    /** @var MetadataProvider */
-    private $metadataProvider;
+    private MetadataProvider $metadataProvider;
 
     /** @var DbAdapter\MssqlAdapter */
     protected $db;

@@ -9,8 +9,7 @@ use Keboola\DbExtractorLogger\Logger;
 
 class ExtractorTest extends AbstractMSSQLTest
 {
-    /** @var array */
-    private $config;
+    private array $config;
 
     public function setUp(): void
     {
