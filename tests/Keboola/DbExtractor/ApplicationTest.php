@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Exception\UserException;
 use Symfony\Component\Process\Process;
 
 class ApplicationTest extends AbstractMSSQLTest
 {
-    /** @var string */
-    protected $rootPath = __DIR__ . '/../../..';
+    protected string $rootPath = __DIR__ . '/../../..';
 
     private function replaceConfig(array $config): void
     {
@@ -637,7 +635,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         foreach ($output as $line) {
             // assert the timestamp column is valid UTF-8
-            $this->assertTrue(mb_check_encoding($output[7], 'UTF-8'));
+            $this->assertTrue(mb_check_encoding($line[7], 'UTF-8'));
         }
     }
 }

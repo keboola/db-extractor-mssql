@@ -11,11 +11,9 @@ use Symfony\Component\Process\Process;
 
 class BCP
 {
-    /** @var array */
-    private $dbParams;
+    private array $dbParams;
 
-    /** @var Logger */
-    private $logger;
+    private Logger $logger;
 
     public function __construct(array $dbParams, Logger $logger)
     {

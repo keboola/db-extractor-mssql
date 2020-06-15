@@ -11,8 +11,7 @@ use Keboola\DbExtractor\TableResultFormat\TableColumn;
 
 class MetadataProvider
 {
-    /** @var MssqlAdapter */
-    private $db;
+    private MssqlAdapter $db;
 
     public function __construct(
         MssqlAdapter $db

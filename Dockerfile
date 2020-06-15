@@ -1,48 +1,62 @@
-FROM keboola/db-component-ssh-proxy:latest AS sshproxy
-FROM php:7.3-cli-stretch
+FROM php:7.4-cli
 
-ARG DEBIAN_FRONTEND=noninteractive
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
-ENV COMPOSER_ALLOW_SUPERUSER=1
+ARG DEBIAN_FRONTEND=noninteractive
+ENV COMPOSER_ALLOW_SUPERUSER 1
 ENV COMPOSER_PROCESS_TIMEOUT 3600
 
-RUN apt-get update -q \
-  && apt-get install -y --no-install-recommends \
-  unzip git apt-transport-https wget ssh libxml2-dev gnupg2 unixodbc-dev libgss3
+WORKDIR /code/
 
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-  && curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list \
-  && apt-get update \
-  && ACCEPT_EULA=Y apt-get install -y msodbcsql17 mssql-tools
+COPY docker/php-prod.ini /usr/local/etc/php/php.ini
+COPY docker/composer-install.sh /tmp/composer-install.sh
 
+# Install dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    locales \
+    unzip \
+    ssh \
+    apt-transport-https \
+    wget \
+    libxml2-dev \
+    gnupg2 \
+    unixodbc-dev \
+    libgss3 \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/9/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends \
+    msodbcsql17 \
+    mssql-tools \
+    && rm -r /var/lib/apt/lists/* \
+    && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
+    && locale-gen \
+    && chmod +x /tmp/composer-install.sh \
+    && /tmp/composer-install.sh
+
+ENV LANGUAGE=en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# PDO mssql
 RUN pecl install pdo_sqlsrv sqlsrv \
-  && docker-php-ext-enable sqlsrv pdo_sqlsrv \
-  && docker-php-ext-install xml
+    && docker-php-ext-enable sqlsrv pdo_sqlsrv \
+    && docker-php-ext-install xml
 
-RUN echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bashrc \
-  && /bin/bash -c "source ~/.bashrc"
-
+# Set path
 ENV PATH $PATH:/opt/mssql-tools/bin
-
-RUN echo "memory_limit = -1" >> /usr/local/etc/php/php.ini
-
-WORKDIR /root
-
-RUN curl -sS https://getcomposer.org/installer | php \
-  && mv composer.phar /usr/local/bin/composer
-
-WORKDIR /code
 
 ## Composer - deps always cached unless changed
 # First copy only composer files
 COPY composer.* /code/
+
 # Download dependencies, but don't run scripts or init autoloaders as the app is missing
 RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
-# copy rest of the app
-COPY . /code/
-# run normal composer - all deps are cached already
-RUN composer install $COMPOSER_FLAGS
 
-COPY --from=sshproxy /root/.ssh /root/.ssh
+# Copy rest of the app
+COPY . /code/
+
+# Run normal composer - all deps are cached already
+RUN composer install $COMPOSER_FLAGS
 
 CMD php ./src/run.php --data=/data
