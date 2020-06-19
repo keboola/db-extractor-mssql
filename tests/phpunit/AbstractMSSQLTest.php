@@ -9,6 +9,7 @@ use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractorLogger\Logger;
+use Symfony\Component\Process\Process;
 
 abstract class AbstractMSSQLTest extends ExtractorTest
 {
@@ -18,7 +19,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     protected $pdo;
 
     /** @var string */
-    protected $dataDir = __DIR__ . '/../../data';
+    protected $dataDir = __DIR__ . '/data';
 
     protected function setUp(): void
     {
@@ -27,6 +28,15 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         }
         $this->setupTables();
         $this->cleanupStateInDataDir();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        # Close SSH tunnel if created
+        $process = new Process(['sh', '-c', 'pgrep ssh | xargs -r kill']);
+        $process->mustRun();
     }
 
     private function makeConnection(): void
@@ -278,7 +288,6 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     public function configProvider(): array
     {
-        $this->dataDir = __DIR__ . '/../../data';
         return [
             [
                 $this->getConfig(self::DRIVER),
