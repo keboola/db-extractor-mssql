@@ -65,18 +65,18 @@ class BCP
         $serverName .= ',' . $this->dbParams['port'];
 
         $cmd = sprintf(
-            'bcp "%s" queryout %s -S "%s" -U %s -P "%s" -d %s -k -b50000 -m1 -t, -r"\n" -c',
-            $query,
-            $filename,
-            $serverName,
-            $this->dbParams['user'],
-            $this->dbParams['#password'],
-            $this->dbParams['database']
+            'bcp %s queryout %s -S %s -U %s -P %s -d %s -k -b50000 -m1 -t, -r"\n" -c',
+            escapeshellarg($query),
+            escapeshellarg($filename),
+            escapeshellarg($serverName),
+            escapeshellarg($this->dbParams['user']),
+            escapeshellarg($this->dbParams['#password']),
+            escapeshellarg($this->dbParams['database'])
         );
 
         $this->logger->info(sprintf(
             'Executing this BCP command: %s',
-            preg_replace('/\-P.".*".\-d/', '-P "*****" -d', $cmd)
+            preg_replace('/\-P.*\-d/', '-P ***** -d', $cmd)
         ));
 
         return $cmd;

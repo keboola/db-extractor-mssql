@@ -136,7 +136,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals('', $process->getErrorOutput());
         // verify that the bcp command uses the proxy
-        $this->assertStringContainsString('-S "127.0.0.1,1234"', $process->getOutput());
+        $this->assertStringContainsString('-S \'127.0.0.1,1234\'', $process->getOutput());
 
         $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
         $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
@@ -315,8 +315,6 @@ class ApplicationTest extends AbstractMSSQLTest
             $process->getErrorOutput()
         );
     }
-
-
 
     public function testDisableFallbackConfigRow(): void
     {
