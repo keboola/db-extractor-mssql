@@ -356,6 +356,29 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertStringNotContainsString('The BCP export failed:', $process->getOutput());
     }
 
+    public function testDifferentQuoting(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        $config['parameters']['tables'][0]['query'] = "SELECT usergender, [sku]  FROM sales WHERE \"usergender\" LIKE 'male'";
+
+        $this->replaceConfig($config);
+
+        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $output = $process->getOutput() . "\n" . $process->getErrorOutput();
+
+        $this->assertEquals(0, $process->getExitCode(), $output);
+        $this->assertEquals('', $process->getErrorOutput());
+
+        $this->assertStringContainsString('BCP successfully exported', $process->getOutput());
+        $this->assertStringNotContainsString('The BCP export failed:', $process->getOutput());
+    }
+
     public function testPDOFallbackSimpleNoData(): void
     {
         $this->pdo->exec('CREATE TABLE [Empty Test] ([wierd C\$name] varchar, col2 varchar);');
