@@ -9,7 +9,7 @@ use Symfony\Component\Process\Process;
 
 class ApplicationTest extends AbstractMSSQLTest
 {
-    protected string $rootPath = __DIR__ . '/../../..';
+    protected string $rootPath = __DIR__ . '/../..';
 
     private function replaceConfig(array $config): void
     {
