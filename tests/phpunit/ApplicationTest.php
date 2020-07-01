@@ -136,7 +136,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals('', $process->getErrorOutput());
         // verify that the bcp command uses the proxy
-        $this->assertStringContainsString('-S "127.0.0.1,1234"', $process->getOutput());
+        $this->assertStringContainsString('-S \'127.0.0.1,1234\'', $process->getOutput());
 
         $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
         $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
@@ -316,8 +316,6 @@ class ApplicationTest extends AbstractMSSQLTest
         );
     }
 
-
-
     public function testDisableFallbackConfigRow(): void
     {
         $config = $this->getConfigRow(self::DRIVER);
@@ -342,6 +340,29 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][2]);
         unset($config['parameters']['tables'][3]);
         $config['parameters']['tables'][0]['query'] = "SELECT \"usergender\", \"sku\"  FROM \"sales\" WHERE \"usergender\" LIKE 'male'";
+
+        $this->replaceConfig($config);
+
+        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process->setTimeout(300);
+        $process->run();
+
+        $output = $process->getOutput() . "\n" . $process->getErrorOutput();
+
+        $this->assertEquals(0, $process->getExitCode(), $output);
+        $this->assertEquals('', $process->getErrorOutput());
+
+        $this->assertStringContainsString('BCP successfully exported', $process->getOutput());
+        $this->assertStringNotContainsString('The BCP export failed:', $process->getOutput());
+    }
+
+    public function testDifferentQuoting(): void
+    {
+        $config = $this->getConfig('mssql');
+        unset($config['parameters']['tables'][1]);
+        unset($config['parameters']['tables'][2]);
+        unset($config['parameters']['tables'][3]);
+        $config['parameters']['tables'][0]['query'] = "SELECT usergender, [sku]  FROM sales WHERE \"usergender\" LIKE 'male'";
 
         $this->replaceConfig($config);
 
