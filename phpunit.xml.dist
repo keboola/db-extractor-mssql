@@ -12,10 +12,10 @@
     <testsuites>
         <testsuite name="unit">
             <directory>tests</directory>
-            <exclude>tests/Keboola/DbExtractor/PerformanceTest.php</exclude>
+            <exclude>tests/phpunit/PerformanceTest.php</exclude>
         </testsuite>
         <testsuite name="perf">
-            <file>tests/Keboola/DbExtractor/PerformanceTest.php</file>
+            <file>tests/phpunit/PerformanceTest.php</file>
         </testsuite>
     </testsuites>
 </phpunit>
