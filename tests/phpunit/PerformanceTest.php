@@ -19,7 +19,8 @@ class PerformanceTest extends AbstractMSSQLTest
             for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount++) {
                 $this->pdo->exec(
                     sprintf(
-                        "IF OBJECT_ID('testschema_%d.testtable_%d', 'U') IS NOT NULL ALTER TABLE [testschema_%d].[testtable_%d] DROP CONSTRAINT pk_%d_%d",
+                        "IF OBJECT_ID('testschema_%d.testtable_%d', 'U') IS NOT NULL " .
+                        'ALTER TABLE [testschema_%d].[testtable_%d] DROP CONSTRAINT pk_%d_%d',
                         $schemaCount,
                         $tableCount,
                         $schemaCount,
@@ -59,7 +60,8 @@ class PerformanceTest extends AbstractMSSQLTest
             for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount++) {
                 $this->pdo->exec(
                     sprintf(
-                        'CREATE TABLE [testschema_%d].[testtable_%d] ([ID] INT IDENTITY(1,1) NOT NULL%s, CONSTRAINT pk_%d_%d PRIMARY KEY ([ID]))',
+                        'CREATE TABLE [testschema_%d].[testtable_%d] ' .
+                        '([ID] INT IDENTITY(1,1) NOT NULL%s, CONSTRAINT pk_%d_%d PRIMARY KEY ([ID]))',
                         $schemaCount,
                         $tableCount,
                         $columnsSql,

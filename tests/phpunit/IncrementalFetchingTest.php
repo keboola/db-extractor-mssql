@@ -111,7 +111,10 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertEquals($result['state'], $noNewRowsResult['state']);
         sleep(2);
         //now add a couple rows and run it again.
-        $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [someDecimal]) VALUES (\'charles\', 12.2), (\'william\', 7.5)');
+        $this->pdo->exec(
+            'INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [someDecimal]) ' .
+            'VALUES (\'charles\', 12.2), (\'william\', 7.5)'
+        );
         $newResult = ($this->createApplication($config, $result['state']))->run();
         //check that output state contains expected information
         $this->assertArrayHasKey('state', $newResult);
@@ -147,7 +150,10 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertEquals($result['state'], $noNewRowsResult['state']);
         sleep(2);
         //now add a couple rows and run it again.
-        $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) VALUES (\'charles\', \'2012-01-10 10:55\'), (\'william\', \'2012-01-10 10:50\')');
+        $this->pdo->exec(
+            'INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) ' .
+            'VALUES (\'charles\', \'2012-01-10 10:55\'), (\'william\', \'2012-01-10 10:50\')'
+        );
         $newResult = ($this->createApplication($config, $result['state']))->run();
         //check that output state contains expected information (will contain the same last 2 rows as above, + 2 more
         $this->assertArrayHasKey('state', $newResult);
@@ -184,7 +190,10 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $this->assertEquals($result['state'], $noNewRowsResult['state']);
         sleep(2);
         //now add a couple rows and run it again.
-        $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) VALUES (\'charles\', \'2012-01-10 10:55\'), (\'william\', \'2012-01-10 10:50\')');
+        $this->pdo->exec(
+            'INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) ' .
+            'VALUES (\'charles\', \'2012-01-10 10:55\'), (\'william\', \'2012-01-10 10:50\')'
+        );
         $newResult = ($this->createApplication($config, $result['state']))->run();
         //check that output state contains expected information (will contain the same last row as above, + 2 more
         $this->assertArrayHasKey('state', $newResult);

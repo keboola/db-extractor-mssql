@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\DeadConnectionException;
+use Keboola\DbExtractorLogger\Logger;
 use Symfony\Component\Process\Process;
 use Keboola\Csv\Exception as CsvException;
 use Keboola\DbExtractor\Exception\ApplicationException;
@@ -23,7 +24,7 @@ class MSSQL extends Extractor
     /** @var DbAdapter\MssqlAdapter */
     protected $db;
 
-    public function __construct(array $parameters, array $state = [], $logger = null)
+    public function __construct(array $parameters, array $state = [], ?Logger $logger = null)
     {
         parent::__construct($parameters, $state, $logger);
 
@@ -279,7 +280,7 @@ class MSSQL extends Extractor
                     $query,
                     isset($table['retries']) ? (int) $table['retries'] : self::DEFAULT_MAX_TRIES
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 throw new UserException(
                     sprintf('[%s]: DB query failed: %s.', $outputTable, $e->getMessage()),
                     0,
@@ -348,7 +349,7 @@ class MSSQL extends Extractor
                 );
             }
             return false;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new UserException(
                 sprintf('DB query "%s" failed: %s', $sql, $e->getMessage()),
                 0,
@@ -407,8 +408,11 @@ class MSSQL extends Extractor
         throw new ApplicationException('This method is deprecated and should never get called');
     }
 
-    public function getSimpleQuery(array $table, ?array $columns = array(), string $format = self::ESCAPING_TYPE_BCP): string
-    {
+    public function getSimpleQuery(
+        array $table,
+        ?array $columns = array(),
+        string $format = self::ESCAPING_TYPE_BCP
+    ): string {
         $queryStart = 'SELECT';
         if (isset($this->incrementalFetching['limit'])) {
             $queryStart .= sprintf(
@@ -529,7 +533,8 @@ class MSSQL extends Extractor
         }
 
         $this->incrementalFetching['column'] = $columnName;
-        $this->incrementalFetching['type'] = MssqlDataType::getIncrementalFetchingType($columnName, $columns[0]['data_type']);
+        $this->incrementalFetching['type'] =
+            MssqlDataType::getIncrementalFetchingType($columnName, $columns[0]['data_type']);
 
         if ($limit) {
             $this->incrementalFetching['limit'] = $limit;
@@ -550,7 +555,10 @@ class MSSQL extends Extractor
                 );
             }
             if ($this->hasIncrementalLimit()) {
-                $incrementalAddon .= sprintf(' ORDER BY %s', $this->db->quoteIdentifier($this->incrementalFetching['column']));
+                $incrementalAddon .= sprintf(
+                    ' ORDER BY %s',
+                    $this->db->quoteIdentifier($this->incrementalFetching['column'])
+                );
             }
         }
         return $incrementalAddon;
