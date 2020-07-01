@@ -275,6 +275,36 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $app->run();
     }
 
+    public function testIncrementalFetchingNoRows(): void
+    {
+        $this->dropTable('empty_incremental');
+        $this->pdo->exec(
+            'CREATE TABLE [EMPTY_INCREMENTAL] ([ID] INT NULL, [SMALLDATE] SMALLDATETIME NOT NULL);'
+        );
+
+        $config = $this->getIncrementalFetchingConfig();
+        $config['parameters']['outputTable'] = 'in.c-main.incremental-fetching-no-rows';
+        $config['parameters']['incrementalFetchingColumn'] = 'smalldate';
+        $config['parameters']['table'] = [
+            'tableName' => 'empty_incremental',
+            'schema' => 'dbo',
+        ];
+        $result = ($this->createApplication($config))->run();
+        $this->assertEquals('success', $result['status']);
+        $this->assertEquals(
+            [
+                'outputTable' => 'in.c-main.incremental-fetching-no-rows',
+                'rows' => 0,
+            ],
+            $result['imported']
+        );
+
+        $dataFile = $this->dataDir . '/out/tables/in.c-main.incremental-fetching-no-rows.csv';
+        $manifestFile = $dataFile . '.manifest';
+        $this->assertFileNotExists($dataFile);
+        $this->assertFileNotExists($manifestFile);
+    }
+
     protected function getIncrementalFetchingConfig(): array
     {
         $config = $this->getConfigRow(self::DRIVER);

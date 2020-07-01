@@ -1142,6 +1142,7 @@ class MSSQLTest extends AbstractMSSQLTest
 
     public function testGetTables(): void
     {
+        $this->dropTable('empty_incremental');
         $config = $this->getConfig();
         $config['action'] = 'getTables';
 
@@ -1657,8 +1658,8 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $this->expectException(UserException::class);
         $this->expectExceptionMessage(
-            'Failed to retrieve results: SQLSTATE[IMSSP]: '.
-            'The active result for the query contains no fields. Code:IMSSP'
+            'PDO export "in.c-main.multipleselect_test" failed: SQLSTATE[IMSSP]: ' .
+            'The active result for the query contains no fields.'
         );
         $this->createApplication($config)->run();
     }
