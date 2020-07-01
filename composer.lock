@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0a96022d9c6fc12453169c6d2b643ffb",
+    "content-hash": "55a0643ad4959ff0584b7b567ff40501",
     "packages": [
         {
             "name": "keboola/common-exceptions",
@@ -1356,16 +1356,16 @@
         },
         {
             "name": "keboola/coding-standard",
-            "version": "8.0.0",
+            "version": "9.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/phpcs-standard.git",
-                "reference": "605196b652aa608eec6744184d20569fd17f150f"
+                "reference": "bcf9ac5f664aa3bf816902438c0a8a9187cd4ebb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/phpcs-standard/zipball/605196b652aa608eec6744184d20569fd17f150f",
-                "reference": "605196b652aa608eec6744184d20569fd17f150f",
+                "url": "https://api.github.com/repos/keboola/phpcs-standard/zipball/bcf9ac5f664aa3bf816902438c0a8a9187cd4ebb",
+                "reference": "bcf9ac5f664aa3bf816902438c0a8a9187cd4ebb",
                 "shasum": ""
             },
             "require": {
@@ -1378,7 +1378,7 @@
                 "MIT"
             ],
             "description": "Keboola coding standard",
-            "time": "2019-03-05T12:36:08+00:00"
+            "time": "2019-10-16T11:14:48+00:00"
         },
         {
             "name": "keboola/php-temp",
