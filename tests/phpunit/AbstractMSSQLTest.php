@@ -86,8 +86,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->dropTable('t1');
 
         // set up a foreign key relationship
+        // @codingStandardsIgnoreStart
         $this->pdo->exec('ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL');
         $this->pdo->exec('ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)');
+        // @codingStandardsIgnoreEnd
 
         // create another table with an auto_increment ID
         $this->dropTable('auto Increment Timestamp');
@@ -104,6 +106,8 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             \"timestamp\" TIMESTAMP
             )"
         );
+
+        // @codingStandardsIgnoreStart
         $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY ("_Weir%d I-D")');
         $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK ("_Weir%d I-D" > 0 AND "_Weir%d I-D" < 20)');
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type, someInteger, someDecimal, smalldatetime) VALUES ('mario', 'plumber', 1, 1.1, '2012-01-10 10:00')");
@@ -115,6 +119,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type, someInteger, someDecimal, smalldatetime) VALUES ('yoshi', 'horse?', 6, 6.6, '2012-01-10 10:25')");
         // add unique key
         $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE ("Weir%d Na-me", Type)');
+        // @codingStandardsIgnoreEnd
     }
 
     protected function dropTable(string $tableName, ?string $schema = 'dbo'): void
@@ -147,8 +152,11 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return 'dbo.' . $tableName;
     }
 
-    protected function createTextTable(CsvFile $file, ?array $primaryKey = null, ?string $overrideTableName = null): void
-    {
+    protected function createTextTable(
+        CsvFile $file,
+        ?array $primaryKey = null,
+        ?string $overrideTableName = null
+    ): void {
         if (!$overrideTableName) {
             $tableName = $this->generateTableName($file);
         } else {

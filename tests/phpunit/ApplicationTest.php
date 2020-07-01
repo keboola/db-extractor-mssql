@@ -339,7 +339,8 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][1]);
         unset($config['parameters']['tables'][2]);
         unset($config['parameters']['tables'][3]);
-        $config['parameters']['tables'][0]['query'] = "SELECT \"usergender\", \"sku\"  FROM \"sales\" WHERE \"usergender\" LIKE 'male'";
+        $config['parameters']['tables'][0]['query'] =
+            "SELECT \"usergender\", \"sku\"  FROM \"sales\" WHERE \"usergender\" LIKE 'male'";
 
         $this->replaceConfig($config);
 
@@ -362,7 +363,8 @@ class ApplicationTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][1]);
         unset($config['parameters']['tables'][2]);
         unset($config['parameters']['tables'][3]);
-        $config['parameters']['tables'][0]['query'] = "SELECT usergender, [sku]  FROM sales WHERE \"usergender\" LIKE 'male'";
+        $config['parameters']['tables'][0]['query'] =
+            "SELECT usergender, [sku]  FROM sales WHERE \"usergender\" LIKE 'male'";
 
         $this->replaceConfig($config);
 
@@ -406,7 +408,10 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
-        $this->assertStringContainsString('[in.c-main.simple_empty]: Query returned empty result so nothing was imported', $process->getErrorOutput());
+        $this->assertStringContainsString(
+            '[in.c-main.simple_empty]: Query returned empty result so nothing was imported',
+            $process->getErrorOutput()
+        );
 
         $this->assertStringContainsString('[in.c-main.simple_empty]: The BCP export failed:', $process->getOutput());
         $this->assertStringContainsString('Attempting export using pdo', $process->getOutput());
@@ -439,7 +444,10 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
-        $this->assertStringContainsString('Executing "SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]" via PDO', $process->getOutput());
+        $this->assertStringContainsString(
+            'Executing "SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]" via PDO',
+            $process->getOutput()
+        );
 
         $this->dropTable('PDO_TEST');
     }
@@ -468,7 +476,10 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->setTimeout(300);
         $process->mustRun();
 
-        $this->assertStringContainsString('SELECT [ID], [SMALLDATE] FROM [dbo].[SMALLDATETIME_TEST]', $process->getOutput());
+        $this->assertStringContainsString(
+            'SELECT [ID], [SMALLDATE] FROM [dbo].[SMALLDATETIME_TEST]',
+            $process->getOutput()
+        );
         $this->assertStringNotContainsString('CONVERT(DATETIME2(0),[SMALLDATE])', $process->getOutput());
         $this->dropTable('SMALLDATETIME_TEST');
     }
@@ -516,12 +527,15 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
+        $process = Process::fromShellCommandline(
+            'php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir
+        );
         $process->setTimeout(300);
         $process->mustRun();
 
         $this->assertStringNotContainsString(
-            'The BCP export failed: SQLSTATE[42000]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Implicit conversion from data type nvarchar to timestamp is not allowed.',
+            'The BCP export failed: SQLSTATE[42000]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]' .
+            'Implicit conversion from data type nvarchar to timestamp is not allowed.',
             $process->getOutput()
         );
         $this->assertFileExists($this->dataDir . '/out/state.json');
@@ -561,7 +575,10 @@ class ApplicationTest extends AbstractMSSQLTest
         unlink($outputFile);
         sleep(2);
         //now add a couple rows and run it again.
-        $this->pdo->exec('INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) VALUES (\'charles\', null), (\'william\', \'2012-01-10 10:55\')');
+        $this->pdo->exec(
+            'INSERT INTO [auto Increment Timestamp] ([Weir%d Na-me], [smalldatetime]) ' .
+            'VALUES (\'charles\', null), (\'william\', \'2012-01-10 10:55\')'
+        );
 
         if (!is_dir($this->dataDir . '/in')) {
             mkdir($this->dataDir . '/in');

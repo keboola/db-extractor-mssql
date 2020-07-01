@@ -24,7 +24,7 @@ class MSSQL extends Extractor
     /** @var DbAdapter\MssqlAdapter */
     protected $db;
 
-    public function __construct(array $parameters, array $state = [], Logger $logger = null)
+    public function __construct(array $parameters, array $state = [], ?Logger $logger = null)
     {
         parent::__construct($parameters, $state, $logger);
 
@@ -556,7 +556,8 @@ class MSSQL extends Extractor
             }
             if ($this->hasIncrementalLimit()) {
                 $incrementalAddon .= sprintf(
-                    ' ORDER BY %s', $this->db->quoteIdentifier($this->incrementalFetching['column'])
+                    ' ORDER BY %s',
+                    $this->db->quoteIdentifier($this->incrementalFetching['column'])
                 );
             }
         }

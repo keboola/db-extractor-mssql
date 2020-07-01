@@ -21,8 +21,9 @@ class MetadataProvider
 
     private function fullTablesSql(array $tables): string
     {
-        return sprintf(
-            "SELECT [c].*,  
+        // @codingStandardsIgnoreStart
+        $sql = "
+            SELECT [c].*,  
               [chk].[CHECK_CLAUSE], 
               [fk_name],
               [chk_name],
@@ -83,25 +84,14 @@ class MetadataProvider
             ) AS [uk]  
             ON [uk].[TABLE_NAME] = [c].[TABLE_NAME] AND [uk].[COLUMN_NAME] = [c].[COLUMN_NAME]
             WHERE [c].[TABLE_NAME] IN (%s) AND [c].[TABLE_SCHEMA] IN (%s)
-            ORDER BY [c].[TABLE_SCHEMA], [c].[TABLE_NAME], [ORDINAL_POSITION]",
-            implode(
-                ',',
-                array_map(
-                    function ($table) {
-                        return $this->db->quote($table['tableName']);
-                    },
-                    $tables
-                )
-            ),
-            implode(
-                ',',
-                array_map(
-                    function ($table) {
-                        return $this->db->quote($table['schema']);
-                    },
-                    $tables
-                )
-            )
+            ORDER BY [c].[TABLE_SCHEMA], [c].[TABLE_NAME], [ORDINAL_POSITION]
+        ";
+        // @codingStandardsIgnoreEnd
+
+        return sprintf(
+            $sql,
+            implode(',', array_map(fn(array $table) => $this->db->quote($table['tableName']), $tables)),
+            implode(',', array_map(fn (array $table) => $this->db->quote($table['schema']), $tables))
         );
     }
 
@@ -255,7 +245,9 @@ class MetadataProvider
                 }
             }
             if (array_key_exists('IS_NULLABLE', $column)) {
-                $columnFormat->setNullable(($column['IS_NULLABLE'] === 'YES' || $column['IS_NULLABLE'] === '1') ? true : false);
+                $columnFormat->setNullable(
+                    ($column['IS_NULLABLE'] === 'YES' || $column['IS_NULLABLE'] === '1') ? true : false
+                );
             }
             if (array_key_exists('COLUMN_DEFAULT', $column)) {
                 $columnFormat->setDefault($column['COLUMN_DEFAULT']);
