@@ -35,7 +35,10 @@ class MSSQLTest extends AbstractMSSQLTest
             $app->run();
             $this->fail('Must raise exception');
         } catch (UserException $e) {
-            $this->assertStringContainsString('Cannot open database "nonExistentDb" requested by the login.', $e->getMessage());
+            $this->assertStringContainsString(
+                'Cannot open database "nonExistentDb" requested by the login.',
+                $e->getMessage()
+            );
         }
     }
 
@@ -292,7 +295,8 @@ class MSSQLTest extends AbstractMSSQLTest
             $manifest
         );
 
-        $tableColumnsManifest = $this->dataDir . '/out/tables/' . $result['imported'][1]['outputTable'] . '.csv.manifest';
+        $tableColumnsManifest =
+            $this->dataDir . '/out/tables/' . $result['imported'][1]['outputTable'] . '.csv.manifest';
         $manifest = json_decode((string) file_get_contents($tableColumnsManifest), true);
         $this->assertEquals(
             array (
@@ -1583,7 +1587,8 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->dropTable('XML_TEST');
         $this->pdo->exec('CREATE TABLE [XML_TEST] ([ID] INT NOT NULL, [XML_COL] XML NULL);');
         $this->pdo->exec(
-            "INSERT INTO [XML_TEST] VALUES (1, '<test>some test xml </test>'), (2, null), (3, '<test>some test xml </test>')"
+            'INSERT INTO [XML_TEST] ' .
+            "VALUES (1, '<test>some test xml </test>'), (2, null), (3, '<test>some test xml </test>')"
         );
         $config = $this->getConfig('mssql');
         unset($config['parameters']['tables'][1]);
@@ -1603,7 +1608,10 @@ class MSSQLTest extends AbstractMSSQLTest
     public function testStripNulls(): void
     {
         $this->dropTable('NULL_TEST');
-        $this->pdo->exec("CREATE TABLE [NULL_TEST] ([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));");
+        $this->pdo->exec(
+            'CREATE TABLE [NULL_TEST] ' .
+            "([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));"
+        );
         $this->pdo->exec(
             "INSERT INTO [NULL_TEST] VALUES 
             ('', '', 'test with ' + CHAR(0) + ' inside'), 
@@ -1641,11 +1649,17 @@ class MSSQLTest extends AbstractMSSQLTest
         unset($config['parameters']['tables'][2]);
         unset($config['parameters']['tables'][3]);
         unset($config['parameters']['tables'][0]['table']);
-        $config['parameters']['tables'][0]['query'] = "SELECT usergender INTO #temptable FROM sales WHERE usergender LIKE 'undefined';  SELECT * FRoM sales WHERE usergender IN (SELECT * FROM #temptable);";
+        $config['parameters']['tables'][0]['query'] =
+            'SELECT usergender INTO #temptable ' .
+            "FROM sales WHERE usergender LIKE 'undefined';  " .
+            'SELECT * FRoM sales WHERE usergender IN (SELECT * FROM #temptable);';
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.multipleselect_test';
 
         $this->expectException(UserException::class);
-        $this->expectExceptionMessage('Failed to retrieve results: SQLSTATE[IMSSP]: The active result for the query contains no fields. Code:IMSSP');
+        $this->expectExceptionMessage(
+            'Failed to retrieve results: SQLSTATE[IMSSP]: '.
+            'The active result for the query contains no fields. Code:IMSSP'
+        );
         $this->createApplication($config)->run();
     }
 
