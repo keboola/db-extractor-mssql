@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
+use Keboola\DbExtractor\Extractor\MetadataProvider;
+use Keboola\DbExtractor\Extractor\MssqlDataType;
+use Keboola\DbExtractor\Extractor\QueryFactory;
 use PDO;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
@@ -71,6 +75,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     private function setupTables(): void
     {
+        // @codingStandardsIgnoreStart
         $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
         $specialCsv = new CsvFile($this->dataDir . '/mssql/special.csv');
 
@@ -314,5 +319,23 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     public function getPublicKey(): string
     {
         return (string) file_get_contents('/root/.ssh/id_rsa.pub');
+    }
+
+    protected function createQueryFactory(array $params, array $state, ?array $columnMetadata = null): QueryFactory
+    {
+        $logger = new Logger('mssql-extractor-test');
+        $pdoAdapter = new PdoAdapter($logger, $params['db'], $state);
+        if ($columnMetadata === null) {
+            $metadataProvider = new MetadataProvider($pdoAdapter);
+        } else {
+            $metadataProviderMock = $this->createMock(MetadataProvider::class);
+            $metadataProviderMock
+                ->method('getColumnsMetadata')
+                ->willReturn($columnMetadata);
+            /** @var MetadataProvider $metadataProvider */
+            $metadataProvider = $metadataProviderMock;
+        }
+
+        return new QueryFactory($pdoAdapter, $metadataProvider, $state);
     }
 }
