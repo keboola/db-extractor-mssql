@@ -4,8 +4,6 @@ services:
     build: .
     image: keboola/ex-db-mssql
     command: composer ci
-    tty: true
-    stdin_open: true
     volumes:
       - ssh-keys:/root/.ssh
     environment:
