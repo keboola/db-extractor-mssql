@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
-use Keboola\DbExtractor\Extractor\DbAdapter\MssqlAdapter;
+use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
+use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\TableResultFormat\ForeignKey;
 use Keboola\DbExtractor\TableResultFormat\Table;
 use Keboola\DbExtractor\TableResultFormat\TableColumn;
 
 class MetadataProvider
 {
-    private MssqlAdapter $db;
+    private PdoAdapter $pdoAdapter;
 
-    public function __construct(
-        MssqlAdapter $db
-    ) {
-        $this->db = $db;
+    public function __construct(PdoAdapter $pdoAdapter)
+    {
+        $this->pdoAdapter = $pdoAdapter;
     }
 
     private function fullTablesSql(array $tables): string
@@ -90,8 +90,8 @@ class MetadataProvider
 
         return sprintf(
             $sql,
-            implode(',', array_map(fn(array $table) => $this->db->quote($table['tableName']), $tables)),
-            implode(',', array_map(fn (array $table) => $this->db->quote($table['schema']), $tables))
+            implode(',', array_map(fn(array $table) => $this->pdoAdapter->quote($table['tableName']), $tables)),
+            implode(',', array_map(fn (array $table) => $this->pdoAdapter->quote($table['schema']), $tables))
         );
     }
 
@@ -174,7 +174,7 @@ class MetadataProvider
                     ',',
                     array_map(
                         function ($table) {
-                            return $this->db->quote($table['tableName']);
+                            return $this->pdoAdapter->quote($table['tableName']);
                         },
                         $tables
                     )
@@ -183,16 +183,15 @@ class MetadataProvider
                     ',',
                     array_map(
                         function ($table) {
-                            return $this->db->quote($table['schema']);
+                            return $this->pdoAdapter->quote($table['schema']);
                         },
                         $tables
                     )
                 )
             );
         }
-        $stmt = $this->db->query($sql);
 
-        $arr = (array) $stmt->fetchAll();
+        $arr = $this->pdoAdapter->runQuery($sql);
         if (count($arr) === 0) {
             return [];
         }
@@ -223,10 +222,7 @@ class MetadataProvider
             $sql = $this->fullTablesSql($tables);
         }
 
-        $res = $this->db->query($sql);
-
-        $rows = (array) $res->fetchAll();
-
+        $rows = $this->pdoAdapter->runQuery($sql);
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
 
@@ -277,5 +273,32 @@ class MetadataProvider
             $item = $item->getOutput();
         });
         return array_values($tableDefs);
+    }
+
+    public function getColumnsMetadata(array $table): array
+    {
+        $columns = $table['columns'] ?? [];
+
+        $tableMetadata = $this->getTables([$table['table']]);
+        if (count($tableMetadata) === 0) {
+            throw new UserException(sprintf(
+                'Could not find the table: [%s].[%s]',
+                $table['table']['schema'],
+                $table['table']['tableName']
+            ));
+        }
+
+        $columnMetadata = $tableMetadata[0]['columns'];
+        // If no columns in configuration => use all columns from metadata
+        if (count($columns) > 0) {
+            $columnMetadata = array_filter($columnMetadata, function ($columnMeta) use ($columns) {
+                return in_array($columnMeta['name'], $columns);
+            });
+            $colOrder = array_flip($columns);
+            usort($columnMetadata, function (array $colA, array $colB) use ($colOrder) {
+                return $colOrder[$colA['name']] - $colOrder[$colB['name']];
+            });
+        }
+        return $columnMetadata;
     }
 }
