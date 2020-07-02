@@ -1,8 +1,8 @@
 parameters:
+    checkMissingIterableValueType: false
     ignoreErrors:
-        - '#Call to an undefined method Symfony\\Component\\Config\\Definition\\Builder\\NodeDefinition::children\(\).#'
-        - '#Cannot call method scalarNode\(\) on Symfony\\Component\\Config\\Definition\\Builder\\NodeParentInterface\|null\.#'
         - '#Cannot call method fetch\(\) on PDOStatement\|false\.#'
         - '#Cannot call method execute\(\) on PDOStatement\|false\.#'
         - '#Cannot call method fetchColumn\(\) on PDOStatement\|false\.#'
         - '#Cannot call method rowCount\(\) on PDOStatement\|false\.#'
+        - '#function get_class expects object, Throwable\|null given.#'
