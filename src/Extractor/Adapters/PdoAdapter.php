@@ -30,21 +30,18 @@ class PdoAdapter
         $this->state = $state;
     }
 
-    public function export(array $table, string $query, ?array $incrementalFetching, string $csvPath): array
+    public function export(ExportConfig $exportConfig, string $query, string $csvPath): array
     {
-        $isAdvancedQuery = array_key_exists('query', $table);
-        $maxTries = isset($table['retries']) ? (int) $table['retries'] : Extractor::DEFAULT_MAX_TRIES;
-
         // Check connection
         $this->pdo->tryReconnect();
 
         return $this
-            ->createRetryProxy($maxTries)
-            ->call(function () use ($query, $isAdvancedQuery, $incrementalFetching, $csvPath) {
+            ->createRetryProxy($exportConfig->getMaxRetries())
+            ->call(function () use ($query, $exportConfig, $csvPath) {
                 try {
                     // Csv writer must be re-created after each error, because some lines could be already written
-                    $csv = new CsvFile($csvPath);
-                    $result =  $this->executeAndWrite($query, $isAdvancedQuery, $incrementalFetching, $csv);
+                    $csv = new CsvWriter($csvPath);
+                    $result =  $this->executeAndWrite($query, $exportConfig, $csv);
                     $this->pdo->isAlive();
                     return $result;
                 } catch (Throwable $queryError) {
@@ -59,20 +56,18 @@ class PdoAdapter
 
     private function executeAndWrite(
         string $query,
-        bool $includeHeader,
-        ?array $incrementalFetching,
-        CsvFile $csv
+        ExportConfig $exportConfig,
+        CsvWriter $csv
     ): array {
         $stmt = $this->pdo->prepare($query);
         $stmt->execute();
 
         $output = [];
-
         $resultRow = $stmt->fetch(PDO::FETCH_ASSOC);
-
         if (is_array($resultRow) && !empty($resultRow)) {
             // write header and first line
-            if ($includeHeader) {
+            if ($exportConfig->hasQuery()) {
+                // Include header?
                 $csv->writeRow(array_keys($resultRow));
             }
             $csv->writeRow($resultRow);
@@ -88,16 +83,16 @@ class PdoAdapter
             }
             $stmt->closeCursor();
 
-            if (isset($incrementalFetching['column'])) {
-                if (!array_key_exists($incrementalFetching['column'], $lastRow)) {
+            if ($exportConfig->isIncrementalFetching()) {
+                if (!array_key_exists($exportConfig->getIncrementalFetchingColumn(), $lastRow)) {
                     throw new UserException(
                         sprintf(
                             'The specified incremental fetching column %s not found in the table',
-                            $incrementalFetching['column']
+                            $exportConfig->getIncrementalFetchingColumn()
                         )
                     );
                 }
-                $output['lastFetchedRow'] = $lastRow[$incrementalFetching['column']];
+                $output['lastFetchedRow'] = $lastRow[$exportConfig->getIncrementalFetchingColumn()];
             }
             $output['rows'] = $numRows;
             return $output;

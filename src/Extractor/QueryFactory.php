@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
-use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
+use LogicException;
+use Keboola\DbExtractor\Configuration\MssqlExportConfig;
+use Keboola\DbExtractor\TableResultFormat\Metadata\ValueObject\Column;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 
 class QueryFactory
 {
@@ -27,139 +30,152 @@ class QueryFactory
         $this->state = $state;
     }
 
-    public function create(array $table, ?array $incrementalFetching, string $format): string
+    public function create(MssqlExportConfig $exportConfig, string $format, ?string $incrementalFetchingType): string
     {
-        $isAdvancedQuery = array_key_exists('query', $table);
-        if ($isAdvancedQuery) {
-            return $table['query'];
+        if ($exportConfig->hasQuery()) {
+            return $exportConfig->getQuery();
         }
 
         $sql = [];
         $sql[] = 'SELECT';
 
-        if (isset($incrementalFetching['limit'])) {
-            $sql[] = sprintf('TOP %d', $incrementalFetching['limit']);
+        if ($exportConfig->hasIncrementalFetchingLimit()) {
+            $sql[] = sprintf('TOP %d', $exportConfig->getIncrementalFetchingLimit());
         }
 
-        $columns = $this->metadataProvider->getColumnsMetadata($table);
         $sql[] = sprintf(
             '%s FROM %s.%s',
-            $columns ? $this->getColumnsForSelect($columns, $format) : '*',
-            $this->pdo->quoteIdentifier($table['table']['schema']),
-            $this->pdo->quoteIdentifier($table['table']['tableName'])
+            $this->getColumnsForSelect($exportConfig, $format),
+            $this->pdo->quoteIdentifier($exportConfig->getTable()->getSchema()),
+            $this->pdo->quoteIdentifier($exportConfig->getTable()->getName())
         );
 
-        if ($table['nolock'] ?? false) {
+        if ($exportConfig->getNoLock()) {
             $sql[] = 'WITH(NOLOCK)';
         }
 
-        if ($incrementalFetching) {
+        if ($exportConfig->isIncrementalFetching() && isset($this->state['lastFetchedRow'])) {
             if (isset($this->state['lastFetchedRow'])) {
                 $sql[] = sprintf(
                     'WHERE %s >= %s',
-                    $this->pdo->quoteIdentifier($incrementalFetching['column']),
-                    $this->shouldQuoteComparison($incrementalFetching['type'])
+                    $this->pdo->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
+                    $this->shouldQuoteComparison($incrementalFetchingType)
                         ? $this->pdo->quote($this->state['lastFetchedRow'])
                         : $this->state['lastFetchedRow']
                 );
             }
+        }
 
-            if ($this->hasIncrementalLimit($incrementalFetching)) {
-                $sql[] = sprintf(
-                    'ORDER BY %s',
-                    $this->pdo->quoteIdentifier($incrementalFetching['column'])
-                );
-            }
+        if ($exportConfig->hasIncrementalFetchingLimit()) {
+            $sql[] = sprintf(
+                'ORDER BY %s',
+                $this->pdo->quoteIdentifier($exportConfig->getIncrementalFetchingColumn())
+            );
         }
 
         return implode(' ', $sql);
     }
 
-    public function columnToBcpSql(array $column): string
+    public function columnToBcpSql(Column $column): string
     {
         // BCP exports CSV data without surrounding double quotes,
         // ... so double quotes are added in SQL
 
-        $datatype = new MssqlDataType(
-            $column['type'],
-            array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
-        );
-        $colstr = $escapedColumnName = $this->pdo->quoteIdentifier($column['name']);
+        $datatype = $this->getColumnDatatype($column);
+        $escapedColumnName = $this->pdo->quoteIdentifier($column->getName());
+        $colStr = $escapedColumnName;
+
         if ($datatype->getType() === 'timestamp') {
-            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
+            $colStr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colStr);
         } else if ($datatype->getBasetype() === 'STRING') {
             if ($datatype->getType() === 'text'
                 || $datatype->getType() === 'ntext'
                 || $datatype->getType() === 'xml'
             ) {
-                $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
+                $colStr = sprintf('CAST(%s as nvarchar(max))', $colStr);
             }
-            $colstr = sprintf('REPLACE(%s, char(34), char(34) + char(34))', $colstr);
+            $colStr = sprintf('REPLACE(%s, char(34), char(34) + char(34))', $colStr);
             if ($datatype->isNullable()) {
-                $colstr = sprintf("COALESCE(%s,'')", $colstr);
+                $colStr = sprintf("COALESCE(%s,'')", $colStr);
             }
-            $colstr = sprintf('char(34) + %s + char(34)', $colstr);
+            $colStr = sprintf('char(34) + %s + char(34)', $colStr);
         } else if ($datatype->getBasetype() === 'TIMESTAMP'
             && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
         ) {
-            $colstr = sprintf('CONVERT(DATETIME2(0),%s)', $colstr);
+            $colStr = sprintf('CONVERT(DATETIME2(0),%s)', $colStr);
         }
-        if ($colstr !== $escapedColumnName) {
-            return $colstr . ' AS ' . $escapedColumnName;
+        if ($colStr !== $escapedColumnName) {
+            return $colStr . ' AS ' . $escapedColumnName;
         }
-        return $colstr;
+        return $colStr;
     }
 
-    public function columnToPdoSql(array $column): string
+    public function columnToPdoSql(Column $column): string
     {
-        $datatype = new MssqlDataType(
-            $column['type'],
-            array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
-        );
-        $colstr = $escapedColumnName = $this->pdo->quoteIdentifier($column['name']);
+        $datatype = $this->getColumnDatatype($column);
+        $escapedColumnName = $this->pdo->quoteIdentifier($column->getName());
+        $colStr = $escapedColumnName;
+
         if ($datatype->getType() === 'timestamp') {
-            $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
+            $colStr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colStr);
         } else {
             if ($datatype->getType() === 'text'
                 || $datatype->getType() === 'ntext'
                 || $datatype->getType() === 'xml'
             ) {
-                $colstr = sprintf('CAST(%s as nvarchar(max))', $colstr);
+                $colStr = sprintf('CAST(%s as nvarchar(max))', $colStr);
             }
         }
-        if ($colstr !== $escapedColumnName) {
-            return $colstr . ' AS ' . $escapedColumnName;
+        if ($colStr !== $escapedColumnName) {
+            return $colStr . ' AS ' . $escapedColumnName;
         }
-        return $colstr;
+        return $colStr;
     }
 
-    private function getColumnsForSelect(array $columns, string $format): string
+    private function getColumnDatatype(Column $column): MssqlDataType
     {
+        return new MssqlDataType(
+            $column->getType(),
+            [
+                'type' => $column->getType(),
+                'length' => $column->hasLength() ? $column->getLength() : null,
+                'nullable' => $column->hasNullable() ? $column->isNullable() : null,
+                'default' => $column->hasDefault() ? (string) $column->getDefault() : null,
+            ]
+        );
+    }
+
+    private function getColumnsForSelect(ExportConfig $exportConfig, string $format): string
+    {
+        $columns = $this->metadataProvider->getTable($exportConfig->getTable())->getColumns();
+        // Map column names (from config or all) to metadata objects, and then format them for SELECT.
+        $columnNames = $exportConfig->hasColumns() ? $exportConfig->getColumns() : $columns->getNames();
         if ($format === self::ESCAPING_TYPE_BCP) {
-            return implode(', ', array_map(fn (array $column) => $this->columnToBcpSql($column), $columns));
+            return implode(', ', array_map(
+                fn (string $name) => $this->columnToBcpSql($columns->getByName($name)),
+                $columnNames
+            ));
         } else if ($format === self::ESCAPING_TYPE_PDO) {
-            return implode(', ', array_map(fn (array $column) => $this->columnToPdoSql($column), $columns));
+            return implode(', ', array_map(
+                fn (string $name) => $this->columnToPdoSql($columns->getByName($name)),
+                $columnNames
+            ));
         }
 
-        throw new \LogicException(sprintf('Unexpected format: "%s"', $format));
+        throw new LogicException(sprintf('Unexpected format: "%s"', $format));
     }
 
-    private function shouldQuoteComparison(string $type): bool
+    private function shouldQuoteComparison(?string $type): bool
     {
+        if ($type === null) {
+            throw new \InvalidArgumentException(
+                'Incremental fetching type should be set if calling "shouldQuoteComparison".'
+            );
+        }
+
         if ($type === MssqlDataType::INCREMENT_TYPE_NUMERIC || $type === MssqlDataType::INCREMENT_TYPE_BINARY) {
             return false;
         }
         return true;
-    }
-
-    protected function hasIncrementalLimit(?array $incrementalFetching): bool
-    {
-        if (!$incrementalFetching) {
-            return false;
-        }
-        if (isset($incrementalFetching['limit']) && (int) $incrementalFetching['limit'] > 0) {
-            return true;
-        }
-        return false;
     }
 }
