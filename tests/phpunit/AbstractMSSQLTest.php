@@ -76,7 +76,6 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     private function setupTables(): void
     {
-        // @codingStandardsIgnoreStart
         $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
         $specialCsv = new CsvFile($this->dataDir . '/mssql/special.csv');
 
@@ -92,10 +91,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->dropTable('t1');
 
         // set up a foreign key relationship
-        // @codingStandardsIgnoreStart
         $this->pdo->exec('ALTER TABLE sales2 ALTER COLUMN createdat varchar(64) NOT NULL');
-        $this->pdo->exec('ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)');
-        // @codingStandardsIgnoreEnd
+        $this->pdo->exec(
+            'ALTER TABLE sales2 ADD CONSTRAINT FK_sales_sales2 FOREIGN KEY (createdat) REFERENCES sales(createdat)'
+        );
 
         // create another table with an auto_increment ID
         $this->dropTable('auto Increment Timestamp');
@@ -113,7 +112,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             )"
         );
 
-        // @codingStandardsIgnoreStart
+        // phpcs:disable Generic.Files.LineLength
         $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY ("_Weir%d I-D")');
         $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT CHK_ID_CONTSTRAINT CHECK ("_Weir%d I-D" > 0 AND "_Weir%d I-D" < 20)');
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type, someInteger, someDecimal, smalldatetime) VALUES ('mario', 'plumber', 1, 1.1, '2012-01-10 10:00')");
@@ -125,7 +124,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->exec("INSERT INTO [auto Increment Timestamp] (\"Weir%d Na-me\", Type, someInteger, someDecimal, smalldatetime) VALUES ('yoshi', 'horse?', 6, 6.6, '2012-01-10 10:25')");
         // add unique key
         $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT UNI_KEY_1 UNIQUE ("Weir%d Na-me", Type)');
-        // @codingStandardsIgnoreEnd
+        // phpcs:enable Generic.Files.LineLength
     }
 
     protected function dropTable(string $tableName, ?string $schema = 'dbo'): void
