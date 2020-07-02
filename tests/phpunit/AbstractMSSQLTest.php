@@ -7,6 +7,7 @@ namespace Keboola\DbExtractor\Tests;
 use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
 use Keboola\DbExtractor\Extractor\MetadataProvider;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
+use Keboola\DbExtractor\Extractor\PdoConnection;
 use Keboola\DbExtractor\Extractor\QueryFactory;
 use PDO;
 use Keboola\DbExtractor\MSSQLApplication;
@@ -324,9 +325,9 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     protected function createQueryFactory(array $params, array $state, ?array $columnMetadata = null): QueryFactory
     {
         $logger = new Logger('mssql-extractor-test');
-        $pdoAdapter = new PdoAdapter($logger, $params['db'], $state);
+        $pdo = new PdoConnection($logger, $params['db']);
         if ($columnMetadata === null) {
-            $metadataProvider = new MetadataProvider($pdoAdapter);
+            $metadataProvider = new MetadataProvider($pdo);
         } else {
             $metadataProviderMock = $this->createMock(MetadataProvider::class);
             $metadataProviderMock
@@ -336,6 +337,6 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             $metadataProvider = $metadataProviderMock;
         }
 
-        return new QueryFactory($pdoAdapter, $metadataProvider, $state);
+        return new QueryFactory($pdo, $metadataProvider, $state);
     }
 }

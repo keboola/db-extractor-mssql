@@ -11,18 +11,18 @@ class QueryFactory
     public const ESCAPING_TYPE_BCP = 'BCP';
     public const ESCAPING_TYPE_PDO = 'PDO';
 
-    private PdoAdapter $pdoAdapter;
+    private PdoConnection $pdo;
 
     private MetadataProvider $metadataProvider;
 
     private array $state;
 
     public function __construct(
-        PdoAdapter $pdoAdapter,
+        PdoConnection $pdo,
         MetadataProvider $metadataProvider,
         array $state
     ) {
-        $this->pdoAdapter = $pdoAdapter;
+        $this->pdo = $pdo;
         $this->metadataProvider = $metadataProvider;
         $this->state = $state;
     }
@@ -45,8 +45,8 @@ class QueryFactory
         $sql[] = sprintf(
             '%s FROM %s.%s',
             $columns ? $this->getColumnsForSelect($columns, $format) : '*',
-            $this->pdoAdapter->quoteIdentifier($table['table']['schema']),
-            $this->pdoAdapter->quoteIdentifier($table['table']['tableName'])
+            $this->pdo->quoteIdentifier($table['table']['schema']),
+            $this->pdo->quoteIdentifier($table['table']['tableName'])
         );
 
         if ($table['nolock'] ?? false) {
@@ -57,9 +57,9 @@ class QueryFactory
             if (isset($this->state['lastFetchedRow'])) {
                 $sql[] = sprintf(
                     'WHERE %s >= %s',
-                    $this->pdoAdapter->quoteIdentifier($incrementalFetching['column']),
+                    $this->pdo->quoteIdentifier($incrementalFetching['column']),
                     $this->shouldQuoteComparison($incrementalFetching['type'])
-                        ? $this->pdoAdapter->quote($this->state['lastFetchedRow'])
+                        ? $this->pdo->quote($this->state['lastFetchedRow'])
                         : $this->state['lastFetchedRow']
                 );
             }
@@ -67,7 +67,7 @@ class QueryFactory
             if ($this->hasIncrementalLimit($incrementalFetching)) {
                 $sql[] = sprintf(
                     'ORDER BY %s',
-                    $this->pdoAdapter->quoteIdentifier($incrementalFetching['column'])
+                    $this->pdo->quoteIdentifier($incrementalFetching['column'])
                 );
             }
         }
@@ -84,7 +84,7 @@ class QueryFactory
             $column['type'],
             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
         );
-        $colstr = $escapedColumnName = $this->pdoAdapter->quoteIdentifier($column['name']);
+        $colstr = $escapedColumnName = $this->pdo->quoteIdentifier($column['name']);
         if ($datatype->getType() === 'timestamp') {
             $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
         } else if ($datatype->getBasetype() === 'STRING') {
@@ -116,7 +116,7 @@ class QueryFactory
             $column['type'],
             array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
         );
-        $colstr = $escapedColumnName = $this->pdoAdapter->quoteIdentifier($column['name']);
+        $colstr = $escapedColumnName = $this->pdo->quoteIdentifier($column['name']);
         if ($datatype->getType() === 'timestamp') {
             $colstr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colstr);
         } else {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
-use Keboola\Csv\Exception as CsvException;
 use PDOException;
+use Keboola\Csv\Exception as CsvException;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
 use Keboola\DbExtractor\Extractor\Adapters\BcpAdapter;
 use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
@@ -16,6 +16,8 @@ use Keboola\DbExtractor\Exception\UserException;
 class MSSQL extends Extractor
 {
     private MetadataProvider $metadataProvider;
+
+    private PdoConnection $pdo;
 
     private PdoAdapter $pdoAdapter;
 
@@ -49,17 +51,18 @@ class MSSQL extends Extractor
 
     public function createConnection(array $dbParams): void
     {
-        $this->pdoAdapter = new PdoAdapter($this->logger, $dbParams, $this->state);
-        $this->metadataProvider = new MetadataProvider($this->pdoAdapter);
+        $this->pdo = new PdoConnection($this->logger, $dbParams);
+        $this->pdoAdapter = new PdoAdapter($this->logger, $this->pdo, $this->state);
+        $this->metadataProvider = new MetadataProvider($this->pdo);
         $this->bcpAdapter = new BcpAdapter(
             $this->logger,
-            $this->pdoAdapter,
+            $this->pdo,
             $this->metadataProvider,
             $dbParams,
             $this->state
         );
         $this->queryFactory = new QueryFactory(
-            $this->pdoAdapter,
+            $this->pdo,
             $this->metadataProvider,
             $this->state
         );
@@ -67,20 +70,20 @@ class MSSQL extends Extractor
 
     public function testConnection(): void
     {
-        $this->pdoAdapter->testConnection();
+        $this->pdo->testConnection();
     }
 
     public function getMaxOfIncrementalFetchingColumn(array $table): ?string
     {
         $maxTries = isset($table['retries']) ? (int) $table['retries'] : Extractor::DEFAULT_MAX_TRIES;
-        $result = $this->pdoAdapter->runRetryableQuery(sprintf(
+        $result = $this->pdo->runRetryableQuery(sprintf(
             $this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_BINARY ?
                 'SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s' :
                 'SELECT MAX(%s) %s FROM %s.%s',
-            $this->pdoAdapter->quoteIdentifier($this->incrementalFetching['column']),
-            $this->pdoAdapter->quoteIdentifier($this->incrementalFetching['column']),
-            $this->pdoAdapter->quoteIdentifier($table['schema']),
-            $this->pdoAdapter->quoteIdentifier($table['tableName'])
+            $this->pdo->quoteIdentifier($this->incrementalFetching['column']),
+            $this->pdo->quoteIdentifier($this->incrementalFetching['column']),
+            $this->pdo->quoteIdentifier($table['schema']),
+            $this->pdo->quoteIdentifier($table['tableName'])
         ), $maxTries);
 
         return count($result) > 0 ? $result[0][$this->incrementalFetching['column']] : null;
@@ -105,7 +108,7 @@ class MSSQL extends Extractor
         $result = null;
         if ($table['disableBcp']) {
             $this->logger->info('BCP export is disabled in the configuration.');
-        } elseif ($isAdvancedQuery && $this->pdoAdapter->getServerVersion() < 11) {
+        } elseif ($isAdvancedQuery && $this->pdo->getServerVersion() < 11) {
             $this->logger->warning('BCP is not supported for advanced queries in sql server 2008 or less.');
         } else {
             $query = $this->queryFactory->create(
@@ -194,7 +197,7 @@ class MSSQL extends Extractor
             try {
                 return $this->metadataProvider->getTables($tables);
             } catch (\Throwable $exception) {
-                $this->pdoAdapter->tryReconnect();
+                $this->pdo->tryReconnect();
                 throw $exception;
             }
         });
@@ -207,7 +210,7 @@ class MSSQL extends Extractor
 
     public function validateIncrementalFetching(array $table, string $columnName, ?int $limit = null): void
     {
-        $columns = $this->pdoAdapter->runRetryableQuery(sprintf(
+        $columns = $this->pdo->runRetryableQuery(sprintf(
             "SELECT [is_identity], TYPE_NAME([system_type_id]) AS [data_type]
             FROM [sys].[columns]
             WHERE [object_id] = OBJECT_ID('[%s].[%s]') AND [sys].[columns].[name] = '%s'",

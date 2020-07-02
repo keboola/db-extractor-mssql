@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
-use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\TableResultFormat\ForeignKey;
 use Keboola\DbExtractor\TableResultFormat\Table;
@@ -12,11 +11,11 @@ use Keboola\DbExtractor\TableResultFormat\TableColumn;
 
 class MetadataProvider
 {
-    private PdoAdapter $pdoAdapter;
+    private PdoConnection $pdo;
 
-    public function __construct(PdoAdapter $pdoAdapter)
+    public function __construct(PdoConnection $pdo)
     {
-        $this->pdoAdapter = $pdoAdapter;
+        $this->pdo = $pdo;
     }
 
     private function fullTablesSql(array $tables): string
@@ -90,8 +89,8 @@ class MetadataProvider
 
         return sprintf(
             $sql,
-            implode(',', array_map(fn(array $table) => $this->pdoAdapter->quote($table['tableName']), $tables)),
-            implode(',', array_map(fn (array $table) => $this->pdoAdapter->quote($table['schema']), $tables))
+            implode(',', array_map(fn(array $table) => $this->pdo->quote($table['tableName']), $tables)),
+            implode(',', array_map(fn (array $table) => $this->pdo->quote($table['schema']), $tables))
         );
     }
 
@@ -174,7 +173,7 @@ class MetadataProvider
                     ',',
                     array_map(
                         function ($table) {
-                            return $this->pdoAdapter->quote($table['tableName']);
+                            return $this->pdo->quote($table['tableName']);
                         },
                         $tables
                     )
@@ -183,7 +182,7 @@ class MetadataProvider
                     ',',
                     array_map(
                         function ($table) {
-                            return $this->pdoAdapter->quote($table['schema']);
+                            return $this->pdo->quote($table['schema']);
                         },
                         $tables
                     )
@@ -191,7 +190,7 @@ class MetadataProvider
             );
         }
 
-        $arr = $this->pdoAdapter->runQuery($sql);
+        $arr = $this->pdo->runQuery($sql);
         if (count($arr) === 0) {
             return [];
         }
@@ -222,7 +221,7 @@ class MetadataProvider
             $sql = $this->fullTablesSql($tables);
         }
 
-        $rows = $this->pdoAdapter->runQuery($sql);
+        $rows = $this->pdo->runQuery($sql);
         foreach ($rows as $i => $column) {
             $curTable = $column['TABLE_SCHEMA'] . '.' . $column['TABLE_NAME'];
 

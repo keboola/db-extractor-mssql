@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor\Adapters;
 
+use Keboola\DbExtractor\Extractor\PdoConnection;
 use Throwable;
 use Keboola\Csv\CsvFile;
 use Keboola\DbExtractor\Exception\ApplicationException;
@@ -18,7 +19,7 @@ class BcpAdapter
 {
     private Logger $logger;
 
-    private PdoAdapter $pdoAdapter;
+    private PdoConnection $pdo;
 
     private MetadataProvider $metadataProvider;
 
@@ -28,13 +29,13 @@ class BcpAdapter
 
     public function __construct(
         Logger $logger,
-        PdoAdapter $pdoAdapter,
+        PdoConnection $pdo,
         MetadataProvider $metadataProvider,
         array $dbParams,
         array $state
     ) {
         $this->logger = $logger;
-        $this->pdoAdapter = $pdoAdapter;
+        $this->pdo = $pdo;
         $this->metadataProvider = $metadataProvider;
         $this->dbParams = $dbParams;
         $this->state = $state;
@@ -118,23 +119,23 @@ class BcpAdapter
             }
             if (in_array(strtoupper($column['type']), ['DATETIME", "DATETIME2'])) {
                 $whereClause .=
-                    'CONVERT(DATETIME2(0), ' . $this->pdoAdapter->quoteIdentifier($column['name']) . ') = ?';
+                    'CONVERT(DATETIME2(0), ' . $this->pdo->quoteIdentifier($column['name']) . ') = ?';
             } else {
-                $whereClause .= $this->pdoAdapter->quoteIdentifier($column['name']) . ' = ?';
+                $whereClause .= $this->pdo->quoteIdentifier($column['name']) . ' = ?';
             }
             $whereValues[] = $lastExportedLine[$key];
         }
 
         $query = sprintf(
             'SELECT %s FROM %s.%s WHERE %s;',
-            $this->pdoAdapter->quoteIdentifier($incrementalFetching['column']),
-            $this->pdoAdapter->quoteIdentifier($table['schema']),
-            $this->pdoAdapter->quoteIdentifier($table['tableName']),
+            $this->pdo->quoteIdentifier($incrementalFetching['column']),
+            $this->pdo->quoteIdentifier($table['schema']),
+            $this->pdo->quoteIdentifier($table['tableName']),
             $whereClause
         );
 
         $maxTries = isset($table['retries']) ? (int) $table['retries'] : Extractor::DEFAULT_MAX_TRIES;
-        $result = $this->pdoAdapter->runRetryableQuery($query, $maxTries, $whereValues);
+        $result = $this->pdo->runRetryableQuery($query, $maxTries, $whereValues);
         if (count($result) > 0) {
             return $result[0][$incrementalFetching['column']];
         }
@@ -165,7 +166,7 @@ class BcpAdapter
             rtrim(trim(str_replace("'", "''", $query)), ';')
         );
         try {
-            $result = $this->pdoAdapter->runRetryableQuery($sql, Extractor::DEFAULT_MAX_TRIES);
+            $result = $this->pdo->runRetryableQuery($sql, Extractor::DEFAULT_MAX_TRIES);
             if (is_array($result) && !empty($result)) {
                 return array_map(
                     function ($row) {
