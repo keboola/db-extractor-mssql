@@ -285,6 +285,7 @@ class ApplicationTest extends AbstractMSSQLTest
     public function testDisableBcpAndFallbackIsInvalidForConfigRow(): void
     {
         $config = $this->getConfigRow('mssql');
+        unset($config['parameters']['table']);
         $config['parameters']['query'] = 'SELECT *  FROM "special";';
         $config['parameters']['disableBcp'] = true;
         $config['parameters']['disableFallback'] = true;
