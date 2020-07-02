@@ -27,12 +27,23 @@ class MSSQLApplication extends Application
     {
         if ($this->isRowConfiguration($config)) {
             if ($this['action'] === 'run') {
-                $this->config = new Config($config, new MssqlConfigRowDefinition());
+                $this->config = new Config(
+                    $config,
+                    new ConfigRowDefinition(null, null, null, new MssqlTableNodesDecorator())
+                );
             } else {
                 $this->config = new Config($config, new ActionConfigRowDefinition());
             }
         } else {
-            $this->config = new Config($config, new ConfigDefinition(null, null, new MssqlTablesNode()));
+            $this->config = new Config(
+                $config,
+                new ConfigDefinition(null, null, null, new MssqlTableNodesDecorator())
+            );
         }
+    }
+
+    protected function createExportConfig(array $data): ExportConfig
+    {
+        return MssqlExportConfig::fromArray($data);
     }
 }
