@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\Csv\CsvFile;
+use Keboola\Csv\CsvReader;
 use Symfony\Component\Process\Process;
 
 class ApplicationTest extends AbstractMSSQLTest
@@ -52,14 +52,10 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($manifestFile2);
         @unlink($manifestFile4);
 
-        $expectedCsv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-        $expectedCsv1 = iterator_to_array($expectedCsv1);
-
-        $expectedCsv2 = new CsvFile($this->dataDir . '/mssql/tableColumns.csv');
-        $expectedCsv2 = iterator_to_array($expectedCsv2);
+        $expectedCsv1 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/sales.csv'));
+        $expectedCsv2 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/tableColumns.csv'));
         array_shift($expectedCsv2);
-        $expectedCsv4 = new CsvFile($this->dataDir . '/mssql/special.csv');
-        $expectedCsv4 = iterator_to_array($expectedCsv4);
+        $expectedCsv4 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/special.csv'));
         array_shift($expectedCsv4);
 
         $config = $this->getConfig('mssql');
@@ -71,9 +67,9 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals('', $process->getErrorOutput());
 
-        $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
-        $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
-        $outputCsvData4 = iterator_to_array(new CsvFile($outputCsvFile4));
+        $outputCsvData1 = iterator_to_array(new CsvReader($outputCsvFile1));
+        $outputCsvData2 = iterator_to_array(new CsvReader($outputCsvFile2));
+        $outputCsvData4 = iterator_to_array(new CsvReader($outputCsvFile4));
 
         $this->assertFileExists($outputCsvFile1);
         $this->assertEquals(ksort($expectedCsv1), ksort($outputCsvData1));
@@ -102,14 +98,10 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($manifestFile2);
         @unlink($manifestFile4);
 
-        $expectedCsv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-        $expectedCsv1 = iterator_to_array($expectedCsv1);
-
-        $expectedCsv2 = new CsvFile($this->dataDir . '/mssql/tableColumns.csv');
-        $expectedCsv2 = iterator_to_array($expectedCsv2);
+        $expectedCsv1 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/sales.csv'));
+        $expectedCsv2 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/tableColumns.csv'));
         array_shift($expectedCsv2);
-        $expectedCsv4 = new CsvFile($this->dataDir . '/mssql/special.csv');
-        $expectedCsv4 = iterator_to_array($expectedCsv4);
+        $expectedCsv4 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/special.csv'));
         array_shift($expectedCsv4);
 
         $config = $this->getConfig('mssql');
@@ -135,9 +127,9 @@ class ApplicationTest extends AbstractMSSQLTest
         // verify that the bcp command uses the proxy
         $this->assertStringContainsString('-S \'127.0.0.1,1234\'', $process->getOutput());
 
-        $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
-        $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
-        $outputCsvData4 = iterator_to_array(new CsvFile($outputCsvFile4));
+        $outputCsvData1 = iterator_to_array(new CsvReader($outputCsvFile1));
+        $outputCsvData2 = iterator_to_array(new CsvReader($outputCsvFile2));
+        $outputCsvData4 = iterator_to_array(new CsvReader($outputCsvFile4));
 
         $this->assertFileExists($outputCsvFile1);
         $this->assertEquals(ksort($expectedCsv1), ksort($outputCsvData1));
@@ -651,7 +643,9 @@ class ApplicationTest extends AbstractMSSQLTest
         $process = $this->createAppProcess();
         $process->mustRun();
 
-        $output = iterator_to_array(new CsvFile($this->dataDir . '/out/tables/in.c-main.auto-increment-timestamp.csv'));
+        $output = iterator_to_array(
+            new CsvReader($this->dataDir . '/out/tables/in.c-main.auto-increment-timestamp.csv')
+        );
 
         foreach ($output as $line) {
             // assert the timestamp column is valid UTF-8

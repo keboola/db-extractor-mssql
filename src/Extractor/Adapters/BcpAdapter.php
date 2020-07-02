@@ -197,7 +197,7 @@ class BcpAdapter
             ));
         }
 
-        $outputFile = new CsvFile($filename);
+        $outputFile = new CsvReader($filename);
         $numRows = 0;
         $lastFetchedRow = null;
         $colCount = $outputFile->getColumnsCount();

@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\Csv\CsvFile;
+use Keboola\Csv\CsvReader;
 use Keboola\DbExtractor\Exception\UserException;
-use Symfony\Component\Process\Process;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -535,7 +534,7 @@ class MSSQLTest extends AbstractMSSQLTest
         $manifest = json_decode((string) file_get_contents($weirdManifest), true);
         // assert the timestamp column has the correct date format
         $outputData = iterator_to_array(
-            new CsvFile($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
+            new CsvReader($this->dataDir . '/out/tables/' . $result['imported'][2]['outputTable'] . '.csv')
         );
         $this->assertEquals(1, (int) $outputData[0][2]);
         $this->assertEquals('1.10', $outputData[0][3]);
@@ -1573,8 +1572,8 @@ class MSSQLTest extends AbstractMSSQLTest
         // check that the manifest has the correct column ordering
         $this->assertEquals($config['parameters']['tables'][0]['columns'], $outputManifest['columns']);
         // check the data
-        $expectedData = iterator_to_array(new CsvFile($this->dataDir.'/mssql/columnsOrderCheck.csv'));
-        $outputData = iterator_to_array(new CsvFile($this->dataDir.'/out/tables/in.c-main.columnscheck.csv'));
+        $expectedData = iterator_to_array(new CsvReader($this->dataDir . '/mssql/columnsOrderCheck.csv'));
+        $outputData = iterator_to_array(new CsvReader($this->dataDir . '/out/tables/in.c-main.columnscheck.csv'));
         foreach ($outputData as $rowNum => $line) {
             // assert timestamp
             $this->assertEquals($line[0], $expectedData[$rowNum][0]);
@@ -1629,7 +1628,7 @@ class MSSQLTest extends AbstractMSSQLTest
 
         $result = $this->createApplication($config)->run();
 
-        $outputData = iterator_to_array(new CsvFile($this->dataDir . '/out/tables/in.c-main.null_test.csv'));
+        $outputData = iterator_to_array(new CsvReader($this->dataDir . '/out/tables/in.c-main.null_test.csv'));
 
         $this->assertStringNotContainsString(chr(0), $outputData[0][0]);
         $this->assertStringNotContainsString(chr(0), $outputData[0][1]);
