@@ -338,4 +338,13 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
         return new QueryFactory($pdo, $metadataProvider, $state);
     }
+
+    protected function createAppProcess(): Process
+    {
+        $process = Process::fromShellCommandline('php /code/src/run.php', null, [
+            'KBC_DATADIR' => $this->dataDir,
+        ]);
+        $process->setTimeout(300);
+        return $process;
+    }
 }

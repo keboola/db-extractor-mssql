@@ -28,8 +28,7 @@ class ApplicationTest extends AbstractMSSQLTest
         ];
 
         $this->replaceConfig($config);
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -66,8 +65,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config = $this->getConfig('mssql');
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -129,8 +127,7 @@ class ApplicationTest extends AbstractMSSQLTest
         ];
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -158,8 +155,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config = $this->getConfig(self::DRIVER);
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -177,8 +173,7 @@ class ApplicationTest extends AbstractMSSQLTest
         ];
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -197,8 +192,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
@@ -222,8 +216,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $output = $process->getOutput() . "\n" . $process->getErrorOutput();
@@ -249,8 +242,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
@@ -268,8 +260,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -289,8 +280,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
@@ -309,8 +299,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
@@ -329,8 +318,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
@@ -355,8 +343,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $output = $process->getOutput() . "\n" . $process->getErrorOutput();
@@ -379,8 +366,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $output = $process->getOutput() . "\n" . $process->getErrorOutput();
@@ -414,8 +400,7 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($dataFile);
         @unlink($manifestFile);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -449,8 +434,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringContainsString(
@@ -481,8 +465,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringContainsString(
@@ -509,10 +492,9 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $this->assertFileNotExists($this->dataDir . '/in/state.json');
+        $this->assertFileDoesNotExist($this->dataDir . '/in/state.json');
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertFileExists($this->dataDir . '/out/state.json');
@@ -536,10 +518,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline(
-            'php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir
-        );
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringNotContainsString(
@@ -568,8 +547,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['nolock'] = true;
 
         $this->replaceConfig($config);
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringNotContainsString(
@@ -596,8 +574,7 @@ class ApplicationTest extends AbstractMSSQLTest
         // write state file
         file_put_contents($this->dataDir . '/in/state.json', json_encode($state));
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringNotContainsString(
@@ -622,8 +599,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
     }
 
@@ -634,8 +610,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
     }
 
@@ -648,8 +623,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -674,8 +648,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $output = iterator_to_array(new CsvFile($this->dataDir . '/out/tables/in.c-main.auto-increment-timestamp.csv'));
