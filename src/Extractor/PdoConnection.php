@@ -6,15 +6,15 @@ namespace Keboola\DbExtractor\Extractor;
 
 use PDO;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 use Throwable;
-use Keboola\DbExtractorLogger\Logger;
 use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\DeadConnectionException;
 use Keboola\DbExtractor\Exception\UserException;
 
 class PdoConnection
 {
-    private Logger $logger;
+    private LoggerInterface $logger;
 
     private PDO $pdo;
 
@@ -22,7 +22,7 @@ class PdoConnection
 
     private ?int $serverVersion = null;
 
-    public function __construct(Logger $logger, array $dbParams)
+    public function __construct(LoggerInterface $logger, array $dbParams)
     {
         if (isset($dbParams['#password'])) {
             $dbParams['password'] = $dbParams['#password'];

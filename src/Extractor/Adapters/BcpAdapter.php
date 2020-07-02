@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor\Adapters;
 
-use Keboola\DbExtractor\Extractor\PdoConnection;
 use Throwable;
-use Keboola\Csv\CsvFile;
+use Psr\Log\LoggerInterface;
+use Keboola\Csv\CsvReader;
+use Keboola\DbExtractor\Configuration\MssqlExportConfig;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
-use Keboola\DbExtractor\Extractor\Extractor;
 use Keboola\DbExtractor\Extractor\MetadataProvider;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
-use Keboola\DbExtractorLogger\Logger;
+use Keboola\DbExtractor\Extractor\PdoConnection;
 use Symfony\Component\Process\Process;
 
 class BcpAdapter
 {
-    private Logger $logger;
+    private LoggerInterface $logger;
 
     private PdoConnection $pdo;
 
@@ -28,7 +29,7 @@ class BcpAdapter
     private array $state;
 
     public function __construct(
-        Logger $logger,
+        LoggerInterface $logger,
         PdoConnection $pdo,
         MetadataProvider $metadataProvider,
         array $dbParams,

@@ -4,26 +4,26 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor\Adapters;
 
-use Keboola\DbExtractor\Extractor\PdoConnection;
+use Throwable;
 use PDO;
 use PDOException;
-use Throwable;
+use Psr\Log\LoggerInterface;
 use Retry\RetryProxy;
-use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Extractor\Extractor;
-use Keboola\DbExtractorLogger\Logger;
+use Keboola\Csv\CsvWriter;
+use Keboola\DbExtractor\Extractor\PdoConnection;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\UserException;
 
 class PdoAdapter
 {
-    private Logger $logger;
+    private LoggerInterface $logger;
 
     private PdoConnection $pdo;
 
     private array $state;
 
-    public function __construct(Logger $logger, PdoConnection $pdo, array $state)
+    public function __construct(LoggerInterface $logger, PdoConnection $pdo, array $state)
     {
         $this->logger = $logger;
         $this->pdo = $pdo;
