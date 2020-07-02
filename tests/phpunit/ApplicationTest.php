@@ -402,8 +402,8 @@ class ApplicationTest extends AbstractMSSQLTest
         );
         $this->assertStringContainsString('BCP successfully exported 0 rows.', $process->getOutput());
 
-        $this->assertFileNotExists($dataFile);
-        $this->assertFileNotExists($manifestFile);
+        $this->assertFileDoesNotExist($dataFile);
+        $this->assertFileDoesNotExist($manifestFile);
     }
 
     public function testSimplifiedPdoFallbackQuery(): void

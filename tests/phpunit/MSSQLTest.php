@@ -74,8 +74,8 @@ class MSSQLTest extends AbstractMSSQLTest
         $this->assertArrayHasKey('status', $result);
         $this->assertEquals('success', $result['status']);
 
-        $this->assertFileNotExists($salesManifestFile);
-        $this->assertFileNotExists($salesDataFile);
+        $this->assertFileDoesNotExist($salesManifestFile);
+        $this->assertFileDoesNotExist($salesDataFile);
     }
 
     /**

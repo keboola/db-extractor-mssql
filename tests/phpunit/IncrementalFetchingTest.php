@@ -304,8 +304,8 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
 
         $dataFile = $this->dataDir . '/out/tables/in.c-main.incremental-fetching-no-rows.csv';
         $manifestFile = $dataFile . '.manifest';
-        $this->assertFileNotExists($dataFile);
-        $this->assertFileNotExists($manifestFile);
+        $this->assertFileDoesNotExist($dataFile);
+        $this->assertFileDoesNotExist($manifestFile);
     }
 
     protected function getIncrementalFetchingConfig(): array
