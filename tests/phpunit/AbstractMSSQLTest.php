@@ -321,17 +321,30 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return (string) file_get_contents('/root/.ssh/id_rsa.pub');
     }
 
-    protected function createQueryFactory(array $params, array $state, ?array $columnMetadata = null): QueryFactory
+    protected function createQueryFactory(array $params, array $state, ?array $columnsMetadata = null): QueryFactory
     {
         $logger = new Logger('mssql-extractor-test');
         $pdo = new PdoConnection($logger, $params['db']);
-        if ($columnMetadata === null) {
-            $metadataProvider = new MetadataProvider($pdo);
+        if ($columnsMetadata === null) {
+            $metadataProvider = new MssqlMetadataProvider($pdo);
         } else {
-            $metadataProviderMock = $this->createMock(MetadataProvider::class);
+            $tableBuilder = TableBuilder::create()
+                ->setName('mocked')
+                ->setType('mocked');
+
+            foreach ($columnsMetadata as $data) {
+                $tableBuilder
+                    ->addColumn()
+                    ->setName($data['name'])
+                    ->setType($data['type'])
+                    ->setLength($data['length'] ?? null);
+            }
+
+            $tableMetadata = $tableBuilder->build();
+            $metadataProviderMock = $this->createMock(MssqlMetadataProvider::class);
             $metadataProviderMock
-                ->method('getColumnsMetadata')
-                ->willReturn($columnMetadata);
+                ->method('getTable')
+                ->willReturn($tableMetadata);
             /** @var MetadataProvider $metadataProvider */
             $metadataProvider = $metadataProviderMock;
         }
