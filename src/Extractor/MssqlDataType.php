@@ -61,7 +61,7 @@ class MssqlDataType extends GenericStorage
         }
         throw new UserException(
             sprintf(
-                'Column [%s] specified for incremental fetching is not numeric or datetime',
+                'Column "%s" specified for incremental fetching is not numeric or datetime.',
                 $columnName
             )
         );

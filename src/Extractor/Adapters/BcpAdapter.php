@@ -237,7 +237,7 @@ class BcpAdapter
         );
 
         $this->logger->info(sprintf(
-            'Executing this BCP command: %s',
+            'Executing BCP command: %s',
             preg_replace('/\-P.*\-d/', '-P ***** -d', $cmd)
         ));
         return $cmd;

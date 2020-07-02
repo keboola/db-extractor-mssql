@@ -189,11 +189,11 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertEquals(1, $process->getExitCode());
         $this->assertStringContainsString(
-            'BCP export "in.c-main.special" failed (will attempt via PDO):',
+            'BCP export "special" failed (will attempt via PDO):',
             $process->getOutput()
         );
         $this->assertStringContainsString(
-            'PDO export "in.c-main.special" failed:',
+            'PDO export "special" failed:',
             $process->getErrorOutput()
         );
     }
@@ -217,10 +217,10 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals('', $process->getErrorOutput());
 
         $this->assertStringContainsString(
-            'BCP export "in.c-main.sales" failed (will attempt via PDO):',
+            'BCP export "sales" failed (will attempt via PDO):',
             $process->getOutput()
         );
-        $this->assertStringContainsString('Executing query "in.c-main.sales" via PDO:', $process->getOutput());
+        $this->assertStringContainsString('Executing query "sales" via PDO:', $process->getOutput());
     }
 
     public function testDisableFallback(): void
@@ -257,7 +257,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertEquals(0, $process->getExitCode());
         $this->assertStringContainsString('BCP export is disabled in the configuration.', $process->getOutput());
-        $this->assertStringContainsString('Executing query "in.c-main.sales" via PDO:', $process->getOutput());
+        $this->assertStringContainsString('Executing query "sales" via PDO:', $process->getOutput());
     }
 
     public function testDisableBcpAndFallbackIsInvalidForTables(): void
@@ -315,7 +315,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertEquals(1, $process->getExitCode());
         $this->assertStringContainsString(
-            'BCP export "in.c-main.special" failed:',
+            'BCP export "special" failed:',
             $process->getOutput()
         );
         $this->assertStringContainsString(
@@ -344,7 +344,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals('', $process->getErrorOutput());
 
         $this->assertStringContainsString('BCP successfully exported', $process->getOutput());
-        $this->assertStringNotContainsString('BCP export "in.c-main.sales" failed:', $process->getOutput());
+        $this->assertStringNotContainsString('BCP export "sales" failed:', $process->getOutput());
     }
 
     public function testDifferentQuoting(): void
@@ -397,7 +397,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->assertEquals(0, $process->getExitCode());
         $this->assertStringContainsString(
-            'Query "in.c-main.simple_empty" returned empty result. Nothing was imported to "in.c-main.simple_empty"',
+            'Query "simple_empty" returned empty result. Nothing was imported to "in.c-main.simple_empty"',
             $process->getErrorOutput()
         );
         $this->assertStringContainsString('BCP successfully exported 0 rows.', $process->getOutput());
@@ -430,7 +430,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $process->mustRun();
 
         $this->assertStringContainsString(
-            'Executing query "in.c-main.pdo_test" via PDO: "SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]"',
+            'Executing query "pdo test" via PDO: "SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]"',
             $process->getOutput()
         );
 

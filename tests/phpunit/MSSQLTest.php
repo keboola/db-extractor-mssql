@@ -1653,11 +1653,12 @@ class MSSQLTest extends AbstractMSSQLTest
             'SELECT usergender INTO #temptable ' .
             "FROM sales WHERE usergender LIKE 'undefined';  " .
             'SELECT * FRoM sales WHERE usergender IN (SELECT * FROM #temptable);';
+        $config['parameters']['tables'][0]['name'] = 'multipleselect_test';
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.multipleselect_test';
 
         $this->expectException(UserException::class);
         $this->expectExceptionMessage(
-            'PDO export "in.c-main.multipleselect_test" failed: SQLSTATE[IMSSP]: ' .
+            'PDO export "multipleselect_test" failed: SQLSTATE[IMSSP]: ' .
             'The active result for the query contains no fields.'
         );
         $this->createApplication($config)->run();

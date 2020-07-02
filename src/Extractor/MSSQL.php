@@ -88,7 +88,7 @@ class MSSQL extends BaseExtractor
             throw new InvalidArgumentException('MssqlExportConfig expected.');
         }
 
-        $logPrefix = $exportConfig->getOutputTable();
+        $logPrefix = $exportConfig->hasConfigName() ? $exportConfig->getConfigName() : $exportConfig->getOutputTable();
         $this->logger->info('Exporting to ' . $exportConfig->getOutputTable());
         $csvPath = $this->getOutputFilename($exportConfig->getOutputTable());
 
