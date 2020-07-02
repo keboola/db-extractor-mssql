@@ -247,9 +247,8 @@ class MSSQL extends Extractor
         // Output CSV file is generated without header when using BCP, so "columns" must be part of manifest files
         if ($bcpColumns) {
             $manifestFile = $this->getOutputFilename($table['outputTable']) . '.manifest';
-            $columnsArray = $bcpColumns;
             $manifest = json_decode((string) file_get_contents($manifestFile), true);
-            $manifest['columns'] = $columnsArray;
+            $manifest['columns'] = $bcpColumns;
             file_put_contents($manifestFile, json_encode($manifest));
         }
 
