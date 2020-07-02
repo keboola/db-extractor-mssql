@@ -58,7 +58,7 @@ class BcpAdapter
                 // so "columns" must be part of manifest files
                 $result['bcpColumns'] = $this->getAdvancedQueryColumns($query);
                 $this->stripNullBytesInEmptyFields($csvPath);
-            } else if (isset($incrementalFetching['column'])) {
+            } else if ($incrementalFetching && isset($incrementalFetching['column'])) {
                 if ($maxValue) {
                     $result['lastFetchedRow'] = $maxValue;
                 } else if ($incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_DATETIME) {
@@ -104,7 +104,7 @@ class BcpAdapter
     private function getLastFetchedDatetimeValue(
         array $lastExportedLine,
         array $table,
-        ?array $incrementalFetching,
+        array $incrementalFetching,
         array $columnMetadata
     ): string {
         $whereClause = '';
@@ -144,7 +144,7 @@ class BcpAdapter
     }
 
     private function getLastFetchedId(
-        ?array $incrementalFetching,
+        array $incrementalFetching,
         array $columnMetadata,
         array $lastExportedLine
     ): string {
