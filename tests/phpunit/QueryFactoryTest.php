@@ -196,13 +196,11 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'varchar',
                         'length' => '21474',
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'nvarchar',
                         'length' => '2147',
                     ],
@@ -220,13 +218,11 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '21474',
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'xml',
                         'length' => '2147',
                     ],
@@ -356,7 +352,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -366,7 +361,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -395,7 +389,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -423,7 +416,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -433,7 +425,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -443,7 +434,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'datetime',
-                        'sanitizedName' => 'datetime',
                         'type' => 'datetime',
                         'length' => null,
                         'nullable' => false,
@@ -474,7 +464,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => '_Weir%d I-D',
-                        'sanitizedName' => 'Weir_d_I_D',
                         'type' => 'int',
                         'length' => '10',
                         'nullable' => false,
@@ -485,7 +474,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -495,7 +483,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -528,7 +515,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -538,7 +524,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -548,7 +533,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'datetime',
-                        'sanitizedName' => 'datetime',
                         'type' => 'datetime',
                         'length' => null,
                         'nullable' => false,
@@ -579,7 +563,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => '_Weir%d I-D',
-                        'sanitizedName' => 'Weir_d_I_D',
                         'type' => 'int',
                         'length' => '10',
                         'nullable' => false,
@@ -590,7 +573,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -601,7 +583,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
 
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -629,13 +610,12 @@ class QueryFactoryTest extends AbstractMSSQLTest
                         'schema' => 'dbo',
                     ],
                     'nolock' => true,
-                    'incrementalFetchingLimit' => 0,
+                    'incrementalFetchingLimit' => null,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 [
                     [
                         'name' => '_Weir%d I-D',
-                        'sanitizedName' => 'Weir_d_I_D',
                         'type' => 'int',
                         'length' => '10',
                         'nullable' => false,
@@ -646,7 +626,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -656,7 +635,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -687,7 +665,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -697,7 +674,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'timestampCol',
-                        'sanitizedName' => 'timestampCol',
                         'type' => 'timestamp',
                         'length' => null,
                         'nullable' => true,
@@ -724,7 +700,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             0 =>
                 [
                     'name' => '_Weir%d I-D',
-                    'sanitizedName' => 'Weir_d_I_D',
                     'type' => 'int',
                     'length' => '10',
                     'nullable' => false,
@@ -736,7 +711,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             1 =>
                 [
                     'name' => 'Weir%d Na-me',
-                    'sanitizedName' => 'Weir_d_Na_me',
                     'type' => 'varchar',
                     'length' => '55',
                     'nullable' => false,
@@ -746,7 +720,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             2 =>
                 [
                     'name' => 'someInteger',
-                    'sanitizedName' => 'someInteger',
                     'type' => 'int',
                     'length' => '10',
                     'nullable' => true,
@@ -756,7 +729,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             3 =>
                 [
                     'name' => 'someDecimal',
-                    'sanitizedName' => 'someDecimal',
                     'type' => 'decimal',
                     'length' => '10,2',
                     'nullable' => true,
@@ -766,7 +738,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             4 =>
                 [
                     'name' => 'type',
-                    'sanitizedName' => 'type',
                     'type' => 'varchar',
                     'length' => '55',
                     'nullable' => true,
@@ -776,7 +747,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             5 =>
                 [
                     'name' => 'smalldatetime',
-                    'sanitizedName' => 'smalldatetime',
                     'type' => 'smalldatetime',
                     'length' => null,
                     'nullable' => false,
@@ -786,7 +756,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             6 =>
                 [
                     'name' => 'datetime',
-                    'sanitizedName' => 'datetime',
                     'type' => 'datetime',
                     'length' => null,
                     'nullable' => false,
@@ -796,7 +765,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             7 =>
                 [
                     'name' => 'timestamp',
-                    'sanitizedName' => 'timestamp',
                     'type' => 'timestamp',
                     'length' => '8',
                     'nullable' => false,
