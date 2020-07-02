@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\DbExtractor\Extractor\MSSQL;
-use Keboola\DbExtractorLogger\Logger;
+use Keboola\DbExtractor\Extractor\MssqlDataType;
+use Keboola\DbExtractor\Extractor\QueryFactory;
 
-class ExtractorTest extends AbstractMSSQLTest
+class QueryFactoryTest extends AbstractMSSQLTest
 {
     private array $config;
 
@@ -20,36 +20,28 @@ class ExtractorTest extends AbstractMSSQLTest
     /**
      * @dataProvider simpleTableColumnsDataProvider
      */
-    public function testGetSimplifiedPdoQuery(array $params, array $state, string $expected): void
-    {
-        $extractor = new MSSQL($this->config['parameters'], $state, new Logger('mssql-extractor-test'));
-
-        if (isset($params['incrementalFetchingColumn']) && $params['incrementalFetchingColumn'] !== '') {
-            $extractor->validateIncrementalFetching(
-                $params['table'],
-                $params['incrementalFetchingColumn'],
-                isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
-            );
-        }
-        $query = $extractor->getSimpleQuery($params['table'], $params['columns'], MSSQL::ESCAPING_TYPE_PDO);
+    public function testGetSimplifiedPdoQuery(
+        array $params,
+        ?array $columnMetadata,
+        array $state,
+        string $expected
+    ): void {
+        $params['db'] = $this->getConfigDbNode('mssql');
+        $queryFactory = $this->createQueryFactory($params, $state, $columnMetadata);
+        $incrementalFetching = $this->getIncrementalFetching($params, $columnMetadata);
+        $query = $queryFactory->create($params, $incrementalFetching, QueryFactory::ESCAPING_TYPE_PDO);
         $this->assertEquals($expected, $query);
     }
 
     /**
      * @dataProvider bcpTableColumnsDataProvider
      */
-    public function testGetBCPQuery(array $params, array $state, string $expected): void
+    public function testGetBCPQuery(array $params, ?array $columnMetadata, array $state, string $expected): void
     {
-        $extractor = new MSSQL($this->config['parameters'], $state, new Logger('mssql-extractor-test'));
-
-        if (isset($params['incrementalFetchingColumn']) && $params['incrementalFetchingColumn'] !== '') {
-            $extractor->validateIncrementalFetching(
-                $params['table'],
-                $params['incrementalFetchingColumn'],
-                isset($params['incrementalFetchingLimit']) ? $params['incrementalFetchingLimit'] : null
-            );
-        }
-        $query = $extractor->getSimpleQuery($params['table'], $params['columns'] ?? [], MSSQL::ESCAPING_TYPE_BCP);
+        $params['db'] = $this->getConfigDbNode('mssql');
+        $queryFactory = $this->createQueryFactory($params, $state, $columnMetadata);
+        $incrementalFetching = $this->getIncrementalFetching($params, $columnMetadata);
+        $query = $queryFactory->create($params, $incrementalFetching, QueryFactory::ESCAPING_TYPE_BCP);
         $this->assertEquals($expected, $query);
     }
 
@@ -58,13 +50,14 @@ class ExtractorTest extends AbstractMSSQLTest
      */
     public function testColumnCasting(array $column, array $expectedSql): void
     {
-        $extractor = new MSSQL($this->config['parameters'], [], new Logger('mssql-extractor-test'));
-        $this->assertEquals($expectedSql['bcp'], $extractor->columnToBcpSql($column));
-        $this->assertEquals($expectedSql['pdo'], $extractor->columnToPdoSql($column));
+        $queryFactory = $this->createQueryFactory($this->config['parameters'], []);
+        $this->assertEquals($expectedSql['bcp'], $queryFactory->columnToBcpSql($column));
+        $this->assertEquals($expectedSql['pdo'], $queryFactory->columnToPdoSql($column));
     }
 
     public function columnTypeProvider(): array
     {
+        // @codingStandardsIgnoreStart
         return [
             'timestamp column' => [
                 [
@@ -164,10 +157,12 @@ class ExtractorTest extends AbstractMSSQLTest
                 ],
             ],
         ];
+        // @codingStandardsIgnoreEnd
     }
 
     public function simpleTableColumnsDataProvider(): array
     {
+        // @codingStandardsIgnoreStart
         return [
             'simple table select with no column metadata' => [
                 [
@@ -175,19 +170,8 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'test',
                         'schema' => 'testSchema',
                     ],
-                    'columns' => [],
                 ],
                 [],
-                'SELECT * FROM [testSchema].[test]',
-            ],
-            'simple table select with all columns (columns as null)' => [
-                [
-                    'table' => [
-                        'tableName' => 'test',
-                        'schema' => 'testSchema',
-                    ],
-                    'columns' => null,
-                ],
                 [],
                 'SELECT * FROM [testSchema].[test]',
             ],
@@ -197,22 +181,20 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'test',
                         'schema' => 'testSchema',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'varchar',
-                                'length' => '21474',
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'nvarchar',
-                                'length' => '2147',
-                            ),
-                    ),
+                ],
+                [
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'varchar',
+                        'length' => '21474',
+                    ],
+                    [
+                        'name' => 'col2',
+                        'sanitizedName' => 'col2',
+                        'type' => 'nvarchar',
+                        'length' => '2147',
+                    ],
                 ],
                 [],
                 'SELECT [col1], [col2] FROM [testSchema].[test]',
@@ -223,22 +205,20 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'test',
                         'schema' => 'testSchema',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '21474',
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'xml',
-                                'length' => '2147',
-                            ),
-                    ),
+                ],
+                [
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '21474',
+                    ],
+                    [
+                        'name' => 'col2',
+                        'sanitizedName' => 'col2',
+                        'type' => 'xml',
+                        'length' => '2147',
+                    ],
                 ],
                 [],
                 'SELECT CAST([col1] as nvarchar(max)) AS [col1], CAST([col2] as nvarchar(max)) AS [col2] ' .
@@ -250,10 +230,10 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 10,
                     'incrementalFetchingColumn' => 'datetime',
                 ],
+                $this->getColumnMetadataForIncrementalFetchingTests(),
                 [],
                 'SELECT TOP 10 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], ' .
                 '[datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] ' .
@@ -265,10 +245,10 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 10,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
+                $this->getColumnMetadataForIncrementalFetchingTests(),
                 [
                     'lastFetchedRow' => 4,
                 ],
@@ -283,10 +263,10 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => null,
                     'incrementalFetchingColumn' => 'datetime',
                 ],
+                $this->getColumnMetadataForIncrementalFetchingTests(),
                 [],
                 'SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], ' .
                 '[datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] ' .
@@ -298,10 +278,10 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 0,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
+                $this->getColumnMetadataForIncrementalFetchingTests(),
                 [
                     'lastFetchedRow' => 4,
                 ],
@@ -315,10 +295,10 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
                     'incrementalFetchingLimit' => 1000,
                     'incrementalFetchingColumn' => 'datetime',
                 ],
+                $this->getColumnMetadataForIncrementalFetchingTests(),
                 [
                     'lastFetchedRow' => '2018-10-26 10:52:32',
                 ],
@@ -332,12 +312,12 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
-                        'nolock' => 'true',
                     ],
-                    'columns' => $this->getColumnMetadataForIncrementalFetchingTests(),
+                    'nolock' => true,
                     'incrementalFetchingLimit' => 1000,
                     'incrementalFetchingColumn' => 'datetime',
                 ],
+                $this->getColumnMetadataForIncrementalFetchingTests(),
                 [
                     'lastFetchedRow' => '2018-10-26 10:52:32',
                 ],
@@ -348,10 +328,12 @@ class ExtractorTest extends AbstractMSSQLTest
                 "WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
             ],
         ];
+        // @codingStandardsIgnoreEnd
     }
 
     public function bcpTableColumnsDataProvider(): array
     {
+        // @codingStandardsIgnoreStart
         return [
             'simple table select with all columns' => [
                 [
@@ -359,30 +341,28 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'test',
                         'schema' => 'testSchema',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 2,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                    ),
+                ],
+                [
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 1,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                    [
+                        'name' => 'col2',
+                        'sanitizedName' => 'col2',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 2,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
                 ],
                 [],
                 'SELECT ' .
@@ -400,19 +380,18 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'test',
                         'schema' => 'testSchema',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            )
-                    ),
+                ],
+                [
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 1,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
                 ],
                 [],
                 'SELECT ' .
@@ -427,32 +406,39 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 2,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                    ),
                     'incrementalFetchingLimit' => 10,
                     'incrementalFetchingColumn' => 'datetime',
+                ],
+                [
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 1,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                    [
+                        'name' => 'col2',
+                        'sanitizedName' => 'col2',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 2,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                    [
+                        'name' => 'datetime',
+                        'sanitizedName' => 'datetime',
+                        'type' => 'datetime',
+                        'length' => null,
+                        'nullable' => false,
+                        'ordinalPosition' => 3,
+                        'primaryKey' => false,
+                    ],
                 ],
                 [],
                 'SELECT TOP 10 ' .
@@ -461,7 +447,8 @@ class ExtractorTest extends AbstractMSSQLTest
                 '+ char(34) AS [col1], ' .
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
-                '+ char(34) AS [col2] ' .
+                '+ char(34) AS [col2], ' .
+                'CONVERT(DATETIME2(0),[datetime]) AS [datetime] ' .
                 'FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]',
             ],
             'test query with limit and idp column and previos state' => [
@@ -470,37 +457,46 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 2,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                    ),
                     'incrementalFetchingLimit' => 10,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 [
+                    [
+                        'name' => '_Weir%d I-D',
+                        'sanitizedName' => 'Weir_d_I_D',
+                        'type' => 'int',
+                        'length' => '10',
+                        'nullable' => false,
+                        'ordinalPosition' => 1,
+                        'primaryKey' => true,
+                        'primaryKeyName' => 'PK_AUTOINC',
+                        'autoIncrement' => true,
+                    ],
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 2,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                    [
+                        'name' => 'col2',
+                        'sanitizedName' => 'col2',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 3,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                ],
+                [
                     'lastFetchedRow' => 4,
                 ],
-                'SELECT TOP 10 ' .
+                'SELECT TOP 10 [_Weir%d I-D], ' .
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col1], ' .
@@ -515,32 +511,39 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 2,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                    ),
                     'incrementalFetchingLimit' => null,
                     'incrementalFetchingColumn' => 'datetime',
+                ],
+                [
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 1,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                    [
+                        'name' => 'col2',
+                        'sanitizedName' => 'col2',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 2,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                    [
+                        'name' => 'datetime',
+                        'sanitizedName' => 'datetime',
+                        'type' => 'datetime',
+                        'length' => null,
+                        'nullable' => false,
+                        'ordinalPosition' => 3,
+                        'primaryKey' => false,
+                    ],
                 ],
                 [],
                 'SELECT ' .
@@ -549,7 +552,8 @@ class ExtractorTest extends AbstractMSSQLTest
                 '+ char(34) AS [col1], ' .
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
-                '+ char(34) AS [col2] ' .
+                '+ char(34) AS [col2], ' .
+                'CONVERT(DATETIME2(0),[datetime]) AS [datetime] ' .
                 'FROM [dbo].[auto Increment Timestamp]',
             ],
             'test simplePDO query id column and previos state and no limit' => [
@@ -558,37 +562,47 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 2,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                    ),
                     'incrementalFetchingLimit' => 0,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 [
+                    [
+                        'name' => '_Weir%d I-D',
+                        'sanitizedName' => 'Weir_d_I_D',
+                        'type' => 'int',
+                        'length' => '10',
+                        'nullable' => false,
+                        'ordinalPosition' => 1,
+                        'primaryKey' => true,
+                        'primaryKeyName' => 'PK_AUTOINC',
+                        'autoIncrement' => true,
+                    ],
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 2,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+
+                    [
+                        'name' => 'col2',
+                        'sanitizedName' => 'col2',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 3,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                ],
+                [
                     'lastFetchedRow' => 4,
                 ],
-                'SELECT ' .
+                'SELECT [_Weir%d I-D], ' .
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col1], ' .
@@ -602,39 +616,48 @@ class ExtractorTest extends AbstractMSSQLTest
                     'table' => [
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
-                        'nolock' => 'true',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'col2',
-                                'sanitizedName' => 'col2',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 2,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                    ),
+                    'nolock' => true,
                     'incrementalFetchingLimit' => 0,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 [
+                    [
+                        'name' => '_Weir%d I-D',
+                        'sanitizedName' => 'Weir_d_I_D',
+                        'type' => 'int',
+                        'length' => '10',
+                        'nullable' => false,
+                        'ordinalPosition' => 1,
+                        'primaryKey' => true,
+                        'primaryKeyName' => 'PK_AUTOINC',
+                        'autoIncrement' => true,
+                    ],
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 2,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                    [
+                        'name' => 'col2',
+                        'sanitizedName' => 'col2',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 3,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                ],
+                [
                     'lastFetchedRow' => 4,
                 ],
-                'SELECT ' .
+                'SELECT [_Weir%d I-D], ' .
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col1], ' .
@@ -649,30 +672,28 @@ class ExtractorTest extends AbstractMSSQLTest
                         'tableName' => 'test',
                         'schema' => 'testSchema',
                     ],
-                    'columns' => array (
-                        0 =>
-                            array (
-                                'name' => 'col1',
-                                'sanitizedName' => 'col1',
-                                'type' => 'text',
-                                'length' => '2147483647',
-                                'nullable' => true,
-                                'ordinalPosition' => 1,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                        1 =>
-                            array (
-                                'name' => 'timestampCol',
-                                'sanitizedName' => 'timestampCol',
-                                'type' => 'timestamp',
-                                'length' => null,
-                                'nullable' => true,
-                                'ordinalPosition' => 2,
-                                'primaryKey' => false,
-                                'default' => null,
-                            ),
-                    ),
+                ],
+                [
+                    [
+                        'name' => 'col1',
+                        'sanitizedName' => 'col1',
+                        'type' => 'text',
+                        'length' => '2147483647',
+                        'nullable' => true,
+                        'ordinalPosition' => 1,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
+                    [
+                        'name' => 'timestampCol',
+                        'sanitizedName' => 'timestampCol',
+                        'type' => 'timestamp',
+                        'length' => null,
+                        'nullable' => true,
+                        'ordinalPosition' => 2,
+                        'primaryKey' => false,
+                        'default' => null,
+                    ],
                 ],
                 [],
                 'SELECT ' .
@@ -683,13 +704,14 @@ class ExtractorTest extends AbstractMSSQLTest
                 'FROM [testSchema].[test]',
             ],
         ];
+        // @codingStandardsIgnoreEnd
     }
 
     private function getColumnMetadataForIncrementalFetchingTests(): array
     {
-        return array (
+        return [
             0 =>
-                array (
+                [
                     'name' => '_Weir%d I-D',
                     'sanitizedName' => 'Weir_d_I_D',
                     'type' => 'int',
@@ -699,9 +721,9 @@ class ExtractorTest extends AbstractMSSQLTest
                     'primaryKey' => true,
                     'primaryKeyName' => 'PK_AUTOINC',
                     'autoIncrement' => true,
-                ),
+                ],
             1 =>
-                array (
+                [
                     'name' => 'Weir%d Na-me',
                     'sanitizedName' => 'Weir_d_Na_me',
                     'type' => 'varchar',
@@ -709,9 +731,9 @@ class ExtractorTest extends AbstractMSSQLTest
                     'nullable' => false,
                     'ordinalPosition' => 2,
                     'primaryKey' => false,
-                ),
+                ],
             2 =>
-                array (
+                [
                     'name' => 'someInteger',
                     'sanitizedName' => 'someInteger',
                     'type' => 'int',
@@ -719,9 +741,9 @@ class ExtractorTest extends AbstractMSSQLTest
                     'nullable' => true,
                     'ordinalPosition' => 3,
                     'primaryKey' => false,
-                ),
+                ],
             3 =>
-                array (
+                [
                     'name' => 'someDecimal',
                     'sanitizedName' => 'someDecimal',
                     'type' => 'decimal',
@@ -729,9 +751,9 @@ class ExtractorTest extends AbstractMSSQLTest
                     'nullable' => true,
                     'ordinalPosition' => 4,
                     'primaryKey' => false,
-                ),
+                ],
             4 =>
-                array (
+                [
                     'name' => 'type',
                     'sanitizedName' => 'type',
                     'type' => 'varchar',
@@ -739,9 +761,9 @@ class ExtractorTest extends AbstractMSSQLTest
                     'nullable' => true,
                     'ordinalPosition' => 5,
                     'primaryKey' => false,
-                ),
+                ],
             5 =>
-                array (
+                [
                     'name' => 'smalldatetime',
                     'sanitizedName' => 'smalldatetime',
                     'type' => 'smalldatetime',
@@ -749,9 +771,9 @@ class ExtractorTest extends AbstractMSSQLTest
                     'nullable' => false,
                     'ordinalPosition' => 6,
                     'primaryKey' => false,
-                ),
+                ],
             6 =>
-                array (
+                [
                     'name' => 'datetime',
                     'sanitizedName' => 'datetime',
                     'type' => 'datetime',
@@ -759,9 +781,9 @@ class ExtractorTest extends AbstractMSSQLTest
                     'nullable' => false,
                     'ordinalPosition' => 7,
                     'primaryKey' => false,
-                ),
+                ],
             7 =>
-                array (
+                [
                     'name' => 'timestamp',
                     'sanitizedName' => 'timestamp',
                     'type' => 'timestamp',
@@ -769,7 +791,29 @@ class ExtractorTest extends AbstractMSSQLTest
                     'nullable' => false,
                     'ordinalPosition' => 8,
                     'primaryKey' => false,
-                ),
-        );
+                ],
+        ];
+    }
+
+    private function getIncrementalFetching(array $params, ?array $columnMetadata): array
+    {
+        $incrementalFetching = [];
+        if (isset($params['incrementalFetchingColumn'])) {
+            $incFetchingCol = $params['incrementalFetchingColumn'];
+            $incrementalFetching['column'] = $incFetchingCol;
+            $columns = array_filter($columnMetadata ?? [], fn(array $data) => $data['name'] === $incFetchingCol);
+            if (empty($columns)) {
+                throw new \LogicException(
+                    sprintf('Column "%s" not found in test metadata.', $incFetchingCol)
+                );
+            }
+            $column = array_pop($columns);
+            $incrementalFetching['type'] =
+                MssqlDataType::getIncrementalFetchingType($incFetchingCol, $column['type']);
+        }
+        if ($params['incrementalFetchingLimit'] ?? null) {
+            $incrementalFetching['limit'] = $params['incrementalFetchingLimit'];
+        }
+        return $incrementalFetching;
     }
 }
