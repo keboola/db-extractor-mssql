@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\Csv\CsvFile;
+use Keboola\Csv\CsvReader;
 use Symfony\Component\Process\Process;
 
 class ApplicationTest extends AbstractMSSQLTest
@@ -28,8 +28,7 @@ class ApplicationTest extends AbstractMSSQLTest
         ];
 
         $this->replaceConfig($config);
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -53,29 +52,24 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($manifestFile2);
         @unlink($manifestFile4);
 
-        $expectedCsv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-        $expectedCsv1 = iterator_to_array($expectedCsv1);
-
-        $expectedCsv2 = new CsvFile($this->dataDir . '/mssql/tableColumns.csv');
-        $expectedCsv2 = iterator_to_array($expectedCsv2);
+        $expectedCsv1 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/sales.csv'));
+        $expectedCsv2 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/tableColumns.csv'));
         array_shift($expectedCsv2);
-        $expectedCsv4 = new CsvFile($this->dataDir . '/mssql/special.csv');
-        $expectedCsv4 = iterator_to_array($expectedCsv4);
+        $expectedCsv4 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/special.csv'));
         array_shift($expectedCsv4);
 
         $config = $this->getConfig('mssql');
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
         $this->assertEquals('', $process->getErrorOutput());
 
-        $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
-        $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
-        $outputCsvData4 = iterator_to_array(new CsvFile($outputCsvFile4));
+        $outputCsvData1 = iterator_to_array(new CsvReader($outputCsvFile1));
+        $outputCsvData2 = iterator_to_array(new CsvReader($outputCsvFile2));
+        $outputCsvData4 = iterator_to_array(new CsvReader($outputCsvFile4));
 
         $this->assertFileExists($outputCsvFile1);
         $this->assertEquals(ksort($expectedCsv1), ksort($outputCsvData1));
@@ -104,14 +98,10 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($manifestFile2);
         @unlink($manifestFile4);
 
-        $expectedCsv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-        $expectedCsv1 = iterator_to_array($expectedCsv1);
-
-        $expectedCsv2 = new CsvFile($this->dataDir . '/mssql/tableColumns.csv');
-        $expectedCsv2 = iterator_to_array($expectedCsv2);
+        $expectedCsv1 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/sales.csv'));
+        $expectedCsv2 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/tableColumns.csv'));
         array_shift($expectedCsv2);
-        $expectedCsv4 = new CsvFile($this->dataDir . '/mssql/special.csv');
-        $expectedCsv4 = iterator_to_array($expectedCsv4);
+        $expectedCsv4 = iterator_to_array(new CsvReader($this->dataDir . '/mssql/special.csv'));
         array_shift($expectedCsv4);
 
         $config = $this->getConfig('mssql');
@@ -129,8 +119,7 @@ class ApplicationTest extends AbstractMSSQLTest
         ];
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -138,9 +127,9 @@ class ApplicationTest extends AbstractMSSQLTest
         // verify that the bcp command uses the proxy
         $this->assertStringContainsString('-S \'127.0.0.1,1234\'', $process->getOutput());
 
-        $outputCsvData1 = iterator_to_array(new CsvFile($outputCsvFile1));
-        $outputCsvData2 = iterator_to_array(new CsvFile($outputCsvFile2));
-        $outputCsvData4 = iterator_to_array(new CsvFile($outputCsvFile4));
+        $outputCsvData1 = iterator_to_array(new CsvReader($outputCsvFile1));
+        $outputCsvData2 = iterator_to_array(new CsvReader($outputCsvFile2));
+        $outputCsvData4 = iterator_to_array(new CsvReader($outputCsvFile4));
 
         $this->assertFileExists($outputCsvFile1);
         $this->assertEquals(ksort($expectedCsv1), ksort($outputCsvData1));
@@ -158,8 +147,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config = $this->getConfig(self::DRIVER);
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -177,8 +165,7 @@ class ApplicationTest extends AbstractMSSQLTest
         ];
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -197,17 +184,16 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
         $this->assertStringContainsString(
-            'BCP export "in.c-main.special" failed (will attempt via PDO):',
+            'BCP export "special" failed (will attempt via PDO):',
             $process->getOutput()
         );
         $this->assertStringContainsString(
-            'PDO export "in.c-main.special" failed:',
+            'PDO export "special" failed:',
             $process->getErrorOutput()
         );
     }
@@ -222,8 +208,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $output = $process->getOutput() . "\n" . $process->getErrorOutput();
@@ -232,10 +217,10 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals('', $process->getErrorOutput());
 
         $this->assertStringContainsString(
-            'BCP export "in.c-main.sales" failed (will attempt via PDO):',
+            'BCP export "sales" failed (will attempt via PDO):',
             $process->getOutput()
         );
-        $this->assertStringContainsString('Executing query "in.c-main.sales" via PDO:', $process->getOutput());
+        $this->assertStringContainsString('Executing query "sales" via PDO:', $process->getOutput());
     }
 
     public function testDisableFallback(): void
@@ -249,8 +234,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
@@ -268,13 +252,12 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
         $this->assertStringContainsString('BCP export is disabled in the configuration.', $process->getOutput());
-        $this->assertStringContainsString('Executing query "in.c-main.sales" via PDO:', $process->getOutput());
+        $this->assertStringContainsString('Executing query "sales" via PDO:', $process->getOutput());
     }
 
     public function testDisableBcpAndFallbackIsInvalidForTables(): void
@@ -289,8 +272,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
@@ -303,14 +285,14 @@ class ApplicationTest extends AbstractMSSQLTest
     public function testDisableBcpAndFallbackIsInvalidForConfigRow(): void
     {
         $config = $this->getConfigRow('mssql');
+        unset($config['parameters']['table']);
         $config['parameters']['query'] = 'SELECT *  FROM "special";';
         $config['parameters']['disableBcp'] = true;
         $config['parameters']['disableFallback'] = true;
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
@@ -329,13 +311,12 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(1, $process->getExitCode());
         $this->assertStringContainsString(
-            'BCP export "in.c-main.special" failed:',
+            'BCP export "special" failed:',
             $process->getOutput()
         );
         $this->assertStringContainsString(
@@ -355,8 +336,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $output = $process->getOutput() . "\n" . $process->getErrorOutput();
@@ -365,7 +345,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $this->assertEquals('', $process->getErrorOutput());
 
         $this->assertStringContainsString('BCP successfully exported', $process->getOutput());
-        $this->assertStringNotContainsString('BCP export "in.c-main.sales" failed:', $process->getOutput());
+        $this->assertStringNotContainsString('BCP export "sales" failed:', $process->getOutput());
     }
 
     public function testDifferentQuoting(): void
@@ -379,8 +359,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $output = $process->getOutput() . "\n" . $process->getErrorOutput();
@@ -414,19 +393,18 @@ class ApplicationTest extends AbstractMSSQLTest
         @unlink($dataFile);
         @unlink($manifestFile);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
         $this->assertStringContainsString(
-            'Query "in.c-main.simple_empty" returned empty result. Nothing was imported to "in.c-main.simple_empty"',
+            'Query "simple_empty" returned empty result. Nothing was imported to "in.c-main.simple_empty"',
             $process->getErrorOutput()
         );
         $this->assertStringContainsString('BCP successfully exported 0 rows.', $process->getOutput());
 
-        $this->assertFileNotExists($dataFile);
-        $this->assertFileNotExists($manifestFile);
+        $this->assertFileDoesNotExist($dataFile);
+        $this->assertFileDoesNotExist($manifestFile);
     }
 
     public function testSimplifiedPdoFallbackQuery(): void
@@ -449,12 +427,11 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringContainsString(
-            'Executing query "in.c-main.pdo_test" via PDO: "SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]"',
+            'Executing query "pdo test" via PDO: "SELECT [ID], [PROB_COL] FROM [dbo].[PDO_TEST]"',
             $process->getOutput()
         );
 
@@ -481,8 +458,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringContainsString(
@@ -509,10 +485,9 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $this->assertFileNotExists($this->dataDir . '/in/state.json');
+        $this->assertFileDoesNotExist($this->dataDir . '/in/state.json');
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertFileExists($this->dataDir . '/out/state.json');
@@ -536,10 +511,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline(
-            'php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir
-        );
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringNotContainsString(
@@ -568,8 +540,7 @@ class ApplicationTest extends AbstractMSSQLTest
         $config['parameters']['nolock'] = true;
 
         $this->replaceConfig($config);
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringNotContainsString(
@@ -596,8 +567,7 @@ class ApplicationTest extends AbstractMSSQLTest
         // write state file
         file_put_contents($this->dataDir . '/in/state.json', json_encode($state));
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
         $this->assertStringNotContainsString(
@@ -622,8 +592,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
     }
 
@@ -634,8 +603,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
     }
 
@@ -648,8 +616,7 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->run();
 
         $this->assertEquals(0, $process->getExitCode());
@@ -674,11 +641,12 @@ class ApplicationTest extends AbstractMSSQLTest
 
         $this->replaceConfig($config);
 
-        $process = Process::fromShellCommandline('php ' . $this->rootPath . '/src/run.php --data=' . $this->dataDir);
-        $process->setTimeout(300);
+        $process = $this->createAppProcess();
         $process->mustRun();
 
-        $output = iterator_to_array(new CsvFile($this->dataDir . '/out/tables/in.c-main.auto-increment-timestamp.csv'));
+        $output = iterator_to_array(
+            new CsvReader($this->dataDir . '/out/tables/in.c-main.auto-increment-timestamp.csv')
+        );
 
         foreach ($output as $line) {
             // assert the timestamp column is valid UTF-8

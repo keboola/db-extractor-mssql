@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\CommonExceptions\UserExceptionInterface;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractorConfig\Exception\UserException as ConfigUserException;
 
@@ -244,7 +245,7 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         $config = $this->getIncrementalFetchingConfig();
         $config['parameters']['incrementalFetchingColumn'] = $column;
 
-        $this->expectException(UserException::class);
+        $this->expectException(UserExceptionInterface::class);
         $this->expectExceptionMessage($expectedExceptionMessage);
         ($this->createApplication($config))->run();
     }
@@ -254,11 +255,11 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         return [
             'column does not exist' => [
                 'fakeCol',
-                'Column [fakeCol] specified for incremental fetching was not found in the table',
+                'Column "fakeCol" specified for incremental fetching was not found.',
             ],
             'column exists but is not numeric nor datetime so should fail' => [
                 'Weir%d Na-me',
-                'Column [Weir%d Na-me] specified for incremental fetching is not numeric or datetime',
+                'Column "Weir%d Na-me" specified for incremental fetching is not numeric or datetime.',
             ],
         ];
     }
@@ -270,7 +271,9 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
         unset($config['parameters']['table']);
 
         $this->expectException(ConfigUserException::class);
-        $this->expectExceptionMessage('Incremental fetching is not supported for advanced queries.');
+        $this->expectExceptionMessage(
+            'The "incrementalFetchingColumn" is configured, but incremental fetching is not supported for custom query.'
+        );
         $app = $this->createApplication($config);
         $app->run();
     }
@@ -301,8 +304,8 @@ class IncrementalFetchingTest extends AbstractMSSQLTest
 
         $dataFile = $this->dataDir . '/out/tables/in.c-main.incremental-fetching-no-rows.csv';
         $manifestFile = $dataFile . '.manifest';
-        $this->assertFileNotExists($dataFile);
-        $this->assertFileNotExists($manifestFile);
+        $this->assertFileDoesNotExist($dataFile);
+        $this->assertFileDoesNotExist($manifestFile);
     }
 
     protected function getIncrementalFetchingConfig(): array

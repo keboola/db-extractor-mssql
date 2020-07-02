@@ -4,16 +4,22 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use PDOException;
+use InvalidArgumentException;
 use Keboola\Csv\Exception as CsvException;
+use Keboola\DbExtractor\TableResultFormat\Exception\ColumnNotFoundException;
+use Keboola\DbExtractor\Configuration\MssqlExportConfig;
+use Keboola\DbExtractor\Metadata\MssqlManifestSerializer;
+use Keboola\DbExtractor\TableResultFormat\Metadata\Manifest\ManifestSerializer;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
 use Keboola\DbExtractor\Extractor\Adapters\BcpAdapter;
 use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
-use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
 
-class MSSQL extends Extractor
+class MSSQL extends BaseExtractor
 {
     private MetadataProvider $metadataProvider;
 
@@ -25,35 +31,23 @@ class MSSQL extends Extractor
 
     private QueryFactory $queryFactory;
 
-    public static function getColumnMetadata(array $column): array
+    private ?string $incrementalFetchingType = null;
+
+    public function getMetadataProvider(): MetadataProvider
     {
-        $datatype = new MssqlDataType(
-            $column['type'],
-            array_intersect_key($column, array_flip(MssqlDataType::DATATYPE_KEYS))
-        );
-        $columnMetadata = $datatype->toMetadata();
-        $nonDatatypeKeys = array_diff_key($column, array_flip(MssqlDataType::DATATYPE_KEYS));
-        foreach ($nonDatatypeKeys as $key => $value) {
-            if ($key === 'name') {
-                $columnMetadata[] = [
-                    'key' => 'KBC.sourceName',
-                    'value' => $value,
-                ];
-            } else {
-                $columnMetadata[] = [
-                    'key' => 'KBC.' . $key,
-                    'value' => $value,
-                ];
-            }
-        }
-        return $columnMetadata;
+        return $this->metadataProvider;
+    }
+
+    public function getManifestMetadataSerializer(): ManifestSerializer
+    {
+        return new MssqlManifestSerializer();
     }
 
     public function createConnection(array $dbParams): void
     {
         $this->pdo = new PdoConnection($this->logger, $dbParams);
         $this->pdoAdapter = new PdoAdapter($this->logger, $this->pdo, $this->state);
-        $this->metadataProvider = new MetadataProvider($this->pdo);
+        $this->metadataProvider = new MssqlMetadataProvider($this->pdo);
         $this->bcpAdapter = new BcpAdapter(
             $this->logger,
             $this->pdo,
@@ -73,57 +67,69 @@ class MSSQL extends Extractor
         $this->pdo->testConnection();
     }
 
-    public function getMaxOfIncrementalFetchingColumn(array $table): ?string
+    public function getMaxOfIncrementalFetchingColumn(ExportConfig $exportConfig): ?string
     {
-        $maxTries = isset($table['retries']) ? (int) $table['retries'] : Extractor::DEFAULT_MAX_TRIES;
         $result = $this->pdo->runRetryableQuery(sprintf(
-            $this->incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_BINARY ?
+            $this->incrementalFetchingType === MssqlDataType::INCREMENT_TYPE_BINARY ?
                 'SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s' :
                 'SELECT MAX(%s) %s FROM %s.%s',
-            $this->pdo->quoteIdentifier($this->incrementalFetching['column']),
-            $this->pdo->quoteIdentifier($this->incrementalFetching['column']),
-            $this->pdo->quoteIdentifier($table['schema']),
-            $this->pdo->quoteIdentifier($table['tableName'])
-        ), $maxTries);
+            $this->pdo->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
+            $this->pdo->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
+            $this->pdo->quoteIdentifier($exportConfig->getTable()->getSchema()),
+            $this->pdo->quoteIdentifier($exportConfig->getTable()->getName())
+        ), $exportConfig->getMaxRetries());
 
-        return count($result) > 0 ? $result[0][$this->incrementalFetching['column']] : null;
+        return count($result) > 0 ? $result[0][$exportConfig->getIncrementalFetchingColumn()] : null;
     }
 
-    public function export(array $table): array
+    public function export(ExportConfig $exportConfig): array
     {
-        $outputTable = $table['outputTable'];
-        $logPrefix = $outputTable;
-        $this->logger->info('Exporting to ' . $outputTable);
-        $isAdvancedQuery = array_key_exists('query', $table);
-        $csvPath = $this->getOutputFilename($outputTable);
+        if (!$exportConfig instanceof MssqlExportConfig) {
+            throw new InvalidArgumentException('MssqlExportConfig expected.');
+        }
+
+        $logPrefix = $exportConfig->hasConfigName() ? $exportConfig->getConfigName() : $exportConfig->getOutputTable();
+        $this->logger->info('Exporting to ' . $exportConfig->getOutputTable());
+        $csvPath = $this->getOutputFilename($exportConfig->getOutputTable());
 
         // Fetch max value for incremental fetching without limit before execution
-        $maxValue = $this->canFetchMaxIncrementalValueSeparately($isAdvancedQuery) ?
-            $this->getMaxOfIncrementalFetchingColumn($table['table']) : null;
+        if ($exportConfig->isIncrementalFetching()) {
+            $this->validateIncrementalFetching($exportConfig);
+            $maxValue = $this->canFetchMaxIncrementalValueSeparately($exportConfig) ?
+                $this->getMaxOfIncrementalFetchingColumn($exportConfig) : null;
+        } else {
+            $maxValue = null;
+        }
 
         // Create output dir, output CSV file is created in adapters
         $this->createOutputDir();
 
         // BCP adapter
         $result = null;
-        if ($table['disableBcp']) {
+        if ($exportConfig->isBcpDisabled()) {
             $this->logger->info('BCP export is disabled in the configuration.');
-        } elseif ($isAdvancedQuery && $this->pdo->getServerVersion() < 11) {
+        } elseif ($exportConfig->hasQuery() && $this->pdo->getServerVersion() < 11) {
             $this->logger->warning('BCP is not supported for advanced queries in sql server 2008 or less.');
         } else {
             $query = $this->queryFactory->create(
-                $table,
-                $this->incrementalFetching,
-                QueryFactory::ESCAPING_TYPE_BCP
+                $exportConfig,
+                QueryFactory::ESCAPING_TYPE_BCP,
+                $this->incrementalFetchingType
             );
             $this->logger->info(sprintf('Executing query "%s" via BCP: "%s"', $logPrefix, $query));
 
             try {
-                $result = $this->bcpAdapter->export($table, $maxValue, $query, $this->incrementalFetching, $csvPath);
+                $result = $this->bcpAdapter->export(
+                    $exportConfig,
+                    $maxValue,
+                    $query,
+                    $csvPath,
+                    $this->incrementalFetchingType,
+                );
             } catch (BcpAdapterException $e) {
-                @unlink($this->getOutputFilename($outputTable));
+                @unlink($this->getOutputFilename($exportConfig->getOutputTable()));
                 $msg = sprintf('BCP export "%s" failed', $logPrefix);
-                $msg .= $table['disableFallback'] ? ': ' : ' (will attempt via PDO): ';
+                $msg .= $exportConfig->isFallbackDisabled() ? ': ' : ' (will attempt via PDO): ';
                 $msg .= $e->getMessage();
                 $this->logger->info($msg);
             }
@@ -131,19 +137,19 @@ class MSSQL extends Extractor
 
         // PDO adapter
         if ($result === null) {
-            if ($table['disableFallback']) {
+            if ($exportConfig->isFallbackDisabled()) {
                 throw new UserException('BCP export failed and PDO fallback is disabled.');
             }
 
             $query = $this->queryFactory->create(
-                $table,
-                $this->incrementalFetching,
-                QueryFactory::ESCAPING_TYPE_PDO
+                $exportConfig,
+                QueryFactory::ESCAPING_TYPE_PDO,
+                $this->incrementalFetchingType
             );
             $this->logger->info(sprintf('Executing query "%s" via PDO: "%s"', $logPrefix, $query));
 
             try {
-                $result = $this->pdoAdapter->export($table, $query, $this->incrementalFetching, $csvPath);
+                $result = $this->pdoAdapter->export($exportConfig, $query, $csvPath);
             } catch (CsvException $e) {
                 throw new ApplicationException('Write to CSV failed: ' . $e->getMessage(), 0, $e);
             } catch (PDOException $e) {
@@ -160,26 +166,26 @@ class MSSQL extends Extractor
             if ($maxValue) {
                 $result['lastFetchedRow'] = $maxValue;
             }
-        } elseif (isset($this->incrementalFetching['column']) && isset($this->state['lastFetchedRow'])) {
+        } elseif ($exportConfig->isIncrementalFetching()&& isset($this->state['lastFetchedRow'])) {
             // No rows found.  If incremental fetching is turned on, we need to preserve the last state
             $result['lastFetchedRow'] = $this->state['lastFetchedRow'];
         }
 
         // Manifest
         if ($result['rows'] > 0) {
-            $this->createManifest($table, $result['bcpColumns'] ?? null);
+            $this->createManifest($exportConfig, $result['bcpColumns'] ?? null);
         } else {
-            @unlink($this->getOutputFilename($outputTable));
+            @unlink($this->getOutputFilename($exportConfig->getOutputTable()));
             $this->logger->warning(sprintf(
                 'Query "%s" returned empty result. Nothing was imported to "%s"',
                 $logPrefix,
-                $outputTable,
+                $exportConfig->getOutputTable(),
             ));
         }
 
         // Output state
         $output = [
-            'outputTable' => $outputTable,
+            'outputTable' => $exportConfig->getOutputTable(),
             'rows' => $result['rows'],
         ];
 
@@ -190,69 +196,40 @@ class MSSQL extends Extractor
         return $output;
     }
 
-    public function getTables(?array $tables = null): array
-    {
-        $proxy = new DbRetryProxy($this->logger);
-        return $proxy->call(function () use ($tables): array {
-            try {
-                return $this->metadataProvider->getTables($tables);
-            } catch (\Throwable $exception) {
-                $this->pdo->tryReconnect();
-                throw $exception;
-            }
-        });
-    }
-
-    public function simpleQuery(array $table, array $columns = []): string
+    public function simpleQuery(ExportConfig $exportConfig): string
     {
         throw new ApplicationException('This method is deprecated and should never get called');
     }
 
-    public function validateIncrementalFetching(array $table, string $columnName, ?int $limit = null): void
+    public function validateIncrementalFetching(ExportConfig $exportConfig): void
     {
-        $columns = $this->pdo->runRetryableQuery(sprintf(
-            "SELECT [is_identity], TYPE_NAME([system_type_id]) AS [data_type]
-            FROM [sys].[columns]
-            WHERE [object_id] = OBJECT_ID('[%s].[%s]') AND [sys].[columns].[name] = '%s'",
-            $table['schema'],
-            $table['tableName'],
-            $columnName
-        ), self::DEFAULT_MAX_TRIES);
-
-        if (count($columns) === 0) {
-            throw new UserException(
-                sprintf(
-                    'Column [%s] specified for incremental fetching was not found in the table',
-                    $columnName
-                )
-            );
+        try {
+            $column = $this->metadataProvider
+               ->getTable($exportConfig->getTable())
+               ->getColumns()
+               ->getByName($exportConfig->getIncrementalFetchingColumn());
+        } catch (ColumnNotFoundException $e) {
+            throw new ColumnNotFoundException(sprintf(
+                'Column "%s" specified for incremental fetching was not found.',
+                $exportConfig->getIncrementalFetchingColumn(),
+            ), 0, $e);
         }
 
-        $this->incrementalFetching['column'] = $columnName;
-        $this->incrementalFetching['type'] =
-            MssqlDataType::getIncrementalFetchingType($columnName, $columns[0]['data_type']);
-
-        if ($limit) {
-            $this->incrementalFetching['limit'] = $limit;
-        }
+        $this->incrementalFetchingType =
+            MssqlDataType::getIncrementalFetchingType($column->getName(), $column->getType());
     }
 
-    /**
-     * @inheritDoc
-     */
-    protected function createManifest(array $table, ?array $bcpColumns = null)
+    protected function createManifest(ExportConfig $exportConfig, ?array $bcpColumns = null): void
     {
-        parent::createManifest($table);
+        parent::createManifest($exportConfig);
 
         // Output CSV file is generated without header when using BCP, so "columns" must be part of manifest files
         if ($bcpColumns) {
-            $manifestFile = $this->getOutputFilename($table['outputTable']) . '.manifest';
+            $manifestFile = $this->getOutputFilename($exportConfig->getOutputTable()) . '.manifest';
             $manifest = json_decode((string) file_get_contents($manifestFile), true);
             $manifest['columns'] = $bcpColumns;
             file_put_contents($manifestFile, json_encode($manifest));
         }
-
-        return true;
     }
 
     private function createOutputDir(): void

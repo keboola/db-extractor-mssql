@@ -59,4 +59,4 @@ COPY . /code/
 # Run normal composer - all deps are cached already
 RUN composer install $COMPOSER_FLAGS
 
-CMD php ./src/run.php --data=/data
+CMD php ./src/run.php

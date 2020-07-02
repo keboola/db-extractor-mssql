@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\QueryFactory;
+use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 
 class QueryFactoryTest extends AbstractMSSQLTest
 {
@@ -22,35 +25,54 @@ class QueryFactoryTest extends AbstractMSSQLTest
      */
     public function testGetSimplifiedPdoQuery(
         array $params,
-        ?array $columnMetadata,
+        ?array $columnsMetadata,
         array $state,
         string $expected
     ): void {
         $params['db'] = $this->getConfigDbNode('mssql');
-        $queryFactory = $this->createQueryFactory($params, $state, $columnMetadata);
-        $incrementalFetching = $this->getIncrementalFetching($params, $columnMetadata);
-        $query = $queryFactory->create($params, $incrementalFetching, QueryFactory::ESCAPING_TYPE_PDO);
+        $params['query'] = $params['query'] ?? null;
+        $params['columns'] = [];
+        $params['outputTable'] = 'output';
+        $params['primaryKey'] = [];
+        $params['retries'] = 3;
+
+        $queryFactory = $this->createQueryFactory($params, $state, $columnsMetadata);
+        $incrementalFetchingType = $this->getIncrementalFetchingType($params, $columnsMetadata);
+        $exportConfig = MssqlExportConfig::fromArray($params);
+        $query = $queryFactory->create($exportConfig, QueryFactory::ESCAPING_TYPE_PDO, $incrementalFetchingType);
         $this->assertEquals($expected, $query);
     }
 
     /**
      * @dataProvider bcpTableColumnsDataProvider
      */
-    public function testGetBCPQuery(array $params, ?array $columnMetadata, array $state, string $expected): void
+    public function testGetBCPQuery(array $params, ?array $columnsMetadata, array $state, string $expected): void
     {
         $params['db'] = $this->getConfigDbNode('mssql');
-        $queryFactory = $this->createQueryFactory($params, $state, $columnMetadata);
-        $incrementalFetching = $this->getIncrementalFetching($params, $columnMetadata);
-        $query = $queryFactory->create($params, $incrementalFetching, QueryFactory::ESCAPING_TYPE_BCP);
+        $params['query'] = $params['query'] ?? null;
+        $params['columns'] = [];
+        $params['outputTable'] = 'output';
+        $params['primaryKey'] = [];
+        $params['retries'] = 3;
+
+        $queryFactory = $this->createQueryFactory($params, $state, $columnsMetadata);
+        $incrementalFetchingType = $this->getIncrementalFetchingType($params, $columnsMetadata);
+
+        $exportConfig = MssqlExportConfig::fromArray($params);
+        $query = $queryFactory->create($exportConfig, QueryFactory::ESCAPING_TYPE_BCP, $incrementalFetchingType);
         $this->assertEquals($expected, $query);
     }
 
     /**
      * @dataProvider columnTypeProvider
      */
-    public function testColumnCasting(array $column, array $expectedSql): void
+    public function testColumnCasting(array $columnData, array $expectedSql): void
     {
         $queryFactory = $this->createQueryFactory($this->config['parameters'], []);
+        $column = ColumnBuilder::create()
+            ->setName($columnData['name'])
+            ->setType($columnData['type'])
+            ->build();
         $this->assertEquals($expectedSql['bcp'], $queryFactory->columnToBcpSql($column));
         $this->assertEquals($expectedSql['pdo'], $queryFactory->columnToPdoSql($column));
     }
@@ -164,17 +186,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
     {
         // @codingStandardsIgnoreStart
         return [
-            'simple table select with no column metadata' => [
-                [
-                    'table' => [
-                        'tableName' => 'test',
-                        'schema' => 'testSchema',
-                    ],
-                ],
-                [],
-                [],
-                'SELECT * FROM [testSchema].[test]',
-            ],
             'simple table with 2 columns selected' => [
                 [
                     'table' => [
@@ -185,13 +196,11 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'varchar',
                         'length' => '21474',
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'nvarchar',
                         'length' => '2147',
                     ],
@@ -209,13 +218,11 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '21474',
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'xml',
                         'length' => '2147',
                     ],
@@ -278,14 +285,14 @@ class QueryFactoryTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'incrementalFetchingLimit' => 0,
+                    'incrementalFetchingLimit' => null,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 $this->getColumnMetadataForIncrementalFetchingTests(),
                 [
                     'lastFetchedRow' => 4,
                 ],
-                'SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], '.
+                'SELECT [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], [smalldatetime], ' .
                 '[datetime], CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] ' .
                 'FROM [dbo].[auto Increment Timestamp] WHERE [_Weir%d I-D] >= 4',
             ],
@@ -345,7 +352,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -355,7 +361,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -369,7 +374,7 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col1], ' .
-                'char(34) + '.
+                'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col2] ' .
                 'FROM [testSchema].[test]',
@@ -384,7 +389,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -395,7 +399,7 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 ],
                 [],
                 'SELECT ' .
-                'char(34) + '.
+                'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col1] ' .
                 'FROM [testSchema].[test]',
@@ -412,7 +416,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -422,7 +425,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -432,7 +434,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'datetime',
-                        'sanitizedName' => 'datetime',
                         'type' => 'datetime',
                         'length' => null,
                         'nullable' => false,
@@ -463,7 +464,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => '_Weir%d I-D',
-                        'sanitizedName' => 'Weir_d_I_D',
                         'type' => 'int',
                         'length' => '10',
                         'nullable' => false,
@@ -474,7 +474,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -484,7 +483,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -517,7 +515,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -527,7 +524,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -537,7 +533,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'datetime',
-                        'sanitizedName' => 'datetime',
                         'type' => 'datetime',
                         'length' => null,
                         'nullable' => false,
@@ -562,13 +557,12 @@ class QueryFactoryTest extends AbstractMSSQLTest
                         'tableName' => 'auto Increment Timestamp',
                         'schema' => 'dbo',
                     ],
-                    'incrementalFetchingLimit' => 0,
+                    'incrementalFetchingLimit' => null,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 [
                     [
                         'name' => '_Weir%d I-D',
-                        'sanitizedName' => 'Weir_d_I_D',
                         'type' => 'int',
                         'length' => '10',
                         'nullable' => false,
@@ -579,7 +573,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -590,7 +583,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
 
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -618,13 +610,12 @@ class QueryFactoryTest extends AbstractMSSQLTest
                         'schema' => 'dbo',
                     ],
                     'nolock' => true,
-                    'incrementalFetchingLimit' => 0,
+                    'incrementalFetchingLimit' => null,
                     'incrementalFetchingColumn' => '_Weir%d I-D',
                 ],
                 [
                     [
                         'name' => '_Weir%d I-D',
-                        'sanitizedName' => 'Weir_d_I_D',
                         'type' => 'int',
                         'length' => '10',
                         'nullable' => false,
@@ -635,7 +626,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -645,7 +635,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'col2',
-                        'sanitizedName' => 'col2',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -661,8 +650,8 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col1], ' .
-                'char(34) + '.
-                "COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') ".
+                'char(34) + ' .
+                "COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col2] ' .
                 'FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) WHERE [_Weir%d I-D] >= 4',
             ],
@@ -676,7 +665,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 [
                     [
                         'name' => 'col1',
-                        'sanitizedName' => 'col1',
                         'type' => 'text',
                         'length' => '2147483647',
                         'nullable' => true,
@@ -686,7 +674,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
                     ],
                     [
                         'name' => 'timestampCol',
-                        'sanitizedName' => 'timestampCol',
                         'type' => 'timestamp',
                         'length' => null,
                         'nullable' => true,
@@ -699,7 +686,7 @@ class QueryFactoryTest extends AbstractMSSQLTest
                 'SELECT ' .
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col1] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
-                '+ char(34) AS [col1], '.
+                '+ char(34) AS [col1], ' .
                 'CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), [timestampCol]), 1) AS [timestampCol] ' .
                 'FROM [testSchema].[test]',
             ],
@@ -713,7 +700,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             0 =>
                 [
                     'name' => '_Weir%d I-D',
-                    'sanitizedName' => 'Weir_d_I_D',
                     'type' => 'int',
                     'length' => '10',
                     'nullable' => false,
@@ -725,7 +711,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             1 =>
                 [
                     'name' => 'Weir%d Na-me',
-                    'sanitizedName' => 'Weir_d_Na_me',
                     'type' => 'varchar',
                     'length' => '55',
                     'nullable' => false,
@@ -735,7 +720,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             2 =>
                 [
                     'name' => 'someInteger',
-                    'sanitizedName' => 'someInteger',
                     'type' => 'int',
                     'length' => '10',
                     'nullable' => true,
@@ -745,7 +729,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             3 =>
                 [
                     'name' => 'someDecimal',
-                    'sanitizedName' => 'someDecimal',
                     'type' => 'decimal',
                     'length' => '10,2',
                     'nullable' => true,
@@ -755,7 +738,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             4 =>
                 [
                     'name' => 'type',
-                    'sanitizedName' => 'type',
                     'type' => 'varchar',
                     'length' => '55',
                     'nullable' => true,
@@ -765,7 +747,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             5 =>
                 [
                     'name' => 'smalldatetime',
-                    'sanitizedName' => 'smalldatetime',
                     'type' => 'smalldatetime',
                     'length' => null,
                     'nullable' => false,
@@ -775,7 +756,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             6 =>
                 [
                     'name' => 'datetime',
-                    'sanitizedName' => 'datetime',
                     'type' => 'datetime',
                     'length' => null,
                     'nullable' => false,
@@ -785,7 +765,6 @@ class QueryFactoryTest extends AbstractMSSQLTest
             7 =>
                 [
                     'name' => 'timestamp',
-                    'sanitizedName' => 'timestamp',
                     'type' => 'timestamp',
                     'length' => '8',
                     'nullable' => false,
@@ -795,25 +774,20 @@ class QueryFactoryTest extends AbstractMSSQLTest
         ];
     }
 
-    private function getIncrementalFetching(array $params, ?array $columnMetadata): array
+    private function getIncrementalFetchingType(array $params, ?array $columnsMetadata): ?string
     {
-        $incrementalFetching = [];
         if (isset($params['incrementalFetchingColumn'])) {
             $incFetchingCol = $params['incrementalFetchingColumn'];
-            $incrementalFetching['column'] = $incFetchingCol;
-            $columns = array_filter($columnMetadata ?? [], fn(array $data) => $data['name'] === $incFetchingCol);
+            $columns = array_filter($columnsMetadata ?? [], fn(array $data) => $data['name'] === $incFetchingCol);
             if (empty($columns)) {
                 throw new \LogicException(
                     sprintf('Column "%s" not found in test metadata.', $incFetchingCol)
                 );
             }
             $column = array_pop($columns);
-            $incrementalFetching['type'] =
-                MssqlDataType::getIncrementalFetchingType($incFetchingCol, $column['type']);
+            return MssqlDataType::getIncrementalFetchingType($incFetchingCol, $column['type']);
         }
-        if ($params['incrementalFetchingLimit'] ?? null) {
-            $incrementalFetching['limit'] = $params['incrementalFetchingLimit'];
-        }
-        return $incrementalFetching;
+
+        return null;
     }
 }

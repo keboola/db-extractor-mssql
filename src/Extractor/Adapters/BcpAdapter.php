@@ -4,20 +4,21 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor\Adapters;
 
-use Keboola\DbExtractor\Extractor\PdoConnection;
 use Throwable;
-use Keboola\Csv\CsvFile;
+use Psr\Log\LoggerInterface;
+use Keboola\Csv\CsvReader;
+use Keboola\DbExtractor\Configuration\MssqlExportConfig;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
-use Keboola\DbExtractor\Extractor\Extractor;
 use Keboola\DbExtractor\Extractor\MetadataProvider;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
-use Keboola\DbExtractorLogger\Logger;
+use Keboola\DbExtractor\Extractor\PdoConnection;
 use Symfony\Component\Process\Process;
 
 class BcpAdapter
 {
-    private Logger $logger;
+    private LoggerInterface $logger;
 
     private PdoConnection $pdo;
 
@@ -28,7 +29,7 @@ class BcpAdapter
     private array $state;
 
     public function __construct(
-        Logger $logger,
+        LoggerInterface $logger,
         PdoConnection $pdo,
         MetadataProvider $metadataProvider,
         array $dbParams,
@@ -42,38 +43,28 @@ class BcpAdapter
     }
 
     public function export(
-        array $table,
+        MssqlExportConfig $exportConfig,
         ?string $maxValue,
         string $query,
-        ?array $incrementalFetching,
-        string $csvPath
+        string $csvPath,
+        ?string $incrementalFetchingType
     ): array {
-        $isAdvancedQuery = array_key_exists('query', $table);
         touch($csvPath);
         $result = $this->runBcpCommand($query, $csvPath);
 
         if ($result['rows'] > 0) {
-            if ($isAdvancedQuery) {
+            if ($exportConfig->hasQuery()) {
                 // Output CSV file is generated without header when using BCP,
                 // so "columns" must be part of manifest files
-                $result['bcpColumns'] = $this->getAdvancedQueryColumns($query);
+                $result['bcpColumns'] = $this->getAdvancedQueryColumns($query, $exportConfig);
                 $this->stripNullBytesInEmptyFields($csvPath);
-            } else if ($incrementalFetching && isset($incrementalFetching['column'])) {
+            } else if ($exportConfig->isIncrementalFetching()) {
                 if ($maxValue) {
                     $result['lastFetchedRow'] = $maxValue;
-                } else if ($incrementalFetching['type'] === MssqlDataType::INCREMENT_TYPE_DATETIME) {
-                    $result['lastFetchedRow'] = $this->getLastFetchedDatetimeValue(
-                        $result['lastFetchedRow'],
-                        $table['table'],
-                        $incrementalFetching,
-                        $this->metadataProvider->getColumnsMetadata($table)
-                    );
+                } else if ($incrementalFetchingType === MssqlDataType::INCREMENT_TYPE_DATETIME) {
+                    $result['lastFetchedRow'] = $this->getLastDatetimeValue($exportConfig, $result['lastFetchedRow']);
                 } else {
-                    $result['lastFetchedRow'] = $this->getLastFetchedId(
-                        $incrementalFetching,
-                        $this->metadataProvider->getColumnsMetadata($table),
-                        $result['lastFetchedRow']
-                    );
+                    $result['lastFetchedRow'] = $this->getLastValue($exportConfig, $result['lastFetchedRow']);
                 }
             }
         }
@@ -101,64 +92,71 @@ class BcpAdapter
         }
     }
 
-    private function getLastFetchedDatetimeValue(
-        array $lastExportedLine,
-        array $table,
-        array $incrementalFetching,
-        array $columnMetadata
+    private function getLastDatetimeValue(
+        ExportConfig $exportConfig,
+        array $lastRow
     ): string {
         $whereClause = '';
         $whereValues = [];
 
-        foreach ($columnMetadata as $key => $column) {
-            if (strtoupper($column['type']) === 'TIMESTAMP') {
+        $tableColumns =  $this->metadataProvider->getTable($exportConfig->getTable())->getColumns();
+        $columnNames = $exportConfig->hasColumns() ?
+            $exportConfig->getColumns() :
+            $tableColumns->getNames();
+
+        foreach ($columnNames as $key => $name) {
+            $column = $tableColumns->getByName($name);
+            if (strtoupper($column->getType()) === 'TIMESTAMP') {
                 continue;
             }
             if ($whereClause !== '') {
                 $whereClause .= ' AND ';
             }
-            if (in_array(strtoupper($column['type']), ['DATETIME", "DATETIME2'])) {
+            if (in_array(strtoupper($column->getType()), ['DATETIME", "DATETIME2'])) {
                 $whereClause .=
-                    'CONVERT(DATETIME2(0), ' . $this->pdo->quoteIdentifier($column['name']) . ') = ?';
+                    'CONVERT(DATETIME2(0), ' . $this->pdo->quoteIdentifier($column->getName()) . ') = ?';
             } else {
-                $whereClause .= $this->pdo->quoteIdentifier($column['name']) . ' = ?';
+                $whereClause .= $this->pdo->quoteIdentifier($column->getName()) . ' = ?';
             }
-            $whereValues[] = $lastExportedLine[$key];
+            $whereValues[] = $lastRow[$key];
         }
 
         $query = sprintf(
             'SELECT %s FROM %s.%s WHERE %s;',
-            $this->pdo->quoteIdentifier($incrementalFetching['column']),
-            $this->pdo->quoteIdentifier($table['schema']),
-            $this->pdo->quoteIdentifier($table['tableName']),
+            $this->pdo->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
+            $this->pdo->quoteIdentifier($exportConfig->getTable()->getSchema()),
+            $this->pdo->quoteIdentifier($exportConfig->getTable()->getName()),
             $whereClause
         );
 
-        $maxTries = isset($table['retries']) ? (int) $table['retries'] : Extractor::DEFAULT_MAX_TRIES;
-        $result = $this->pdo->runRetryableQuery($query, $maxTries, $whereValues);
+        $result = $this->pdo->runRetryableQuery($query, $exportConfig->getMaxRetries(), $whereValues);
+
         if (count($result) > 0) {
-            return $result[0][$incrementalFetching['column']];
+            return $result[0][$exportConfig->getIncrementalFetchingColumn()];
         }
 
         throw new ApplicationException('Fetching last datetime value returned no results');
     }
 
-    private function getLastFetchedId(
-        array $incrementalFetching,
-        array $columnMetadata,
-        array $lastExportedLine
-    ): string {
-        $incrementalFetchingColumnIndex = null;
-        foreach ($columnMetadata as $key => $column) {
-            if ($column['name'] === $incrementalFetching['column']) {
-                return $lastExportedLine[$key];
+    private function getLastValue(ExportConfig $exportConfig, array $lastRow): string
+    {
+        $columnNames = $exportConfig->hasColumns() ?
+            $exportConfig->getColumns() :
+            $this->metadataProvider
+            ->getTable($exportConfig->getTable())
+            ->getColumns()
+            ->getNames();
+
+        foreach ($columnNames as $key => $name) {
+            if ($name === $exportConfig->getIncrementalFetchingColumn()) {
+                return $lastRow[$key];
             }
         }
 
         throw new ApplicationException('Fetching last id value returned no results');
     }
 
-    public function getAdvancedQueryColumns(string $query): ?array
+    public function getAdvancedQueryColumns(string $query, ExportConfig $exportConfig): ?array
     {
         // This will only work if the server is >= sql server 2012
         $sql = sprintf(
@@ -166,7 +164,7 @@ class BcpAdapter
             rtrim(trim(str_replace("'", "''", $query)), ';')
         );
         try {
-            $result = $this->pdo->runRetryableQuery($sql, Extractor::DEFAULT_MAX_TRIES);
+            $result = $this->pdo->runRetryableQuery($sql, $exportConfig->getMaxRetries());
             if (is_array($result) && !empty($result)) {
                 return array_map(
                     function ($row) {
@@ -199,7 +197,7 @@ class BcpAdapter
             ));
         }
 
-        $outputFile = new CsvFile($filename);
+        $outputFile = new CsvReader($filename);
         $numRows = 0;
         $lastFetchedRow = null;
         $colCount = $outputFile->getColumnsCount();
@@ -239,7 +237,7 @@ class BcpAdapter
         );
 
         $this->logger->info(sprintf(
-            'Executing this BCP command: %s',
+            'Executing BCP command: %s',
             preg_replace('/\-P.*\-d/', '-P ***** -d', $cmd)
         ));
         return $cmd;

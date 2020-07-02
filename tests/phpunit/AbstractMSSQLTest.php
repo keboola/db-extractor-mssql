@@ -4,17 +4,21 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use PDO;
+use SplFileInfo;
+use Monolog\Logger;
+use Symfony\Component\Process\Process;
+use Keboola\Csv\CsvReader;
+use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
+use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\MetadataBuilder;
+use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\TableBuilder;
 use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
 use Keboola\DbExtractor\Extractor\MetadataProvider;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\PdoConnection;
 use Keboola\DbExtractor\Extractor\QueryFactory;
-use PDO;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Test\ExtractorTest;
-use Keboola\Csv\CsvFile;
-use Keboola\DbExtractorLogger\Logger;
-use Symfony\Component\Process\Process;
 
 abstract class AbstractMSSQLTest extends ExtractorTest
 {
@@ -23,8 +27,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     /** @var PDO */
     protected $pdo;
 
-    /** @var string */
-    protected $dataDir = __DIR__ . '/data';
+    protected string $dataDir = __DIR__ . '/data';
 
     protected function setUp(): void
     {
@@ -76,8 +79,8 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     private function setupTables(): void
     {
-        $csv1 = new CsvFile($this->dataDir . '/mssql/sales.csv');
-        $specialCsv = new CsvFile($this->dataDir . '/mssql/special.csv');
+        $csv1 = new SplFileInfo($this->dataDir . '/mssql/sales.csv');
+        $specialCsv = new SplFileInfo($this->dataDir . '/mssql/special.csv');
 
         $this->dropTable('Empty Test');
         $this->dropTable('sales2');
@@ -147,7 +150,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return $config;
     }
 
-    protected function generateTableName(CsvFile $file): string
+    protected function generateTableName(SplFileInfo $file): string
     {
         $tableName = sprintf(
             '%s',
@@ -157,16 +160,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return 'dbo.' . $tableName;
     }
 
-    protected function createTextTable(
-        CsvFile $file,
-        ?array $primaryKey = null,
-        ?string $overrideTableName = null
-    ): void {
-        if (!$overrideTableName) {
-            $tableName = $this->generateTableName($file);
-        } else {
-            $tableName = $overrideTableName;
-        }
+    protected function createTextTable(SplFileInfo $file, ?array $primaryKey = null, ?string $tableName = null): void
+    {
+        $tableName = $tableName ?: $this->generateTableName($file);
+        $reader = new CsvReader($file->getPathname());
 
         $sql = sprintf(
             'CREATE TABLE %s (%s)',
@@ -177,7 +174,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
                     function ($column) {
                         return $column . ' text NULL';
                     },
-                    $file->getHeader()
+                    $reader->getHeader()
                 )
             )
         );
@@ -198,17 +195,17 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             $this->pdo->exec($sql);
         }
 
-        $file->next();
+        $reader->next();
 
         $this->pdo->beginTransaction();
 
-        $columnsCount = count($file->current());
+        $columnsCount = count($reader->current());
         $rowsPerInsert = intval((1000 / $columnsCount) - 1);
 
-        while ($file->current() !== false) {
+        while ($reader->current() !== false) {
             $sqlInserts = '';
 
-            for ($i=0; $i<$rowsPerInsert && $file->current() !== false; $i++) {
+            for ($i=0; $i<$rowsPerInsert && $reader->current() !== false; $i++) {
                 $sqlInserts = '';
 
                 $sqlInserts .= sprintf(
@@ -240,11 +237,11 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
                                 return "'" . $data . "'";
                             },
-                            $file->current()
+                            $reader->current()
                         )
                     )
                 );
-                $file->next();
+                $reader->next();
 
                 $sql = sprintf(
                     'INSERT INTO %s VALUES %s',
@@ -259,16 +256,10 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         $this->pdo->commit();
 
         $count = $this->pdo->query(sprintf('SELECT COUNT(*) AS itemsCount FROM %s', $tableName))->fetchColumn();
-        $this->assertEquals($this->countTable($file), (int) $count);
+        $this->assertEquals($this->countTable($reader), (int) $count);
     }
 
-    /**
-     * Count records in CSV (with headers)
-     *
-     * @param  CsvFile $file
-     * @return int
-     */
-    protected function countTable(CsvFile $file): int
+    protected function countTable(CsvReader $file): int
     {
         $linesCount = 0;
         foreach ($file as $i => $line) {
@@ -321,21 +312,43 @@ abstract class AbstractMSSQLTest extends ExtractorTest
         return (string) file_get_contents('/root/.ssh/id_rsa.pub');
     }
 
-    protected function createQueryFactory(array $params, array $state, ?array $columnMetadata = null): QueryFactory
+    protected function createQueryFactory(array $params, array $state, ?array $columnsMetadata = null): QueryFactory
     {
         $logger = new Logger('mssql-extractor-test');
         $pdo = new PdoConnection($logger, $params['db']);
-        if ($columnMetadata === null) {
-            $metadataProvider = new MetadataProvider($pdo);
+        if ($columnsMetadata === null) {
+            $metadataProvider = new MssqlMetadataProvider($pdo);
         } else {
-            $metadataProviderMock = $this->createMock(MetadataProvider::class);
+            $tableBuilder = TableBuilder::create()
+                ->setName('mocked')
+                ->setType('mocked');
+
+            foreach ($columnsMetadata as $data) {
+                $tableBuilder
+                    ->addColumn()
+                    ->setName($data['name'])
+                    ->setType($data['type'])
+                    ->setLength($data['length'] ?? null);
+            }
+
+            $tableMetadata = $tableBuilder->build();
+            $metadataProviderMock = $this->createMock(MssqlMetadataProvider::class);
             $metadataProviderMock
-                ->method('getColumnsMetadata')
-                ->willReturn($columnMetadata);
+                ->method('getTable')
+                ->willReturn($tableMetadata);
             /** @var MetadataProvider $metadataProvider */
             $metadataProvider = $metadataProviderMock;
         }
 
         return new QueryFactory($pdo, $metadataProvider, $state);
+    }
+
+    protected function createAppProcess(): Process
+    {
+        $process = Process::fromShellCommandline('php /code/src/run.php', null, [
+            'KBC_DATADIR' => $this->dataDir,
+        ]);
+        $process->setTimeout(300);
+        return $process;
     }
 }
