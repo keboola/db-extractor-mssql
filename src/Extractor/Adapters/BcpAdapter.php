@@ -203,7 +203,9 @@ class BcpAdapter
         $colCount = $outputFile->getColumnsCount();
         while ($outputFile->valid()) {
             if (count($outputFile->current()) !== $colCount) {
-                throw new BcpAdapterException('The BCP command produced an invalid csv.');
+                throw new BcpAdapterException('The BCP command produced an invalid csv.', 0, null, [
+                    'currentRow' => $outputFile->current(),
+                ]);
             }
             $lastRow = $outputFile->current();
             $outputFile->next();
