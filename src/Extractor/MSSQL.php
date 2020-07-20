@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\Component\JsonHelper;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use PDOException;
 use InvalidArgumentException;
@@ -128,9 +129,11 @@ class MSSQL extends BaseExtractor
                 );
             } catch (BcpAdapterException $e) {
                 @unlink($this->getOutputFilename($exportConfig->getOutputTable()));
+                $context = $e->getData();
                 $msg = sprintf('BCP export "%s" failed', $logPrefix);
                 $msg .= $exportConfig->isFallbackDisabled() ? ': ' : ' (will attempt via PDO): ';
                 $msg .= $e->getMessage();
+                $msg .= $context ? ', context: ' . JsonHelper::encode($context) : '';
                 $this->logger->info($msg);
             }
         }
