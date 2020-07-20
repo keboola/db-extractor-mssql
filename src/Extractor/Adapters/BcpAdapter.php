@@ -203,9 +203,19 @@ class BcpAdapter
         $colCount = $outputFile->getColumnsCount();
         while ($outputFile->valid()) {
             if (count($outputFile->current()) !== $colCount) {
+                $lineNumber = $numRows + 1;
+
+                // https://stackoverflow.com/questions/6022384/bash-tool-to-get-nth-line-from-a-file
+                $rawLine = Process::fromShellCommandline(sprintf(
+                    "sed '%dq;d' %s",
+                    $lineNumber,
+                    escapeshellarg($filename)
+                ))->mustRun()->getOutput();
+
                 throw new BcpAdapterException('The BCP command produced an invalid csv.', 0, null, [
                     'currentRow' => $outputFile->current(),
-                    'currentLine' => $numRows + 1,
+                    'currentLine' => $lineNumber,
+                    'currentLineRaw' => $rawLine,
                     'bcpErrorOutput' => $process->getErrorOutput(),
                 ]);
             }
