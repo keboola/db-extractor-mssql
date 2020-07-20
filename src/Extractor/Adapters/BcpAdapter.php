@@ -206,7 +206,6 @@ class BcpAdapter
                 throw new BcpAdapterException('The BCP command produced an invalid csv.', 0, null, [
                     'currentRow' => $outputFile->current(),
                     'currentLine' => $numRows + 1,
-                    'bcpOutput' => $process->getOutput(),
                     'bcpErrorOutput' => $process->getErrorOutput(),
                 ]);
             }
