@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor\Adapters;
 
+use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Throwable;
 use Psr\Log\LoggerInterface;
 use Keboola\Csv\CsvReader;
@@ -24,7 +25,7 @@ class BcpAdapter
 
     private MetadataProvider $metadataProvider;
 
-    private array $dbParams;
+    private DatabaseConfig $databaseConfig;
 
     private array $state;
 
@@ -32,13 +33,13 @@ class BcpAdapter
         LoggerInterface $logger,
         PdoConnection $pdo,
         MetadataProvider $metadataProvider,
-        array $dbParams,
+        DatabaseConfig $databaseConfig,
         array $state
     ) {
         $this->logger = $logger;
         $this->pdo = $pdo;
         $this->metadataProvider = $metadataProvider;
-        $this->dbParams = $dbParams;
+        $this->databaseConfig = $databaseConfig;
         $this->state = $state;
     }
 
@@ -228,18 +229,17 @@ class BcpAdapter
 
     private function createBcpCommand(string $filename, string $query): string
     {
-        $serverName = $this->dbParams['host'];
-        $serverName .= !empty($this->dbParams['instance']) ? '\\' . $this->dbParams['instance'] : '';
-        $serverName .= ',' . $this->dbParams['port'];
+        $serverName = $this->databaseConfig->getHost();
+        $serverName .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
 
         $cmd = sprintf(
             'bcp %s queryout %s -S %s -U %s -P %s -d %s -q -k -b50000 -m1 -t, -r"\n" -c',
             escapeshellarg($query),
             escapeshellarg($filename),
             escapeshellarg($serverName),
-            escapeshellarg($this->dbParams['user']),
-            escapeshellarg($this->dbParams['#password']),
-            escapeshellarg($this->dbParams['database'])
+            escapeshellarg($this->databaseConfig->getUsername()),
+            escapeshellarg($this->databaseConfig->getPassword()),
+            escapeshellarg($this->databaseConfig->getDatabase())
         );
 
         $this->logger->info(sprintf(
