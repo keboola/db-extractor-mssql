@@ -46,6 +46,10 @@ RUN pecl install pdo_sqlsrv sqlsrv \
 # Set path
 ENV PATH $PATH:/opt/mssql-tools/bin
 
+# Fix SSL configuration to be compatible with older servers
+# https://wiki.debian.org/ContinuousIntegration/TriagingTips/openssl-1.1.1
+RUN sed -i 's/DEFAULT@SECLEVEL=2/DEFAULT@SECLEVEL=1/g' /etc/ssl/openssl.cnf
+
 ## Composer - deps always cached unless changed
 # First copy only composer files
 COPY composer.* /code/
