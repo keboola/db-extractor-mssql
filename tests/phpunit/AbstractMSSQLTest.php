@@ -4,17 +4,15 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use PDO;
 use SplFileInfo;
 use Monolog\Logger;
 use Symfony\Component\Process\Process;
 use Keboola\Csv\CsvReader;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
-use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\MetadataBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\TableBuilder;
-use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
 use Keboola\DbExtractor\Extractor\MetadataProvider;
-use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\PdoConnection;
 use Keboola\DbExtractor\Extractor\QueryFactory;
 use Keboola\DbExtractor\MSSQLApplication;
@@ -315,7 +313,7 @@ abstract class AbstractMSSQLTest extends ExtractorTest
     protected function createQueryFactory(array $params, array $state, ?array $columnsMetadata = null): QueryFactory
     {
         $logger = new Logger('mssql-extractor-test');
-        $pdo = new PdoConnection($logger, $params['db']);
+        $pdo = new PdoConnection($logger, DatabaseConfig::fromArray($params['db']));
         if ($columnsMetadata === null) {
             $metadataProvider = new MssqlMetadataProvider($pdo);
         } else {

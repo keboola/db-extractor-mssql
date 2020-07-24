@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor\Extractor;
 
 use Keboola\Component\JsonHelper;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use PDOException;
 use InvalidArgumentException;
 use Keboola\Csv\Exception as CsvException;
@@ -44,16 +45,16 @@ class MSSQL extends BaseExtractor
         return new MssqlManifestSerializer();
     }
 
-    public function createConnection(array $dbParams): void
+    public function createConnection(DatabaseConfig $databaseConfig): void
     {
-        $this->pdo = new PdoConnection($this->logger, $dbParams);
+        $this->pdo = new PdoConnection($this->logger, $databaseConfig);
         $this->pdoAdapter = new PdoAdapter($this->logger, $this->pdo, $this->state);
         $this->metadataProvider = new MssqlMetadataProvider($this->pdo);
         $this->bcpAdapter = new BcpAdapter(
             $this->logger,
             $this->pdo,
             $this->metadataProvider,
-            $dbParams,
+            $databaseConfig,
             $this->state
         );
         $this->queryFactory = new QueryFactory(

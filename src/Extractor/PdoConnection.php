@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use PDO;
 use PDOStatement;
 use Psr\Log\LoggerInterface;
@@ -18,24 +19,14 @@ class PdoConnection
 
     private PDO $pdo;
 
-    private array $dbParams;
+    private DatabaseConfig $databaseConfig;
 
     private ?int $serverVersion = null;
 
-    public function __construct(LoggerInterface $logger, array $dbParams)
+    public function __construct(LoggerInterface $logger, DatabaseConfig $databaseConfig)
     {
-        if (isset($dbParams['#password'])) {
-            $dbParams['password'] = $dbParams['#password'];
-        }
-
         $this->logger = $logger;
-        $this->dbParams = $dbParams;
-
-        foreach (['host', 'database', 'user', 'password'] as $r) {
-            if (!array_key_exists($r, $dbParams)) {
-                throw new UserException(sprintf('Parameter %s is missing.', $r));
-            }
-        }
+        $this->databaseConfig = $databaseConfig;
 
         $this->connect();
     }
@@ -143,17 +134,15 @@ class PdoConnection
 
     public function connect(): void
     {
-        $host = $this->dbParams['host'];
-        $host .= (isset($this->dbParams['port']) && $this->dbParams['port'] !== '1433') ?
-            ',' . $this->dbParams['port'] : '';
-        $host .= empty($this->dbParams['instance']) ? '' : '\\\\' . $this->dbParams['instance'];
+        $host = $this->databaseConfig->getHost();
+        $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
         $options[] = 'Server=' . $host;
-        $options[] = 'Database=' . $this->dbParams['database'];
+        $options[] = 'Database=' . $this->databaseConfig->getDatabase();
         $dsn = sprintf('sqlsrv:%s', implode(';', $options));
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
 
         // ms sql doesn't support options
-        $this->pdo = new PDO($dsn, $this->dbParams['user'], $this->dbParams['password']);
+        $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 }
