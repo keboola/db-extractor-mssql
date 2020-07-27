@@ -20,6 +20,7 @@ use Keboola\DbExtractor\Extractor\Adapters\BcpAdapter;
 use Keboola\DbExtractor\Extractor\Adapters\PdoAdapter;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\UserException;
+use Symfony\Component\Process\Process;
 
 class MSSQL extends BaseExtractor
 {
@@ -47,6 +48,9 @@ class MSSQL extends BaseExtractor
 
     public function createConnection(DatabaseConfig $databaseConfig): void
     {
+        if ($databaseConfig->hasSSLConnection() && $databaseConfig->getSslConnectionConfig()->isVerifyServerCert()) {
+            $this->saveSslCertificate($databaseConfig);
+        }
         $this->pdo = new PdoConnection($this->logger, $databaseConfig);
         $this->pdoAdapter = new PdoAdapter($this->logger, $this->pdo, $this->state);
         $this->metadataProvider = new MssqlMetadataProvider($this->pdo);
@@ -242,5 +246,15 @@ class MSSQL extends BaseExtractor
         if (!is_dir($outTablesDir)) {
             mkdir($outTablesDir, 0777, true);
         }
+    }
+
+    private function saveSslCertificate(DatabaseConfig $databaseConfig): void
+    {
+        Process::fromShellCommandline(sprintf(
+            'echo "%s" > /usr/share/ca-certificates/mssql.crt',
+            $databaseConfig->getSslConnectionConfig()->getCert()
+        ))->mustRun();
+        Process::fromShellCommandline('echo "mssql.crt" >> /etc/ca-certificates.conf')->mustRun();
+        Process::fromShellCommandline('update-ca-certificates')->mustRun();
     }
 }

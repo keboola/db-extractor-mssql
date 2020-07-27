@@ -129,6 +129,14 @@ class PdoConnection
         $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
         $options[] = 'Server=' . $host;
         $options[] = 'Database=' . $this->databaseConfig->getDatabase();
+        if ($this->databaseConfig->hasSSLConnection()) {
+            $this->logger->info('Using SSL connection');
+            $options[] = 'Encrypt=true';
+            $options[] = sprintf(
+                'TrustServerCertificate=%s',
+                $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true'
+            );
+        }
         $dsn = sprintf('sqlsrv:%s', implode(';', $options));
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
 
