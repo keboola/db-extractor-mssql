@@ -24,6 +24,9 @@ services:
 
   mssql:
     image: microsoft/mssql-server-linux
+    build:
+      context: .
+      dockerfile: Dockerfile-mssql
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: "yourStrong(!)Password"
