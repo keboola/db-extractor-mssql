@@ -130,7 +130,6 @@ class PdoConnection
         $options[] = 'Server=' . $host;
         $options[] = 'Database=' . $this->databaseConfig->getDatabase();
         if ($this->databaseConfig->hasSSLConnection()) {
-            $this->logger->info('Using SSL connection');
             $options[] = 'Encrypt=true';
             $options[] = sprintf(
                 'TrustServerCertificate=%s',
@@ -143,6 +142,17 @@ class PdoConnection
         // ms sql doesn't support options
         $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        if ($this->databaseConfig->hasSSLConnection()) {
+            $status = $this->pdo->query(
+                'SELECT session_id, encrypt_option FROM sys.dm_exec_connections WHERE session_id = @@SPID'
+            )->fetch();
+            if ($status['encrypt_option'] === 'FALSE') {
+                throw new UserException(sprintf('Connection is not encrypted'));
+            } else {
+                $this->logger->info('Using SSL connection');
+            }
+        }
     }
 
     private function runQuery(string $query, array $values = []): array
