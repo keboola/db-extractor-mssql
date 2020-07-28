@@ -198,6 +198,24 @@ class BcpAdapter
             ));
         }
 
+        try {
+            $output = $this->processOutputCsv($filename, $process);
+        } catch (BcpAdapterException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            throw new BcpAdapterException(
+                'The BCP command produced an invalid csv: ' . $e->getMessage(),
+                0,
+                $e
+            );
+        }
+
+        $this->logger->info(sprintf('BCP successfully exported %d rows.', $output['rows']));
+        return $output;
+    }
+
+    private function processOutputCsv(string $filename, Process $process): array
+    {
         $outputFile = new CsvReader($filename);
         $numRows = 0;
         $lastFetchedRow = null;
@@ -219,7 +237,7 @@ class BcpAdapter
             }
             $numRows++;
         }
-        $this->logger->info(sprintf('BCP successfully exported %d rows.', $numRows));
+
         $output = ['rows' => $numRows];
         if ($lastFetchedRow) {
             $output['lastFetchedRow'] = $lastFetchedRow;
