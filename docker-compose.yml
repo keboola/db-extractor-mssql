@@ -16,20 +16,29 @@ services:
       - sshproxy
       - mssql
 
+  appssl:
+    <<: *app
+    links:
+      - sshproxy
+      - mssqlssl
+
   dev:
     <<: *app
     volumes:
       - ssh-keys:/root/.ssh
       - .:/code
 
-  mssql:
+  mssql: &mssql
     image: microsoft/mssql-server-linux
-    build:
-      context: .
-      dockerfile: Dockerfile-mssql
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: "yourStrong(!)Password"
+
+  mssqlssl:
+    <<: *mssql
+    build:
+      context: .
+      dockerfile: Dockerfile-mssql
 
   sshproxy:
     image: keboola/db-component-ssh-proxy:latest
