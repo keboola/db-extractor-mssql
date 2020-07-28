@@ -20,7 +20,7 @@ services:
     <<: *app
     links:
       - sshproxy
-      - mssqlssl
+      - mssqlssl:mssql
 
   dev:
     <<: *app
