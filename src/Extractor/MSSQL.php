@@ -250,10 +250,10 @@ class MSSQL extends BaseExtractor
 
     private function saveSslCertificate(DatabaseConfig $databaseConfig): void
     {
-        Process::fromShellCommandline(sprintf(
-            'echo "%s" > /usr/share/ca-certificates/mssql.crt',
-            $databaseConfig->getSslConnectionConfig()->getCert()
-        ))->mustRun();
+        file_put_contents(
+            '/usr/share/ca-certificates/mssql.crt',
+            $databaseConfig->getSslConnectionConfig()->getCa()
+        );
         Process::fromShellCommandline('echo "mssql.crt" >> /etc/ca-certificates.conf')->mustRun();
         Process::fromShellCommandline('update-ca-certificates')->mustRun();
     }
