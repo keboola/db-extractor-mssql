@@ -67,6 +67,12 @@ class MssqlMetadataProvider implements MetadataProvider
 
             $columns = $this->pdo->runQuery($columnsSql);
             foreach ($columns as $data) {
+                if (empty(trim($data['COLUMN_NAME']))) {
+                    // In MsSQL, for the column name is allowed to consist only of spaces.
+                    // These columns are ignored.
+                    continue;
+                }
+
                 $tableId = $data['TABLE_SCHEMA'] . '.' . $data['TABLE_NAME'];
                 $tableBuilder = $tableBuilders[$tableId];
                 $this->processColumn($data, $tableBuilder);
