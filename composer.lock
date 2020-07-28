@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2e8e9f682c73cadba8205c6bd54fa59a",
+    "content-hash": "4d71311404c4e5c2dc535f8b6d43a7fc",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -115,22 +115,23 @@
         },
         {
             "name": "keboola/csv",
-            "version": "2.1.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-csv.git",
-                "reference": "86f03def371e5b1a8a11973b496c86d3a0d4d57d"
+                "reference": "eb5a835a855f1bf03ddaa330e7b22fc5fb6042d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-csv/zipball/86f03def371e5b1a8a11973b496c86d3a0d4d57d",
-                "reference": "86f03def371e5b1a8a11973b496c86d3a0d4d57d",
+                "url": "https://api.github.com/repos/keboola/php-csv/zipball/eb5a835a855f1bf03ddaa330e7b22fc5fb6042d7",
+                "reference": "eb5a835a855f1bf03ddaa330e7b22fc5fb6042d7",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.6"
             },
             "require-dev": {
+                "ext-json": "*",
                 "phpunit/phpunit": "^5.7",
                 "squizlabs/php_codesniffer": "^3.2"
             },
@@ -156,7 +157,7 @@
                 "csv",
                 "rfc4180"
             ],
-            "time": "2019-11-11T08:02:32+00:00"
+            "time": "2020-07-28T09:27:05+00:00"
         },
         {
             "name": "keboola/db-extractor-common",
