@@ -34,11 +34,12 @@ services:
       ACCEPT_EULA: Y
       SA_PASSWORD: "yourStrong(!)Password"
 
-  mssqlssl:
+  mssql-ssl:
     <<: *mssql
+    image: mssql-server-linux-ssl
     build:
       context: .
-      dockerfile: Dockerfile-mssql
+      dockerfile: docker/mssql-ssl/Dockerfile
 
   sshproxy:
     image: keboola/db-component-ssh-proxy:latest
