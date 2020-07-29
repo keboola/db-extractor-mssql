@@ -4,8 +4,21 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
+
 class MSSQLSslTest extends AbstractMSSQLTest
 {
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $fs = new Filesystem();
+        if ($fs->exists('/usr/local/share/ca-certificates/mssql.crt')) {
+            $fs->remove('/usr/local/share/ca-certificates/mssql.crt');
+        }
+        Process::fromShellCommandline('update-ca-certificates --fresh')->mustRun();
+    }
+
     public function testVerifyCertValidCertificate(): void
     {
         $this->replaceConfig($this->getConfig(), true, 'ca.crt');
