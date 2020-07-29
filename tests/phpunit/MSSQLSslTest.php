@@ -79,7 +79,7 @@ class MSSQLSslTest extends AbstractMSSQLTest
 
         $this->assertEquals(1, $process->getExitCode());
         $this->assertStringContainsString(
-            'PEM routines:get_name:no start line:Expecting: TRUSTED CERTIFICATE',
+            'certificate verify failed:unable to get local issuer certificate',
             $process->getErrorOutput()
         );
     }
