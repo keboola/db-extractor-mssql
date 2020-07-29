@@ -48,5 +48,14 @@ services:
     links:
       - mssql
 
+  wait:
+    image: waisbrot/wait
+    depends_on:
+      - mssql-ssl
+      - mssql
+    environment:
+      - TARGETS=mssql-ssl:1433,mssql:1433
+      - TIMEOUT=200
+
 volumes:
   ssh-keys:
