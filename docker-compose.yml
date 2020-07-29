@@ -8,6 +8,7 @@ services:
       - ssh-keys:/root/.ssh
     environment:
       MSSQL_DB_HOST: mssql
+      MSSQL_DB_SSL_HOST: mssql-ssl
       MSSQL_DB_PORT: 1433
       MSSQL_DB_USER: sa
       MSSQL_DB_PASSWORD: "yourStrong(!)Password"
@@ -15,12 +16,7 @@ services:
     links:
       - sshproxy
       - mssql
-
-  appssl:
-    <<: *app
-    links:
-      - sshproxy
-      - mssqlssl:mssql
+      - mssql-ssl
 
   dev:
     <<: *app
