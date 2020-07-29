@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor\Metadata;
 
 use Keboola\DbExtractor\Extractor\MetadataProvider;
 use Keboola\DbExtractor\Extractor\PdoConnection;
+use Keboola\DbExtractor\TableResultFormat\Exception\InvalidStateException;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\MetadataBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\TableBuilder;
@@ -47,6 +48,9 @@ class MssqlMetadataProvider implements MetadataProvider
         /** @var TableBuilder[] $tableBuilders */
         $tableBuilders = [];
 
+        /** @var ColumnBuilder[] $columnBuilders */
+        $columnBuilders = [];
+
         $builder = MetadataBuilder::create();
         $tablesSql = MssqlSqlHelper::getTablesSql($whitelist, $this->pdo);
         $tables = $this->pdo->runQuery($tablesSql);
@@ -68,8 +72,20 @@ class MssqlMetadataProvider implements MetadataProvider
             $columns = $this->pdo->runQuery($columnsSql);
             foreach ($columns as $data) {
                 $tableId = $data['TABLE_SCHEMA'] . '.' . $data['TABLE_NAME'];
+                $columnId = $data['COLUMN_NAME'] . '.' . $tableId;
                 $tableBuilder = $tableBuilders[$tableId];
-                $this->processColumn($data, $tableBuilder);
+
+                // When "getColumnsSqlComplex" is used,
+                // then one column can be present multiple times in result if has multiple constraints,
+                // so column builder is reused
+                if (isset($columnBuilders[$columnId])) {
+                    $columnBuilder = $columnBuilders[$columnId];
+                } else {
+                    $columnBuilder = $tableBuilder->addColumn();
+                    $columnBuilders[$columnId] = $columnBuilder;
+                }
+
+                $this->processColumn($data, $columnBuilder);
             }
         }
 
@@ -86,10 +102,9 @@ class MssqlMetadataProvider implements MetadataProvider
             ->setType($data['TABLE_TYPE']);
     }
 
-    private function processColumn(array $data, TableBuilder $tableBuilder): ColumnBuilder
+    private function processColumn(array $data, ColumnBuilder $columnBuilder): ColumnBuilder
     {
-        $columnBuilder = $tableBuilder
-            ->addColumn()
+        $columnBuilder = $columnBuilder
             ->setName($data['COLUMN_NAME'], false)
             ->setOrdinalPosition((int) $data['ORDINAL_POSITION']);
 
@@ -124,12 +139,16 @@ class MssqlMetadataProvider implements MetadataProvider
 
         // Foreign key
         if (isset($data['fk_name'])) {
-            $columnBuilder
-                ->addForeignKey()
-                ->setName($data['fk_name'])
-                ->setRefSchema($data['REFERENCED_SCHEMA_NAME'])
-                ->setRefTable($data['REFERENCED_TABLE_NAME'])
-                ->setRefColumn($data['REFERENCED_COLUMN_NAME']);
+            try {
+                $columnBuilder
+                    ->addForeignKey()
+                    ->setName($data['fk_name'])
+                    ->setRefSchema($data['REFERENCED_SCHEMA_NAME'])
+                    ->setRefTable($data['REFERENCED_TABLE_NAME'])
+                    ->setRefColumn($data['REFERENCED_COLUMN_NAME']);
+            } catch (InvalidStateException $e) {
+                // FK is already set
+            }
         }
 
         // Auto increment
