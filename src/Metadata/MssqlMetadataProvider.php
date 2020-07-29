@@ -90,7 +90,7 @@ class MssqlMetadataProvider implements MetadataProvider
     {
         $columnBuilder = $tableBuilder
             ->addColumn()
-            ->setName($data['COLUMN_NAME'])
+            ->setName($data['COLUMN_NAME'], false)
             ->setOrdinalPosition((int) $data['ORDINAL_POSITION']);
 
         // Type and length
