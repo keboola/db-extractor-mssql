@@ -6,8 +6,8 @@ services:
 install:
   - docker-compose -v
   - docker-compose build
+  - docker-compose run --rm wait
   - docker-compose run --rm app
-  - docker-compose run --rm appssl
 
 script:
   - docker pull quay.io/keboola/developer-portal-cli-v2:latest
