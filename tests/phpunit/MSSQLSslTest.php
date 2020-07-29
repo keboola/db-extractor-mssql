@@ -86,4 +86,11 @@ class MSSQLSslTest extends AbstractMSSQLTest
         @unlink($this->dataDir . '/config.json');
         file_put_contents($this->dataDir . '/config.json', json_encode($config));
     }
+
+    public function getConfig(string $driver = self::DRIVER): array
+    {
+        $config = parent::getConfig($driver);
+        $config['parameters']['db']['host'] = $this->getEnv(self::DRIVER, 'DB_SSL_HOST', true);
+        return $config;
+    }
 }
