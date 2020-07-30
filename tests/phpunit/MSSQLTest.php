@@ -6,6 +6,12 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvReader;
 use Keboola\DbExtractor\Exception\UserException;
+use Keboola\DbExtractor\Extractor\PdoConnection;
+use Keboola\DbExtractor\Metadata\MssqlManifestSerializer;
+use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\InputTable;
+use Psr\Log\NullLogger;
 
 class MSSQLTest extends AbstractMSSQLTest
 {
@@ -993,7 +999,9 @@ class MSSQLTest extends AbstractMSSQLTest
 
     public function testGetTables(): void
     {
+        $this->dropTable('simple');
         $this->dropTable('empty_incremental');
+
         $config = $this->getConfig();
         $config['action'] = 'getTables';
 
@@ -1274,9 +1282,9 @@ class MSSQLTest extends AbstractMSSQLTest
             "([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));"
         );
         $this->pdo->exec(
-            "INSERT INTO [NULL_TEST] VALUES 
-            ('', '', 'test with ' + CHAR(0) + ' inside'), 
-            ('', '', ''), 
+            "INSERT INTO [NULL_TEST] VALUES
+            ('', '', 'test with ' + CHAR(0) + ' inside'),
+            ('', '', ''),
             ('3', '', 'test')"
         );
         $config = $this->getConfig('mssql');
@@ -1846,5 +1854,136 @@ class MSSQLTest extends AbstractMSSQLTest
         ];
 
         $this->assertEquals($expectedColumnMetadata, $outputManifest['column_metadata']);
+    }
+
+    public function testMultipleConstraintsGetTables(): void
+    {
+        // Column with multiple constraints must be present in metadata only once.
+        $this->pdo->exec('ALTER TABLE [simple] ADD CONSTRAINT c1 UNIQUE ([name]);');
+        $this->pdo->exec('ALTER TABLE [simple] ADD CONSTRAINT c2 CHECK (LEN([name]) > 0);');
+        $this->pdo->exec('ALTER TABLE [simple] ADD CONSTRAINT c3 CHECK (LEN([name]) > 1);');
+        $this->pdo->exec('ALTER TABLE [simple] ADD CONSTRAINT c4 CHECK (LEN([name]) > 2);');
+
+        $config = $this->getConfig();
+        $config['action'] = 'getTables';
+        $result = $this->createApplication($config)->run();
+        $tables = array_values(array_filter($result['tables'], fn(array $table) => $table['name'] === 'simple'));
+        $this->assertSame(
+            [
+                [
+                    'name' => 'simple',
+                    'schema' => 'dbo',
+                    'columns' =>
+                        [
+                            [
+                                'name' => 'id',
+                                'type' => 'int',
+                                'primaryKey' => true,
+                            ],
+                            [
+                                'name' => 'name',
+                                'type' => 'varchar',
+                                'primaryKey' => false,
+                            ],
+                        ],
+                ],
+            ],
+            $tables
+        );
+    }
+
+    public function testMultipleConstraintsManifest(): void
+    {
+        // Column with multiple constraints must be present in metadata only once.
+        $this->pdo->exec('ALTER TABLE [simple] ADD CONSTRAINT c1 UNIQUE ([name]);');
+        $this->pdo->exec('ALTER TABLE [simple] ADD CONSTRAINT c2 CHECK (LEN([name]) > 0);');
+        $this->pdo->exec('ALTER TABLE [simple] ADD CONSTRAINT c3 CHECK (LEN([name]) > 1);');
+        $this->pdo->exec('ALTER TABLE [simple] ADD CONSTRAINT c4 CHECK (LEN([name]) > 2);');
+
+        $dbConfig = DatabaseConfig::fromArray($this->getConfig()['parameters']['db']);
+        $conn = new PdoConnection(new NullLogger(), $dbConfig);
+        $metadataProvider = new MssqlMetadataProvider($conn);
+        $serializer = new MssqlManifestSerializer();
+
+        $table = new InputTable('simple', 'dbo');
+        $columns = $metadataProvider->getTable($table)->getColumns();
+
+        $this->assertSame(['id', 'name'], $columns->getNames());
+        $this->assertSame([
+            [
+                'key' => 'KBC.datatype.type',
+                'value' => 'int',
+            ],
+            [
+                'key' => 'KBC.datatype.nullable',
+                'value' => false,
+            ],
+            [
+                'key' => 'KBC.datatype.basetype',
+                'value' => 'INTEGER',
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '10',
+            ],
+            [
+                'key' => 'KBC.sourceName',
+                'value' => 'id',
+            ],
+            [
+                'key' => 'KBC.sanitizedName',
+                'value' => 'id',
+            ],
+            [
+                'key' => 'KBC.primaryKey',
+                'value' => true,
+            ],
+            [
+                'key' => 'KBC.uniqueKey',
+                'value' => false,
+            ],
+            [
+                'key' => 'KBC.ordinalPosition',
+                'value' => 1,
+            ],
+        ], $serializer->serializeColumn($columns->getByName('id')));
+        $this->assertSame([
+            [
+                'key' => 'KBC.datatype.type',
+                'value' => 'varchar',
+            ],
+            [
+                'key' => 'KBC.datatype.nullable',
+                'value' => true,
+            ],
+            [
+                'key' => 'KBC.datatype.basetype',
+                'value' => 'STRING',
+            ],
+            [
+                'key' => 'KBC.datatype.length',
+                'value' => '100',
+            ],
+            [
+                'key' => 'KBC.sourceName',
+                'value' => 'name',
+            ],
+            [
+                'key' => 'KBC.sanitizedName',
+                'value' => 'name',
+            ],
+            [
+                'key' => 'KBC.primaryKey',
+                'value' => false,
+            ],
+            [
+                'key' => 'KBC.uniqueKey',
+                'value' => true,
+            ],
+            [
+                'key' => 'KBC.ordinalPosition',
+                'value' => 2,
+            ],
+        ], $serializer->serializeColumn($columns->getByName('name')));
     }
 }

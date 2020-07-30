@@ -77,16 +77,17 @@ abstract class AbstractMSSQLTest extends ExtractorTest
 
     private function setupTables(): void
     {
-        $csv1 = new SplFileInfo($this->dataDir . '/mssql/sales.csv');
+        $salesCsv = new SplFileInfo($this->dataDir . '/mssql/sales.csv');
         $specialCsv = new SplFileInfo($this->dataDir . '/mssql/special.csv');
 
         $this->dropTable('Empty Test');
+        $this->dropTable('simple');
         $this->dropTable('sales2');
         $this->dropTable('sales');
         $this->dropTable('special');
 
-        $this->createTextTable($csv1, ['createdat'], 'sales');
-        $this->createTextTable($csv1, null, 'sales2');
+        $this->createTextTable($salesCsv, ['createdat'], 'sales');
+        $this->createTextTable($salesCsv, null, 'sales2');
         $this->createTextTable($specialCsv, null, 'special');
         // drop the t1 demo table if it exists
         $this->dropTable('t1');
@@ -112,6 +113,9 @@ abstract class AbstractMSSQLTest extends ExtractorTest
             \"timestamp\" TIMESTAMP
             )"
         );
+
+        // create table simple
+        $this->pdo->exec('CREATE TABLE [simple] ("id" INT, "name" varchar(100), PRIMARY KEY ("id"))');
 
         // phpcs:disable Generic.Files.LineLength
         $this->pdo->exec('ALTER TABLE [auto Increment Timestamp] ADD CONSTRAINT PK_AUTOINC PRIMARY KEY ("_Weir%d I-D")');
