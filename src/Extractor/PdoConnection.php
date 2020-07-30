@@ -12,6 +12,7 @@ use Throwable;
 use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\DeadConnectionException;
 use Keboola\DbExtractor\Exception\UserException;
+use \PDOException;
 
 class PdoConnection
 {
@@ -127,20 +128,40 @@ class PdoConnection
     {
         $host = $this->databaseConfig->getHost();
         $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
-        $options[] = 'Server=' . $host;
-        $options[] = 'Database=' . $this->databaseConfig->getDatabase();
+        $options['Server'] = $host;
+        $options['Database'] = $this->databaseConfig->getDatabase();
         if ($this->databaseConfig->hasSSLConnection()) {
-            $options[] = 'Encrypt=true';
-            $options[] = sprintf(
-                'TrustServerCertificate=%s',
-                $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true'
-            );
+            $options['Encrypt'] = 'true';
+            $options['TrustServerCertificate'] =
+                $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
         }
-        $dsn = sprintf('sqlsrv:%s', implode(';', $options));
+        $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
+            return sprintf('%s=%s', $key, $item);
+        }, array_keys($options), $options)));
+
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
 
         // ms sql doesn't support options
-        $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
+        try {
+            $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
+        } catch (PDOException $e) {
+            if (strpos($e->getMessage(), 'certificate verify failed:subject name does not match host name') &&
+                $this->databaseConfig->hasSSLConnection() &&
+                $this->databaseConfig->getSslConnectionConfig()->isIgnoreCertificateCn()
+            ) {
+                $this->logger->warning($e->getMessage());
+
+                $options['TrustServerCertificate'] = 'true';
+
+                $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
+                    return sprintf('%s=%s', $key, $item);
+                }, array_keys($options), $options)));
+
+                $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
+            } else {
+                throw $e;
+            }
+        }
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         if ($this->databaseConfig->hasSSLConnection()) {
