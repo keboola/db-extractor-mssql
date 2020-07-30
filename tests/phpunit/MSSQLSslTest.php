@@ -84,6 +84,25 @@ class MSSQLSslTest extends AbstractMSSQLTest
         );
     }
 
+    public function testInvalidCnCertificate(): void
+    {
+        $config = $this->getConfig();
+        $config['parameters']['db']['host'] = $this->getEnv(
+            self::DRIVER,
+            'DB_SSL_HOST_INVALID_CN',
+            true
+        );
+        $this->replaceConfig($config, true, 'invalidCNCa.crt');
+        $process = $this->createAppProcess();
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+        $this->assertStringContainsString(
+            'certificate verify failed:subject name does not match host name',
+            $process->getErrorOutput()
+        );
+    }
+
     private function replaceConfig(array $config, bool $verifyServerCert = false, ?string $ca = null): void
     {
         $config['parameters']['db']['ssl'] = [
