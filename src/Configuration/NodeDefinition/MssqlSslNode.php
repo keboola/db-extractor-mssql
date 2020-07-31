@@ -9,12 +9,14 @@ use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 
 class MssqlSslNode extends SslNode
 {
-    public function init(NodeBuilder $nodeBuilder): void
+
+    protected function addKeyNode(NodeBuilder $nodeBuilder): void
     {
-        $this->addEnabledNode($nodeBuilder);
-        $this->addCaNode($nodeBuilder);
-        $this->addCipherNode($nodeBuilder);
-        $this->addVerifyServerCertNode($nodeBuilder);
-        $this->addIgnoreCertificateCn($nodeBuilder);
+        // not supported
+    }
+
+    protected function addCertNode(NodeBuilder $nodeBuilder): void
+    {
+        // not supported
     }
 }
