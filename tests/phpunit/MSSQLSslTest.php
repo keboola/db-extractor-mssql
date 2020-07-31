@@ -9,12 +9,24 @@ use Symfony\Component\Process\Process;
 
 class MSSQLSslTest extends AbstractMSSQLTest
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $fs = new Filesystem();
+        $fs->copy('/etc/ssl/openssl.cnf', '/etc/ssl/openssl.cnf.org');
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
         $fs = new Filesystem();
         if ($fs->exists('/usr/local/share/ca-certificates/mssql.crt')) {
             $fs->remove('/usr/local/share/ca-certificates/mssql.crt');
+        }
+        if ($fs->exists('/etc/ssl/openssl.cnf.org')) {
+            $fs->remove('/etc/ssl/openssl.cnf');
+            $fs->copy('/etc/ssl/openssl.cnf.org', '/etc/ssl/openssl.cnf');
+            $fs->remove('/etc/ssl/openssl.cnf.org');
         }
         Process::fromShellCommandline('update-ca-certificates --fresh')->mustRun();
     }
@@ -103,8 +115,11 @@ class MSSQLSslTest extends AbstractMSSQLTest
         );
     }
 
-    private function replaceConfig(array $config, bool $verifyServerCert = false, ?string $ca = null): void
-    {
+    private function replaceConfig(
+        array $config,
+        bool $verifyServerCert = false,
+        ?string $ca = null
+    ): void {
         $config['parameters']['db']['ssl'] = [
             'enabled' => true,
             'verifyServerCert' => $verifyServerCert,

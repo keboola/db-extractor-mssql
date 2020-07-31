@@ -48,8 +48,21 @@ class MSSQL extends BaseExtractor
 
     public function createConnection(DatabaseConfig $databaseConfig): void
     {
-        if ($databaseConfig->hasSSLConnection() && $databaseConfig->getSslConnectionConfig()->isVerifyServerCert()) {
-            $this->saveSslCertificate($databaseConfig);
+        if ($databaseConfig->hasSSLConnection()) {
+            if ($databaseConfig->getSslConnectionConfig()->hasCipher()) {
+                $changed = $this->saveSslCipherString($databaseConfig);
+
+                // HACK: OpenSSL config is changed -> process must be reloaded.
+                // So run self, then will be $changed = false, and execution will be continue
+                if ($changed) {
+                    $this->logger->info('OpenSSL configuration was updated. Running process again.');
+                    passthru(PHP_BINARY . ' ' . $_SERVER['SCRIPT_FILENAME'], $exitCode);
+                    exit($exitCode);
+                }
+            }
+            if ($databaseConfig->getSslConnectionConfig()->isVerifyServerCert()) {
+                $this->saveSslCertificate($databaseConfig);
+            }
         }
         $this->pdo = new PdoConnection($this->logger, $databaseConfig);
         $this->pdoAdapter = new PdoAdapter($this->logger, $this->pdo, $this->state);
@@ -255,5 +268,27 @@ class MSSQL extends BaseExtractor
             $databaseConfig->getSslConnectionConfig()->getCa()
         );
         Process::fromShellCommandline('update-ca-certificates')->mustRun();
+    }
+
+    private function saveSslCipherString(DatabaseConfig $databaseConfig): bool
+    {
+        $confFile = '/etc/ssl/openssl.cnf';
+        $cipherString = str_ireplace(
+            ["\r", "\n"],
+            ' ',
+            $databaseConfig->getSslConnectionConfig()->getCipher()
+        );
+
+        $oldContent = file_get_contents($confFile);
+        Process::fromShellCommandline(
+            sprintf(
+                "sed -i 's/CipherString\s*=.*/CipherString = %s/g' %s",
+                $cipherString,
+                $confFile
+            )
+        )->mustRun();
+        $newContent = file_get_contents($confFile);
+
+        return $oldContent !== $newContent;
     }
 }
