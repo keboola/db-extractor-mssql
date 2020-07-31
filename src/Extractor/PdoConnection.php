@@ -176,7 +176,7 @@ class PdoConnection
         }
     }
 
-    private function createPdoInstance($options): PDO
+    private function createPdoInstance(array $options): PDO
     {
         $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
             return sprintf('%s=%s', $key, $item);
