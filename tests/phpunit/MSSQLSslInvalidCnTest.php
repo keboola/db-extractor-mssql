@@ -57,6 +57,25 @@ class MSSQLSslInvalidCnTest extends AbstractMSSQLTest
         );
     }
 
+    public function testIgnoreInvalidCnAndInvalidCertificate(): void
+    {
+        $config = $this->getConfig();
+        $config['parameters']['db']['host'] = $this->getEnv(
+            self::DRIVER,
+            'DB_SSL_HOST_INVALID_CN',
+            true
+        );
+        $this->replaceConfig($config, true, 'invalidCa.crt', true);
+        $process = $this->createAppProcess();
+        $process->run();
+
+        $this->assertEquals(1, $process->getExitCode());
+        $this->assertStringContainsString(
+            'unable to get local issuer certificate',
+            $process->getErrorOutput()
+        );
+    }
+
     private function replaceConfig(
         array $config,
         bool $verifyServerCert = false,
