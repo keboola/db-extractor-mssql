@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor;
 
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Configuration\MssqlTableNodesDecorator;
+use Keboola\DbExtractor\Configuration\NodeDefinition\MssqlSslNode;
 use Keboola\DbExtractorConfig\Config;
 use Keboola\DbExtractorConfig\Configuration\ActionConfigRowDefinition;
 use Keboola\DbExtractorConfig\Configuration\ConfigDefinition;
@@ -29,15 +30,28 @@ class MSSQLApplication extends Application
             if ($this['action'] === 'run') {
                 $this->config = new Config(
                     $config,
-                    new ConfigRowDefinition(null, null, null, new MssqlTableNodesDecorator())
+                    new ConfigRowDefinition(
+                        null,
+                        null,
+                        new MssqlSslNode(),
+                        new MssqlTableNodesDecorator()
+                    )
                 );
             } else {
-                $this->config = new Config($config, new ActionConfigRowDefinition());
+                $this->config = new Config(
+                    $config,
+                    new ActionConfigRowDefinition(null, null, new MssqlSslNode())
+                );
             }
         } else {
             $this->config = new Config(
                 $config,
-                new ConfigDefinition(null, null, null, new MssqlTableNodesDecorator())
+                new ConfigDefinition(
+                    null,
+                    null,
+                    new MssqlSslNode(),
+                    new MssqlTableNodesDecorator()
+                )
             );
         }
     }
