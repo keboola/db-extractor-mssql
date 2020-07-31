@@ -19,4 +19,9 @@ class MssqlSslNode extends SslNode
     {
         // not supported
     }
+
+    protected function addCipherNode(NodeBuilder $nodeBuilder): void
+    {
+        // not supported
+    }
 }
