@@ -76,15 +76,6 @@ class PdoConnection
         return (int) $versionParts[0];
     }
 
-    public function runQuery(string $query, array $values = []): array
-    {
-        $stmt = $this->pdo->prepare($query);
-        $stmt->execute($values);
-        /** @var array $result */
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $result;
-    }
-
     public function runRetryableQuery(string $query, int $maxTries, array $values = []): array
     {
         $retryProxy = new DbRetryProxy($this->logger, $maxTries);
@@ -144,5 +135,14 @@ class PdoConnection
         // ms sql doesn't support options
         $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+
+    private function runQuery(string $query, array $values = []): array
+    {
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute($values);
+        /** @var array $result */
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
     }
 }

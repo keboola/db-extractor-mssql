@@ -16,6 +16,8 @@ use Keboola\DbExtractorConfig\Configuration\ValueObject\InputTable;
 
 class MssqlMetadataProvider implements MetadataProvider
 {
+    private const MAX_RETRIES = 5;
+
     private PdoConnection $pdo;
 
     /** @var TableCollection[] */
@@ -53,7 +55,7 @@ class MssqlMetadataProvider implements MetadataProvider
 
         $builder = MetadataBuilder::create();
         $tablesSql = MssqlSqlHelper::getTablesSql($whitelist, $this->pdo);
-        $tables = $this->pdo->runQuery($tablesSql);
+        $tables = $this->pdo->runRetryableQuery($tablesSql, self::MAX_RETRIES);
         foreach ($tables as $data) {
             $tableId = $data['TABLE_SCHEMA'] . '.' . $data['TABLE_NAME'];
             $tableBuilder = $this->processTable($data, $builder);
@@ -69,7 +71,7 @@ class MssqlMetadataProvider implements MetadataProvider
                 MssqlSqlHelper::getColumnsSqlComplex($whitelist, $this->pdo) :
                 MssqlSqlHelper::getColumnsSqlQuick();
 
-            $columns = $this->pdo->runQuery($columnsSql);
+            $columns = $this->pdo->runRetryableQuery($columnsSql, self::MAX_RETRIES);
             foreach ($columns as $data) {
                 $tableId = $data['TABLE_SCHEMA'] . '.' . $data['TABLE_NAME'];
                 $columnId = $data['COLUMN_NAME'] . '.' . $tableId;
