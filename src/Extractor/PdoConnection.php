@@ -135,15 +135,10 @@ class PdoConnection
             $options['TrustServerCertificate'] =
                 $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
         }
-        $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
-            return sprintf('%s=%s', $key, $item);
-        }, array_keys($options), $options)));
-
-        $this->logger->info("Connecting to DSN '" . $dsn . "'");
 
         // ms sql doesn't support options
         try {
-            $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
+            $this->pdo = $this->createPdoInstance($options);
         } catch (PDOException $e) {
             if (strpos($e->getMessage(), 'certificate verify failed:subject name does not match host name') &&
                 $this->databaseConfig->hasSSLConnection() &&
@@ -153,11 +148,7 @@ class PdoConnection
 
                 $options['TrustServerCertificate'] = 'true';
 
-                $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
-                    return sprintf('%s=%s', $key, $item);
-                }, array_keys($options), $options)));
-
-                $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
+                $this->pdo = $this->createPdoInstance($options);
             } else {
                 throw $e;
             }
@@ -174,6 +165,17 @@ class PdoConnection
                 $this->logger->info('Using SSL connection');
             }
         }
+    }
+
+    private function createPdoInstance($options): PDO
+    {
+        $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
+            return sprintf('%s=%s', $key, $item);
+        }, array_keys($options), $options)));
+
+        $this->logger->info("Connecting to DSN '" . $dsn . "'");
+
+        return new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
     }
 
     private function runQuery(string $query, array $values = []): array
