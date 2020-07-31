@@ -48,8 +48,13 @@ class MSSQL extends BaseExtractor
 
     public function createConnection(DatabaseConfig $databaseConfig): void
     {
-        if ($databaseConfig->hasSSLConnection() && $databaseConfig->getSslConnectionConfig()->isVerifyServerCert()) {
-            $this->saveSslCertificate($databaseConfig);
+        if ($databaseConfig->hasSSLConnection()) {
+            if ($databaseConfig->getSslConnectionConfig()->hasCipher()) {
+                $this->saveSslCipherString($databaseConfig);
+            }
+            if ($databaseConfig->getSslConnectionConfig()->isVerifyServerCert()) {
+                $this->saveSslCertificate($databaseConfig);
+            }
         }
         $this->pdo = new PdoConnection($this->logger, $databaseConfig);
         $this->pdoAdapter = new PdoAdapter($this->logger, $this->pdo, $this->state);
@@ -255,5 +260,21 @@ class MSSQL extends BaseExtractor
             $databaseConfig->getSslConnectionConfig()->getCa()
         );
         Process::fromShellCommandline('update-ca-certificates')->mustRun();
+    }
+
+    private function saveSslCipherString(DatabaseConfig $databaseConfig): void
+    {
+        $cipherString = str_ireplace(
+            ["\r", "\n"],
+            ' ',
+            $databaseConfig->getSslConnectionConfig()->getCipher()
+        );
+
+        Process::fromShellCommandline(
+            sprintf(
+                "sed -i 's/CipherString\s*=.*/CipherString = %s/g' /etc/ssl/openssl.cnf",
+                $cipherString
+            )
+        )->mustRun();
     }
 }

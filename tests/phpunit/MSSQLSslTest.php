@@ -9,12 +9,24 @@ use Symfony\Component\Process\Process;
 
 class MSSQLSslTest extends AbstractMSSQLTest
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $fs = new Filesystem();
+        $fs->copy('/etc/ssl/openssl.cnf', '/etc/ssl/openssl.cnf.org');
+    }
+
     protected function tearDown(): void
     {
         parent::tearDown();
         $fs = new Filesystem();
         if ($fs->exists('/usr/local/share/ca-certificates/mssql.crt')) {
             $fs->remove('/usr/local/share/ca-certificates/mssql.crt');
+        }
+        if ($fs->exists('/etc/ssl/openssl.cnf.org')) {
+            $fs->remove('/etc/ssl/openssl.cnf');
+            $fs->copy('/etc/ssl/openssl.cnf.org', '/etc/ssl/openssl.cnf');
+            $fs->remove('/etc/ssl/openssl.cnf.org');
         }
         Process::fromShellCommandline('update-ca-certificates --fresh')->mustRun();
     }
@@ -103,11 +115,37 @@ class MSSQLSslTest extends AbstractMSSQLTest
         );
     }
 
-    private function replaceConfig(array $config, bool $verifyServerCert = false, ?string $ca = null): void
+    public function testCipher(): void
     {
+        $config = $this->getConfig();
+        $this->replaceConfig($config, true, 'ca.crt', 'aes-128-cbc');
+        $process = $this->createAppProcess();
+        $process->run();
+
+        var_dump($process->getErrorOutput(), $process->getOutput(), $process->getExitCode());
+
+    }
+
+    public function testInvalidCipher(): void
+    {
+        $config = $this->getConfig();
+        $this->replaceConfig($config, true, 'ca.crt', 'SSL_RC4_128_WITH_MD5');
+        $process = $this->createAppProcess();
+        $process->run();
+
+        var_dump($process->getErrorOutput(), $process->getOutput(), $process->getExitCode());
+    }
+
+    private function replaceConfig(
+        array $config,
+        bool $verifyServerCert = false,
+        ?string $ca = null,
+        ?string $cipher = null
+    ): void {
         $config['parameters']['db']['ssl'] = [
             'enabled' => true,
             'verifyServerCert' => $verifyServerCert,
+            'cipher' => $cipher
         ];
         $config['parameters']['db']['ssl']['ca'] =
             $ca ?
