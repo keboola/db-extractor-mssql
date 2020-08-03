@@ -6,6 +6,7 @@ services:
 install:
   - docker-compose -v
   - docker-compose build
+  - docker-compose run --rm wait
   - docker-compose run --rm app
 
 script:

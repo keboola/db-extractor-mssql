@@ -12,6 +12,7 @@ use Throwable;
 use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\DeadConnectionException;
 use Keboola\DbExtractor\Exception\UserException;
+use \PDOException;
 
 class PdoConnection
 {
@@ -127,14 +128,54 @@ class PdoConnection
     {
         $host = $this->databaseConfig->getHost();
         $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
-        $options[] = 'Server=' . $host;
-        $options[] = 'Database=' . $this->databaseConfig->getDatabase();
-        $dsn = sprintf('sqlsrv:%s', implode(';', $options));
-        $this->logger->info("Connecting to DSN '" . $dsn . "'");
+        $options['Server'] = $host;
+        $options['Database'] = $this->databaseConfig->getDatabase();
+        if ($this->databaseConfig->hasSSLConnection()) {
+            $options['Encrypt'] = 'true';
+            $options['TrustServerCertificate'] =
+                $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+        }
 
         // ms sql doesn't support options
-        $this->pdo = new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
+        try {
+            $this->pdo = $this->createPdoInstance($options);
+        } catch (PDOException $e) {
+            if (strpos($e->getMessage(), 'certificate verify failed:subject name does not match host name') &&
+                $this->databaseConfig->hasSSLConnection() &&
+                $this->databaseConfig->getSslConnectionConfig()->isIgnoreCertificateCn()
+            ) {
+                $this->logger->warning($e->getMessage());
+
+                $options['TrustServerCertificate'] = 'true';
+
+                $this->pdo = $this->createPdoInstance($options);
+            } else {
+                throw $e;
+            }
+        }
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        if ($this->databaseConfig->hasSSLConnection()) {
+            $status = $this->pdo->query(
+                'SELECT session_id, encrypt_option FROM sys.dm_exec_connections WHERE session_id = @@SPID'
+            )->fetch();
+            if ($status['encrypt_option'] === 'FALSE') {
+                throw new UserException(sprintf('Connection is not encrypted'));
+            } else {
+                $this->logger->info('Using SSL connection');
+            }
+        }
+    }
+
+    private function createPdoInstance(array $options): PDO
+    {
+        $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
+            return sprintf('%s=%s', $key, $item);
+        }, array_keys($options), $options)));
+
+        $this->logger->info("Connecting to DSN '" . $dsn . "'");
+
+        return new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
     }
 
     private function runQuery(string $query, array $values = []): array
