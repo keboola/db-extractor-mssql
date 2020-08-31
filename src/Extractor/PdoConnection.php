@@ -108,7 +108,7 @@ class PdoConnection
             } catch (Throwable $reconnectException) {
                 throw new UserException(
                     'Unable to reconnect to the database: ' . $reconnectException->getMessage(),
-                    $reconnectException->getCode(),
+                    (int) $reconnectException->getCode(),
                     $reconnectException
                 );
             }
