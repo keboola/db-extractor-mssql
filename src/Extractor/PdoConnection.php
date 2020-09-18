@@ -79,7 +79,7 @@ class PdoConnection
 
     public function runRetryableQuery(string $query, int $maxTries, array $values = []): array
     {
-        $retryProxy = new DbRetryProxy($this->logger, $maxTries);
+        $retryProxy = MssqlRetryFactory::createProxy($this->logger, $maxTries);
         return $retryProxy->call(function () use ($query, $values): array {
             try {
                 return $this->runQuery($query, $values);
@@ -95,12 +95,7 @@ class PdoConnection
         try {
             $this->isAlive();
         } catch (DeadConnectionException $e) {
-            $reconnectionRetryProxy = new DbRetryProxy(
-                $this->logger,
-                DbRetryProxy::DEFAULT_MAX_TRIES,
-                null,
-                1000
-            );
+            $reconnectionRetryProxy = MssqlRetryFactory::createProxy($this->logger, DbRetryProxy::DEFAULT_MAX_TRIES);
             try {
                 $reconnectionRetryProxy->call(function (): void {
                     $this->connect();

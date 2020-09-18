@@ -12,8 +12,8 @@ use Retry\RetryProxy;
 use Keboola\Csv\CsvWriter;
 use Keboola\DbExtractor\Extractor\PdoConnection;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
-use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\UserException;
+use Keboola\DbExtractor\Extractor\MssqlRetryFactory;
 
 class PdoAdapter
 {
@@ -104,6 +104,6 @@ class PdoAdapter
 
     private function createRetryProxy(int $maxTries): RetryProxy
     {
-        return new DbRetryProxy($this->logger, $maxTries, [PDOException::class]);
+        return MssqlRetryFactory::createProxy($this->logger, $maxTries, null, [PDOException::class]);
     }
 }
