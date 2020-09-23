@@ -29,7 +29,11 @@ class PdoConnection
         $this->logger = $logger;
         $this->databaseConfig = $databaseConfig;
 
-        $this->connect();
+        // Tries = 1 -> enable only long retry for problematic error, standard retry is in BaseExtractor
+        $retryProxy = MssqlRetryFactory::createProxy($this->logger, 1);
+        $retryProxy->call(function (): void {
+            $this->connect();
+        });
     }
 
     public function testConnection(): void
