@@ -14,6 +14,7 @@
         "ext-PDO": "*",
         "ext-json": "*",
         "keboola/csv": "^2.2.1",
+        "keboola/datadir-tests": "^5.2",
         "keboola/db-extractor-common": "^13.3",
         "keboola/db-extractor-config": "^1.4.6",
         "keboola/db-extractor-table-format": "^3.1.6",
@@ -35,20 +36,27 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Keboola\\DbExtractor\\Tests\\": "tests/phpunit/"
+            "Keboola\\DbExtractor\\Tests\\": "tests/phpunit/",
+            "Keboola\\DbExtractor\\TraitTests\\": "tests/traits/",
+            "Keboola\\DbExtractor\\FunctionalTests\\": "tests/functional/"
         }
     },
     "scripts": {
-        "tests": "phpunit --testsuite unit",
-        "perf": "phpunit --testsuite perf",
+        "tests-phpunit": "phpunit --testsuite unit",
+        "tests-datadir": "phpunit tests/functional",
+        "tests-perf": "phpunit --testsuite perf",
+        "tests": [
+            "@tests-phpunit",
+            "@tests-datadir",
+            "@tests-perf"
+        ],
         "phpstan": "phpstan analyse --no-progress --level=max ./src ./tests -c phpstan.neon",
         "phpcs": "phpcs -n --ignore=vendor --extensions=php .",
         "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
         "build": [
             "@phpcs",
             "@phpstan",
-            "@tests",
-            "@perf"
+            "@tests"
         ],
         "ci": [
             "@composer validate --no-check-all --strict",
