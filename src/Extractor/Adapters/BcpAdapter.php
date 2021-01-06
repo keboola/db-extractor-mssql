@@ -260,9 +260,16 @@ class BcpAdapter
             escapeshellarg($this->databaseConfig->getDatabase())
         );
 
+        $commandForLogger = preg_replace('/\-P.*\-d/', '-P ***** -d', $cmd);
+        $commandForLogger = preg_replace(
+            '/queryout.*\/([a-z\-\.]+\.csv).*-S/',
+            'queryout \'${1}\' -S',
+            (string) $commandForLogger
+        );
+
         $this->logger->info(sprintf(
             'Executing BCP command: %s',
-            preg_replace('/\-P.*\-d/', '-P ***** -d', $cmd)
+            $commandForLogger
         ));
         return $cmd;
     }

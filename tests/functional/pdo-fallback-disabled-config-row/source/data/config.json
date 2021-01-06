@@ -1,0 +1,20 @@
+{
+  "parameters": {
+    "id": 4,
+    "enabled": true,
+    "name": "special",
+    "outputTable": "in.c-main.special",
+    "incremental": false,
+    "primaryKey": null,
+    "query": "SELECT *  FROM \"special\";",
+    "disableFallback": true,
+    "db": {
+      "host": "%env(string:MSSQL_DB_HOST)%",
+      "port": "%env(string:MSSQL_DB_PORT)%",
+      "user": "%env(string:MSSQL_DB_USER)%",
+      "#password": "%env(string:MSSQL_DB_PASSWORD)%",
+      "database": "%env(string:MSSQL_DB_DATABASE)%"
+    },
+    "extractor_class": "MSSQL"
+  }
+}

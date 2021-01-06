@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\FunctionalTests;
 
 use Keboola\DatadirTests\DatadirTestCase;
+use Keboola\DatadirTests\DatadirTestSpecificationInterface;
+use Keboola\DbExtractor\TraitTests\CloseSshTunnelsTrait;
 use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
 use PDO;
 use RuntimeException;
@@ -12,6 +14,7 @@ use RuntimeException;
 class DatadirTest extends DatadirTestCase
 {
     use RemoveAllTablesTrait;
+    use CloseSshTunnelsTrait;
 
     protected PDO $connection;
 
@@ -24,6 +27,20 @@ class DatadirTest extends DatadirTestCase
         return $this->connection;
     }
 
+    protected function modifyConfigJsonContent(string $content): string
+    {
+        $config = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+
+        if (isset($config['parameters']['db']['ssh']['keys'])) {
+            $config['parameters']['db']['ssh']['keys'] = [
+                '#private' => (string) file_get_contents('/root/.ssh/id_rsa'),
+                'public' => (string) file_get_contents('/root/.ssh/id_rsa.pub'),
+            ];
+        }
+
+        return parent::modifyConfigJsonContent((string) json_encode($config));
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -34,6 +51,7 @@ class DatadirTest extends DatadirTestCase
 
         $this->connection = PdoTestConnection::createConnection();
         $this->removeAllTables();
+        $this->closeSshTunnels();
 
         // Load setUp.php file - used to init database state
         $setUpPhpFile = $this->testProjectDir . '/setUp.php';
