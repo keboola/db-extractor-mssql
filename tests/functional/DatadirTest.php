@@ -33,6 +33,7 @@ class DatadirTest extends DatadirTestCase
         $this->testTempDir = $this->temp->getTmpFolder();
 
         $this->connection = PdoTestConnection::createConnection();
+        $this->removeAllTables();
 
         // Load setUp.php file - used to init database state
         $setUpPhpFile = $this->testProjectDir . '/setUp.php';
@@ -46,11 +47,5 @@ class DatadirTest extends DatadirTestCase
             // Invoke callback
             $initCallback($this);
         }
-    }
-
-    public function tearDown(): void
-    {
-        parent::tearDown();
-        $this->removeAllTables();
     }
 }
