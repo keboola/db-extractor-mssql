@@ -43,7 +43,7 @@
     },
     "scripts": {
         "tests-phpunit": "phpunit --testsuite unit",
-        "tests-datadir": "phpunit tests/functional",
+        "tests-datadir": "phpunit --testsuite functional",
         "tests-perf": "phpunit --testsuite perf",
         "tests": [
             "@tests-phpunit",
