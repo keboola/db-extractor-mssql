@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\FunctionalTests;
 
 use Keboola\DatadirTests\DatadirTestCase;
-use Keboola\DatadirTests\DatadirTestSpecificationInterface;
 use Keboola\DbExtractor\TraitTests\CloseSshTunnelsTrait;
 use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
 use PDO;

@@ -262,7 +262,7 @@ class BcpAdapter
 
         $commandForLogger = preg_replace('/\-P.*\-d/', '-P ***** -d', $cmd);
         $commandForLogger = preg_replace(
-            '/queryout.*\/([a-z\-\.]+\.csv).*-S/',
+            '/queryout.*\/([a-z\-\._]+\.csv).*-S/',
             'queryout \'${1}\' -S',
             (string) $commandForLogger
         );

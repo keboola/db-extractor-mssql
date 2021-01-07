@@ -1,0 +1,2 @@
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Exporting to in.c-main.auto-increment-timestamp

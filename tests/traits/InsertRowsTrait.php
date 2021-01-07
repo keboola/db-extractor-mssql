@@ -30,7 +30,15 @@ trait InsertRowsTrait
                 '(' .
                 implode(
                     ', ',
-                    array_map(fn($value) => $value === null ? 'NULL' : $this->quote((string) $value), $row)
+                    array_map(function ($value) {
+                        if ($value === null) {
+                            return 'NULL';
+                        }
+                        if ($value === 'GETDATE()') {
+                            return $value;
+                        }
+                        return $this->quote((string) $value);
+                    }, $row)
                 ) .
                 ')';
         }
