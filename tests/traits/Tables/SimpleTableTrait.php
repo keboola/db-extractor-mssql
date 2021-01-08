@@ -15,12 +15,16 @@ trait SimpleTableTrait
         $this->createTable($name, $this->getSimpleColumns());
     }
 
+    public function addSimpleConstraint(string $tableName = 'simple'): void
+    {
+        $this->addConstraint($tableName, 'PK_AUTOINC', 'PRIMARY KEY', 'id');
+    }
+
     protected function getSimpleColumns(): array
     {
         return [
-            'id' => 'INTEGER',
-            'name' => 'NVARCHAR(255) NOT NULL',
-            'date' => 'DATETIME DEFAULT NULL',
+            'id' => 'INT NOT NULL',
+            'name' => 'VARCHAR(100)',
         ];
     }
 }

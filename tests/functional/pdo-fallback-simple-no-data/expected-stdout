@@ -1,6 +1,6 @@
 Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
 Exporting to in.c-main.special
-Executing query "special" via BCP: "SELECT [id], char(34) + REPLACE([name], char(34), char(34) + char(34)) + char(34) AS [name], CONVERT(DATETIME2(0),[date]) AS [date] FROM [dbo].[simple]"
-Executing BCP command: bcp 'SELECT [id], char(34) + REPLACE([name], char(34), char(34) + char(34)) + char(34) AS [name], CONVERT(DATETIME2(0),[date]) AS [date] FROM [dbo].[simple]' queryout 'in.c-main.special.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+Executing query "special" via BCP: "SELECT [id], char(34) + COALESCE(REPLACE([name], char(34), char(34) + char(34)),'') + char(34) AS [name] FROM [dbo].[simple]"
+Executing BCP command: bcp 'SELECT [id], char(34) + COALESCE(REPLACE([name], char(34), char(34) + char(34)),'\'''\'') + char(34) AS [name] FROM [dbo].[simple]' queryout 'in.c-main.special.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
 BCP successfully exported 0 rows.
 Extractor finished successfully.

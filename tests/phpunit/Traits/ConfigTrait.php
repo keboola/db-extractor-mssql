@@ -1,5 +1,19 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Keboola\DbExtractor\Tests\Traits;
+
+use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
+
+trait ConfigTrait
+{
+    private function getConfig(): array
+    {
+        $configTemplate = <<<JSON
 {
   "parameters": {
+    "db": %s,
     "tables": [
       {
         "id": 1,
@@ -34,7 +48,7 @@
         "name": "auto-increment-timestamp",
         "outputTable": "in.c-main.auto-increment-timestamp",
         "incremental": false,
-        "primaryKey": ["_Weir%d I-D"],
+        "primaryKey": ["_Weir%%d I-D"],
         "table": {
           "schema": "dbo",
           "tableName": "auto Increment Timestamp"
@@ -54,4 +68,34 @@
       }
     ]
   }
+}
+JSON;
+        return json_decode(
+            sprintf($configTemplate, json_encode(PdoTestConnection::getDbConfigArray())),
+            true
+        );
+    }
+
+    public function getRowConfig(): array
+    {
+        $configTemplate = <<<JSON
+{
+  "parameters": {
+    "db": %s,
+    "name": "special",
+    "outputTable": "in.c-main.special",
+    "incremental": false,
+    "primaryKey": null,
+    "table": {
+      "schema": "dbo",
+      "tableName": "special"
+    }
+  }
+}
+JSON;
+        return json_decode(
+            sprintf($configTemplate, json_encode(PdoTestConnection::getDbConfigArray())),
+            true
+        );
+    }
 }
