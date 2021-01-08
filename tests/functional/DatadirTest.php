@@ -9,6 +9,8 @@ use Keboola\DbExtractor\TraitTests\CloseSshTunnelsTrait;
 use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
 use PDO;
 use RuntimeException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Process\Process;
 
 class DatadirTest extends DatadirTestCase
 {
@@ -37,6 +39,16 @@ class DatadirTest extends DatadirTestCase
             ];
         }
 
+        if (!empty($config['parameters']['db']['ssl']['ca'])) {
+            $config['parameters']['db']['ssl']['ca'] = file_get_contents(
+                sprintf(
+                    '%s/ssl/certs/%s',
+                    $this->temp->getTmpFolder(),
+                    $config['parameters']['db']['ssl']['ca']
+                )
+            );
+        }
+
         return parent::modifyConfigJsonContent((string) json_encode($config));
     }
 
@@ -48,7 +60,14 @@ class DatadirTest extends DatadirTestCase
         $this->testProjectDir = $this->getTestFileDir() . '/' . $this->dataName();
         $this->testTempDir = $this->temp->getTmpFolder();
 
-        $this->connection = PdoTestConnection::createConnection();
+        $configContent = file_get_contents($this->testProjectDir . '/source/data/config.json');
+
+        $config = json_decode((string) $configContent, true);
+        preg_match('/%env\(string:([A-Z_]+)\)%/', $config['parameters']['db']['host'], $hostEnv);
+
+        $this->connection = PdoTestConnection::createConnection(
+            (string) getenv($hostEnv[1])
+        );
         $this->removeAllTables();
         $this->closeSshTunnels();
 
@@ -63,6 +82,16 @@ class DatadirTest extends DatadirTestCase
 
             // Invoke callback
             $initCallback($this);
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+        $fs = new Filesystem();
+        if ($fs->exists('/usr/local/share/ca-certificates/mssql.crt')) {
+            $fs->remove('/usr/local/share/ca-certificates/mssql.crt');
+            Process::fromShellCommandline('update-ca-certificates --fresh')->mustRun();
         }
     }
 }

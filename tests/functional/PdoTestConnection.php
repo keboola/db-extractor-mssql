@@ -21,14 +21,18 @@ class PdoTestConnection
         ];
     }
 
-    public static function createDbConfig(): DatabaseConfig
+    public static function createDbConfig(?string $dbHost = null): DatabaseConfig
     {
-        return DatabaseConfig::fromArray(self::getDbConfigArray());
+        $dbConfig = self::getDbConfigArray();
+        if ($dbHost) {
+            $dbConfig['host'] = $dbHost;
+        }
+        return DatabaseConfig::fromArray($dbConfig);
     }
 
-    public static function createConnection(): PDO
+    public static function createConnection(?string $dbHost = null): PDO
     {
-        $dbConfig = self::createDbConfig();
+        $dbConfig = self::createDbConfig($dbHost);
 
         $host = $dbConfig->getHost();
         $host .= $dbConfig->hasPort() ? ',' . $dbConfig->getPort() : '';
