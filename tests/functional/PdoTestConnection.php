@@ -37,7 +37,6 @@ class PdoTestConnection
         $host = $dbConfig->getHost();
         $host .= $dbConfig->hasPort() ? ',' . $dbConfig->getPort() : '';
         $options['Server'] = $host;
-        $options['Database'] = $dbConfig->getDatabase();
         if ($dbConfig->hasSSLConnection()) {
             $options['Encrypt'] = 'true';
             $options['TrustServerCertificate'] =
@@ -46,7 +45,7 @@ class PdoTestConnection
 
         // ms sql doesn't support options
         try {
-            return self::createPdoInstance($dbConfig, $options);
+            $pdo = self::createPdoInstance($dbConfig, $options);
         } catch (PDOException $e) {
             if (strpos($e->getMessage(), 'certificate verify failed:subject name does not match host name') &&
                 $dbConfig->hasSSLConnection() &&
@@ -54,11 +53,20 @@ class PdoTestConnection
             ) {
                 $options['TrustServerCertificate'] = 'true';
 
-                return self::createPdoInstance($dbConfig, $options);
+                $pdo = self::createPdoInstance($dbConfig, $options);
             } else {
                 throw $e;
             }
         }
+
+        $pdo->exec('USE master');
+        $pdo->exec(sprintf("
+            IF NOT EXISTS(select * from sys.databases where name='%s') 
+            CREATE DATABASE %s
+        ", $dbConfig->getDatabase(), $dbConfig->getDatabase()));
+        $pdo->exec(sprintf('USE %s', $dbConfig->getDatabase()));
+
+        return $pdo;
     }
 
     private static function createPdoInstance(DatabaseConfig $dbConfig, array $options): PDO
