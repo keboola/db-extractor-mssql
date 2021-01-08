@@ -104,7 +104,7 @@ class DatadirTest extends DatadirTestCase
         }
     }
 
-    protected function prettifyAllManifests($actual): void
+    protected function prettifyAllManifests(string $actual): void
     {
         foreach ($this->findManifests($actual . '/tables') as $file) {
             $this->prettifyJsonFile((string) $file->getRealPath());
