@@ -10,7 +10,9 @@ use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
 use PDO;
 use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
+use \Throwable;
 
 class DatadirTest extends DatadirTestCase
 {
@@ -34,6 +36,12 @@ class DatadirTest extends DatadirTestCase
 
         putenv('SSH_PRIVATE_KEY=' . (string) file_get_contents('/root/.ssh/id_rsa'));
         putenv('SSH_PUBLIC_KEY=' . (string) file_get_contents('/root/.ssh/id_rsa.pub'));
+    }
+
+    public function assertDirectoryContentsSame(string $expected, string $actual): void
+    {
+        $this->prettifyAllManifests($actual);
+        parent::assertDirectoryContentsSame($expected, $actual);
     }
 
     protected function modifyConfigJsonContent(string $content): string
@@ -94,5 +102,29 @@ class DatadirTest extends DatadirTestCase
             $fs->remove('/usr/local/share/ca-certificates/mssql.crt');
             Process::fromShellCommandline('update-ca-certificates --fresh')->mustRun();
         }
+    }
+
+    protected function prettifyAllManifests($actual): void
+    {
+        foreach ($this->findManifests($actual . '/tables') as $file) {
+            $this->prettifyJsonFile((string) $file->getRealPath());
+        }
+    }
+
+    protected function prettifyJsonFile(string $path): void
+    {
+        $json = (string) file_get_contents($path);
+        try {
+            file_put_contents($path, (string) json_encode(json_decode($json), JSON_PRETTY_PRINT));
+        } catch (Throwable $e) {
+            // If a problem occurs, preserve the original contents
+            file_put_contents($path, $json);
+        }
+    }
+
+    protected function findManifests(string $dir): Finder
+    {
+        $finder = new Finder();
+        return $finder->files()->in($dir)->name(['~.*\.manifest~']);
     }
 }
