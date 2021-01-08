@@ -40,7 +40,7 @@ class PerformanceTest extends TestCase
                 );
                 $removeTables = [
                     sprintf('testtable_%d', $tableCount),
-                    sprintf('testschema_%d', $schemaCount)
+                    sprintf('testschema_%d', $schemaCount),
                 ];
                 foreach ($removeTables as $removeTable) {
                     $this->pdo->exec(
@@ -113,7 +113,7 @@ class PerformanceTest extends TestCase
         echo "\nComplete test finished in  " . $entireTime . " seconds.\n";
     }
 
-    private function getConfig()
+    private function getConfig(): array
     {
         $configTemplate = <<<JSON
 {
