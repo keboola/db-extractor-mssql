@@ -62,8 +62,8 @@
       "ssh": {
         "enabled": true,
         "keys": {
-          "#private": "",
-          "public": ""
+          "#private": "%env(string:SSH_PRIVATE_KEY)%",
+          "public": "%env(string:SSH_PUBLIC_KEY)%"
         },
         "user": "root",
         "sshHost": "sshproxy",

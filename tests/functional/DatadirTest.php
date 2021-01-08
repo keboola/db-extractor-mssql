@@ -28,16 +28,17 @@ class DatadirTest extends DatadirTestCase
         return $this->connection;
     }
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+
+        putenv('SSH_PRIVATE_KEY=' . (string) file_get_contents('/root/.ssh/id_rsa'));
+        putenv('SSH_PUBLIC_KEY=' . (string) file_get_contents('/root/.ssh/id_rsa.pub'));
+    }
+
     protected function modifyConfigJsonContent(string $content): string
     {
         $config = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
-
-        if (isset($config['parameters']['db']['ssh']['keys'])) {
-            $config['parameters']['db']['ssh']['keys'] = [
-                '#private' => (string) file_get_contents('/root/.ssh/id_rsa'),
-                'public' => (string) file_get_contents('/root/.ssh/id_rsa.pub'),
-            ];
-        }
 
         if (!empty($config['parameters']['db']['ssl']['ca'])) {
             $config['parameters']['db']['ssl']['ca'] = file_get_contents(
