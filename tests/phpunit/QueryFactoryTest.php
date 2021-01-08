@@ -13,12 +13,14 @@ use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\TableBuilder;
+use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 
 class QueryFactoryTest extends TestCase
 {
+    use ConfigTrait;
 
     /**
      * @dataProvider simpleTableColumnsDataProvider
@@ -820,72 +822,5 @@ class QueryFactoryTest extends TestCase
         }
 
         return new QueryFactory($pdo, $metadataProvider, $state);
-    }
-
-    private function getConfig(): array
-    {
-        $configTemplate = <<<JSON
-{
-  "parameters": {
-    "db": %s,
-    "tables": [
-      {
-        "id": 1,
-        "name": "sales",
-        "query": "SELECT * FROM sales",
-        "outputTable": "in.c-main.sales",
-        "incremental": false,
-        "primaryKey": null,
-        "enabled": true
-      },
-      {
-        "id": 2,
-        "enabled": true,
-        "name": "tablecolumns",
-        "outputTable": "in.c-main.tablecolumns",
-        "incremental": false,
-        "primaryKey": null,
-        "table": {
-          "schema": "dbo",
-          "tableName": "sales"
-        },
-        "columns": [
-          "usergender",
-          "usercity",
-          "usersentiment",
-          "zipcode"
-        ]
-      },
-      {
-        "id": 3,
-        "enabled": true,
-        "name": "auto-increment-timestamp",
-        "outputTable": "in.c-main.auto-increment-timestamp",
-        "incremental": false,
-        "table": {
-          "schema": "dbo",
-          "tableName": "auto Increment Timestamp"
-        }
-      },
-      {
-        "id": 4,
-        "enabled": true,
-        "name": "special",
-        "outputTable": "in.c-main.special",
-        "incremental": false,
-        "primaryKey": null,
-        "table": {
-          "schema": "dbo",
-          "tableName": "special"
-        }
-      }
-    ]
-  }
-}
-JSON;
-        return json_decode(
-            sprintf($configTemplate, json_encode(PdoTestConnection::getDbConfigArray())),
-            true
-        );
     }
 }

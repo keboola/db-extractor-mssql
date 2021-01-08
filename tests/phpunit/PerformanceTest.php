@@ -6,12 +6,15 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\MSSQLApplication;
+use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use \PDO;
 
 class PerformanceTest extends TestCase
 {
+    use ConfigTrait;
+
     protected string $dataDir = __DIR__ . '/data';
 
     private PDO $pdo;
@@ -96,6 +99,7 @@ class PerformanceTest extends TestCase
         echo "\nTest DB built in  " . $dbBuildTime . " seconds.\n";
 
         $config = $this->getConfig();
+        $config['action'] = 'getTables';
 
         $logger = new Logger('ex-db-mssql-tests');
         $app = new MSSQLApplication($config, $logger, [], $this->dataDir);
@@ -111,73 +115,5 @@ class PerformanceTest extends TestCase
         $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
         $entireTime = time() - $testStartTime;
         echo "\nComplete test finished in  " . $entireTime . " seconds.\n";
-    }
-
-    private function getConfig(): array
-    {
-        $configTemplate = <<<JSON
-{
-  "action": "getTables",
-  "parameters": {
-    "db": %s,
-    "tables": [
-      {
-        "id": 1,
-        "name": "sales",
-        "query": "SELECT * FROM sales",
-        "outputTable": "in.c-main.sales",
-        "incremental": false,
-        "primaryKey": null,
-        "enabled": true
-      },
-      {
-        "id": 2,
-        "enabled": true,
-        "name": "tablecolumns",
-        "outputTable": "in.c-main.tablecolumns",
-        "incremental": false,
-        "primaryKey": null,
-        "table": {
-          "schema": "dbo",
-          "tableName": "sales"
-        },
-        "columns": [
-          "usergender",
-          "usercity",
-          "usersentiment",
-          "zipcode"
-        ]
-      },
-      {
-        "id": 3,
-        "enabled": true,
-        "name": "auto-increment-timestamp",
-        "outputTable": "in.c-main.auto-increment-timestamp",
-        "incremental": false,
-        "table": {
-          "schema": "dbo",
-          "tableName": "auto Increment Timestamp"
-        }
-      },
-      {
-        "id": 4,
-        "enabled": true,
-        "name": "special",
-        "outputTable": "in.c-main.special",
-        "incremental": false,
-        "primaryKey": null,
-        "table": {
-          "schema": "dbo",
-          "tableName": "special"
-        }
-      }
-    ]
-  }
-}
-JSON;
-        return json_decode(
-            sprintf($configTemplate, json_encode(PdoTestConnection::getDbConfigArray())),
-            true
-        );
     }
 }
