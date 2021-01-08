@@ -4,13 +4,22 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Exception\UserException;
-use Symfony\Component\Process\Process;
+use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\MSSQLApplication;
+use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
+use \PDO;
 
-class PerformanceTest extends AbstractMSSQLTest
+class PerformanceTest extends TestCase
 {
+    protected string $dataDir = __DIR__ . '/data';
+
+    private PDO $pdo;
+
+    protected function setUp(): void
+    {
+        $this->pdo = PdoTestConnection::createConnection();
+    }
 
     private function cleanupTestSchemas(int $numberOfSchemas, int $numberOfTablesPerSchema): void
     {
@@ -29,10 +38,21 @@ class PerformanceTest extends AbstractMSSQLTest
                         $tableCount
                     )
                 );
-                $this->dropTable(
+                $removeTables = [
                     sprintf('testtable_%d', $tableCount),
                     sprintf('testschema_%d', $schemaCount)
-                );
+                ];
+                foreach ($removeTables as $removeTable) {
+                    $this->pdo->exec(
+                        sprintf(
+                            "IF OBJECT_ID('[%s].[%s]', 'U') IS NOT NULL DROP TABLE [%s].[%s]",
+                            'dbo',
+                            $removeTable,
+                            'dbo',
+                            $removeTable
+                        )
+                    );
+                }
             }
             $this->pdo->exec(sprintf('DROP SCHEMA IF EXISTS [testschema_%d]', $schemaCount));
         }
@@ -76,8 +96,9 @@ class PerformanceTest extends AbstractMSSQLTest
         echo "\nTest DB built in  " . $dbBuildTime . " seconds.\n";
 
         $config = $this->getConfig();
-        $config['action'] = 'getTables';
-        $app = $this->createApplication($config);
+
+        $logger = new Logger('ex-db-mssql-tests');
+        $app = new MSSQLApplication($config, $logger, [], $this->dataDir);
 
         $jobStartTime = time();
         $result = $app->run();
@@ -90,5 +111,73 @@ class PerformanceTest extends AbstractMSSQLTest
         $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
         $entireTime = time() - $testStartTime;
         echo "\nComplete test finished in  " . $entireTime . " seconds.\n";
+    }
+
+    private function getConfig()
+    {
+        $configTemplate = <<<JSON
+{
+  "action": "getTables",
+  "parameters": {
+    "db": %s,
+    "tables": [
+      {
+        "id": 1,
+        "name": "sales",
+        "query": "SELECT * FROM sales",
+        "outputTable": "in.c-main.sales",
+        "incremental": false,
+        "primaryKey": null,
+        "enabled": true
+      },
+      {
+        "id": 2,
+        "enabled": true,
+        "name": "tablecolumns",
+        "outputTable": "in.c-main.tablecolumns",
+        "incremental": false,
+        "primaryKey": null,
+        "table": {
+          "schema": "dbo",
+          "tableName": "sales"
+        },
+        "columns": [
+          "usergender",
+          "usercity",
+          "usersentiment",
+          "zipcode"
+        ]
+      },
+      {
+        "id": 3,
+        "enabled": true,
+        "name": "auto-increment-timestamp",
+        "outputTable": "in.c-main.auto-increment-timestamp",
+        "incremental": false,
+        "table": {
+          "schema": "dbo",
+          "tableName": "auto Increment Timestamp"
+        }
+      },
+      {
+        "id": 4,
+        "enabled": true,
+        "name": "special",
+        "outputTable": "in.c-main.special",
+        "incremental": false,
+        "primaryKey": null,
+        "table": {
+          "schema": "dbo",
+          "tableName": "special"
+        }
+      }
+    ]
+  }
+}
+JSON;
+        return json_decode(
+            sprintf($configTemplate, json_encode(PdoTestConnection::getDbConfigArray())),
+            true
+        );
     }
 }
