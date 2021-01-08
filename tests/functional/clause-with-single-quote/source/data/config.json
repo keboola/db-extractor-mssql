@@ -8,7 +8,7 @@
         "outputTable": "in.c-main.special",
         "incremental": false,
         "primaryKey": null,
-        "query": "SELECT \"usergender\", \"sku\" FROM \"sales\" WHERE \"usergender\" LIKE 'male'"
+        "query": "SELECT TOP 5 \"usergender\", \"sku\" FROM \"sales\" WHERE \"usergender\" LIKE 'male'"
       }
     ],
     "db": {
