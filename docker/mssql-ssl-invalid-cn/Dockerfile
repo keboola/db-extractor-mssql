@@ -1,7 +1,7 @@
 FROM microsoft/mssql-server-linux
 
-COPY tests/phpunit/data/ssl/certs/mssql-invalidCn.crt /etc/ssl/certs/mssql.crt
-COPY tests/phpunit/data/ssl/certs/mssql-invalidCn.key /etc/ssl/private/mssql.key
+COPY tests/ssl-certs/mssql-invalidCn.crt /etc/ssl/certs/mssql.crt
+COPY tests/ssl-certs/mssql-invalidCn.key /etc/ssl/private/mssql.key
 
 RUN chmod 600 /etc/ssl/certs/mssql.crt /etc/ssl/private/mssql.key
 

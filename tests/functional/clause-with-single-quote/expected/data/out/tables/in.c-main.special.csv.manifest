@@ -1,0 +1,8 @@
+{
+    "destination": "in.c-main.special",
+    "incremental": false,
+    "columns": [
+        "usergender",
+        "sku"
+    ]
+}

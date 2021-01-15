@@ -11,8 +11,11 @@
 
     <testsuites>
         <testsuite name="unit">
-            <directory>tests</directory>
+            <directory>tests/phpunit</directory>
             <exclude>tests/phpunit/PerformanceTest.php</exclude>
+        </testsuite>
+        <testsuite name="functional">
+            <directory>tests/functional</directory>
         </testsuite>
         <testsuite name="perf">
             <file>tests/phpunit/PerformanceTest.php</file>

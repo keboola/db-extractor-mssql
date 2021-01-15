@@ -1,0 +1,9 @@
+Connecting to DSN 'sqlsrv:Server=mssql-ssl,1433;Database=test;Encrypt=true;TrustServerCertificate=false'
+SQLSTATE[08001]: [Microsoft][ODBC Driver 17 for SQL Server]SSL Provider: [error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed:unable to get local issuer certificate]. Retrying... [1x]
+Connecting to DSN 'sqlsrv:Server=mssql-ssl,1433;Database=test;Encrypt=true;TrustServerCertificate=false'
+SQLSTATE[08001]: [Microsoft][ODBC Driver 17 for SQL Server]SSL Provider: [error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed:unable to get local issuer certificate]. Retrying... [2x]
+Connecting to DSN 'sqlsrv:Server=mssql-ssl,1433;Database=test;Encrypt=true;TrustServerCertificate=false'
+SQLSTATE[08001]: [Microsoft][ODBC Driver 17 for SQL Server]SSL Provider: [error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed:unable to get local issuer certificate]. Retrying... [3x]
+Connecting to DSN 'sqlsrv:Server=mssql-ssl,1433;Database=test;Encrypt=true;TrustServerCertificate=false'
+SQLSTATE[08001]: [Microsoft][ODBC Driver 17 for SQL Server]SSL Provider: [error:1416F086:SSL routines:tls_process_server_certificate:certificate verify failed:unable to get local issuer certificate]. Retrying... [4x]
+Connecting to DSN 'sqlsrv:Server=mssql-ssl,1433;Database=test;Encrypt=true;TrustServerCertificate=false'

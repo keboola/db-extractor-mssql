@@ -1,0 +1,225 @@
+{
+    "destination": "in.c-main.columnsCheck",
+    "incremental": false,
+    "metadata": [
+        {
+            "key": "KBC.name",
+            "value": "sales"
+        },
+        {
+            "key": "KBC.sanitizedName",
+            "value": "sales"
+        },
+        {
+            "key": "KBC.schema",
+            "value": "dbo"
+        },
+        {
+            "key": "KBC.catalog",
+            "value": "test"
+        },
+        {
+            "key": "KBC.type",
+            "value": "BASE TABLE"
+        }
+    ],
+    "column_metadata": {
+        "createdat": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "varchar"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": false
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "64"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "createdat"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "createdat"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": true
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 6
+            }
+        ],
+        "categorygroup": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "text"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "categorygroup"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "categorygroup"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 12
+            }
+        ],
+        "sku": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "text"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "sku"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "sku"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 5
+            }
+        ],
+        "zipcode": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "text"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "zipcode"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "zipcode"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 4
+            }
+        ],
+        "userstate": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "text"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "userstate"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "userstate"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 11
+            }
+        ]
+    },
+    "columns": [
+        "createdat",
+        "categorygroup",
+        "sku",
+        "zipcode",
+        "userstate"
+    ]
+}

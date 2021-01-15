@@ -1,0 +1,1 @@
+PDO export "special" failed: SQLSTATE[42S22]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'SOMETHING'.

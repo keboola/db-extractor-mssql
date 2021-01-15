@@ -5,20 +5,22 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
+use Keboola\DbExtractor\Extractor\MetadataProvider;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
+use Keboola\DbExtractor\Extractor\PdoConnection;
 use Keboola\DbExtractor\Extractor\QueryFactory;
+use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
+use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
-use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
+use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\TableBuilder;
+use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
+use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
 
-class QueryFactoryTest extends AbstractMSSQLTest
+class QueryFactoryTest extends TestCase
 {
-    private array $config;
-
-    public function setUp(): void
-    {
-        $this->config = $this->getConfig('mssql');
-        $this->config['parameters']['extractor_class'] = 'MSSQL';
-    }
+    use ConfigTrait;
 
     /**
      * @dataProvider simpleTableColumnsDataProvider
@@ -29,7 +31,7 @@ class QueryFactoryTest extends AbstractMSSQLTest
         array $state,
         string $expected
     ): void {
-        $params['db'] = $this->getConfigDbNode('mssql');
+        $params['db'] = PdoTestConnection::getDbConfigArray();
         $params['query'] = $params['query'] ?? null;
         $params['columns'] = [];
         $params['outputTable'] = 'output';
@@ -48,7 +50,7 @@ class QueryFactoryTest extends AbstractMSSQLTest
      */
     public function testGetBCPQuery(array $params, ?array $columnsMetadata, array $state, string $expected): void
     {
-        $params['db'] = $this->getConfigDbNode('mssql');
+        $params['db'] = PdoTestConnection::getDbConfigArray();
         $params['query'] = $params['query'] ?? null;
         $params['columns'] = [];
         $params['outputTable'] = 'output';
@@ -68,7 +70,7 @@ class QueryFactoryTest extends AbstractMSSQLTest
      */
     public function testColumnCasting(array $columnData, array $expectedSql): void
     {
-        $queryFactory = $this->createQueryFactory($this->config['parameters'], []);
+        $queryFactory = $this->createQueryFactory($this->getConfig()['parameters'], []);
         $column = ColumnBuilder::create()
             ->setName($columnData['name'])
             ->setType($columnData['type'])
@@ -789,5 +791,36 @@ class QueryFactoryTest extends AbstractMSSQLTest
         }
 
         return null;
+    }
+
+    protected function createQueryFactory(array $params, array $state, ?array $columnsMetadata = null): QueryFactory
+    {
+        $logger = new Logger('mssql-extractor-test');
+        $pdo = new PdoConnection($logger, DatabaseConfig::fromArray($params['db']));
+        if ($columnsMetadata === null) {
+            $metadataProvider = new MssqlMetadataProvider($pdo);
+        } else {
+            $tableBuilder = TableBuilder::create()
+                ->setName('mocked')
+                ->setType('mocked');
+
+            foreach ($columnsMetadata as $data) {
+                $tableBuilder
+                    ->addColumn()
+                    ->setName($data['name'])
+                    ->setType($data['type'])
+                    ->setLength($data['length'] ?? null);
+            }
+
+            $tableMetadata = $tableBuilder->build();
+            $metadataProviderMock = $this->createMock(MssqlMetadataProvider::class);
+            $metadataProviderMock
+                ->method('getTable')
+                ->willReturn($tableMetadata);
+            /** @var MetadataProvider $metadataProvider */
+            $metadataProvider = $metadataProviderMock;
+        }
+
+        return new QueryFactory($pdo, $metadataProvider, $state);
     }
 }

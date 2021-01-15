@@ -4,13 +4,25 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\Csv\CsvFile;
-use Keboola\DbExtractor\Exception\UserException;
-use Symfony\Component\Process\Process;
+use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\MSSQLApplication;
+use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
+use Monolog\Logger;
+use PHPUnit\Framework\TestCase;
+use \PDO;
 
-class PerformanceTest extends AbstractMSSQLTest
+class PerformanceTest extends TestCase
 {
+    use ConfigTrait;
+
+    protected string $dataDir = __DIR__ . '/data';
+
+    private PDO $pdo;
+
+    protected function setUp(): void
+    {
+        $this->pdo = PdoTestConnection::createConnection();
+    }
 
     private function cleanupTestSchemas(int $numberOfSchemas, int $numberOfTablesPerSchema): void
     {
@@ -29,10 +41,21 @@ class PerformanceTest extends AbstractMSSQLTest
                         $tableCount
                     )
                 );
-                $this->dropTable(
+                $removeTables = [
                     sprintf('testtable_%d', $tableCount),
-                    sprintf('testschema_%d', $schemaCount)
-                );
+                    sprintf('testschema_%d', $schemaCount),
+                ];
+                foreach ($removeTables as $removeTable) {
+                    $this->pdo->exec(
+                        sprintf(
+                            "IF OBJECT_ID('[%s].[%s]', 'U') IS NOT NULL DROP TABLE [%s].[%s]",
+                            'dbo',
+                            $removeTable,
+                            'dbo',
+                            $removeTable
+                        )
+                    );
+                }
             }
             $this->pdo->exec(sprintf('DROP SCHEMA IF EXISTS [testschema_%d]', $schemaCount));
         }
@@ -77,7 +100,9 @@ class PerformanceTest extends AbstractMSSQLTest
 
         $config = $this->getConfig();
         $config['action'] = 'getTables';
-        $app = $this->createApplication($config);
+
+        $logger = new Logger('ex-db-mssql-tests');
+        $app = new MSSQLApplication($config, $logger, [], $this->dataDir);
 
         $jobStartTime = time();
         $result = $app->run();

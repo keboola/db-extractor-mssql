@@ -1,0 +1,7 @@
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Exporting to in.c-main.special
+Found database server version: 14.0.3048.4
+Executing query "special" via BCP: "SELECT TOP 5 "usergender", "sku" FROM "sales" WHERE "usergender" LIKE 'male'"
+Executing BCP command: bcp 'SELECT TOP 5 "usergender", "sku" FROM "sales" WHERE "usergender" LIKE '\''male'\''' queryout 'in.c-main.special.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+BCP successfully exported 5 rows.
+Extractor finished successfully.

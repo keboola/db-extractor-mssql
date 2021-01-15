@@ -1,0 +1,21 @@
+{
+  "parameters": {
+    "name": "sales",
+    "outputTable": "in.c-main.columnsCheck",
+    "incremental": false,
+    "primaryKey": null,
+    "table": {
+      "tableName": "sales",
+      "schema": "dbo"
+    },
+    "columns": ["createdat", "categorygroup", "sku", "zipcode", "userstate"],
+    "db": {
+      "host": "%env(string:MSSQL_DB_HOST)%",
+      "port": "%env(string:MSSQL_DB_PORT)%",
+      "user": "%env(string:MSSQL_DB_USER)%",
+      "#password": "%env(string:MSSQL_DB_PASSWORD)%",
+      "database": "%env(string:MSSQL_DB_DATABASE)%"
+    },
+    "extractor_class": "MSSQL"
+  }
+}
