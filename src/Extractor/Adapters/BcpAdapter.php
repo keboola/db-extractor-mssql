@@ -84,7 +84,7 @@ class BcpAdapter
         $sedCommand = sprintf('sed -e \'%s;%s;%s\' -i %s', $nullAtStart, $nullInTheMiddle, $nullAtEnd, $fileName);
 
         $process = Process::fromShellCommandline($sedCommand);
-        $process->setTimeout(1800);
+        $process->setTimeout(3600);
         $process->run();
         if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
             throw new ApplicationException(
