@@ -24,6 +24,7 @@ services:
     <<: *app
     volumes:
       - ssh-keys:/root/.ssh
+      - ./data/:/data/
       - .:/code
 
   mssql: &mssql
