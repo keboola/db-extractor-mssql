@@ -98,7 +98,7 @@ class MssqlMetadataProvider implements MetadataProvider
     {
         return $builder
             ->addTable()
-            ->setName($data['TABLE_NAME'])
+            ->setName($data['TABLE_NAME'], false)
             ->setCatalog($data['TABLE_CATALOG'])
             ->setSchema($data['TABLE_SCHEMA'])
             ->setType($data['TABLE_TYPE']);
