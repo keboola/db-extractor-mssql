@@ -4,46 +4,40 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
+use Keboola\DbExtractor\Adapter\Exception\DeadConnectionException;
+use Keboola\DbExtractor\Adapter\PDO\PdoConnection;
+use Keboola\DbExtractor\Adapter\PDO\PdoQueryResult;
+use Keboola\DbExtractor\Adapter\ValueObject\QueryResult;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use PDO;
 use PDOStatement;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use Keboola\DbExtractor\DbRetryProxy;
-use Keboola\DbExtractor\Exception\DeadConnectionException;
 use Keboola\DbExtractor\Exception\UserException;
 use \PDOException;
 
-class PdoConnection
+class MSSQLPdoConnection extends PdoConnection
 {
-    private LoggerInterface $logger;
-
-    private PDO $pdo;
-
     private DatabaseConfig $databaseConfig;
 
     private ?int $serverVersion = null;
 
-    public function __construct(LoggerInterface $logger, DatabaseConfig $databaseConfig)
-    {
+    public function __construct(
+        LoggerInterface $logger,
+        DatabaseConfig $databaseConfig,
+        int $connectMaxRetries = self::CONNECT_DEFAULT_MAX_RETRIES
+    ) {
         $this->logger = $logger;
         $this->databaseConfig = $databaseConfig;
 
-        // Tries = 1 -> enable only long retry for problematic error, standard retry is in BaseExtractor
-        $retryProxy = MssqlRetryFactory::createProxy($this->logger, 1);
-        $retryProxy->call(function (): void {
-            $this->connect();
-        });
+        $this->connectMaxRetries = max($connectMaxRetries, 1);
+        $this->connectWithRetry();
     }
 
     public function testConnection(): void
     {
         $this->pdo->query('SELECT GETDATE() AS CurrentDateTime')->execute();
-    }
-
-    public function quote(string $str): string
-    {
-        return $this->pdo->quote($str);
     }
 
     public function quoteIdentifier(string $str): string
@@ -69,7 +63,7 @@ class PdoConnection
         // Get the MSSQL Server version (note, 2008 is version 10.*)
         $res = $this->pdo->query("SELECT SERVERPROPERTY('ProductVersion') AS version;");
 
-        $versionResult = $res->fetch(\PDO::FETCH_ASSOC);
+        $versionResult = $res->fetch(PDO::FETCH_ASSOC);
         if (!isset($versionResult['version'])) {
             throw new UserException('Unable to get SQL Server Version Information');
         }
@@ -79,19 +73,6 @@ class PdoConnection
         $this->logger->info(sprintf('Found database server version: %s', $versionString));
 
         return (int) $versionParts[0];
-    }
-
-    public function runRetryableQuery(string $query, int $maxTries, array $values = []): array
-    {
-        $retryProxy = MssqlRetryFactory::createProxy($this->logger, $maxTries);
-        return $retryProxy->call(function () use ($query, $values): array {
-            try {
-                return $this->runQuery($query, $values);
-            } catch (\Throwable $exception) {
-                $this->tryReconnect();
-                throw $exception;
-            }
-        });
     }
 
     public function tryReconnect(): void
@@ -111,15 +92,6 @@ class PdoConnection
                     $reconnectException
                 );
             }
-        }
-    }
-
-    public function isAlive(): void
-    {
-        try {
-            $this->testConnection();
-        } catch (\Throwable $e) {
-            throw new DeadConnectionException('Dead connection: ' . $e->getMessage());
         }
     }
 
@@ -149,7 +121,7 @@ class PdoConnection
 
                 $this->pdo = $this->createPdoInstance($options);
             } else {
-                throw $e;
+                throw new UserException($e->getMessage(), 0, $e);
             }
         }
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -177,12 +149,36 @@ class PdoConnection
         return new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
     }
 
-    private function runQuery(string $query, array $values = []): array
+    public function query(string $query, int $maxRetries = self::DEFAULT_MAX_RETRIES, array $values = []): QueryResult
     {
+        return $this->callWithRetry(
+            $maxRetries,
+            function () use ($query, $values) {
+                return $this->queryReconnectOnError($query, $values);
+            }
+        );
+    }
+
+    protected function queryReconnectOnError(string $query, array $values = []): QueryResult
+    {
+        try {
+            return $this->doQuery($query, $values);
+        } catch (Throwable $e) {
+            try {
+                // Reconnect
+                $this->connect();
+            } catch (Throwable $e) {
+            }
+            throw $e;
+        }
+    }
+
+    protected function doQuery(string $query, array $values = []): QueryResult
+    {
+        /** @var PDOStatement $stmt */
         $stmt = $this->pdo->prepare($query);
         $stmt->execute($values);
-        /** @var array $result */
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return $result;
+        $queryMetadata = $this->getQueryMetadata($query, $stmt);
+        return new PdoQueryResult($query, $queryMetadata, $stmt);
     }
 }

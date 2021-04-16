@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Tests;
 
 use Keboola\Csv\CsvReader;
+use Keboola\DbExtractor\Adapter\Exception\UserRetriedException;
 use Keboola\DbExtractor\Exception\UserException;
-use Keboola\DbExtractor\Extractor\PdoConnection;
+use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\Metadata\MssqlManifestSerializer;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
@@ -101,8 +102,8 @@ class MSSQLTest extends TestCase
         $this->assertArrayHasKey('status', $result);
         $this->assertEquals('success', $result['status']);
 
-        $this->assertFileDoesNotExist($salesManifestFile);
-        $this->assertFileDoesNotExist($salesDataFile);
+        $this->assertFileExists($salesManifestFile);
+        $this->assertFileExists($salesDataFile);
     }
 
     /**
@@ -224,10 +225,10 @@ class MSSQLTest extends TestCase
         $config['parameters']['tables'][0]['name'] = 'multipleselect_test';
         $config['parameters']['tables'][0]['outputTable'] = 'in.c-main.multipleselect_test';
 
-        $this->expectException(UserException::class);
+        $this->expectException(UserRetriedException::class);
         $this->expectExceptionMessage(
-            'PDO export "multipleselect_test" failed: SQLSTATE[IMSSP]: ' .
-            'The active result for the query contains no fields.'
+            '[in.c-main.multipleselect_test]: DB query failed: SQLSTATE[IMSSP]: ' .
+            'The active result for the query contains no fields. Tried 5 times.'
         );
         $this->createApplication($config)->run();
     }
@@ -819,7 +820,7 @@ class MSSQLTest extends TestCase
         $this->connection->exec('ALTER TABLE [simple] ADD CONSTRAINT c4 CHECK (LEN([name]) > 2);');
 
         $dbConfig = DatabaseConfig::fromArray($this->getConfig()['parameters']['db']);
-        $conn = new PdoConnection(new NullLogger(), $dbConfig);
+        $conn = new MSSQLPdoConnection(new NullLogger(), $dbConfig);
         $metadataProvider = new MssqlMetadataProvider($conn);
         $serializer = new MssqlManifestSerializer();
 

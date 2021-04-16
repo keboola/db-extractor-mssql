@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5cafe6a63d2ec04bfc5024cef3cf8fe",
+    "content-hash": "0ec6e92845b50897769d110d1afdf8a4",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -216,24 +216,83 @@
             "time": "2020-11-30T19:23:38+00:00"
         },
         {
-            "name": "keboola/db-extractor-common",
-            "version": "13.3.0",
+            "name": "keboola/db-extractor-adapter",
+            "version": "1.5.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/keboola/db-extractor-common.git",
-                "reference": "0857d6896f0568a5ab274490e495fd4918fbd22d"
+                "url": "https://github.com/keboola/db-extractor-adapter.git",
+                "reference": "ca7a74b14948ee72426ba5c0d6d96e2c7bdff0d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/0857d6896f0568a5ab274490e495fd4918fbd22d",
-                "reference": "0857d6896f0568a5ab274490e495fd4918fbd22d",
+                "url": "https://api.github.com/repos/keboola/db-extractor-adapter/zipball/ca7a74b14948ee72426ba5c0d6d96e2c7bdff0d4",
+                "reference": "ca7a74b14948ee72426ba5c0d6d96e2c7bdff0d4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "keboola/common-exceptions": "^1.0",
+                "keboola/csv": "^2.2",
+                "keboola/db-extractor-config": "^1.4",
+                "keboola/db-extractor-table-format": "^3.0",
+                "keboola/retry": "^0.5",
+                "php": ">=7.4",
+                "psr/log": "^1.1"
+            },
+            "require-dev": {
+                "ext-json": "*",
+                "ihsw/toxiproxy-php-client": "^2.0",
+                "keboola/coding-standard": ">=9.0",
+                "keboola/php-temp": "^2.0",
+                "phpstan/phpstan": "^0.12.2",
+                "phpunit/phpunit": "^9.1"
+            },
+            "suggest": {
+                "ext-odbc": "Needed to support ODBC connection",
+                "ext-pdo": "Needed to support PDO connection"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Keboola\\DbExtractor\\Adapter\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Keboola",
+                    "email": "devel@keboola.com"
+                }
+            ],
+            "description": "Set of connection adapters for DB extractors.",
+            "support": {
+                "source": "https://github.com/keboola/db-extractor-adapter/tree/1.5.2"
+            },
+            "time": "2021-04-16T10:25:31+00:00"
+        },
+        {
+            "name": "keboola/db-extractor-common",
+            "version": "14.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/keboola/db-extractor-common.git",
+                "reference": "66e7d54326002057bf6ae78feacc2838a8cac38b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/66e7d54326002057bf6ae78feacc2838a8cac38b",
+                "reference": "66e7d54326002057bf6ae78feacc2838a8cac38b",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-pdo": "*",
-                "keboola/common-exceptions": "^1.0",
-                "keboola/csv": "^2.1",
+                "keboola/common-exceptions": "^1.1",
+                "keboola/csv": "^2.2",
+                "keboola/db-extractor-adapter": "^1.5.1",
                 "keboola/db-extractor-config": "^1.4",
                 "keboola/db-extractor-ssh-tunnel": "^1.1",
                 "keboola/db-extractor-table-format": "^3.0",
@@ -249,7 +308,7 @@
                 "psr/log": "^1.1"
             },
             "require-dev": {
-                "aws/aws-sdk-php": "^3.107",
+                "ihsw/toxiproxy-php-client": "^2.0",
                 "keboola/coding-standard": ">=9.0.0",
                 "keboola/php-temp": "^2.0",
                 "php-parallel-lint/php-parallel-lint": "^1.2",
@@ -275,9 +334,9 @@
             "description": "Common library from Keboola Database Extractors",
             "support": {
                 "issues": "https://github.com/keboola/db-extractor-common/issues",
-                "source": "https://github.com/keboola/db-extractor-common/tree/master"
+                "source": "https://github.com/keboola/db-extractor-common/tree/14.4.0"
             },
-            "time": "2020-06-18T12:28:28+00:00"
+            "time": "2021-04-15T08:08:08+00:00"
         },
         {
             "name": "keboola/db-extractor-config",

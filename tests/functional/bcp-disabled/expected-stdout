@@ -1,5 +1,7 @@
 Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
-Exporting to in.c-main.special
-BCP export is disabled in the configuration.
-Executing query "special" via PDO: "SELECT *  FROM "special";"
+Exporting "special" to "in.c-main.special".
+Exporting by "BCP" adapter.
+Adapter "BCP" skipped: Disabled in configuration.
+Exporting by "PDO" adapter.
+Exported "7" rows to "in.c-main.special".
 Extractor finished successfully.

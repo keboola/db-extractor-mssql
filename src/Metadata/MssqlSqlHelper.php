@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Metadata;
 
-use Keboola\DbExtractor\Extractor\PdoConnection;
+use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\InputTable;
 
 class MssqlSqlHelper
@@ -12,7 +12,7 @@ class MssqlSqlHelper
     /**
      * @param array|InputTable[] $whitelist
      */
-    public static function getTablesSql(array $whitelist, PdoConnection $pdo): string
+    public static function getTablesSql(array $whitelist, MSSQLPdoConnection $pdo): string
     {
         // Note: type='U' user generated objects only
         $sql = [];
@@ -81,7 +81,7 @@ class MssqlSqlHelper
     /**
      * @param array|InputTable[] $whitelist
      */
-    public static function getColumnsSqlComplex(array $whitelist, PdoConnection $pdo): string
+    public static function getColumnsSqlComplex(array $whitelist, MSSQLPdoConnection $pdo): string
     {
         // @codingStandardsIgnoreStart
         $sql = "

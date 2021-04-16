@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor\Adapters;
 
+use Keboola\DbExtractor\Adapter\ExportAdapter;
+use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
+use Keboola\DbExtractor\Adapter\ValueObject\ExportResult;
+use Keboola\DbExtractor\Exception\BcpAdapterSkippedException;
+use Keboola\DbExtractor\Exception\InvalidArgumentException;
+use Keboola\DbExtractor\Exception\UserException;
+use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Throwable;
 use Psr\Log\LoggerInterface;
@@ -12,16 +19,15 @@ use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
-use Keboola\DbExtractor\Extractor\MetadataProvider;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
-use Keboola\DbExtractor\Extractor\PdoConnection;
+use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Symfony\Component\Process\Process;
 
-class BcpAdapter
+class BcpExportAdapter implements ExportAdapter
 {
-    private LoggerInterface $logger;
+    protected MSSQLQueryFactory $simpleQueryFactory;
 
-    private PdoConnection $pdo;
+    private MSSQLPdoConnection $connection;
 
     private MetadataProvider $metadataProvider;
 
@@ -29,74 +35,68 @@ class BcpAdapter
 
     private array $state;
 
+    private LoggerInterface $logger;
+
     public function __construct(
         LoggerInterface $logger,
-        PdoConnection $pdo,
+        MSSQLPdoConnection $connection,
         MetadataProvider $metadataProvider,
         DatabaseConfig $databaseConfig,
+        MSSQLQueryFactory $queryFactory,
         array $state
     ) {
         $this->logger = $logger;
-        $this->pdo = $pdo;
+        $this->connection = $connection;
         $this->metadataProvider = $metadataProvider;
         $this->databaseConfig = $databaseConfig;
         $this->state = $state;
+        $this->simpleQueryFactory = $queryFactory;
     }
 
-    public function export(
-        MssqlExportConfig $exportConfig,
-        ?string $maxValue,
-        string $query,
-        string $csvPath,
-        ?string $incrementalFetchingType
-    ): array {
-        touch($csvPath);
-        $result = $this->runBcpCommand($query, $csvPath);
-
-        if ($result['rows'] > 0) {
-            if ($exportConfig->hasQuery()) {
-                // Output CSV file is generated without header when using BCP,
-                // so "columns" must be part of manifest files
-                $result['bcpColumns'] = $this->getAdvancedQueryColumns($query, $exportConfig);
-                $this->stripNullBytesInEmptyFields($csvPath);
-            } else if ($exportConfig->isIncrementalFetching()) {
-                if ($maxValue) {
-                    $result['lastFetchedRow'] = $maxValue;
-                } else if ($incrementalFetchingType === MssqlDataType::INCREMENT_TYPE_DATETIME) {
-                    $result['lastFetchedRow'] = $this->getLastDatetimeValue($exportConfig, $result['lastFetchedRow']);
-                } else {
-                    $result['lastFetchedRow'] = $this->getLastValue($exportConfig, $result['lastFetchedRow']);
-                }
-            }
-        }
-
-        return $result;
-    }
-
-    private function stripNullBytesInEmptyFields(string $fileName): void
+    public function getName(): string
     {
-        // this will replace null byte column values in the file
-        // this is here because BCP will output null bytes for empty strings
-        // this can occur in advanced queries where the column isn't sanitized
-        $nullAtStart = 's/^\x00,/,/g';
-        $nullAtEnd = 's/,\x00$/,/g';
-        $nullInTheMiddle = 's/,\x00,/,,/g';
-        $sedCommand = sprintf('sed -e \'%s;%s;%s\' -i %s', $nullAtStart, $nullInTheMiddle, $nullAtEnd, $fileName);
+        return 'BCP';
+    }
 
-        $process = Process::fromShellCommandline($sedCommand);
-        $process->setTimeout(3600);
-        $process->run();
-        if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
-            throw new ApplicationException(
-                sprintf('Error Stripping Nulls: %s', $process->getErrorOutput())
+    public function export(ExportConfig $exportConfig, string $csvFilePath): ExportResult
+    {
+        if (!$exportConfig instanceof MssqlExportConfig) {
+            throw new InvalidArgumentException('PgsqlExportConfig expected.');
+        }
+
+        if ($exportConfig->isBcpDisabled()) {
+            throw new BcpAdapterSkippedException('Disabled in configuration.');
+        }
+
+        $query = $exportConfig->hasQuery() ? $exportConfig->getQuery() : $this->createSimpleQuery($exportConfig);
+
+        try {
+            $exportResult = $this->doExport(
+                $exportConfig,
+                $query,
+                $csvFilePath
             );
+            if ($exportResult->getRowsCount() > 0 && $exportConfig->hasQuery()) {
+                $this->stripNullBytesInEmptyFields($csvFilePath);
+            }
+            return $exportResult;
+        } catch (BcpAdapterException $pdoError) {
+            @unlink($csvFilePath);
+            throw new UserException($pdoError->getMessage());
         }
     }
 
-    private function getLastDatetimeValue(
-        ExportConfig $exportConfig,
-        array $lastRow
-    ): string {
+    protected function createSimpleQuery(ExportConfig $exportConfig): string
+    {
+        return $this
+            ->simpleQueryFactory
+            ->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_BCP)
+            ->create($exportConfig, $this->connection)
+            ;
+    }
+
+    private function getLastDatetimeValue(ExportConfig $exportConfig, array $lastRow): string
+    {
         $whereClause = '';
         $whereValues = [];
 
@@ -115,22 +115,22 @@ class BcpAdapter
             }
             if (in_array(strtoupper($column->getType()), ['DATETIME", "DATETIME2'])) {
                 $whereClause .=
-                    'CONVERT(DATETIME2(0), ' . $this->pdo->quoteIdentifier($column->getName()) . ') = ?';
+                    'CONVERT(DATETIME2(0), ' . $this->connection->quoteIdentifier($column->getName()) . ') = ?';
             } else {
-                $whereClause .= $this->pdo->quoteIdentifier($column->getName()) . ' = ?';
+                $whereClause .= $this->connection->quoteIdentifier($column->getName()) . ' = ?';
             }
             $whereValues[] = $lastRow[$key];
         }
 
         $query = sprintf(
             'SELECT %s FROM %s.%s WHERE %s;',
-            $this->pdo->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
-            $this->pdo->quoteIdentifier($exportConfig->getTable()->getSchema()),
-            $this->pdo->quoteIdentifier($exportConfig->getTable()->getName()),
+            $this->connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
+            $this->connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
+            $this->connection->quoteIdentifier($exportConfig->getTable()->getName()),
             $whereClause
         );
 
-        $result = $this->pdo->runRetryableQuery($query, $exportConfig->getMaxRetries(), $whereValues);
+        $result = $this->connection->query($query, $exportConfig->getMaxRetries(), $whereValues)->fetchAll();
 
         if (count($result) > 0) {
             return $result[0][$exportConfig->getIncrementalFetchingColumn()];
@@ -157,34 +157,7 @@ class BcpAdapter
         throw new ApplicationException('Fetching last id value returned no results');
     }
 
-    public function getAdvancedQueryColumns(string $query, ExportConfig $exportConfig): ?array
-    {
-        // This will only work if the server is >= sql server 2012
-        $sql = sprintf(
-            "EXEC sp_describe_first_result_set N'%s', null, 0;",
-            rtrim(trim(str_replace("'", "''", $query)), ';')
-        );
-        try {
-            $result = $this->pdo->runRetryableQuery($sql, $exportConfig->getMaxRetries());
-            if (is_array($result) && !empty($result)) {
-                return array_map(
-                    function ($row) {
-                        return $row['name'];
-                    },
-                    $result
-                );
-            }
-            return null;
-        } catch (Throwable $e) {
-            throw new BcpAdapterException(
-                sprintf('DB query "%s" failed: %s', $sql, $e->getMessage()),
-                0,
-                $e
-            );
-        }
-    }
-
-    private function runBcpCommand(string $query, string $filename): array
+    private function doExport(MssqlExportConfig $exportConfig, string $query, string $filename): ExportResult
     {
         $process = Process::fromShellCommandline($this->createBcpCommand($filename, $query));
         $process->setTimeout(null);
@@ -199,23 +172,44 @@ class BcpAdapter
         }
 
         try {
-            $output = $this->processOutputCsv($filename, $process);
+            return $this->processOutputCsv($exportConfig, $filename, $query, $process);
         } catch (BcpAdapterException $e) {
             throw $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new BcpAdapterException(
                 'The BCP command produced an invalid csv: ' . $e->getMessage(),
                 0,
                 $e
             );
         }
-
-        $this->logger->info(sprintf('BCP successfully exported %d rows.', $output['rows']));
-        return $output;
     }
 
-    private function processOutputCsv(string $filename, Process $process): array
+    private function stripNullBytesInEmptyFields(string $fileName): void
     {
+        // this will replace null byte column values in the file
+        // this is here because BCP will output null bytes for empty strings
+        // this can occur in advanced queries where the column isn't sanitized
+        $nullAtStart = 's/^\x00,/,/g';
+        $nullAtEnd = 's/,\x00$/,/g';
+        $nullInTheMiddle = 's/,\x00,/,,/g';
+        $sedCommand = sprintf('sed -e \'%s;%s;%s\' -i %s', $nullAtStart, $nullInTheMiddle, $nullAtEnd, $fileName);
+
+        $process = Process::fromShellCommandline($sedCommand);
+        $process->setTimeout(3600);
+        $process->run();
+        if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
+            throw new ApplicationException(
+                sprintf('Error Stripping Nulls: %s', $process->getErrorOutput())
+            );
+        }
+    }
+
+    private function processOutputCsv(
+        MssqlExportConfig $exportConfig,
+        string $filename,
+        string $query,
+        Process $process
+    ): ExportResult {
         $outputFile = new CsvReader($filename);
         $numRows = 0;
         $lastFetchedRow = null;
@@ -238,11 +232,22 @@ class BcpAdapter
             $numRows++;
         }
 
-        $output = ['rows' => $numRows];
-        if ($lastFetchedRow) {
-            $output['lastFetchedRow'] = $lastFetchedRow;
+        $lastFetchedRowMaxValue = null;
+        if ($exportConfig->isIncrementalFetching() && $lastFetchedRow) {
+            if ($this->simpleQueryFactory->getIncrementalFetchingType() === MssqlDataType::INCREMENT_TYPE_DATETIME) {
+                $lastFetchedRowMaxValue = $this->getLastDatetimeValue($exportConfig, $lastFetchedRow);
+            } else {
+                $lastFetchedRowMaxValue = $this->getLastValue($exportConfig, $lastFetchedRow);
+            }
         }
-        return $output;
+
+        return new ExportResult(
+            $filename,
+            $numRows,
+            new BcpQueryMetadata($this->connection, $query),
+            false,
+            $lastFetchedRowMaxValue ?? null
+        );
     }
 
     private function createBcpCommand(string $filename, string $query): string
@@ -260,9 +265,9 @@ class BcpAdapter
             escapeshellarg($this->databaseConfig->getDatabase())
         );
 
-        $commandForLogger = preg_replace('/\-P.*\-d/', '-P ***** -d', $cmd);
+        $commandForLogger = preg_replace('/-P.*-d/', '-P ***** -d', $cmd);
         $commandForLogger = preg_replace(
-            '/queryout.*\/([a-z\-\._]+\.csv).*-S/',
+            '/queryout.*\/([a-z\-._]+\.csv).*-S/',
             'queryout \'${1}\' -S',
             (string) $commandForLogger
         );

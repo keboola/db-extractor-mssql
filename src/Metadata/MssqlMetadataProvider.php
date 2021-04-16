@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Metadata;
 
-use Keboola\DbExtractor\Extractor\MetadataProvider;
-use Keboola\DbExtractor\Extractor\PdoConnection;
+use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
+use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractor\TableResultFormat\Exception\InvalidStateException;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\MetadataBuilder;
@@ -18,12 +18,12 @@ class MssqlMetadataProvider implements MetadataProvider
 {
     private const MAX_RETRIES = 5;
 
-    private PdoConnection $pdo;
+    private MSSQLPdoConnection $pdo;
 
     /** @var TableCollection[] */
     private array $cache = [];
 
-    public function __construct(PdoConnection $pdo)
+    public function __construct(MSSQLPdoConnection $pdo)
     {
         $this->pdo = $pdo;
     }
@@ -55,7 +55,7 @@ class MssqlMetadataProvider implements MetadataProvider
 
         $builder = MetadataBuilder::create();
         $tablesSql = MssqlSqlHelper::getTablesSql($whitelist, $this->pdo);
-        $tables = $this->pdo->runRetryableQuery($tablesSql, self::MAX_RETRIES);
+        $tables = $this->pdo->query($tablesSql, self::MAX_RETRIES)->fetchAll();
         foreach ($tables as $data) {
             $tableId = $data['TABLE_SCHEMA'] . '.' . $data['TABLE_NAME'];
             $tableBuilder = $this->processTable($data, $builder);
@@ -71,7 +71,7 @@ class MssqlMetadataProvider implements MetadataProvider
                 MssqlSqlHelper::getColumnsSqlComplex($whitelist, $this->pdo) :
                 MssqlSqlHelper::getColumnsSqlQuick();
 
-            $columns = $this->pdo->runRetryableQuery($columnsSql, self::MAX_RETRIES);
+            $columns = $this->pdo->query($columnsSql, self::MAX_RETRIES)->fetchAll();
             foreach ($columns as $data) {
                 $tableId = $data['TABLE_SCHEMA'] . '.' . $data['TABLE_NAME'];
                 $columnId = $data['COLUMN_NAME'] . '.' . $tableId;
