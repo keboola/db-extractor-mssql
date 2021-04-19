@@ -68,6 +68,12 @@ class BcpExportAdapter implements ExportAdapter
             throw new BcpAdapterSkippedException('Disabled in configuration.');
         }
 
+        if ($exportConfig->hasQuery() && $this->connection->getServerVersion() < 11) {
+            throw new BcpAdapterSkippedException(
+                'BCP is not supported for advanced queries in sql server 2008 or less.'
+            );
+        }
+
         $query = $exportConfig->hasQuery() ? $exportConfig->getQuery() : $this->createSimpleQuery($exportConfig);
 
         try {
