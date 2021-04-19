@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
-use Keboola\DbExtractor\Extractor\MetadataProvider;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
-use Keboola\DbExtractor\Extractor\PdoConnection;
-use Keboola\DbExtractor\Extractor\QueryFactory;
+use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
+use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
 use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
@@ -38,10 +38,23 @@ class QueryFactoryTest extends TestCase
         $params['primaryKey'] = [];
         $params['retries'] = 3;
 
-        $queryFactory = $this->createQueryFactory($params, $state, $columnsMetadata);
         $incrementalFetchingType = $this->getIncrementalFetchingType($params, $columnsMetadata);
+
+        $logger = new Logger('mssql-extractor-test');
+        $pdo = new MSSQLPdoConnection($logger, DatabaseConfig::fromArray($params['db']));
+
+        $queryFactory = $this->createQueryFactory($pdo, $state, $columnsMetadata);
+        $queryFactory->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_PDO);
+        if ($incrementalFetchingType) {
+            $queryFactory->setIncrementalFetchingType($incrementalFetchingType);
+        }
+
         $exportConfig = MssqlExportConfig::fromArray($params);
-        $query = $queryFactory->create($exportConfig, QueryFactory::ESCAPING_TYPE_PDO, $incrementalFetchingType);
+
+        $query = $queryFactory->create(
+            $exportConfig,
+            $pdo
+        );
         $this->assertEquals($expected, $query);
     }
 
@@ -57,11 +70,22 @@ class QueryFactoryTest extends TestCase
         $params['primaryKey'] = [];
         $params['retries'] = 3;
 
-        $queryFactory = $this->createQueryFactory($params, $state, $columnsMetadata);
+        $logger = new Logger('mssql-extractor-test');
+        $pdo = new MSSQLPdoConnection($logger, DatabaseConfig::fromArray($params['db']));
+
         $incrementalFetchingType = $this->getIncrementalFetchingType($params, $columnsMetadata);
 
+        $queryFactory = $this->createQueryFactory($pdo, $state, $columnsMetadata);
+        $queryFactory->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_BCP);
+        if ($incrementalFetchingType) {
+            $queryFactory->setIncrementalFetchingType($incrementalFetchingType);
+        }
+
         $exportConfig = MssqlExportConfig::fromArray($params);
-        $query = $queryFactory->create($exportConfig, QueryFactory::ESCAPING_TYPE_BCP, $incrementalFetchingType);
+        $query = $queryFactory->create(
+            $exportConfig,
+            $pdo
+        );
         $this->assertEquals($expected, $query);
     }
 
@@ -70,13 +94,17 @@ class QueryFactoryTest extends TestCase
      */
     public function testColumnCasting(array $columnData, array $expectedSql): void
     {
-        $queryFactory = $this->createQueryFactory($this->getConfig()['parameters'], []);
+        $logger = new Logger('mssql-extractor-test');
+        $pdo = new MSSQLPdoConnection($logger, DatabaseConfig::fromArray(PdoTestConnection::getDbConfigArray()));
+
+        $queryFactory = $this->createQueryFactory($pdo, []);
+
         $column = ColumnBuilder::create()
             ->setName($columnData['name'])
             ->setType($columnData['type'])
             ->build();
-        $this->assertEquals($expectedSql['bcp'], $queryFactory->columnToBcpSql($column));
-        $this->assertEquals($expectedSql['pdo'], $queryFactory->columnToPdoSql($column));
+        $this->assertEquals($expectedSql['bcp'], $queryFactory->columnToBcpSql($column, $pdo));
+        $this->assertEquals($expectedSql['pdo'], $queryFactory->columnToPdoSql($column, $pdo));
     }
 
     public function columnTypeProvider(): array
@@ -793,10 +821,11 @@ class QueryFactoryTest extends TestCase
         return null;
     }
 
-    protected function createQueryFactory(array $params, array $state, ?array $columnsMetadata = null): QueryFactory
-    {
-        $logger = new Logger('mssql-extractor-test');
-        $pdo = new PdoConnection($logger, DatabaseConfig::fromArray($params['db']));
+    protected function createQueryFactory(
+        MSSQLPdoConnection $pdo,
+        array $state,
+        ?array $columnsMetadata = null
+    ): MSSQLQueryFactory {
         if ($columnsMetadata === null) {
             $metadataProvider = new MssqlMetadataProvider($pdo);
         } else {
@@ -817,10 +846,10 @@ class QueryFactoryTest extends TestCase
             $metadataProviderMock
                 ->method('getTable')
                 ->willReturn($tableMetadata);
-            /** @var MetadataProvider $metadataProvider */
+            /** @var MssqlMetadataProvider $metadataProvider */
             $metadataProvider = $metadataProviderMock;
         }
 
-        return new QueryFactory($pdo, $metadataProvider, $state);
+        return new MSSQLQueryFactory($state, $metadataProvider);
     }
 }

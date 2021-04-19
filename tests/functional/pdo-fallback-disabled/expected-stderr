@@ -1,1 +1,2 @@
-BCP export failed and PDO fallback is disabled.
+Export by "BCP" adapter failed: The BCP command produced an invalid csv.
+Disabled in configuration.

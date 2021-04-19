@@ -1,9 +1,8 @@
 Connecting to DSN 'sqlsrv:Server=mssql-ssl-invalid-cn,1433;Database=test;Encrypt=true;TrustServerCertificate=false'
 Connecting to DSN 'sqlsrv:Server=mssql-ssl-invalid-cn,1433;Database=test;Encrypt=true;TrustServerCertificate=true'
 Using SSL connection
-Exporting to in.c-main.sales
-Found database server version: 14.0.3048.4
-Executing query "sales" via BCP: "SELECT * FROM sales"
+Exporting "sales" to "in.c-main.sales".
+Exporting by "BCP" adapter.
 Executing BCP command: bcp 'SELECT * FROM sales' queryout 'in.c-main.sales.csv' -S 'mssql-ssl-invalid-cn,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
-BCP successfully exported 100 rows.
+Exported "100" rows to "in.c-main.sales".
 Extractor finished successfully.

@@ -4,36 +4,57 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor;
 
-use LogicException;
+use InvalidArgumentException;
+use Keboola\DbExtractor\Adapter\Connection\DbConnection;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
+use Keboola\DbExtractor\Exception\ApplicationException;
+use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use Keboola\DbExtractor\TableResultFormat\Metadata\ValueObject\Column;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
+use \Keboola\DbExtractor\Adapter\Query\QueryFactory;
+use LogicException;
 
-class QueryFactory
+class MSSQLQueryFactory implements QueryFactory
 {
     public const ESCAPING_TYPE_BCP = 'BCP';
     public const ESCAPING_TYPE_PDO = 'PDO';
 
-    private PdoConnection $pdo;
+    protected string $format;
 
-    private MetadataProvider $metadataProvider;
+    protected array $state;
 
-    private array $state;
+    protected MssqlMetadataProvider $metadataProvider;
 
-    public function __construct(
-        PdoConnection $pdo,
-        MetadataProvider $metadataProvider,
-        array $state
-    ) {
-        $this->pdo = $pdo;
-        $this->metadataProvider = $metadataProvider;
+    protected string $incrementalFetchingType;
+
+    public function __construct(array $state, MssqlMetadataProvider $metadataProvider)
+    {
         $this->state = $state;
+        $this->metadataProvider = $metadataProvider;
     }
 
-    public function create(MssqlExportConfig $exportConfig, string $format, ?string $incrementalFetchingType): string
+    public function setFormat(string $format): self
     {
-        if ($exportConfig->hasQuery()) {
-            return $exportConfig->getQuery();
+        $this->format = $format;
+        return $this;
+    }
+
+    public function setIncrementalFetchingType(string $incrementalFetchingType): self
+    {
+        $this->incrementalFetchingType = $incrementalFetchingType;
+        return $this;
+    }
+
+    public function getIncrementalFetchingType(): string
+    {
+        return $this->incrementalFetchingType;
+    }
+
+
+    public function create(ExportConfig $exportConfig, DbConnection $connection): string
+    {
+        if (!($exportConfig instanceof MssqlExportConfig)) {
+            throw new ApplicationException();
         }
 
         $sql = [];
@@ -45,9 +66,9 @@ class QueryFactory
 
         $sql[] = sprintf(
             '%s FROM %s.%s',
-            $this->getColumnsForSelect($exportConfig, $format),
-            $this->pdo->quoteIdentifier($exportConfig->getTable()->getSchema()),
-            $this->pdo->quoteIdentifier($exportConfig->getTable()->getName())
+            $this->getColumnsForSelect($exportConfig, $connection),
+            $connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
+            $connection->quoteIdentifier($exportConfig->getTable()->getName())
         );
 
         if ($exportConfig->getNoLock()) {
@@ -58,9 +79,9 @@ class QueryFactory
             if (isset($this->state['lastFetchedRow'])) {
                 $sql[] = sprintf(
                     'WHERE %s >= %s',
-                    $this->pdo->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
-                    $this->shouldQuoteComparison($incrementalFetchingType)
-                        ? $this->pdo->quote($this->state['lastFetchedRow'])
+                    $connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
+                    $this->shouldQuoteComparison($this->incrementalFetchingType)
+                        ? $connection->quote($this->state['lastFetchedRow'])
                         : $this->state['lastFetchedRow']
                 );
             }
@@ -69,20 +90,21 @@ class QueryFactory
         if ($exportConfig->hasIncrementalFetchingLimit()) {
             $sql[] = sprintf(
                 'ORDER BY %s',
-                $this->pdo->quoteIdentifier($exportConfig->getIncrementalFetchingColumn())
+                $connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn())
             );
         }
 
         return implode(' ', $sql);
     }
 
-    public function columnToBcpSql(Column $column): string
+
+    public function columnToBcpSql(Column $column, DbConnection $connection): string
     {
         // BCP exports CSV data without surrounding double quotes,
         // ... so double quotes are added in SQL
 
         $datatype = $this->getColumnDatatype($column);
-        $escapedColumnName = $this->pdo->quoteIdentifier($column->getName());
+        $escapedColumnName = $connection->quoteIdentifier($column->getName());
         $colStr = $escapedColumnName;
 
         if ($datatype->getType() === 'timestamp') {
@@ -110,10 +132,10 @@ class QueryFactory
         return $colStr;
     }
 
-    public function columnToPdoSql(Column $column): string
+    public function columnToPdoSql(Column $column, DbConnection $connection): string
     {
         $datatype = $this->getColumnDatatype($column);
-        $escapedColumnName = $this->pdo->quoteIdentifier($column->getName());
+        $escapedColumnName = $connection->quoteIdentifier($column->getName());
         $colStr = $escapedColumnName;
 
         if ($datatype->getType() === 'timestamp') {
@@ -132,6 +154,7 @@ class QueryFactory
         return $colStr;
     }
 
+
     private function getColumnDatatype(Column $column): MssqlDataType
     {
         return new MssqlDataType(
@@ -145,30 +168,30 @@ class QueryFactory
         );
     }
 
-    private function getColumnsForSelect(ExportConfig $exportConfig, string $format): string
+    private function getColumnsForSelect(ExportConfig $exportConfig, DbConnection $connection): string
     {
         $columns = $this->metadataProvider->getTable($exportConfig->getTable())->getColumns();
         // Map column names (from config or all) to metadata objects, and then format them for SELECT.
         $columnNames = $exportConfig->hasColumns() ? $exportConfig->getColumns() : $columns->getNames();
-        if ($format === self::ESCAPING_TYPE_BCP) {
+        if ($this->format === self::ESCAPING_TYPE_BCP) {
             return implode(', ', array_map(
-                fn (string $name) => $this->columnToBcpSql($columns->getByName($name)),
+                fn (string $name) => $this->columnToBcpSql($columns->getByName($name), $connection),
                 $columnNames
             ));
-        } else if ($format === self::ESCAPING_TYPE_PDO) {
+        } elseif ($this->format === self::ESCAPING_TYPE_PDO) {
             return implode(', ', array_map(
-                fn (string $name) => $this->columnToPdoSql($columns->getByName($name)),
+                fn (string $name) => $this->columnToPdoSql($columns->getByName($name), $connection),
                 $columnNames
             ));
         }
 
-        throw new LogicException(sprintf('Unexpected format: "%s"', $format));
+        throw new LogicException(sprintf('Unexpected format: "%s"', $this->format));
     }
 
     private function shouldQuoteComparison(?string $type): bool
     {
         if ($type === null) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Incremental fetching type should be set if calling "shouldQuoteComparison".'
             );
         }

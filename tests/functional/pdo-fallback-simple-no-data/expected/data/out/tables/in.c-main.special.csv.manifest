@@ -1,0 +1,108 @@
+{
+     "destination": "in.c-main.special",
+     "incremental": false,
+     "metadata": [
+         {
+             "key": "KBC.name",
+             "value": "simple"
+         },
+         {
+             "key": "KBC.sanitizedName",
+             "value": "simple"
+         },
+         {
+             "key": "KBC.schema",
+             "value": "dbo"
+         },
+         {
+             "key": "KBC.catalog",
+             "value": "test"
+         },
+         {
+             "key": "KBC.type",
+             "value": "BASE TABLE"
+         }
+     ],
+     "column_metadata": {
+         "id": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "int"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": false
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "INTEGER"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "10"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "id"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "id"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 1
+             }
+         ],
+         "name": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "varchar"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "100"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "name"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "name"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 2
+             }
+         ]
+     },
+     "columns": [
+         "id",
+         "name"
+     ]
+}

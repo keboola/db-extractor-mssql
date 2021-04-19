@@ -1,10 +1,8 @@
 Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
-Exporting to in.c-main.special
-Found database server version: 14.0.3048.4
-Executing query "special" via BCP: "SELECT SOMETHING INVALID FROM "dbo"."special""
+Exporting "special" to "in.c-main.special".
+Exporting by "BCP" adapter.
 Executing BCP command: bcp 'SELECT SOMETHING INVALID FROM "dbo"."special"' queryout 'in.c-main.special.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
-BCP export "special" failed (will attempt via PDO): Export process failed. Output:  Starting copy... SQLState = S1000, NativeError = 0 Error = [Microsoft][ODBC Driver 17 for SQL Server]Unable to resolve column level collations SQLState = S0022, NativeError = 207 Error = [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'SOMETHING'.  BCP copy out failed .    Error Output: .
-Executing query "special" via PDO: "SELECT SOMETHING INVALID FROM "dbo"."special""
+Exporting by "PDO" adapter.
 Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
 SQLSTATE[42S22]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'SOMETHING'.. Retrying... [1x]
 Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
