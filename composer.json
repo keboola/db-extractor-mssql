@@ -55,8 +55,7 @@
         "phpcbf": "phpcbf -n --ignore=vendor --extensions=php .",
         "build": [
             "@phpcs",
-            "@phpstan",
-            "@tests"
+            "@phpstan"
         ],
         "ci": [
             "@composer validate --no-check-all --strict",
