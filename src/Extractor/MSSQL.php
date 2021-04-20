@@ -8,6 +8,7 @@ use Keboola\DbExtractor\Adapter\ExportAdapter;
 use Keboola\DbExtractor\Adapter\FallbackExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Adapter\ResultWriter\DefaultResultWriter;
+use Keboola\DbExtractor\Adapter\ValueObject\ExportResult;
 use Keboola\DbExtractor\Extractor\Adapters\BcpExportAdapter;
 use Keboola\DbExtractor\Manifest\DefaultManifestGenerator;
 use Keboola\DbExtractor\Manifest\ManifestGenerator;
@@ -126,6 +127,14 @@ class MSSQL extends BaseExtractor
                 MssqlDataType::getIncrementalFetchingType($column->getName(), $column->getType())
             )
         ;
+    }
+
+    protected function createManifest(ExportConfig $exportConfig, ExportResult $exportResult): void
+    {
+        $outFilename = $this->getOutputFilename($exportConfig->getOutputTable()) . '.manifest';
+        $manifestData = $this->manifestGenerator->generate($exportConfig, $exportResult);
+        $this->logger->info(json_encode($manifestData));
+        file_put_contents($outFilename, json_encode($manifestData));
     }
 
     private function saveSslCertificate(DatabaseConfig $databaseConfig): void
