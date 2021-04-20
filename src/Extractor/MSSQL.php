@@ -133,7 +133,7 @@ class MSSQL extends BaseExtractor
     {
         $outFilename = $this->getOutputFilename($exportConfig->getOutputTable()) . '.manifest';
         $manifestData = $this->manifestGenerator->generate($exportConfig, $exportResult);
-        $this->logger->info(json_encode($manifestData));
+        $this->logger->info((string) json_encode($manifestData));
         file_put_contents($outFilename, json_encode($manifestData));
     }
 
