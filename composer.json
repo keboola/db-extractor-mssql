@@ -15,7 +15,7 @@
         "ext-json": "*",
         "keboola/csv": "^2.2.1",
         "keboola/datadir-tests": "^5.2",
-        "keboola/db-extractor-common": "^14.3",
+        "keboola/db-extractor-common": "^14.5",
         "keboola/db-extractor-config": "^1.4.6",
         "keboola/db-extractor-table-format": "^3.1.7",
         "keboola/php-component": "^8.1.2",
