@@ -35,7 +35,7 @@ try {
     if ($app['action'] !== 'run') {
         // Print sync action result
         echo JsonHelper::encode($result);
-    } else if (!empty($result['state'])) {
+    } elseif (!empty($result['state'])) {
         // Write state if present
         $outputStateFile = $dataFolder . '/out/state.json';
         JsonHelper::writeFile($outputStateFile, $result['state']);
