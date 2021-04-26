@@ -109,7 +109,7 @@ class MSSQLQueryFactory implements QueryFactory
 
         if ($datatype->getType() === 'timestamp') {
             $colStr = sprintf('CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), %s), 1)', $colStr);
-        } else if ($datatype->getBasetype() === 'STRING') {
+        } elseif ($datatype->getBasetype() === 'STRING') {
             if ($datatype->getType() === 'text'
                 || $datatype->getType() === 'ntext'
                 || $datatype->getType() === 'xml'
@@ -121,7 +121,7 @@ class MSSQLQueryFactory implements QueryFactory
                 $colStr = sprintf("COALESCE(%s,'')", $colStr);
             }
             $colStr = sprintf('char(34) + %s + char(34)', $colStr);
-        } else if ($datatype->getBasetype() === 'TIMESTAMP'
+        } elseif ($datatype->getBasetype() === 'TIMESTAMP'
             && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
         ) {
             $colStr = sprintf('CONVERT(DATETIME2(0),%s)', $colStr);

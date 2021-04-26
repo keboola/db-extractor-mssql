@@ -45,7 +45,7 @@ class MSSQLPdoConnection extends PdoConnection
         return "[{$str}]";
     }
 
-    public function prepare(string $statement, array $driver_options = array()): PDOStatement
+    public function prepare(string $statement, array $driver_options = []): PDOStatement
     {
         return $this->pdo->prepare($statement, $driver_options);
     }
