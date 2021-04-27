@@ -71,7 +71,6 @@
         "remotePort": "1433",
         "localPort": "1234"
       }
-    },
-    "extractor_class": "MSSQL"
+    }
   }
 }

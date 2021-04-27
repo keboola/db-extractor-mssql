@@ -16,7 +16,6 @@
         "verifyServerCert": false,
         "ca": "ca.crt"
       }
-    },
-    "extractor_class": "MSSQL"
+    }
   }
 }

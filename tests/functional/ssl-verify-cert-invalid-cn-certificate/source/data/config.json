@@ -17,7 +17,6 @@
         "ca": "invalidCNCa.crt",
         "ignoreCertificateCn": true
       }
-    },
-    "extractor_class": "MSSQL"
+    }
   }
 }
