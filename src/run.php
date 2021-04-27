@@ -38,6 +38,7 @@ try {
     } elseif (!empty($result['state'])) {
         // Write state if present
         $outputStateFile = $dataFolder . '/out/state.json';
+        var_dump($result);
         JsonHelper::writeFile($outputStateFile, $result['state']);
     }
     $logger->log('info', 'Extractor finished successfully.');

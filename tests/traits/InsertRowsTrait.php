@@ -42,7 +42,7 @@ trait InsertRowsTrait
                 ) .
                 ')';
         }
-        // In informix cannot be multiple values in one INSERT statement
+
         foreach ($valuesSql as $values) {
             try {
                 $this->connection->query(sprintf(
@@ -52,7 +52,7 @@ trait InsertRowsTrait
                     $values
                 ));
             } catch (Throwable $e) {
-                throw new UserException($e->getMessage(), $e->getCode(), $e);
+                throw new UserException($e->getMessage(), (int) $e->getCode(), $e);
             }
         }
     }

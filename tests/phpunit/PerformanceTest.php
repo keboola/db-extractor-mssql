@@ -7,57 +7,39 @@ namespace Keboola\DbExtractor\Tests;
 use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
+use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use \PDO;
 
 class PerformanceTest extends TestCase
 {
+    public const NUMBER_OF_SCHEMAS = 5;
+    public const NUMBER_OF_TABLES_PER_SCHEMA = 100;
+
     use ConfigTrait;
+    use RemoveAllTablesTrait;
 
     protected string $dataDir = __DIR__ . '/data';
 
-    private PDO $pdo;
+    protected PDO $connection;
 
     protected function setUp(): void
     {
-        $this->pdo = PdoTestConnection::createConnection();
+        $this->connection = PdoTestConnection::createConnection();
     }
 
-    private function cleanupTestSchemas(int $numberOfSchemas, int $numberOfTablesPerSchema): void
+    protected function tearDown(): void
     {
-        // cleanup
-        for ($schemaCount = 0; $schemaCount < $numberOfSchemas; $schemaCount++) {
-            for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount++) {
-                $this->pdo->exec(
-                    sprintf(
-                        "IF OBJECT_ID('testschema_%d.testtable_%d', 'U') IS NOT NULL " .
-                        'ALTER TABLE [testschema_%d].[testtable_%d] DROP CONSTRAINT pk_%d_%d',
-                        $schemaCount,
-                        $tableCount,
-                        $schemaCount,
-                        $tableCount,
-                        $schemaCount,
-                        $tableCount
-                    )
-                );
-                $removeTables = [
-                    sprintf('testtable_%d', $tableCount),
-                    sprintf('testschema_%d', $schemaCount),
-                ];
-                foreach ($removeTables as $removeTable) {
-                    $this->pdo->exec(
-                        sprintf(
-                            "IF OBJECT_ID('[%s].[%s]', 'U') IS NOT NULL DROP TABLE [%s].[%s]",
-                            'dbo',
-                            $removeTable,
-                            'dbo',
-                            $removeTable
-                        )
-                    );
-                }
-            }
-            $this->pdo->exec(sprintf('DROP SCHEMA IF EXISTS [testschema_%d]', $schemaCount));
+        parent::tearDown();
+        $this->cleanupTestSchemas();
+    }
+
+    private function cleanupTestSchemas(): void
+    {
+        $this->removeAllTables();
+        for ($schemaCount = 0; $schemaCount < self::NUMBER_OF_SCHEMAS; $schemaCount++) {
+            $this->connection->exec(sprintf('DROP SCHEMA IF EXISTS [testschema_%d]', $schemaCount));
         }
     }
 
@@ -65,12 +47,8 @@ class PerformanceTest extends TestCase
     {
         // $this->markTestSkipped("No need to run this test every time.");
         $testStartTime = time();
-        $numberOfSchemas = 5;
-        $numberOfTablesPerSchema = 100;
         $numberOfColumnsPerTable = 50;
         $maxRunTime = 10;
-
-        $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
 
         // gen columns
         $columnsSql = '';
@@ -78,10 +56,10 @@ class PerformanceTest extends TestCase
             $columnsSql .= sprintf(", [col_%d] VARCHAR(50) NOT NULL DEFAULT ''", $columnCount);
         }
 
-        for ($schemaCount = 0; $schemaCount < $numberOfSchemas; $schemaCount++) {
-            $this->pdo->exec(sprintf('CREATE SCHEMA [testschema_%d]', $schemaCount));
-            for ($tableCount = 0; $tableCount < $numberOfTablesPerSchema; $tableCount++) {
-                $this->pdo->exec(
+        for ($schemaCount = 0; $schemaCount < self::NUMBER_OF_SCHEMAS; $schemaCount++) {
+            $this->connection->exec(sprintf('CREATE SCHEMA [testschema_%d]', $schemaCount));
+            for ($tableCount = 0; $tableCount < self::NUMBER_OF_TABLES_PER_SCHEMA; $tableCount++) {
+                $this->connection->exec(
                     sprintf(
                         'CREATE TABLE [testschema_%d].[testtable_%d] ' .
                         '([ID] INT IDENTITY(1,1) NOT NULL%s, CONSTRAINT pk_%d_%d PRIMARY KEY ([ID]))',
@@ -112,7 +90,6 @@ class PerformanceTest extends TestCase
         $this->assertLessThan($maxRunTime, $runTime);
 
         echo "\nThe tables were fetched in " . $runTime . " seconds.\n";
-        $this->cleanupTestSchemas($numberOfSchemas, $numberOfTablesPerSchema);
         $entireTime = time() - $testStartTime;
         echo "\nComplete test finished in  " . $entireTime . " seconds.\n";
     }

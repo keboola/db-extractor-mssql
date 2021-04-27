@@ -36,24 +36,24 @@ class PdoTestConnection
 
         $host = $dbConfig->getHost();
         $host .= $dbConfig->hasPort() ? ',' . $dbConfig->getPort() : '';
-        $options['Server'] = $host;
+        $dsn['Server'] = $host;
         if ($dbConfig->hasSSLConnection()) {
-            $options['Encrypt'] = 'true';
-            $options['TrustServerCertificate'] =
+            $dsn['Encrypt'] = 'true';
+            $dsn['TrustServerCertificate'] =
                 $dbConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
         }
 
         // ms sql doesn't support options
         try {
-            $pdo = self::createPdoInstance($dbConfig, $options);
+            $pdo = self::createPdoInstance($dbConfig, $dsn);
         } catch (PDOException $e) {
             if (strpos($e->getMessage(), 'certificate verify failed:subject name does not match host name') &&
                 $dbConfig->hasSSLConnection() &&
                 $dbConfig->getSslConnectionConfig()->isIgnoreCertificateCn()
             ) {
-                $options['TrustServerCertificate'] = 'true';
+                $dsn['TrustServerCertificate'] = 'true';
 
-                $pdo = self::createPdoInstance($dbConfig, $options);
+                $pdo = self::createPdoInstance($dbConfig, $dsn);
             } else {
                 throw $e;
             }
@@ -69,12 +69,14 @@ class PdoTestConnection
         return $pdo;
     }
 
-    private static function createPdoInstance(DatabaseConfig $dbConfig, array $options): PDO
+    private static function createPdoInstance(DatabaseConfig $dbConfig, array $dsn): PDO
     {
         $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
             return sprintf('%s=%s', $key, $item);
-        }, array_keys($options), $options)));
+        }, array_keys($dsn), $dsn)));
 
-        return new PDO($dsn, $dbConfig->getUsername(), $dbConfig->getPassword());
+        return new PDO($dsn, $dbConfig->getUsername(), $dbConfig->getPassword(), [
+            PDO::ATTR_ERRMODE  => PDO::ERRMODE_EXCEPTION,
+        ]);
     }
 }
