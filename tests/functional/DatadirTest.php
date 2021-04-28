@@ -41,6 +41,7 @@ class DatadirTest extends DatadirTestCase
     public function assertDirectoryContentsSame(string $expected, string $actual): void
     {
         $this->prettifyAllManifests($actual);
+        $this->replaceTimestampValues($actual);
         parent::assertDirectoryContentsSame($expected, $actual);
     }
 
@@ -126,5 +127,26 @@ class DatadirTest extends DatadirTestCase
     {
         $finder = new Finder();
         return $finder->files()->in($dir)->name(['~.*\.manifest~']);
+    }
+
+    protected function replaceTimestampValues(string $actual): void
+    {
+        // In CSV
+        // Eg. 0x00000000000176DD -> 0x<<RANDOM>>
+        $finder = new Finder();
+        $files = $finder->files()->in($actual)->name(['~.csv~']);
+        foreach ($files as $file) {
+            $data = (string) file_get_contents((string) $file->getRealPath());
+            $data = preg_replace('~0x[0-9A-F]{16}~', '0x<<RANDOM>>', $data);
+            file_put_contents((string) $file->getRealPath(), $data);
+        }
+
+        // IN state.json
+        $stateJsonPath = $actual . '/state.json';
+        if (file_exists($stateJsonPath)) {
+            $data = (string) file_get_contents($stateJsonPath);
+            $data = preg_replace('~0x[0-9A-F]{16}~', '0x<<RANDOM>>', $data);
+            file_put_contents($stateJsonPath, $data);
+        }
     }
 }

@@ -25,8 +25,6 @@ class MSSQL extends BaseExtractor
 
     private MSSQLPdoConnection $connection;
 
-    private ?string $incrementalFetchingType = null;
-
     private ?MSSQLQueryFactory $queryFactory = null;
 
     public function createMetadataProvider(): MssqlMetadataProvider
@@ -94,7 +92,7 @@ class MSSQL extends BaseExtractor
     public function getMaxOfIncrementalFetchingColumn(ExportConfig $exportConfig): ?string
     {
         $result = $this->connection->query(sprintf(
-            $this->incrementalFetchingType === MssqlDataType::INCREMENT_TYPE_BINARY ?
+            $this->getQueryFactory()->getIncrementalFetchingType() === MssqlDataType::INCREMENT_TYPE_BINARY ?
                 'SELECT CONVERT(NVARCHAR(MAX), CONVERT(BINARY(8), MAX(%s)), 1) %s FROM %s.%s' :
                 'SELECT MAX(%s) %s FROM %s.%s',
             $this->connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),

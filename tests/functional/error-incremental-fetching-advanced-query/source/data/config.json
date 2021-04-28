@@ -14,7 +14,6 @@
       "user": "%env(string:MSSQL_DB_USER)%",
       "#password": "%env(string:MSSQL_DB_PASSWORD)%",
       "database": "%env(string:MSSQL_DB_DATABASE)%"
-    },
-    "extractor_class": "MSSQL"
+    }
   }
 }
