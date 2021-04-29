@@ -33,8 +33,6 @@ class BcpExportAdapter implements ExportAdapter
 
     private DatabaseConfig $databaseConfig;
 
-    private array $state;
-
     private LoggerInterface $logger;
 
     public function __construct(
@@ -42,14 +40,12 @@ class BcpExportAdapter implements ExportAdapter
         MSSQLPdoConnection $connection,
         MetadataProvider $metadataProvider,
         DatabaseConfig $databaseConfig,
-        MSSQLQueryFactory $queryFactory,
-        array $state
+        MSSQLQueryFactory $queryFactory
     ) {
         $this->logger = $logger;
         $this->connection = $connection;
         $this->metadataProvider = $metadataProvider;
         $this->databaseConfig = $databaseConfig;
-        $this->state = $state;
         $this->simpleQueryFactory = $queryFactory;
     }
 
@@ -97,8 +93,7 @@ class BcpExportAdapter implements ExportAdapter
         return $this
             ->simpleQueryFactory
             ->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_BCP)
-            ->create($exportConfig, $this->connection)
-            ;
+            ->create($exportConfig, $this->connection);
     }
 
     private function getLastDatetimeValue(ExportConfig $exportConfig, array $lastRow): string
@@ -119,7 +114,7 @@ class BcpExportAdapter implements ExportAdapter
             if ($whereClause !== '') {
                 $whereClause .= ' AND ';
             }
-            if (in_array(strtoupper($column->getType()), ['DATETIME", "DATETIME2'])) {
+            if (in_array(strtoupper($column->getType()), ['DATETIME', 'DATETIME2'])) {
                 $whereClause .=
                     'CONVERT(DATETIME2(0), ' . $this->connection->quoteIdentifier($column->getName()) . ') = ?';
             } else {
@@ -142,7 +137,7 @@ class BcpExportAdapter implements ExportAdapter
             return $result[0][$exportConfig->getIncrementalFetchingColumn()];
         }
 
-        throw new ApplicationException('Fetching last datetime value returned no results');
+        throw new BcpAdapterException('Fetching last datetime value returned no results.');
     }
 
     private function getLastValue(ExportConfig $exportConfig, array $lastRow): string
@@ -160,7 +155,7 @@ class BcpExportAdapter implements ExportAdapter
             }
         }
 
-        throw new ApplicationException('Fetching last id value returned no results');
+        throw new BcpAdapterException('Fetching last id value returned no results.');
     }
 
     private function doExport(MssqlExportConfig $exportConfig, string $query, string $filename): ExportResult

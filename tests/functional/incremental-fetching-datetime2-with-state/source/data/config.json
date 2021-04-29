@@ -1,0 +1,22 @@
+{
+  "parameters": {
+    "id": 3,
+    "enabled": true,
+    "name": "auto-increment-datetime2",
+    "outputTable": "in.c-main.auto-increment-datetime2",
+    "incremental": true,
+    "incrementalFetchingColumn": "datetime",
+    "primaryKey": ["_Weir%d I-D"],
+    "table": {
+      "schema": "dbo",
+      "tableName": "datetime2-table"
+    },
+    "db": {
+      "host": "%env(string:MSSQL_DB_HOST)%",
+      "port": "%env(string:MSSQL_DB_PORT)%",
+      "user": "%env(string:MSSQL_DB_USER)%",
+      "#password": "%env(string:MSSQL_DB_PASSWORD)%",
+      "database": "%env(string:MSSQL_DB_DATABASE)%"
+    }
+  }
+}
