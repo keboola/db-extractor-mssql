@@ -129,6 +129,9 @@ class BcpAdapter
             $this->pdo->quoteIdentifier($exportConfig->getTable()->getName()),
             $whereClause
         );
+        
+        $this->logger->info('Query: ' . $query);
+        $this->logger->info(json_encode($whereValues));
 
         $result = $this->pdo->runRetryableQuery($query, $exportConfig->getMaxRetries(), $whereValues);
 
