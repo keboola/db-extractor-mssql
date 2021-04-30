@@ -60,8 +60,7 @@ class MSSQL extends BaseExtractor
             $this->connection,
             $this->createMetadataProvider(),
             $this->getDatabaseConfig(),
-            $this->getQueryFactory(),
-            $this->state
+            $this->getQueryFactory()
         );
 
         $adapters[] = new MSSQLPdoExportAdapter(
