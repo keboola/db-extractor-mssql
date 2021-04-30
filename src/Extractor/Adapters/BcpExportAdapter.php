@@ -131,6 +131,9 @@ class BcpExportAdapter implements ExportAdapter
             $whereClause
         );
 
+        $this->logger->info('Query: ' . $query);
+        $this->logger->info(json_encode($whereValues));
+
         $result = $this->connection->query($query, $exportConfig->getMaxRetries(), $whereValues)->fetchAll();
 
         if (count($result) > 0) {
