@@ -120,7 +120,9 @@ class BcpExportAdapter implements ExportAdapter
             // ... COALESCE(NULL, "") = "" -> true
             if (in_array(strtoupper($column->getType()), ['DATETIME', 'DATETIME2'])) {
                 $whereClause .=
-                    'COALESCE(CONVERT(DATETIME2(0), ' . $this->connection->quoteIdentifier($column->getName()) . '), \'\') = ?';
+                    'COALESCE(CONVERT(DATETIME2(0), ' .
+                    $this->connection->quoteIdentifier($column->getName()) .
+                    '), \'\') = ?';
             } else {
                 $whereClause .= 'COALESCE(' . $this->connection->quoteIdentifier($column->getName()) . ', \'\') = ?';
             }
@@ -239,7 +241,13 @@ class BcpExportAdapter implements ExportAdapter
         }
 
         $lastFetchedRowMaxValue = null;
-        if ($exportConfig->isIncrementalFetching() && $lastFetchedRow) {
+
+        // Find max value only if BaseExtractor::canFetchMaxIncrementalValueSeparately == false
+        if (!$exportConfig->hasQuery() &&
+            $exportConfig->isIncrementalFetching() &&
+            $exportConfig->hasIncrementalFetchingLimit() &&
+            $lastFetchedRow
+        ) {
             if ($this->simpleQueryFactory->getIncrementalFetchingType() === MssqlDataType::INCREMENT_TYPE_DATETIME) {
                 $lastFetchedRowMaxValue = $this->getLastDatetimeValue($exportConfig, $lastFetchedRow);
             } else {
