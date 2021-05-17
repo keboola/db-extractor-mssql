@@ -1,38 +1,35 @@
 sudo: required
 
+language: bash
+
 services:
   - docker
 
-install:
-  - docker-compose -v
-  - docker-compose build
+before_script:
+  - export APP_IMAGE=keboola-component
+  - docker -v
+  - docker login --username "$DOCKERHUB_USER" --password "$DOCKERHUB_TOKEN"
+  - docker build -t $APP_IMAGE .
   - docker-compose run --rm wait
   - docker-compose run --rm app
 
-script:
+  # push test image to ECR
   - docker pull quay.io/keboola/developer-portal-cli-v2:latest
-  - export REPOSITORY=`docker run --rm -e KBC_DEVELOPERPORTAL_USERNAME -e KBC_DEVELOPERPORTAL_PASSWORD quay.io/keboola/developer-portal-cli-v2:latest ecr:get-repository keboola keboola.ex-db-mssql`
-  - docker tag keboola/ex-db-mssql:latest $REPOSITORY:master
-  - eval $(docker run --rm -e KBC_DEVELOPERPORTAL_USERNAME -e KBC_DEVELOPERPORTAL_PASSWORD quay.io/keboola/developer-portal-cli-v2:latest ecr:get-login keboola keboola.ex-db-mssql)
-  - docker push $REPOSITORY:master
-  # Run live test job on new master image
+  - export REPOSITORY=`docker run --rm -e KBC_DEVELOPERPORTAL_USERNAME -e KBC_DEVELOPERPORTAL_PASSWORD -e KBC_DEVELOPERPORTAL_URL quay.io/keboola/developer-portal-cli-v2:latest ecr:get-repository $KBC_DEVELOPERPORTAL_VENDOR $KBC_DEVELOPERPORTAL_APP`
+  - docker tag $APP_IMAGE:latest $REPOSITORY:test
+  - eval $(docker run --rm -e KBC_DEVELOPERPORTAL_USERNAME -e KBC_DEVELOPERPORTAL_PASSWORD -e KBC_DEVELOPERPORTAL_URL quay.io/keboola/developer-portal-cli-v2:latest ecr:get-login $KBC_DEVELOPERPORTAL_VENDOR $KBC_DEVELOPERPORTAL_APP)
+  - docker push $REPOSITORY:test
   - docker pull quay.io/keboola/syrup-cli:latest
-  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287615945 master
-  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287628364 master
+
+script:
+  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287615945 test
+  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287628364 test
   # Run a test on sql server 2008
-  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 402532849 master
-  # Test Azure DB
-  #- travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql
-  # 430354652 master
+  - travis_wait docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 402532849 test
 
 deploy:
   provider: script
   skip_cleanup: true
-  script: "./deploy.sh"
+  script: ./deploy.sh
   on:
     tags: true
-
-notifications:
-  email: false
-  slack:
-    secure: LTGPOYgvPC++OcFMr78Uyl1bQr6N0b+gcRCe+i8NPzfI4oLoT2HRQ+4UT6TltMSzC6N7iaNmzIjsJGiqYwDFYgfuL3F5fZJP/5TJ37aGa4tZgam2sNdcna8nDTy+u1L1yZCPBaNI6ziyvlzcw8G4XKltcxVOS2DCbM9hST/6s67iLfobBnWUAPpPH/PA0JKrRaaDzBtdPXSibtj8iwJp8wiOtuZ6iZUbzMquKUVjfaZigfI+xFr5Qm7t3I8JOtEGwt7lWLMAcD4d4qKXrOw5SbGvTUiy5jRlgxle50hAp9Fb+c5TO/WiJfWyDGyzwLEHhgMLN8qmm6Ll8c7AQL6lT5c4StcD7z6jcWqBLob3Le2FfoBtY6Xid/LbzUXEwx/l74zoymv1wU18x5YzQNlFkcf1oc5Snb1ryApvGWOTOjGfk56GSYMJfiwrhtZQITJo1v03Gu7pmqFGWOEoqlKg1b8EnEHfHIzIWFIsI5sHGgdugdHuR4xBAWWyALy4UxieNVdrsnwGc+oiDKHfySYNvRwy24xX2DhiveJNKupMT2vQy/5FFByHlsYzpgD7PVHJ+bciFqoSNIgK2COnM+2RbRtMKWiHKTWmXDiGMD8YyaN2OUQXLf+k+uO4KQLUOZkfMtvMOaSIPPW7MeSx0dsOEpQlzpRVOFT65badMui1QO0=
