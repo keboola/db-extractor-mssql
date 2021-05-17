@@ -114,12 +114,17 @@ class BcpExportAdapter implements ExportAdapter
             if ($whereClause !== '') {
                 $whereClause .= ' AND ';
             }
+
+            // COALESCE note: NULL is exported as empty string to $lastRow, so
+            // ... COALESCE is required, because NULL = "" -> false
+            // ... COALESCE(NULL, "") = "" -> true
             if (in_array(strtoupper($column->getType()), ['DATETIME', 'DATETIME2'])) {
                 $whereClause .=
-                    'CONVERT(DATETIME2(0), ' . $this->connection->quoteIdentifier($column->getName()) . ') = ?';
+                    'COALESCE(CONVERT(DATETIME2(0), ' . $this->connection->quoteIdentifier($column->getName()) . '), \'\') = ?';
             } else {
-                $whereClause .= $this->connection->quoteIdentifier($column->getName()) . ' = ?';
+                $whereClause .= 'COALESCE(' . $this->connection->quoteIdentifier($column->getName()) . ', \'\') = ?';
             }
+
             $whereValues[] = $lastRow[$key];
         }
 

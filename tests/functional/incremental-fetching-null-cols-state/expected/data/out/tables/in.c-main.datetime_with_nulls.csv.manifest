@@ -1,17 +1,14 @@
 {
-    "destination": "in.c-main.auto-increment-datetime2",
+    "destination": "in.c-main.datetime_with_nulls",
     "incremental": true,
-    "primary_key": [
-        "Weir_d_I_D"
-    ],
     "metadata": [
         {
             "key": "KBC.name",
-            "value": "datetime2-table"
+            "value": "datetime_with_nulls"
         },
         {
             "key": "KBC.sanitizedName",
-            "value": "datetime2_table"
+            "value": "datetime_with_nulls"
         },
         {
             "key": "KBC.schema",
@@ -27,14 +24,14 @@
         }
     ],
     "column_metadata": {
-        "Weir_d_I_D": [
+        "id": [
             {
                 "key": "KBC.datatype.type",
                 "value": "int"
             },
             {
                 "key": "KBC.datatype.nullable",
-                "value": false
+                "value": true
             },
             {
                 "key": "KBC.datatype.basetype",
@@ -45,16 +42,20 @@
                 "value": "10"
             },
             {
+                "key": "KBC.datatype.default",
+                "value": "(NULL)"
+            },
+            {
                 "key": "KBC.sourceName",
-                "value": "_Weir%d I-D"
+                "value": "id"
             },
             {
                 "key": "KBC.sanitizedName",
-                "value": "Weir_d_I_D"
+                "value": "id"
             },
             {
                 "key": "KBC.primaryKey",
-                "value": true
+                "value": false
             },
             {
                 "key": "KBC.uniqueKey",
@@ -65,14 +66,14 @@
                 "value": 1
             }
         ],
-        "Weir_d_Na_me": [
+        "name": [
             {
                 "key": "KBC.datatype.type",
                 "value": "varchar"
             },
             {
                 "key": "KBC.datatype.nullable",
-                "value": false
+                "value": true
             },
             {
                 "key": "KBC.datatype.basetype",
@@ -84,15 +85,15 @@
             },
             {
                 "key": "KBC.datatype.default",
-                "value": "('mario')"
+                "value": "(NULL)"
             },
             {
                 "key": "KBC.sourceName",
-                "value": "Weir%d Na-me"
+                "value": "name"
             },
             {
                 "key": "KBC.sanitizedName",
-                "value": "Weir_d_Na_me"
+                "value": "name"
             },
             {
                 "key": "KBC.primaryKey",
@@ -100,125 +101,11 @@
             },
             {
                 "key": "KBC.uniqueKey",
-                "value": true
+                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",
                 "value": 2
-            }
-        ],
-        "someInteger": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "int"
-            },
-            {
-                "key": "KBC.datatype.nullable",
-                "value": true
-            },
-            {
-                "key": "KBC.datatype.basetype",
-                "value": "INTEGER"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "10"
-            },
-            {
-                "key": "KBC.sourceName",
-                "value": "someInteger"
-            },
-            {
-                "key": "KBC.sanitizedName",
-                "value": "someInteger"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
-                "key": "KBC.ordinalPosition",
-                "value": 3
-            }
-        ],
-        "someDecimal": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "decimal"
-            },
-            {
-                "key": "KBC.datatype.nullable",
-                "value": true
-            },
-            {
-                "key": "KBC.datatype.basetype",
-                "value": "NUMERIC"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "10,2"
-            },
-            {
-                "key": "KBC.sourceName",
-                "value": "someDecimal"
-            },
-            {
-                "key": "KBC.sanitizedName",
-                "value": "someDecimal"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
-                "key": "KBC.ordinalPosition",
-                "value": 4
-            }
-        ],
-        "type": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "varchar"
-            },
-            {
-                "key": "KBC.datatype.nullable",
-                "value": true
-            },
-            {
-                "key": "KBC.datatype.basetype",
-                "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "55"
-            },
-            {
-                "key": "KBC.sourceName",
-                "value": "type"
-            },
-            {
-                "key": "KBC.sanitizedName",
-                "value": "type"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": true
-            },
-            {
-                "key": "KBC.ordinalPosition",
-                "value": 5
             }
         ],
         "smalldatetime": [
@@ -256,17 +143,17 @@
             },
             {
                 "key": "KBC.ordinalPosition",
-                "value": 6
+                "value": 3
             }
         ],
-        "datetime": [
+        "datetime1": [
             {
                 "key": "KBC.datatype.type",
-                "value": "datetime2"
+                "value": "datetime"
             },
             {
                 "key": "KBC.datatype.nullable",
-                "value": false
+                "value": true
             },
             {
                 "key": "KBC.datatype.basetype",
@@ -274,15 +161,15 @@
             },
             {
                 "key": "KBC.datatype.default",
-                "value": "(getdate())"
+                "value": "(NULL)"
             },
             {
                 "key": "KBC.sourceName",
-                "value": "datetime"
+                "value": "datetime1"
             },
             {
                 "key": "KBC.sanitizedName",
-                "value": "datetime"
+                "value": "datetime1"
             },
             {
                 "key": "KBC.primaryKey",
@@ -294,17 +181,53 @@
             },
             {
                 "key": "KBC.ordinalPosition",
-                "value": 7
+                "value": 4
+            }
+        ],
+        "datetime2": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "datetime"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "TIMESTAMP"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "(NULL)"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "datetime2"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "datetime2"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 5
             }
         ]
     },
     "columns": [
-        "Weir_d_I_D",
-        "Weir_d_Na_me",
-        "someInteger",
-        "someDecimal",
-        "type",
+        "id",
+        "name",
         "smalldatetime",
-        "datetime"
+        "datetime1",
+        "datetime2"
     ]
 }

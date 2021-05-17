@@ -1,0 +1,21 @@
+{
+  "parameters": {
+    "id": 3,
+    "enabled": true,
+    "name": "datetime_with_nulls",
+    "outputTable": "in.c-main.datetime_with_nulls",
+    "incremental": true,
+    "incrementalFetchingColumn": "datetime2",
+    "table": {
+      "schema": "dbo",
+      "tableName": "datetime_with_nulls"
+    },
+    "db": {
+      "host": "%env(string:MSSQL_DB_HOST)%",
+      "port": "%env(string:MSSQL_DB_PORT)%",
+      "user": "%env(string:MSSQL_DB_USER)%",
+      "#password": "%env(string:MSSQL_DB_PASSWORD)%",
+      "database": "%env(string:MSSQL_DB_DATABASE)%"
+    }
+  }
+}
