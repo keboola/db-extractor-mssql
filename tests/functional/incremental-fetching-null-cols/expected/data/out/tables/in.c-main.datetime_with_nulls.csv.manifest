@@ -1,0 +1,233 @@
+{
+    "destination": "in.c-main.datetime_with_nulls",
+    "incremental": true,
+    "metadata": [
+        {
+            "key": "KBC.name",
+            "value": "datetime_with_nulls"
+        },
+        {
+            "key": "KBC.sanitizedName",
+            "value": "datetime_with_nulls"
+        },
+        {
+            "key": "KBC.schema",
+            "value": "dbo"
+        },
+        {
+            "key": "KBC.catalog",
+            "value": "test"
+        },
+        {
+            "key": "KBC.type",
+            "value": "BASE TABLE"
+        }
+    ],
+    "column_metadata": {
+        "id": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "int"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "INTEGER"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "10"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "(NULL)"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "id"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "id"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 1
+            }
+        ],
+        "name": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "varchar"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "55"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "(NULL)"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "name"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "name"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 2
+            }
+        ],
+        "smalldatetime": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "smalldatetime"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "TIMESTAMP"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "(NULL)"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "smalldatetime"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "smalldatetime"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 3
+            }
+        ],
+        "datetime1": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "datetime"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "TIMESTAMP"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "(NULL)"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "datetime1"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "datetime1"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 4
+            }
+        ],
+        "datetime2": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "datetime"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "TIMESTAMP"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "(NULL)"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "datetime2"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "datetime2"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 5
+            }
+        ]
+    },
+    "columns": [
+        "id",
+        "name",
+        "smalldatetime",
+        "datetime1",
+        "datetime2"
+    ]
+}

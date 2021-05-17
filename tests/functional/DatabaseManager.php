@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\FunctionalTests;
 
 use Keboola\DbExtractor\TraitTests\Tables\AutoIncrementTableTrait;
+use Keboola\DbExtractor\TraitTests\Tables\NullableTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\SalesTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\SimpleTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\SpecialTableTrait;
@@ -18,6 +19,7 @@ class DatabaseManager
     use SalesTableTrait;
     use SpecialTableTrait;
     use TimestampTableTrait;
+    use NullableTableTrait;
 
     protected PDO $connection;
 
