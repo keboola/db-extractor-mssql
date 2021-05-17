@@ -13,6 +13,7 @@
         "php": "^7.4",
         "ext-PDO": "*",
         "ext-json": "*",
+        "ext-mbstring": "*",
         "keboola/csv": "^2.2.1",
         "keboola/datadir-tests": "^5.2",
         "keboola/db-extractor-common": "^14.5",
@@ -24,8 +25,7 @@
         "symfony/process": "^5.0"
     },
     "require-dev": {
-        "ext-mbstring": "*",
-        "keboola/coding-standard": ">=9.0",
+      "keboola/coding-standard": ">=9.0",
         "phpstan/phpstan": "^0.12.14",
         "phpunit/phpunit": "^9.0"
     },

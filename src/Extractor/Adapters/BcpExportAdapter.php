@@ -229,7 +229,7 @@ class BcpExportAdapter implements ExportAdapter
                 throw new BcpAdapterException('The BCP command produced an invalid csv.', 0, null, [
                     'currentLineNumber' => $lineNumber,
                     'currentLine' => $outputFile->current(),
-                    'bcpErrorOutput' => $process->getErrorOutput(),
+                    'bcpErrorOutput' => mb_convert_encoding($process->getErrorOutput(), 'UTF-8', 'UTF-8'),
                 ]);
             }
             $lastRow = $outputFile->current();
