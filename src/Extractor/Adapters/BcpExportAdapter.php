@@ -90,7 +90,7 @@ class BcpExportAdapter implements ExportAdapter
                 $message[] = 'bcpErrorOutput: ' . $errorData['bcpErrorOutput'];
             }
             if (isset($errorData['currentLine'])) {
-                $message[] = 'currentLine: ' . $errorData['currentLine'];
+                $message[] = 'currentLine: ' . implode('|', $errorData['currentLine']);
             }
 
             throw new UserException(implode('; ', $message));
