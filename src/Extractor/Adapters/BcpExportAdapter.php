@@ -84,7 +84,16 @@ class BcpExportAdapter implements ExportAdapter
             return $exportResult;
         } catch (BcpAdapterException $pdoError) {
             @unlink($csvFilePath);
-            throw new UserException($pdoError->getMessage());
+            $errorData = $pdoError->getData();
+            $message = ['message: ' . $pdoError->getMessage()];
+            if (isset($errorData['bcpErrorOutput'])) {
+                $message[] = 'bcpErrorOutput: ' . $errorData['bcpErrorOutput'];
+            }
+            if (isset($errorData['currentLine'])) {
+                $message[] = 'currentLine: ' . $errorData['currentLine'];
+            }
+
+            throw new UserException(implode('; ', $message));
         }
     }
 

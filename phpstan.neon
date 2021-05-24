@@ -4,4 +4,3 @@ parameters:
         - '#Cannot call method fetch\(\) on PDOStatement\|false\.#'
         - '#Cannot call method execute\(\) on PDOStatement\|false\.#'
         - '#function get_class expects object, Throwable\|null given.#'
-        - '#Unreachable statement - code above always terminates.#'
