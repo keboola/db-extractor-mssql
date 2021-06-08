@@ -1,0 +1,159 @@
+{
+    "destination": "in.c-main.simple",
+    "incremental": false,
+    "metadata": [
+        {
+            "key": "KBC.name",
+            "value": "simple"
+        },
+        {
+            "key": "KBC.sanitizedName",
+            "value": "simple"
+        },
+        {
+            "key": "KBC.schema",
+            "value": "dbo"
+        },
+        {
+            "key": "KBC.catalog",
+            "value": "test"
+        },
+        {
+            "key": "KBC.type",
+            "value": "BASE TABLE"
+        }
+    ],
+    "column_metadata": {
+        "int": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "int"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "INTEGER"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "10"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "123"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "int"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "int"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 1
+            }
+        ],
+        "decimal": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "decimal"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "NUMERIC"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "18"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "123.45"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "decimal"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "decimal"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 2
+            }
+        ],
+        "float": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "float"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "FLOAT"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "53"
+            },
+            {
+                "key": "KBC.datatype.default",
+                "value": "987.65"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "float"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "float"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 3
+            }
+        ]
+    },
+    "columns": [
+        "int",
+        "decimal",
+        "float"
+    ]
+}
