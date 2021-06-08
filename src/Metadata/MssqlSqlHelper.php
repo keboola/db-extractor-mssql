@@ -193,4 +193,26 @@ class MssqlSqlHelper
                 return $data['CHARACTER_MAXIMUM_LENGTH'];
         }
     }
+
+
+
+    public static function getDefaultValue(string $dataType, string $defaultValue): string
+    {
+        switch (strtolower($dataType)) {
+            case 'int':
+            case 'bigint':
+            case 'smallint':
+            case 'tinyint':
+            case 'decimal':
+            case 'numeric':
+            case 'float':
+                preg_match('/\(\((.+)\)\)/', $defaultValue, $match);
+                if (isset($match[1])) {
+                    return $match[1];
+                }
+                return $defaultValue;
+            default:
+                return $defaultValue;
+        }
+    }
 }
