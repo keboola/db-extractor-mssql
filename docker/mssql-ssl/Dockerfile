@@ -1,4 +1,6 @@
-FROM microsoft/mssql-server-linux
+FROM mcr.microsoft.com/mssql/server:2019-latest
+
+USER root
 
 COPY tests/ssl-certs/mssql.crt /etc/ssl/certs/mssql.crt
 COPY tests/ssl-certs/mssql.key /etc/ssl/private/mssql.key
