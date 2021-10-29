@@ -12,6 +12,9 @@ use Keboola\DbExtractor\Exception\InvalidArgumentException;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
+use Retry\BackOff\ExponentialBackOffPolicy;
+use Retry\Policy\SimpleRetryPolicy;
+use Retry\RetryProxy;
 use Throwable;
 use Psr\Log\LoggerInterface;
 use Keboola\Csv\CsvReader;
@@ -72,12 +75,15 @@ class BcpExportAdapter implements ExportAdapter
 
         $query = $exportConfig->hasQuery() ? $exportConfig->getQuery() : $this->createSimpleQuery($exportConfig);
 
+        $retryProxy = $this->createRetryProxy($exportConfig->getMaxTriesBcp());
         try {
-            $exportResult = $this->doExport(
-                $exportConfig,
-                $query,
-                $csvFilePath
-            );
+            $exportResult = $retryProxy->call(function () use ($exportConfig, $query, $csvFilePath) {
+                return $this->doExport(
+                    $exportConfig,
+                    $query,
+                    $csvFilePath
+                );
+            });
             if ($exportResult->getRowsCount() > 0 && $exportConfig->hasQuery()) {
                 $this->stripNullBytesInEmptyFields($csvFilePath);
             }
@@ -291,5 +297,12 @@ class BcpExportAdapter implements ExportAdapter
             $commandForLogger
         ));
         return $cmd;
+    }
+
+    private function createRetryProxy(int $maxTries): RetryProxy
+    {
+        $retryPolicy = new SimpleRetryPolicy($maxTries, [BcpAdapterException::class]);
+        $backoffPolicy = new ExponentialBackOffPolicy(1000);
+        return new RetryProxy($retryPolicy, $backoffPolicy, $this->logger);
     }
 }

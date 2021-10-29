@@ -30,6 +30,7 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
         $this->addNoLockNode($builder);
         $this->addDisableBcpNode($builder);
         $this->addDisableFallbackNode($builder);
+        $this->addMaxTriesBcpNode($builder);
     }
 
     protected function addAdvancedModeNode(NodeBuilder $builder): void
@@ -51,5 +52,10 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
     protected function addDisableFallbackNode(NodeBuilder $builder): void
     {
         $builder->booleanNode('disableFallback')->defaultFalse();
+    }
+
+    protected function addMaxTriesBcpNode(NodeBuilder $builder): void
+    {
+        $builder->integerNode('maxTriesBcp')->defaultValue(1);
     }
 }
