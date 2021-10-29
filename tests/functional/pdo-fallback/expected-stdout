@@ -1,7 +1,7 @@
 Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
 Exporting "special" to "in.c-main.special".
 Exporting by "BCP" adapter.
-Found database server version: 15.0.4153.1
+Found database server version: 15.%d.%d.%d
 Executing BCP command: bcp 'SELECT *  FROM "special";' queryout 'in.c-main.special.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
 Exporting by "PDO" adapter.
 Exported "7" rows to "in.c-main.special".
