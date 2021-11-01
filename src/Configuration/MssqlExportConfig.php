@@ -16,6 +16,8 @@ class MssqlExportConfig extends ExportConfig
 
     private bool $disableFallback;
 
+    private int $maxTriesBcp;
+
     public static function fromArray(array $data): self
     {
         return new self(
@@ -32,7 +34,8 @@ class MssqlExportConfig extends ExportConfig
             // Added nodes
             $data['nolock'] ?? false,
             $data['disableBcp'] ?? false,
-            $data['disableFallback'] ?? false
+            $data['disableFallback'] ?? false,
+            $data['maxTriesBcp'] ?? 1
         );
     }
 
@@ -49,7 +52,8 @@ class MssqlExportConfig extends ExportConfig
         int $maxRetries,
         bool $noLock,
         bool $disableBcp,
-        bool $disableFallback
+        bool $disableFallback,
+        int $maxTriesBcp
     ) {
         parent::__construct(
             $configId,
@@ -66,6 +70,7 @@ class MssqlExportConfig extends ExportConfig
         $this->noLock = $noLock;
         $this->disableBcp = $disableBcp;
         $this->disableFallback = $disableFallback;
+        $this->maxTriesBcp = $maxTriesBcp;
     }
 
     public function getNoLock(): bool
@@ -81,5 +86,10 @@ class MssqlExportConfig extends ExportConfig
     public function isFallbackDisabled(): bool
     {
         return $this->disableFallback;
+    }
+
+    public function getMaxTriesBcp(): int
+    {
+        return $this->maxTriesBcp;
     }
 }

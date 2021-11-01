@@ -1,0 +1,19 @@
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Exporting "sales" to "in.c-main.sales".
+Exporting by "BCP" adapter.
+Found database server version: 15.0.4178.1
+Executing BCP command: bcp 'SELECT * FROM unexistsTable' queryout 'in.c-main.sales.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+Export process failed. Output:  Starting copy... SQLState = S1000, NativeError = 0 Error = [Microsoft][ODBC Driver 17 for SQL Server]Unable to resolve column level collations SQLState = S0002, NativeError = 208 Error = [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'unexistsTable'.  BCP copy out failed .    Error Output: .. Retrying... [1x]
+Executing BCP command: bcp 'SELECT * FROM unexistsTable' queryout 'in.c-main.sales.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+Export process failed. Output:  Starting copy... SQLState = S1000, NativeError = 0 Error = [Microsoft][ODBC Driver 17 for SQL Server]Unable to resolve column level collations SQLState = S0002, NativeError = 208 Error = [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'unexistsTable'.  BCP copy out failed .    Error Output: .. Retrying... [2x]
+Executing BCP command: bcp 'SELECT * FROM unexistsTable' queryout 'in.c-main.sales.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+Exporting by "PDO" adapter.
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+SQLSTATE[42S02]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'unexistsTable'.. Retrying... [1x]
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+SQLSTATE[42S02]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'unexistsTable'.. Retrying... [2x]
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+SQLSTATE[42S02]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'unexistsTable'.. Retrying... [3x]
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+SQLSTATE[42S02]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid object name 'unexistsTable'.. Retrying... [4x]
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
