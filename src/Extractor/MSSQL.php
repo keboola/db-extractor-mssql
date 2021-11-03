@@ -77,9 +77,7 @@ class MSSQL extends BaseExtractor
 
     public function createConnection(DatabaseConfig $databaseConfig): void
     {
-        if ($databaseConfig->hasSSLConnection() && $databaseConfig->getSslConnectionConfig()->isVerifyServerCert()) {
-            $this->saveSslCertificate($databaseConfig);
-        }
+        $this->saveSslCertificate($databaseConfig);
         $this->connection = new MSSQLPdoConnection($this->logger, $databaseConfig);
     }
 
@@ -127,10 +125,12 @@ class MSSQL extends BaseExtractor
 
     private function saveSslCertificate(DatabaseConfig $databaseConfig): void
     {
-        file_put_contents(
-            '/usr/local/share/ca-certificates/mssql.crt',
-            $databaseConfig->getSslConnectionConfig()->getCa()
-        );
-        Process::fromShellCommandline('update-ca-certificates')->mustRun();
+        if ($databaseConfig->hasSSLConnection() && $databaseConfig->getSslConnectionConfig()->hasCa()) {
+            file_put_contents(
+                '/usr/local/share/ca-certificates/mssql.crt',
+                $databaseConfig->getSslConnectionConfig()->getCa()
+            );
+            Process::fromShellCommandline('update-ca-certificates')->mustRun();
+        }
     }
 }
