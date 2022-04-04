@@ -941,7 +941,7 @@ class MSSQLTest extends TestCase
         $this->assertEquals(
             [
                 'outputTable' => 'in.c-main.special',
-                'rows' => 7,
+                'rows' => 8,
             ],
             $result['imported']
         );
@@ -1085,7 +1085,7 @@ class MSSQLTest extends TestCase
                 ],
                 [
                     'outputTable' => 'in.c-main.special',
-                    'rows' => 7,
+                    'rows' => 8,
                 ],
             ],
             $result['imported']

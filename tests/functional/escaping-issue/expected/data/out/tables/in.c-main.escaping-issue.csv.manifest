@@ -1,0 +1,1200 @@
+{
+    "destination": "in.c-main.escaping-issue",
+    "incremental": false,
+    "metadata": [
+        {
+            "key": "KBC.name",
+            "value": "escaping-issue"
+        },
+        {
+            "key": "KBC.sanitizedName",
+            "value": "escaping_issue"
+        },
+        {
+            "key": "KBC.schema",
+            "value": "dbo"
+        },
+        {
+            "key": "KBC.catalog",
+            "value": "test"
+        },
+        {
+            "key": "KBC.type",
+            "value": "BASE TABLE"
+        }
+    ],
+    "column_metadata": {
+        "col1": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "text"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "col1"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "col1"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 1
+            }
+        ],
+        "col2": [
+            {
+                "key": "KBC.datatype.type",
+                "value": "text"
+            },
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "col2"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "col2"
+            },
+            {
+                "key": "KBC.primaryKey",
+                "value": false
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 2
+            }
+        ],
+         "col3": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col3"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col3"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 3
+             }
+         ],
+         "col4": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col4"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col4"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 4
+             }
+         ],
+         "col5": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col5"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col5"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 5
+             }
+         ],
+         "col6": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col6"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col6"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 6
+             }
+         ],
+         "col7": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col7"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col7"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 7
+             }
+         ],
+         "col8": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col8"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col8"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 8
+             }
+         ],
+         "col9": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col9"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col9"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 9
+             }
+         ],
+         "col10": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col10"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col10"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 10
+             }
+         ],
+         "col11": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col11"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col11"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 11
+             }
+         ],
+         "col12": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col12"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col12"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 12
+             }
+         ],
+         "col13": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col13"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col13"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 13
+             }
+         ],
+         "col14": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col14"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col14"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 14
+             }
+         ],
+         "col15": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col15"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col15"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 15
+             }
+         ],
+         "col16": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col16"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col16"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 16
+             }
+         ],
+         "col17": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col17"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col17"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 17
+             }
+         ],
+         "col18": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col18"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col18"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 18
+             }
+         ],
+         "col19": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col19"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col19"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 19
+             }
+         ],
+         "col20": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col20"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col20"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 20
+             }
+         ],
+         "col21": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col21"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col21"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 21
+             }
+         ],
+         "col22": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col22"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col22"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 22
+             }
+         ],
+         "col23": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col23"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col23"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 23
+             }
+         ],
+         "col24": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col24"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col24"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 24
+             }
+         ],
+         "col25": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col25"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col25"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 25
+             }
+         ],
+         "col26": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col26"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col26"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 26
+             }
+         ],
+         "col27": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col27"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col27"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 27
+             }
+         ],
+         "col28": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col28"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col28"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 28
+             }
+         ],
+         "col29": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col29"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col29"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 29
+             }
+         ],
+         "col30": [
+             {
+                 "key": "KBC.datatype.type",
+                 "value": "text"
+             },
+             {
+                 "key": "KBC.datatype.nullable",
+                 "value": true
+             },
+             {
+                 "key": "KBC.datatype.basetype",
+                 "value": "STRING"
+             },
+             {
+                 "key": "KBC.datatype.length",
+                 "value": "2147483647"
+             },
+             {
+                 "key": "KBC.sourceName",
+                 "value": "col30"
+             },
+             {
+                 "key": "KBC.sanitizedName",
+                 "value": "col30"
+             },
+             {
+                 "key": "KBC.primaryKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.uniqueKey",
+                 "value": false
+             },
+             {
+                 "key": "KBC.ordinalPosition",
+                 "value": 30
+             }
+         ]
+    },
+    "columns": [
+        "col1",
+        "col2",
+        "col3",
+        "col4",
+        "col5",
+        "col6",
+        "col7",
+        "col8",
+        "col9",
+        "col10",
+        "col11",
+        "col12",
+        "col13",
+        "col14",
+        "col15",
+        "col16",
+        "col17",
+        "col18",
+        "col19",
+        "col20",
+        "col21",
+        "col22",
+        "col23",
+        "col24",
+        "col25",
+        "col26",
+        "col27",
+        "col28",
+        "col29",
+        "col30"
+    ]
+}

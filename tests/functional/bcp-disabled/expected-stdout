@@ -3,5 +3,5 @@ Exporting "special" to "in.c-main.special".
 Exporting by "BCP" adapter.
 Adapter "BCP" skipped: Disabled in configuration.
 Exporting by "PDO" adapter.
-Exported "7" rows to "in.c-main.special".
+Exported "8" rows to "in.c-main.special".
 Extractor finished successfully.

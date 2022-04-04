@@ -38,6 +38,7 @@ new line', 'columns with 	tab'],
 double new line'],
                 ['line with enclosure','second column'],
                 ['unicode characters','ľščťžýáíéúäôň'],
+                ['.000000000000', '`trboholy zamstnanciOC",1,9205502,,",0 0000021271"'],
             ],
         ];
     }
