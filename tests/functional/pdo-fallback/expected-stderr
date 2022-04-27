@@ -1,1 +1,1 @@
-Export by "BCP" adapter failed: The BCP command produced an invalid csv.
+Export by "BCP" adapter failed: The BCP command produced an invalid csv. Error on line "column with enclosure "; and comma inside text;second column enclosure in text "" [2]. BCP Error "".
