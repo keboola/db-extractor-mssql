@@ -45,3 +45,7 @@ GRANT SELECT ON SCHEMA :: [tests] TO tests_mssql_extractor;
         }
       ]
     }
+
+## License
+
+MIT licensed, see [LICENSE](./LICENSE) file.
