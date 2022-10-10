@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\Component\JsonHelper;
 use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
 use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
-use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use \PDO;
+use Psr\Log\Test\TestLogger;
 
 class PerformanceTest extends TestCase
 {
@@ -26,6 +27,7 @@ class PerformanceTest extends TestCase
 
     protected function setUp(): void
     {
+        putenv('KBC_DATADIR=' . $this->dataDir);
         $this->connection = PdoTestConnection::createConnection();
     }
 
@@ -79,11 +81,16 @@ class PerformanceTest extends TestCase
         $config = $this->getConfig();
         $config['action'] = 'getTables';
 
-        $logger = new Logger('ex-db-mssql-tests');
-        $app = new MSSQLApplication($config, $logger, [], $this->dataDir);
+        JsonHelper::writeFile($this->dataDir . '/config.json', $config);
+
+        $logger = new TestLogger();
+        $app = new MSSQLApplication($logger);
 
         $jobStartTime = time();
-        $result = $app->run();
+        ob_start();
+        $app->execute();
+        $result = json_decode((string) ob_get_contents(), true);
+        ob_end_clean();
         $this->assertEquals('success', $result['status']);
         $runTime = time() - $jobStartTime;
 

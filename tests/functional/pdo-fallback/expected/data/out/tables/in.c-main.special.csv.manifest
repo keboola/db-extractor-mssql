@@ -1,4 +1,8 @@
 {
     "destination": "in.c-main.special",
-    "incremental": false
+    "incremental": false,
+    "columns": [
+        "col1",
+        "col2"
+    ]
 }

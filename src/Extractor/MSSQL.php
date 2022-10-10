@@ -67,7 +67,7 @@ class MSSQL extends BaseExtractor
             $this->logger,
             $this->connection,
             $this->getQueryFactory(),
-            new DefaultResultWriter($this->state),
+            new MSSQLResultWriter($this->state),
             $this->dataDir,
             $this->state
         );

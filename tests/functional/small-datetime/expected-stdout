@@ -3,4 +3,3 @@ Exporting "pdo test" to "in.c-main.pdo_test".
 Exporting by "BCP" adapter.
 Executing BCP command: bcp 'SELECT [ID], [SMALLDATE] FROM [dbo].[SMALLDATETIME_TEST]' queryout 'in.c-main.pdo_test.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
 Exported "2" rows to "in.c-main.pdo_test".
-Extractor finished successfully.
