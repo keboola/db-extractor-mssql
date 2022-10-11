@@ -3,4 +3,3 @@ Exporting "simple" to "in.c-main.simple".
 Exporting by "BCP" adapter.
 Executing BCP command: bcp 'SELECT [int], [decimal], [float] FROM [dbo].[simple]' queryout 'in.c-main.simple.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
 Exported "1" rows to "in.c-main.simple".
-Extractor finished successfully.

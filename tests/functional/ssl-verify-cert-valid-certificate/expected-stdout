@@ -5,4 +5,3 @@ Exporting by "BCP" adapter.
 Found database server version: 15.%d.%d.%d
 Executing BCP command: bcp 'SELECT * FROM sales' queryout 'in.c-main.sales.csv' -S 'mssql-ssl,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
 Exported "100" rows to "in.c-main.sales".
-Extractor finished successfully.

@@ -16,18 +16,16 @@ use Psr\Log\LoggerInterface;
 
 class MSSQLApplication extends Application
 {
-    public function __construct(array $config, LoggerInterface $logger, array $state, string $dataDir)
+    protected function loadConfig(): void
     {
-        $config['parameters']['data_dir'] = $dataDir;
+        $config = $this->getRawConfig();
+        $action = $config['action'] ?? 'run';
+
+        $config['parameters']['data_dir'] = $this->getDataDir();
         $config['parameters']['extractor_class'] = 'MSSQL';
 
-        parent::__construct($config, $logger, $state);
-    }
-
-    protected function buildConfig(array $config): void
-    {
         if ($this->isRowConfiguration($config)) {
-            if ($this['action'] === 'run') {
+            if ($action === 'run') {
                 $this->config = new Config(
                     $config,
                     new ConfigRowDefinition(
