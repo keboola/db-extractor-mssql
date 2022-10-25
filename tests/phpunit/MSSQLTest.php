@@ -332,14 +332,6 @@ class MSSQLTest extends TestCase
                     'value' => 'usergender',
                 ],
                 [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 1,
                 ],
@@ -368,14 +360,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'usercity',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.ordinalPosition',
@@ -408,14 +392,6 @@ class MSSQLTest extends TestCase
                     'value' => 'usersentiment',
                 ],
                 [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 3,
                 ],
@@ -444,14 +420,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'zipcode',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.ordinalPosition',
@@ -484,14 +452,6 @@ class MSSQLTest extends TestCase
                     'value' => 'sku',
                 ],
                 [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 5,
                 ],
@@ -520,14 +480,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'createdat',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.ordinalPosition',
@@ -580,14 +532,6 @@ class MSSQLTest extends TestCase
                     'value' => 'category',
                 ],
                 [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 7,
                 ],
@@ -616,14 +560,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'price',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.ordinalPosition',
@@ -656,14 +592,6 @@ class MSSQLTest extends TestCase
                     'value' => 'county',
                 ],
                 [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 9,
                 ],
@@ -692,14 +620,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'countycode',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.ordinalPosition',
@@ -732,14 +652,6 @@ class MSSQLTest extends TestCase
                     'value' => 'userstate',
                 ],
                 [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 11,
                 ],
@@ -768,14 +680,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'categorygroup',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
-                    'key' => 'KBC.uniqueKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.ordinalPosition',
@@ -878,10 +782,6 @@ class MSSQLTest extends TestCase
             [
                 'key' => 'KBC.primaryKey',
                 'value' => true,
-            ],
-            [
-                'key' => 'KBC.uniqueKey',
-                'value' => false,
             ],
             [
                 'key' => 'KBC.ordinalPosition',
