@@ -53,14 +53,6 @@
                 "value": "Weir_d_I_D"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 1
             }
@@ -95,14 +87,6 @@
                 "value": "Weir_d_Na_me"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 2
             }
@@ -131,14 +115,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "someInteger"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",
@@ -171,14 +147,6 @@
                 "value": "someDecimal"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 4
             }
@@ -207,14 +175,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "type"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",
@@ -247,14 +207,6 @@
                 "value": "smalldatetime"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 6
             }
@@ -283,14 +235,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "datetime"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",

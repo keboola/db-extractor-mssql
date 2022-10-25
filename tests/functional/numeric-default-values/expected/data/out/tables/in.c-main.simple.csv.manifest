@@ -54,14 +54,6 @@
                 "value": "int"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 1
             }
@@ -96,14 +88,6 @@
                 "value": "decimal"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 2
             }
@@ -136,14 +120,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "float"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",

@@ -50,14 +50,6 @@
                 "value": "usergender"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 1
             }
@@ -86,14 +78,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "usercity"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",
@@ -126,14 +110,6 @@
                 "value": "usersentiment"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 3
             }
@@ -162,14 +138,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "zipcode"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",

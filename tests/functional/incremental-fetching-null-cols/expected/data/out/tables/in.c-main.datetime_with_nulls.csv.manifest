@@ -54,14 +54,6 @@
                 "value": "id"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 1
             }
@@ -96,14 +88,6 @@
                 "value": "name"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 2
             }
@@ -132,14 +116,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "smalldatetime"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",
@@ -172,14 +148,6 @@
                 "value": "datetime1"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 4
             }
@@ -208,14 +176,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "datetime2"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
             },
             {
                 "key": "KBC.ordinalPosition",
