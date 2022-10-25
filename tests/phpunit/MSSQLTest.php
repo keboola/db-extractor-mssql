@@ -814,10 +814,6 @@ class MSSQLTest extends TestCase
                 'value' => 'name',
             ],
             [
-                'key' => 'KBC.primaryKey',
-                'value' => false,
-            ],
-            [
                 'key' => 'KBC.uniqueKey',
                 'value' => true,
             ],
