@@ -50,14 +50,6 @@
                  "value": "id"
              },
              {
-                 "key": "KBC.primaryKey",
-                 "value": false
-             },
-             {
-                 "key": "KBC.uniqueKey",
-                 "value": false
-             },
-             {
                  "key": "KBC.ordinalPosition",
                  "value": 1
              }
@@ -86,14 +78,6 @@
              {
                  "key": "KBC.sanitizedName",
                  "value": "name"
-             },
-             {
-                 "key": "KBC.primaryKey",
-                 "value": false
-             },
-             {
-                 "key": "KBC.uniqueKey",
-                 "value": false
              },
              {
                  "key": "KBC.ordinalPosition",
