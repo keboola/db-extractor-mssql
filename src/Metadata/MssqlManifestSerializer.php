@@ -33,10 +33,6 @@ class MssqlManifestSerializer extends DefaultManifestSerializer
         $nonDatatypeMetadata = [
             'sourceName' => $column->getName(),
             'sanitizedName' => $column->getSanitizedName(),
-            'ordinalPosition' => $column->hasOrdinalPosition() ? $column->getOrdinalPosition() : null,
-            'autoIncrement' => $column->isAutoIncrement() ?: null,
-            'autoIncrementValue' => $column->hasAutoIncrementValue() ? $column->getAutoIncrementValue() : null,
-            'description' => $column->hasDescription() ? $column->getDescription() : null,
         ];
 
         if ($column->isPrimaryKey()) {
@@ -45,6 +41,11 @@ class MssqlManifestSerializer extends DefaultManifestSerializer
         if ($column->isUniqueKey()) {
             $nonDatatypeMetadata['uniqueKey'] = $column->isUniqueKey();
         }
+
+        $nonDatatypeMetadata['ordinalPosition'] = $column->hasOrdinalPosition() ? $column->getOrdinalPosition() : null;
+        $nonDatatypeMetadata['autoIncrement'] = $column->isAutoIncrement() ?: null;
+        $nonDatatypeMetadata['autoIncrementValue'] = $column->hasAutoIncrementValue() ? $column->getAutoIncrementValue() : null;
+        $nonDatatypeMetadata['description'] = $column->hasDescription() ? $column->getDescription() : null;
 
         // Foreign key
         if ($column->hasForeignKey()) {
