@@ -50,10 +50,6 @@
                 "value": "id"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "id"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 1
             }
@@ -84,10 +80,6 @@
                 "value": "name"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "name"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 2
             }
@@ -111,10 +103,6 @@
             },
             {
                 "key": "KBC.sourceName",
-                "value": "smalldatetime"
-            },
-            {
-                "key": "KBC.sanitizedName",
                 "value": "smalldatetime"
             },
             {
@@ -144,10 +132,6 @@
                 "value": "datetime1"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "datetime1"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 4
             }
@@ -171,10 +155,6 @@
             },
             {
                 "key": "KBC.sourceName",
-                "value": "datetime2"
-            },
-            {
-                "key": "KBC.sanitizedName",
                 "value": "datetime2"
             },
             {

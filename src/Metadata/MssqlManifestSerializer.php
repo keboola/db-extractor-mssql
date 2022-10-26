@@ -29,11 +29,23 @@ class MssqlManifestSerializer extends DefaultManifestSerializer
         $datatype = $this->columnToDatatype($column, $options);
         $columnMetadata = $datatype->toMetadata();
 
+        $columnMetadataCopy = [];
+        foreach ($columnMetadata as $item) {
+            if ($item['key'] === MssqlDataType::KBC_METADATA_KEY_NULLABLE && $item['value'] === false) {
+                // skip nullable if false
+                continue;
+            }
+            $columnMetadataCopy[] = $item;
+        }
+
         // Non-datatype metadata
         $nonDatatypeMetadata = [
             'sourceName' => $column->getName(),
-            'sanitizedName' => $column->getSanitizedName(),
         ];
+
+        if ($column->getName() !== $column->getSanitizedName()) {
+            $nonDatatypeMetadata['sanitizedName'] = $column->getSanitizedName();
+        }
 
         if ($column->isPrimaryKey()) {
             $nonDatatypeMetadata['primaryKey'] = $column->isPrimaryKey();
@@ -65,7 +77,7 @@ class MssqlManifestSerializer extends DefaultManifestSerializer
                 continue;
             }
 
-            $columnMetadata[] = [
+            $columnMetadataCopy[] = [
                 'key' => 'KBC.' . $key,
                 'value' => $value,
             ];
@@ -73,12 +85,12 @@ class MssqlManifestSerializer extends DefaultManifestSerializer
 
         // Constraints
         foreach ($column->getConstraints() as $constraint) {
-            $columnMetadata[] = [
+            $columnMetadataCopy[] = [
                 'key' => 'KBC.constraintName',
                 'value' => $constraint,
             ];
         }
 
-        return $columnMetadata;
+        return $columnMetadataCopy;
     }
 }

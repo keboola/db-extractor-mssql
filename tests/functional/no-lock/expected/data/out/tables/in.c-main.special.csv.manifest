@@ -46,10 +46,6 @@
                 "value": "col1"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "col1"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 1
             }
@@ -73,10 +69,6 @@
             },
             {
                 "key": "KBC.sourceName",
-                "value": "col2"
-            },
-            {
-                "key": "KBC.sanitizedName",
                 "value": "col2"
             },
             {

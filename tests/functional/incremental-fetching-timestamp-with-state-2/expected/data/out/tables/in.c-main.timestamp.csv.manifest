@@ -33,10 +33,6 @@
                 "value": "int"
             },
             {
-                "key": "KBC.datatype.nullable",
-                "value": false
-            },
-            {
                 "key": "KBC.datatype.basetype",
                 "value": "INTEGER"
             },
@@ -46,10 +42,6 @@
             },
             {
                 "key": "KBC.sourceName",
-                "value": "id"
-            },
-            {
-                "key": "KBC.sanitizedName",
                 "value": "id"
             },
             {
@@ -63,19 +55,11 @@
                 "value": "timestamp"
             },
             {
-                "key": "KBC.datatype.nullable",
-                "value": false
-            },
-            {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
             },
             {
                 "key": "KBC.sourceName",
-                "value": "timestamp"
-            },
-            {
-                "key": "KBC.sanitizedName",
                 "value": "timestamp"
             },
             {

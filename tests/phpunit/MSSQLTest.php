@@ -328,10 +328,6 @@ class MSSQLTest extends TestCase
                     'value' => 'usergender',
                 ],
                 [
-                    'key' => 'KBC.sanitizedName',
-                    'value' => 'usergender',
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 1,
                 ],
@@ -355,10 +351,6 @@ class MSSQLTest extends TestCase
                 ],
                 [
                     'key' => 'KBC.sourceName',
-                    'value' => 'usercity',
-                ],
-                [
-                    'key' => 'KBC.sanitizedName',
                     'value' => 'usercity',
                 ],
                 [
@@ -388,10 +380,6 @@ class MSSQLTest extends TestCase
                     'value' => 'usersentiment',
                 ],
                 [
-                    'key' => 'KBC.sanitizedName',
-                    'value' => 'usersentiment',
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 3,
                 ],
@@ -415,10 +403,6 @@ class MSSQLTest extends TestCase
                 ],
                 [
                     'key' => 'KBC.sourceName',
-                    'value' => 'zipcode',
-                ],
-                [
-                    'key' => 'KBC.sanitizedName',
                     'value' => 'zipcode',
                 ],
                 [
@@ -448,10 +432,6 @@ class MSSQLTest extends TestCase
                     'value' => 'sku',
                 ],
                 [
-                    'key' => 'KBC.sanitizedName',
-                    'value' => 'sku',
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 5,
                 ],
@@ -460,10 +440,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.datatype.type',
                     'value' => 'varchar',
-                ],
-                [
-                    'key' => 'KBC.datatype.nullable',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.datatype.basetype',
@@ -475,10 +451,6 @@ class MSSQLTest extends TestCase
                 ],
                 [
                     'key' => 'KBC.sourceName',
-                    'value' => 'createdat',
-                ],
-                [
-                    'key' => 'KBC.sanitizedName',
                     'value' => 'createdat',
                 ],
                 [
@@ -528,10 +500,6 @@ class MSSQLTest extends TestCase
                     'value' => 'category',
                 ],
                 [
-                    'key' => 'KBC.sanitizedName',
-                    'value' => 'category',
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 7,
                 ],
@@ -555,10 +523,6 @@ class MSSQLTest extends TestCase
                 ],
                 [
                     'key' => 'KBC.sourceName',
-                    'value' => 'price',
-                ],
-                [
-                    'key' => 'KBC.sanitizedName',
                     'value' => 'price',
                 ],
                 [
@@ -588,10 +552,6 @@ class MSSQLTest extends TestCase
                     'value' => 'county',
                 ],
                 [
-                    'key' => 'KBC.sanitizedName',
-                    'value' => 'county',
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 9,
                 ],
@@ -615,10 +575,6 @@ class MSSQLTest extends TestCase
                 ],
                 [
                     'key' => 'KBC.sourceName',
-                    'value' => 'countycode',
-                ],
-                [
-                    'key' => 'KBC.sanitizedName',
                     'value' => 'countycode',
                 ],
                 [
@@ -648,10 +604,6 @@ class MSSQLTest extends TestCase
                     'value' => 'userstate',
                 ],
                 [
-                    'key' => 'KBC.sanitizedName',
-                    'value' => 'userstate',
-                ],
-                [
                     'key' => 'KBC.ordinalPosition',
                     'value' => 11,
                 ],
@@ -675,10 +627,6 @@ class MSSQLTest extends TestCase
                 ],
                 [
                     'key' => 'KBC.sourceName',
-                    'value' => 'categorygroup',
-                ],
-                [
-                    'key' => 'KBC.sanitizedName',
                     'value' => 'categorygroup',
                 ],
                 [
@@ -760,10 +708,6 @@ class MSSQLTest extends TestCase
                 'value' => 'int',
             ],
             [
-                'key' => 'KBC.datatype.nullable',
-                'value' => false,
-            ],
-            [
                 'key' => 'KBC.datatype.basetype',
                 'value' => 'INTEGER',
             ],
@@ -773,10 +717,6 @@ class MSSQLTest extends TestCase
             ],
             [
                 'key' => 'KBC.sourceName',
-                'value' => 'id',
-            ],
-            [
-                'key' => 'KBC.sanitizedName',
                 'value' => 'id',
             ],
             [
@@ -807,10 +747,6 @@ class MSSQLTest extends TestCase
             ],
             [
                 'key' => 'KBC.sourceName',
-                'value' => 'name',
-            ],
-            [
-                'key' => 'KBC.sanitizedName',
                 'value' => 'name',
             ],
             [
@@ -914,10 +850,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'col1',
                                 ],
                                 [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'col1',
-                                ],
-                                [
                                     'key' => 'KBC.ordinalPosition',
                                     'value' => '1',
                                 ],
@@ -942,10 +874,6 @@ class MSSQLTest extends TestCase
                                 ],
                                 [
                                     'key' => 'KBC.sourceName',
-                                    'value' => 'col2',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
                                     'value' => 'col2',
                                 ],
                                 [
@@ -1054,10 +982,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'usergender',
                                 ],
                                 [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'usergender',
-                                ],
-                                [
                                     'key' => 'KBC.ordinalPosition',
                                     'value' => 1,
                                 ],
@@ -1082,10 +1006,6 @@ class MSSQLTest extends TestCase
                                 ],
                                 [
                                     'key' => 'KBC.sourceName',
-                                    'value' => 'usercity',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
                                     'value' => 'usercity',
                                 ],
                                 [
@@ -1116,10 +1036,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'usersentiment',
                                 ],
                                 [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'usersentiment',
-                                ],
-                                [
                                     'key' => 'KBC.ordinalPosition',
                                     'value' => 3,
                                 ],
@@ -1144,10 +1060,6 @@ class MSSQLTest extends TestCase
                                 ],
                                 [
                                     'key' => 'KBC.sourceName',
-                                    'value' => 'zipcode',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
                                     'value' => 'zipcode',
                                 ],
                                 [
@@ -1222,10 +1134,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'int',
                                 ],
                                 [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => false,
-                                ],
-                                [
                                     'key' => 'KBC.datatype.basetype',
                                     'value' => 'INTEGER',
                                 ],
@@ -1255,10 +1163,6 @@ class MSSQLTest extends TestCase
                                 [
                                     'key' => 'KBC.datatype.type',
                                     'value' => 'varchar',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => false,
                                 ],
                                 [
                                     'key' => 'KBC.datatype.basetype',
@@ -1312,10 +1216,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'someInteger',
                                 ],
                                 [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'someInteger',
-                                ],
-                                [
                                     'key' => 'KBC.ordinalPosition',
                                     'value' => 3,
                                 ],
@@ -1343,10 +1243,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'someDecimal',
                                 ],
                                 [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'someDecimal',
-                                ],
-                                [
                                     'key' => 'KBC.ordinalPosition',
                                     'value' => 4,
                                 ],
@@ -1371,10 +1267,6 @@ class MSSQLTest extends TestCase
                                 ],
                                 [
                                     'key' => 'KBC.sourceName',
-                                    'value' => 'type',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
                                     'value' => 'type',
                                 ],
                                 [
@@ -1409,10 +1301,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'smalldatetime',
                                 ],
                                 [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'smalldatetime',
-                                ],
-                                [
                                     'key' => 'KBC.ordinalPosition',
                                     'value' => 6,
                                 ],
@@ -1424,10 +1312,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'datetime',
                                 ],
                                 [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => false,
-                                ],
-                                [
                                     'key' => 'KBC.datatype.basetype',
                                     'value' => 'TIMESTAMP',
                                 ],
@@ -1437,10 +1321,6 @@ class MSSQLTest extends TestCase
                                 ],
                                 [
                                     'key' => 'KBC.sourceName',
-                                    'value' => 'datetime',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
                                     'value' => 'datetime',
                                 ],
                                 [
@@ -1521,10 +1401,6 @@ class MSSQLTest extends TestCase
                                     'value' => 'col1',
                                 ],
                                 [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'col1',
-                                ],
-                                [
                                     'key' => 'KBC.ordinalPosition',
                                     'value' => '1',
                                 ],
@@ -1549,10 +1425,6 @@ class MSSQLTest extends TestCase
                                 ],
                                 [
                                     'key' => 'KBC.sourceName',
-                                    'value' => 'col2',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
                                     'value' => 'col2',
                                 ],
                                 [

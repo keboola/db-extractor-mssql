@@ -33,10 +33,6 @@
                 "value": "int"
             },
             {
-                "key": "KBC.datatype.nullable",
-                "value": false
-            },
-            {
                 "key": "KBC.datatype.basetype",
                 "value": "INTEGER"
             },
@@ -65,10 +61,6 @@
             {
                 "key": "KBC.datatype.type",
                 "value": "varchar"
-            },
-            {
-                "key": "KBC.datatype.nullable",
-                "value": false
             },
             {
                 "key": "KBC.datatype.basetype",
@@ -121,10 +113,6 @@
                 "value": "someInteger"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "someInteger"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 3
             }
@@ -151,10 +139,6 @@
                 "value": "someDecimal"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "someDecimal"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 4
             }
@@ -178,10 +162,6 @@
             },
             {
                 "key": "KBC.sourceName",
-                "value": "type"
-            },
-            {
-                "key": "KBC.sanitizedName",
                 "value": "type"
             },
             {
@@ -215,10 +195,6 @@
                 "value": "smalldatetime"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "smalldatetime"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 6
             }
@@ -227,10 +203,6 @@
             {
                 "key": "KBC.datatype.type",
                 "value": "datetime2"
-            },
-            {
-                "key": "KBC.datatype.nullable",
-                "value": false
             },
             {
                 "key": "KBC.datatype.basetype",
@@ -242,10 +214,6 @@
             },
             {
                 "key": "KBC.sourceName",
-                "value": "datetime"
-            },
-            {
-                "key": "KBC.sanitizedName",
                 "value": "datetime"
             },
             {

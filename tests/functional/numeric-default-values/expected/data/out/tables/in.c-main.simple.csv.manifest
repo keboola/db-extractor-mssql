@@ -50,10 +50,6 @@
                 "value": "int"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "int"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 1
             }
@@ -84,10 +80,6 @@
                 "value": "decimal"
             },
             {
-                "key": "KBC.sanitizedName",
-                "value": "decimal"
-            },
-            {
                 "key": "KBC.ordinalPosition",
                 "value": 2
             }
@@ -115,10 +107,6 @@
             },
             {
                 "key": "KBC.sourceName",
-                "value": "float"
-            },
-            {
-                "key": "KBC.sanitizedName",
                 "value": "float"
             },
             {
