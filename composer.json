@@ -17,7 +17,7 @@
         "keboola/csv": "^2.2.1",
         "keboola/datadir-tests": "^5.2",
         "keboola/db-extractor-common": "^16.0",
-        "keboola/db-extractor-config": "^1.9",
+        "keboola/db-extractor-config": "^1.12",
         "keboola/db-extractor-table-format": "^3.1.7",
         "keboola/php-component": "^9.2",
         "keboola/php-datatypes": "^4.8",

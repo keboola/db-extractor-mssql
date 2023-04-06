@@ -42,7 +42,7 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
 # PDO mssql
-RUN pecl install pdo_sqlsrv sqlsrv \
+RUN pecl install pdo_sqlsrv-5.10.0 sqlsrv-5.10.0 \
     && docker-php-ext-enable sqlsrv pdo_sqlsrv \
     && docker-php-ext-install xml
 
