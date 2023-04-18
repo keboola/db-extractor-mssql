@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor\Adapters;
 
+use Keboola\DbExtractor\Adapter\Exception\UserException;
 use Keboola\DbExtractor\Adapter\ValueObject\QueryMetadata;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
@@ -35,6 +36,13 @@ class BcpQueryMetadata implements QueryMetadata
             $columns = [];
             foreach ($result as $columnMetadata) {
                 $builder = ColumnBuilder::create();
+                if (!isset($columnMetadata['name']) || !isset($columnMetadata['system_type_name'])) {
+                    throw new UserException(sprintf(
+                        'Cannot retrieve all column metadata via query "%s". Result: %s',
+                        $sql,
+                        var_export($result, true)
+                    ));
+                }
                 $builder->setName($columnMetadata['name']);
                 $builder->setType($columnMetadata['system_type_name']);
                 $columns[] = $builder->build();
