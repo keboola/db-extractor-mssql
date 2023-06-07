@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\Metadata;
 
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
+use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractor\TableResultFormat\Exception\InvalidStateException;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
@@ -13,6 +14,7 @@ use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\TableBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\ValueObject\Table;
 use Keboola\DbExtractor\TableResultFormat\Metadata\ValueObject\TableCollection;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\InputTable;
+use PDOException;
 
 class MssqlMetadataProvider implements MetadataProvider
 {
@@ -30,9 +32,13 @@ class MssqlMetadataProvider implements MetadataProvider
 
     public function getTable(InputTable $table): Table
     {
-        return $this
-            ->listTables([$table])
-            ->getByNameAndSchema($table->getName(), $table->getSchema());
+        try {
+            return $this
+                ->listTables([$table])
+                ->getByNameAndSchema($table->getName(), $table->getSchema());
+        } catch (PDOException $e) {
+            throw new UserException($e->getMessage(), 0, $e);
+        }
     }
 
     /**
