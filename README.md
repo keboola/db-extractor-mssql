@@ -1,7 +1,5 @@
 # MS SQL DB Extractor
 
-[![Build Status](https://travis-ci.com/keboola/db-extractor-mssql.svg?branch=master)](https://travis-ci.com/keboola/db-extractor-mssql)
-
 ## Extractor DB Account Setup
 
 ```
