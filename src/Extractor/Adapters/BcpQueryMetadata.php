@@ -49,11 +49,28 @@ class BcpQueryMetadata implements QueryMetadata
             }
             return new ColumnCollection($columns);
         } catch (Throwable $e) {
-            throw new BcpAdapterException(
-                sprintf('DB query "%s" failed: %s', $sql, $e->getMessage()),
+            throw $this->handleException($e, $sql);
+        }
+    }
+
+    protected function handleException(Throwable $e, string $sql): Throwable
+    {
+        if (strpos($e->getMessage(), 'uses a temp table') !== false) {
+            preg_match('/\[SQL Server\](.*)/', $e->getMessage(), $matches);
+            return new UserException(
+                sprintf(
+                    'Cannot retrieve column metadata via query "%s". %s',
+                    $sql,
+                    $matches[1] ?? $e->getMessage()
+                ),
                 0,
                 $e
             );
         }
+        return new BcpAdapterException(
+            sprintf('DB query "%s" failed: %s', $sql, $e->getMessage()),
+            0,
+            $e
+        );
     }
 }
