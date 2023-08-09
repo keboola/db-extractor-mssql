@@ -74,6 +74,7 @@ class MssqlExportConfig extends ExportConfig
             $primaryKey,
             $maxRetries
         );
+        $this->query = $query;
         $this->noLock = $noLock;
         $this->disableBcp = $disableBcp;
         $this->disableFallback = $disableFallback;
