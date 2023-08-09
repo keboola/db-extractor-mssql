@@ -8,6 +8,7 @@ use Keboola\DbExtractor\Adapter\ExportAdapter;
 use Keboola\DbExtractor\Adapter\FallbackExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Adapter\ResultWriter\DefaultResultWriter;
+use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Extractor\Adapters\BcpExportAdapter;
 use Keboola\DbExtractor\Manifest\DefaultManifestGenerator;
 use Keboola\DbExtractor\Manifest\ManifestGenerator;
@@ -84,6 +85,38 @@ class MSSQL extends BaseExtractor
     public function testConnection(): void
     {
         $this->connection->testConnection();
+    }
+
+    /**
+     * @param MssqlExportConfig $exportConfig
+     */
+    public function export(ExportConfig $exportConfig): array
+    {
+        if ($exportConfig->isCdcMode() && !empty($this->state['lastFetchedTime'])) {
+            $cdcName = $exportConfig->getTable()->getSchema() . '_' . $exportConfig->getTable()->getName();
+
+            // @phpcs:disable Generic.Files.LineLength
+            $query = <<<SQL
+DECLARE @begin_time datetime, @end_time datetime, @from_lsn binary(10), @to_lsn binary(10);
+SET @begin_time = CONVERT(DATETIME, '{$this->state['lastFetchedTime']}');
+SET @end_time = GETDATE();
+SET @from_lsn = sys.fn_cdc_map_time_to_lsn('smallest greater than or equal', @begin_time);
+SET @from_lsn = ISNULL(sys.fn_cdc_map_time_to_lsn('smallest greater than or equal', @begin_time), [sys].[fn_cdc_get_min_lsn]('$cdcName'));
+SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time);
+SELECT *, IIF(__\$operation = 1, 1, 0) as is_deleted FROM cdc.fn_cdc_get_net_changes_$cdcName(@from_lsn, @to_lsn, 'all');
+SQL;
+            // @phpcs:enable Generic.Files.LineLength
+
+            $exportConfig->setQuery($query);
+        }
+
+        $result = parent::export($exportConfig);
+
+        if ($exportConfig->isCdcMode()) {
+            $result['state']['lastFetchedTime'] = date('Y-m-d H:i:s');
+        }
+
+        return $result;
     }
 
     public function getMaxOfIncrementalFetchingColumn(ExportConfig $exportConfig): ?string

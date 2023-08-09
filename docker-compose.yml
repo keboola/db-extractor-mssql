@@ -28,7 +28,12 @@ services:
       - .:/code
 
   mssql: &mssql
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mssql-server-linux
+    build:
+      context: .
+      dockerfile: docker/mssql/Dockerfile
+    ports:
+      - "1433:1433"
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: "yourStrong(!)Password"
@@ -36,6 +41,8 @@ services:
   mssql-ssl:
     <<: *mssql
     image: mssql-server-linux-ssl
+    ports:
+      - "1434:1433"
     build:
       context: .
       dockerfile: docker/mssql-ssl/Dockerfile
@@ -43,6 +50,8 @@ services:
   mssql-ssl-invalid-cn:
     <<: *mssql
     image: mssql-server-linux-ssl-invalid-cn
+    ports:
+      - "1435:1433"
     build:
       context: .
       dockerfile: docker/mssql-ssl-invalid-cn/Dockerfile

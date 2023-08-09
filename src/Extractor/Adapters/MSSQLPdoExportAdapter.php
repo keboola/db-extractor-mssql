@@ -41,6 +41,7 @@ class MSSQLPdoExportAdapter extends PdoExportAdapter
         if ($exportConfig->isFallbackDisabled()) {
             throw new PdoAdapterSkippedException('Disabled in configuration.');
         }
+
         return parent::export($exportConfig, $csvFilePath);
     }
 
