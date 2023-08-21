@@ -7,7 +7,6 @@ namespace Keboola\DbExtractor\Extractor;
 use Keboola\DbExtractor\Adapter\ExportAdapter;
 use Keboola\DbExtractor\Adapter\FallbackExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
-use Keboola\DbExtractor\Adapter\ResultWriter\DefaultResultWriter;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Extractor\Adapters\BcpExportAdapter;
 use Keboola\DbExtractor\Manifest\DefaultManifestGenerator;
@@ -92,28 +91,44 @@ class MSSQL extends BaseExtractor
      */
     public function export(ExportConfig $exportConfig): array
     {
-        if ($exportConfig->isCdcMode() && !empty($this->state['lastFetchedTime'])) {
+        if ($exportConfig->isCdcMode()) {
             $cdcName = $exportConfig->getTable()->getSchema() . '_' . $exportConfig->getTable()->getName();
 
-            // @phpcs:disable Generic.Files.LineLength
-            $query = <<<SQL
+            if (!empty($this->state['lastFetchedTime'])) {
+                // @phpcs:disable Generic.Files.LineLength
+                $query = <<<SQL
 DECLARE @begin_time datetime, @end_time datetime, @from_lsn binary(10), @to_lsn binary(10);
 SET @begin_time = CONVERT(DATETIME, '{$this->state['lastFetchedTime']}');
 SET @end_time = GETDATE();
 SET @from_lsn = sys.fn_cdc_map_time_to_lsn('smallest greater than or equal', @begin_time);
 SET @from_lsn = ISNULL(sys.fn_cdc_map_time_to_lsn('smallest greater than or equal', @begin_time), [sys].[fn_cdc_get_min_lsn]('$cdcName'));
 SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time);
+IF @to_lsn < @from_lsn
+BEGIN
+RAISERROR('The end LSN is less than the start LSN.', 16, 1);
+END
 SELECT *, IIF(__\$operation = 1, 1, 0) as is_deleted FROM cdc.fn_cdc_get_net_changes_$cdcName(@from_lsn, @to_lsn, 'all');
 SQL;
-            // @phpcs:enable Generic.Files.LineLength
+                // @phpcs:enable Generic.Files.LineLength
 
-            $exportConfig->setQuery($query);
-        }
+                $exportConfig->setQuery($query);
+            }
 
-        $result = parent::export($exportConfig);
+            $sqlToLsnTime = <<<SQL
+DECLARE @end_time datetime, @to_lsn binary(10);
+SET @end_time = GETDATE();
+SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time);
+SELECT sys.fn_cdc_map_lsn_to_time(@to_lsn) as last_fetched_time;
+SQL;
+            $sqlToLsnTime = $this->connection->query($sqlToLsnTime);
+            $lsnTimeResponse = $sqlToLsnTime->fetchAll();
+            assert(count($lsnTimeResponse) === 1, 'Expected one row');
+            $lsnTime = $lsnTimeResponse[0]['last_fetched_time'];
 
-        if ($exportConfig->isCdcMode()) {
-            $result['state']['lastFetchedTime'] = date('Y-m-d H:i:s');
+            $result = parent::export($exportConfig);
+            $result['state']['lastFetchedTime'] = $lsnTime;
+        } else {
+            $result = parent::export($exportConfig);
         }
 
         return $result;
