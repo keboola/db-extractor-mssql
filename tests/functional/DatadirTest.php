@@ -21,9 +21,9 @@ class DatadirTest extends DatadirTestCase
 
     protected PDO $connection;
 
-    protected string $testProjectDir;
+    public string $testProjectDir;
 
-    protected string $testTempDir;
+    public string $testTempDir;
 
     public function getConnection(): PDO
     {
@@ -145,7 +145,12 @@ class DatadirTest extends DatadirTestCase
         $stateJsonPath = $actual . '/state.json';
         if (file_exists($stateJsonPath)) {
             $data = (string) file_get_contents($stateJsonPath);
-            $data = preg_replace('~0x[0-9A-F]{16}~', '0x<<RANDOM>>', $data);
+            $data = (string) preg_replace('~0x[0-9A-F]{16}~', '0x<<RANDOM>>', $data);
+            $data = preg_replace(
+                '~[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}~',
+                '0x<<RANDOM>>',
+                $data
+            );
             file_put_contents($stateJsonPath, $data);
         }
     }

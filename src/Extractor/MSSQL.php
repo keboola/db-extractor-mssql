@@ -93,6 +93,7 @@ class MSSQL extends BaseExtractor
     public function export(ExportConfig $exportConfig): array
     {
         if ($exportConfig->isCdcMode()) {
+            $this->logger->info('Use CDC export.');
             $cdcName = $exportConfig->getTable()->getSchema() . '_' . $exportConfig->getTable()->getName();
             $this->getQueryFactory()->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_PDO);
             $columns = $this->getQueryFactory()->getColumnsForSelect($exportConfig, $this->connection);
