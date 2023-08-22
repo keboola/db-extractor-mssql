@@ -148,7 +148,7 @@ class DatadirTest extends DatadirTestCase
             $data = (string) preg_replace('~0x[0-9A-F]{16}~', '0x<<RANDOM>>', $data);
             $data = preg_replace(
                 '~[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3}~',
-                '0x<<RANDOM>>',
+                'RANDOM_TIMESTAMP',
                 $data
             );
             file_put_contents($stateJsonPath, $data);
