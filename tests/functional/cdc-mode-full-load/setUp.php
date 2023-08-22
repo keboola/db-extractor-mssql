@@ -36,4 +36,6 @@ SQL;
         ],
     ];
     $manager->insertRows('cdc_test_table', $newData['columns'], $newData['data']);
+
+    sleep(6);
 };
