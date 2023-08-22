@@ -1,0 +1,17 @@
+{
+    "destination": "in.cdc_test_table",
+    "incremental": false,
+    "primary_key": [
+        "_Weir%d I-D"
+    ],
+    "columns": [
+        "_Weir%d I-D",
+        "Weir%d Na-me",
+        "someInteger",
+        "someDecimal",
+        "type",
+        "smalldatetime",
+        "datetime",
+        "is_deleted"
+    ]
+}

@@ -31,6 +31,8 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
         $this->addDisableBcpNode($builder);
         $this->addDisableFallbackNode($builder);
         $this->addMaxTriesBcpNode($builder);
+        $this->addCdcModeNode($builder);
+        $this->addCdcModeFullLoadFallbackNode($builder);
     }
 
     protected function addAdvancedModeNode(NodeBuilder $builder): void
@@ -57,5 +59,15 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
     protected function addMaxTriesBcpNode(NodeBuilder $builder): void
     {
         $builder->integerNode('maxTriesBcp')->defaultValue(1);
+    }
+
+    private function addCdcModeNode(NodeBuilder $builder): void
+    {
+        $builder->booleanNode('cdcMode')->defaultFalse();
+    }
+
+    private function addCdcModeFullLoadFallbackNode(NodeBuilder $builder): void
+    {
+        $builder->booleanNode('cdcModeFullLoadFallback')->defaultFalse();
     }
 }
