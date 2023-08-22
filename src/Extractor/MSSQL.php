@@ -18,6 +18,7 @@ use Keboola\DbExtractor\Metadata\MssqlManifestSerializer;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Keboola\DbExtractor\Extractor\Adapters\MSSQLPdoExportAdapter;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 class MSSQL extends BaseExtractor
 {
@@ -93,7 +94,10 @@ class MSSQL extends BaseExtractor
     {
         if ($exportConfig->isCdcMode()) {
             $cdcName = $exportConfig->getTable()->getSchema() . '_' . $exportConfig->getTable()->getName();
+            $this->getQueryFactory()->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_PDO);
+            $columns = $this->getQueryFactory()->getColumnsForSelect($exportConfig, $this->connection);
 
+            $cdcExportConfig = clone $exportConfig;
             if (!empty($this->state['lastFetchedTime'])) {
                 // @phpcs:disable Generic.Files.LineLength
                 $query = <<<SQL
@@ -107,17 +111,15 @@ IF @to_lsn < @from_lsn
 BEGIN
 RAISERROR('The end LSN is less than the start LSN.', 16, 1);
 END
-SELECT *, IIF(__\$operation = 1, 1, 0) as is_deleted FROM cdc.fn_cdc_get_net_changes_$cdcName(@from_lsn, @to_lsn, 'all');
+SELECT $columns, IIF(__\$operation = 1, 1, 0) as is_deleted FROM cdc.fn_cdc_get_net_changes_$cdcName(@from_lsn, @to_lsn, 'all');
 SQL;
                 // @phpcs:enable Generic.Files.LineLength
-
-                $exportConfig->setQuery($query);
+                $cdcExportConfig->setQuery($query);
             }
 
             $sqlToLsnTime = <<<SQL
-DECLARE @end_time datetime, @to_lsn binary(10);
-SET @end_time = GETDATE();
-SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time);
+DECLARE @to_lsn binary(10);
+SET @to_lsn = [sys].[fn_cdc_get_max_lsn]();
 SELECT sys.fn_cdc_map_lsn_to_time(@to_lsn) as last_fetched_time;
 SQL;
             $sqlToLsnTime = $this->connection->query($sqlToLsnTime);
@@ -125,7 +127,19 @@ SQL;
             assert(count($lsnTimeResponse) === 1, 'Expected one row');
             $lsnTime = $lsnTimeResponse[0]['last_fetched_time'];
 
-            $result = parent::export($exportConfig);
+            try {
+                $result = parent::export($cdcExportConfig);
+            } catch (Throwable $e) {
+                if (strpos($e->getMessage(), 'The end LSN is less than the start LSN') &&
+                    $exportConfig->cdcModeFullLoadFallback()) {
+                    $this->logger->info('CDC export failed, trying to export full table', [
+                        'exception' => $e,
+                    ]);
+                    $result = parent::export($exportConfig);
+                } else {
+                    throw $e;
+                }
+            }
             $result['state']['lastFetchedTime'] = $lsnTime;
         } else {
             $result = parent::export($exportConfig);

@@ -21,6 +21,8 @@ class MssqlExportConfig extends ExportConfig
 
     private bool $cdcMode;
 
+    private bool $cdcModeFullLoadFallback;
+
     private int $maxTriesBcp;
 
     public static function fromArray(array $data): self
@@ -41,7 +43,8 @@ class MssqlExportConfig extends ExportConfig
             $data['disableBcp'] ?? false,
             $data['disableFallback'] ?? false,
             $data['maxTriesBcp'] ?? 1,
-            $data['cdcMode'] ?? false
+            $data['cdcMode'] ?? false,
+            $data['cdcModeFullLoadFallback'] ?? false
         );
     }
 
@@ -60,7 +63,8 @@ class MssqlExportConfig extends ExportConfig
         bool $disableBcp,
         bool $disableFallback,
         int $maxTriesBcp,
-        bool $cdcMode
+        bool $cdcMode,
+        bool $cdcModeFullLoadFallback
     ) {
         parent::__construct(
             $configId,
@@ -80,6 +84,7 @@ class MssqlExportConfig extends ExportConfig
         $this->disableFallback = $disableFallback;
         $this->maxTriesBcp = $maxTriesBcp;
         $this->setCdcMode($cdcMode);
+        $this->cdcModeFullLoadFallback = $cdcModeFullLoadFallback;
     }
 
     public function getNoLock(): bool
@@ -133,5 +138,10 @@ class MssqlExportConfig extends ExportConfig
         }
 
         return $this->query;
+    }
+
+    public function cdcModeFullLoadFallback(): bool
+    {
+        return $this->cdcModeFullLoadFallback;
     }
 }

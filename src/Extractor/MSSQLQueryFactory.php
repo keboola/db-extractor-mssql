@@ -168,7 +168,7 @@ class MSSQLQueryFactory implements QueryFactory
         );
     }
 
-    private function getColumnsForSelect(ExportConfig $exportConfig, DbConnection $connection): string
+    public function getColumnsForSelect(ExportConfig $exportConfig, DbConnection $connection): string
     {
         $columns = $this->metadataProvider->getTable($exportConfig->getTable())->getColumns();
         // Map column names (from config or all) to metadata objects, and then format them for SELECT.
