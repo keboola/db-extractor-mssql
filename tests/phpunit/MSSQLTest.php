@@ -811,6 +811,7 @@ class MSSQLTest extends TestCase
                 [
                     'name' => 'simple',
                     'schema' => 'dbo',
+                    'cdcEnabled' => false,
                     'columns' =>
                         [
                             [
