@@ -98,19 +98,6 @@ class MSSQL extends BaseExtractor
             $this->getQueryFactory()->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_PDO);
             $columnsString = $this->getQueryFactory()->getColumnsForSelect($exportConfig, $this->connection);
 
-            $sql = [];
-            $sql[] = 'SELECT';
-            $sql[] = sprintf(
-                '%s FROM %s.%s',
-                $columnsString . ', 0 as KBC__DELETED',
-                $this->connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
-                $this->connection->quoteIdentifier($exportConfig->getTable()->getName())
-            );
-            if ($exportConfig->getNoLock()) {
-                $sql[] = 'WITH(NOLOCK)';
-            }
-            $exportConfig->setQuery(implode(' ', $sql));
-
             $cdcExportConfig = clone $exportConfig;
             if (!empty($this->state['lastFetchedTime'])) {
                 // @phpcs:disable Generic.Files.LineLength
@@ -149,6 +136,19 @@ SQL;
                     $this->logger->info('CDC export failed, trying to export full table', [
                         'exception' => $e,
                     ]);
+
+                    $sql = [];
+                    $sql[] = 'SELECT';
+                    $sql[] = sprintf(
+                        '%s FROM %s.%s',
+                        $columnsString . ', 0 as KBC__DELETED',
+                        $this->connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
+                        $this->connection->quoteIdentifier($exportConfig->getTable()->getName())
+                    );
+                    if ($exportConfig->getNoLock()) {
+                        $sql[] = 'WITH(NOLOCK)';
+                    }
+                    $exportConfig->setQuery(implode(' ', $sql));
                     $result = parent::export($exportConfig);
                 } else {
                     throw $e;
