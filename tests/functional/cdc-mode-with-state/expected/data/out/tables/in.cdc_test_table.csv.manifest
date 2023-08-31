@@ -12,6 +12,6 @@
         "type",
         "smalldatetime",
         "datetime",
-        "is_deleted"
+        "KBC__DELETED"
     ]
 }

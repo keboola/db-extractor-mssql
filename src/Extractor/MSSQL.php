@@ -96,7 +96,7 @@ class MSSQL extends BaseExtractor
             $this->logger->info('Use CDC export.');
             $cdcName = $exportConfig->getTable()->getSchema() . '_' . $exportConfig->getTable()->getName();
             $this->getQueryFactory()->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_PDO);
-            $columns = $this->getQueryFactory()->getColumnsForSelect($exportConfig, $this->connection);
+            $columnsString = $this->getQueryFactory()->getColumnsForSelect($exportConfig, $this->connection);
 
             $cdcExportConfig = clone $exportConfig;
             if (!empty($this->state['lastFetchedTime'])) {
@@ -112,7 +112,7 @@ IF @to_lsn < @from_lsn
 BEGIN
 RAISERROR('The end LSN is less than the start LSN.', 16, 1);
 END
-SELECT $columns, IIF(__\$operation = 1, 1, 0) as is_deleted FROM cdc.fn_cdc_get_net_changes_$cdcName(@from_lsn, @to_lsn, 'all');
+SELECT $columnsString, IIF(__\$operation = 1, 1, 0) as KBC__DELETED FROM cdc.fn_cdc_get_net_changes_$cdcName(@from_lsn, @to_lsn, 'all');
 SQL;
                 // @phpcs:enable Generic.Files.LineLength
                 $cdcExportConfig->setQuery($query);
@@ -131,11 +131,24 @@ SQL;
             try {
                 $result = parent::export($cdcExportConfig);
             } catch (Throwable $e) {
-                if (strpos($e->getMessage(), 'The end LSN is less than the start LSN') &&
+                if (strpos($e->getMessage(), 'The end LSN is less than the start LSN') !== false &&
                     $exportConfig->cdcModeFullLoadFallback()) {
                     $this->logger->info('CDC export failed, trying to export full table', [
                         'exception' => $e,
                     ]);
+
+                    $sql = [];
+                    $sql[] = 'SELECT';
+                    $sql[] = sprintf(
+                        '%s FROM %s.%s',
+                        $columnsString . ', 0 as KBC__DELETED',
+                        $this->connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
+                        $this->connection->quoteIdentifier($exportConfig->getTable()->getName())
+                    );
+                    if ($exportConfig->getNoLock()) {
+                        $sql[] = 'WITH(NOLOCK)';
+                    }
+                    $exportConfig->setQuery(implode(' ', $sql));
                     $result = parent::export($exportConfig);
                 } else {
                     throw $e;
