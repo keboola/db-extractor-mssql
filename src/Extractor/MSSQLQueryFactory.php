@@ -157,17 +157,15 @@ class MSSQLQueryFactory implements QueryFactory
 
     private function getColumnDatatype(Column $column): MssqlDataType
     {
-        $options = [];
-        if ($column->hasLength()) {
-            $options['length'] = $column->getLength();
-        }
-        if ($column->hasNullable()) {
-            $options['nullable'] = $column->isNullable();
-        }
-        if ($column->hasDefault()) {
-            $options['default'] = (string) $column->getDefault();
-        }
-        return new MssqlDataType($column->getType(), $options);
+        return new MssqlDataType(
+            $column->getType(),
+            [
+                'type' => $column->getType(),
+                'length' => $column->hasLength() ? $column->getLength() : null,
+                'nullable' => $column->hasNullable() ? $column->isNullable() : null,
+                'default' => $column->hasDefault() ? (string) $column->getDefault() : null,
+            ]
+        );
     }
 
     public function getColumnsForSelect(ExportConfig $exportConfig, DbConnection $connection): string

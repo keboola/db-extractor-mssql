@@ -17,9 +17,8 @@ class MssqlSqlHelper
         // Note: type='U' user generated objects only
         $sql = [];
         $sql[] = "
-            SELECT [ist].*, [st].is_tracked_by_cdc FROM [INFORMATION_SCHEMA].[TABLES] as [ist]
+            SELECT [ist].* FROM [INFORMATION_SCHEMA].[TABLES] as [ist]
             INNER JOIN [sys].[objects] AS [so] ON [ist].[TABLE_NAME] = [so].[name]
-            INNER JOIN [sys].[tables] AS [st] ON [so].[object_id] = [st].[object_id]
             WHERE ([so].[type]='U' OR [so].[type]='V')
         ";
 

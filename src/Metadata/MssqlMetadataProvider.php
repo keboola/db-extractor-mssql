@@ -107,9 +107,7 @@ class MssqlMetadataProvider implements MetadataProvider
             ->setName($data['TABLE_NAME'], false)
             ->setCatalog($data['TABLE_CATALOG'])
             ->setSchema($data['TABLE_SCHEMA'])
-            ->setType($data['TABLE_TYPE'])
-            ->setCdcEnabled($data['is_tracked_by_cdc'] === '1')
-            ;
+            ->setType($data['TABLE_TYPE']);
     }
 
     private function processColumn(array $data, ColumnBuilder $columnBuilder): ColumnBuilder
