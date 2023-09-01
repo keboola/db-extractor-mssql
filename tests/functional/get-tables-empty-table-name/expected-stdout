@@ -1,1 +1,1 @@
-{"tables":[{"name":" ","schema":"dbo","cdcEnabled":false,"columns":[{"name":"ID","type":"int","primaryKey":false}]}],"status":"success"}
+{"tables":[{"name":" ","schema":"dbo","columns":[{"name":"ID","type":"int","primaryKey":false}]}],"status":"success"}

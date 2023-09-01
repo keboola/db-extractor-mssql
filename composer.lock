@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d1bb031f534b1cb3eb9039d05efbc2c",
+    "content-hash": "1830d89049e9ccbcf1b60847a1af5283",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -271,16 +271,16 @@
         },
         {
             "name": "keboola/db-extractor-common",
-            "version": "16.0.1",
+            "version": "16.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-common.git",
-                "reference": "2731223a4ab46d5a0f795f09d43deb4bca7857e0"
+                "reference": "cd8f2fce17bdbb88b3e5580aef6da4aac33b8a9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/2731223a4ab46d5a0f795f09d43deb4bca7857e0",
-                "reference": "2731223a4ab46d5a0f795f09d43deb4bca7857e0",
+                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/cd8f2fce17bdbb88b3e5580aef6da4aac33b8a9c",
+                "reference": "cd8f2fce17bdbb88b3e5580aef6da4aac33b8a9c",
                 "shasum": ""
             },
             "require": {
@@ -293,7 +293,7 @@
                 "keboola/db-extractor-ssh-tunnel": "^1.1.5",
                 "keboola/db-extractor-table-format": "^3.2",
                 "keboola/php-component": "^9.0",
-                "keboola/php-datatypes": "^6.0",
+                "keboola/php-datatypes": "^4.7",
                 "keboola/php-utils": "^2.3||^3.0||^4.0",
                 "keboola/retry": "^0.5",
                 "monolog/monolog": "^2.0",
@@ -330,9 +330,9 @@
             "description": "Common library from Keboola Database Extractors",
             "support": {
                 "issues": "https://github.com/keboola/db-extractor-common/issues",
-                "source": "https://github.com/keboola/db-extractor-common/tree/16.0.1"
+                "source": "https://github.com/keboola/db-extractor-common/tree/16.0.0"
             },
-            "time": "2022-08-23T08:34:42+00:00"
+            "time": "2022-08-05T12:28:59+00:00"
         },
         {
             "name": "keboola/db-extractor-config",
@@ -420,23 +420,23 @@
         },
         {
             "name": "keboola/db-extractor-table-format",
-            "version": "3.6.0",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-table-format.git",
-                "reference": "d6a33258fb04d359b324691e9d642fc7d5e0f74d"
+                "reference": "5f8fb12db8b355f5b74c96a180311970324ada65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-table-format/zipball/d6a33258fb04d359b324691e9d642fc7d5e0f74d",
-                "reference": "d6a33258fb04d359b324691e9d642fc7d5e0f74d",
+                "url": "https://api.github.com/repos/keboola/db-extractor-table-format/zipball/5f8fb12db8b355f5b74c96a180311970324ada65",
+                "reference": "5f8fb12db8b355f5b74c96a180311970324ada65",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "keboola/common-exceptions": "^1.0",
-                "keboola/php-datatypes": "^6.0",
+                "keboola/php-datatypes": "^4.7",
                 "keboola/php-utils": "^4.1",
                 "php": ">=7.4"
             },
@@ -463,9 +463,9 @@
             ],
             "description": "PHP class for formating table result",
             "support": {
-                "source": "https://github.com/keboola/db-extractor-table-format/tree/3.6.0"
+                "source": "https://github.com/keboola/db-extractor-table-format/tree/3.5.0"
             },
-            "time": "2023-08-30T09:06:05+00:00"
+            "time": "2022-08-16T11:32:23+00:00"
         },
         {
             "name": "keboola/php-component",
@@ -528,28 +528,27 @@
         },
         {
             "name": "keboola/php-datatypes",
-            "version": "6.4.0",
+            "version": "4.11.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/php-datatypes.git",
-                "reference": "418820042083b2ed4b0820b6862f62f7bfe03547"
+                "reference": "a49845d2e13884f061b5d63554eabb08f10a078d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/php-datatypes/zipball/418820042083b2ed4b0820b6862f62f7bfe03547",
-                "reference": "418820042083b2ed4b0820b6862f62f7bfe03547",
+                "url": "https://api.github.com/repos/keboola/php-datatypes/zipball/a49845d2e13884f061b5d63554eabb08f10a078d",
+                "reference": "a49845d2e13884f061b5d63554eabb08f10a078d",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.4|^8"
+                "php": ">=5.6"
             },
             "require-dev": {
-                "keboola/coding-standard": "^14",
-                "php-parallel-lint/php-parallel-lint": "^1.3",
-                "phpstan/phpdoc-parser": "^1.6",
-                "phpstan/phpstan": "^1.4",
-                "phpunit/phpunit": "^9",
-                "squizlabs/php_codesniffer": "^3"
+                "codeclimate/php-test-reporter": "~0.4",
+                "php-parallel-lint/php-parallel-lint": "^1.1",
+                "phpstan/phpstan": "~0.9",
+                "phpunit/phpunit": "^5.0",
+                "squizlabs/php_codesniffer": "^2.6"
             },
             "type": "library",
             "autoload": {
@@ -570,9 +569,9 @@
             "description": "PHP datatypes for databases",
             "support": {
                 "issues": "https://github.com/keboola/php-datatypes/issues",
-                "source": "https://github.com/keboola/php-datatypes/tree/6.4.0"
+                "source": "https://github.com/keboola/php-datatypes/tree/4.11.7"
             },
-            "time": "2023-03-03T15:00:55+00:00"
+            "time": "2022-03-23T19:24:44+00:00"
         },
         {
             "name": "keboola/php-temp",
