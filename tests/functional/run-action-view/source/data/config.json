@@ -1,0 +1,17 @@
+{
+  "parameters": {
+    "name": "sales_view",
+    "table": {
+      "schema": "dbo",
+      "tableName": "sales_view"
+    },
+    "outputTable": "in.c-main.sales_view",
+    "db": {
+      "host": "%env(string:MSSQL_DB_HOST)%",
+      "port": "%env(string:MSSQL_DB_PORT)%",
+      "user": "%env(string:MSSQL_DB_USER)%",
+      "#password": "%env(string:MSSQL_DB_PASSWORD)%",
+      "database": "%env(string:MSSQL_DB_DATABASE)%"
+    }
+  }
+}
