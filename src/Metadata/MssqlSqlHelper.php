@@ -19,7 +19,7 @@ class MssqlSqlHelper
         $sql[] = "
             SELECT [ist].*, [st].is_tracked_by_cdc FROM [INFORMATION_SCHEMA].[TABLES] as [ist]
             INNER JOIN [sys].[objects] AS [so] ON [ist].[TABLE_NAME] = [so].[name]
-            INNER JOIN [sys].[tables] AS [st] ON [so].[object_id] = [st].[object_id]
+            LEFT JOIN [sys].[tables] AS [st] ON [so].[object_id] = [st].[object_id]
             WHERE ([so].[type]='U' OR [so].[type]='V')
         ";
 
