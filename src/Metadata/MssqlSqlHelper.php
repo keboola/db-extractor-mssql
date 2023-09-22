@@ -17,9 +17,10 @@ class MssqlSqlHelper
         // Note: type='U' user generated objects only
         $sql = [];
         $sql[] = "
-            SELECT [ist].* FROM [INFORMATION_SCHEMA].[TABLES] as [ist]
+            SELECT [ist].*, [st].is_tracked_by_cdc FROM [INFORMATION_SCHEMA].[TABLES] as [ist]
             INNER JOIN [sys].[objects] AS [so] ON [ist].[TABLE_NAME] = [so].[name]
-            WHERE ([so].[type]='U' OR [so].[type]='V')
+            LEFT JOIN [sys].[tables] AS [st] ON [so].[object_id] = [st].[object_id]
+            WHERE ([so].[type]='U' OR [so].[type]='V') AND [so].[is_ms_shipped] = 0
         ";
 
         if (!empty($whitelist)) {
@@ -73,7 +74,7 @@ class MssqlSqlHelper
               ) [pks] 
             ON [pks].[objectid] = [sys].[columns].[object_id] AND [pks].[columnid] = [sys].[columns].[column_id]
             INNER JOIN [sys].[objects] AS [so] ON [sys].[columns].[object_id] = [so].[object_id]
-            WHERE ([so].[type]='U' OR [so].[type]='V')
+            WHERE ([so].[type]='U' OR [so].[type]='V') AND [so].[is_ms_shipped] = 0
             ORDER BY [TABLE_SCHEMA], [TABLE_NAME], [ORDINAL_POSITION]
         ";
     }

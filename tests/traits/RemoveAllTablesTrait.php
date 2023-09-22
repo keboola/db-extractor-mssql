@@ -23,8 +23,13 @@ trait RemoveAllTablesTrait
         /** @var array $tables */
         $tables = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($tables as $table) {
+            $statement = 'DROP TABLE';
+            if ($table['TABLE_TYPE'] === 'VIEW') {
+                $statement = 'DROP VIEW';
+            }
             $this->connection->query(sprintf(
-                'DROP TABLE %s.%s',
+                '%s %s.%s',
+                $statement,
                 $this->quoteIdentifier($table['TABLE_SCHEMA']),
                 $this->quoteIdentifier($table['TABLE_NAME'])
             ));
