@@ -1,0 +1,7 @@
+[%s] DEBUG: Component initialization completed [] []
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Exporting "tablecolumns" to "in.c-main.tablecolumns".
+Exporting by "BCP" adapter.
+[%s] DEBUG: BCP: Run query "SELECT char(34) + COALESCE(REPLACE(CAST([usergender] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [usergender], char(34) + COALESCE(REPLACE(CAST([usercity] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [usercity], char(34) + COALESCE(REPLACE(CAST([usersentiment] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [usersentiment], char(34) + COALESCE(REPLACE(CAST([zipcode] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [zipcode] FROM [dbo].[sales]". [] []
+Executing BCP command: bcp 'SELECT char(34) + COALESCE(REPLACE(CAST([usergender] as nvarchar(max)), char(34), char(34) + char(34)),'\'''\'') + char(34) AS [usergender], char(34) + COALESCE(REPLACE(CAST([usercity] as nvarchar(max)), char(34), char(34) + char(34)),'\'''\'') + char(34) AS [usercity], char(34) + COALESCE(REPLACE(CAST([usersentiment] as nvarchar(max)), char(34), char(34) + char(34)),'\'''\'') + char(34) AS [usersentiment], char(34) + COALESCE(REPLACE(CAST([zipcode] as nvarchar(max)), char(34), char(34) + char(34)),'\'''\'') + char(34) AS [zipcode] FROM [dbo].[sales]' queryout 'in.c-main.tablecolumns.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+Exported "100" rows to "in.c-main.tablecolumns".
