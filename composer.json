@@ -26,7 +26,7 @@
     },
     "require-dev": {
         "keboola/coding-standard": ">=9.0",
-        "keboola/datadir-tests": "dev-ondra-set-run-mode",
+        "keboola/datadir-tests": "^5.6",
         "phpstan/phpstan": "^0.12.14",
         "phpunit/phpunit": "^9.0"
     },

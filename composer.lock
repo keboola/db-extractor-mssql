@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0104f5970eed05f7fbbfd4a97e2eb18d",
+    "content-hash": "75045fc03601cbaaee5ce945ca9a6549",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -3616,16 +3616,16 @@
         },
         {
             "name": "keboola/datadir-tests",
-            "version": "dev-ondra-set-run-mode",
+            "version": "5.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/datadir-tests.git",
-                "reference": "e2e56e33d94ad0c5b3634d548bd9376187210654"
+                "reference": "d43f7657806d660f2326d8c438dd800d7ccc1e3d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/datadir-tests/zipball/e2e56e33d94ad0c5b3634d548bd9376187210654",
-                "reference": "e2e56e33d94ad0c5b3634d548bd9376187210654",
+                "url": "https://api.github.com/repos/keboola/datadir-tests/zipball/d43f7657806d660f2326d8c438dd800d7ccc1e3d",
+                "reference": "d43f7657806d660f2326d8c438dd800d7ccc1e3d",
                 "shasum": ""
             },
             "require": {
@@ -3655,9 +3655,9 @@
             "description": "Tool for functional testing of Keboola Connection components",
             "support": {
                 "issues": "https://github.com/keboola/datadir-tests/issues",
-                "source": "https://github.com/keboola/datadir-tests/tree/ondra-set-run-mode"
+                "source": "https://github.com/keboola/datadir-tests/tree/5.6.0"
             },
-            "time": "2023-10-20T07:48:17+00:00"
+            "time": "2023-10-20T08:02:53+00:00"
         },
         {
             "name": "keboola/php-temp",
@@ -3873,9 +3873,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "keboola/datadir-tests": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
