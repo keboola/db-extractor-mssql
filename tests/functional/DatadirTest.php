@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\FunctionalTests;
 
 use Keboola\DatadirTests\DatadirTestCase;
+use Keboola\DatadirTests\Exception\DatadirTestsException;
 use Keboola\DbExtractor\TraitTests\CloseSshTunnelsTrait;
 use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
 use PDO;
@@ -65,6 +66,7 @@ class DatadirTest extends DatadirTestCase
     protected function setUp(): void
     {
         parent::setUp();
+        putenv('KBC_COMPONENT_RUN_MODE=run');
 
         // Test dir, eg. "/code/tests/functional/full-load-ok"
         $this->testProjectDir = $this->getTestFileDir() . '/' . $this->dataName();

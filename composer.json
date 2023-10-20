@@ -14,9 +14,9 @@
         "ext-PDO": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "keboola/csv": "^2.2.1",
-        "keboola/datadir-tests": "^5.2",
-        "keboola/db-extractor-common": "^16.0",
+        "keboola/csv": "^3.2",
+        "keboola/db-extractor-adapter": "^1.10",
+        "keboola/db-extractor-common": "^16.1",
         "keboola/db-extractor-config": "^1.12",
         "keboola/db-extractor-table-format": "^3.6",
         "keboola/php-component": "^9.2",
@@ -25,7 +25,8 @@
         "symfony/process": "^5.0"
     },
     "require-dev": {
-      "keboola/coding-standard": ">=9.0",
+        "keboola/coding-standard": ">=9.0",
+        "keboola/datadir-tests": "dev-ondra-set-run-mode",
         "phpstan/phpstan": "^0.12.14",
         "phpunit/phpunit": "^9.0"
     },
