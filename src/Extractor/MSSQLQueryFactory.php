@@ -6,12 +6,12 @@ namespace Keboola\DbExtractor\Extractor;
 
 use InvalidArgumentException;
 use Keboola\DbExtractor\Adapter\Connection\DbConnection;
+use Keboola\DbExtractor\Adapter\Query\QueryFactory;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use Keboola\DbExtractor\TableResultFormat\Metadata\ValueObject\Column;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
-use \Keboola\DbExtractor\Adapter\Query\QueryFactory;
 use LogicException;
 
 class MSSQLQueryFactory implements QueryFactory
@@ -68,7 +68,7 @@ class MSSQLQueryFactory implements QueryFactory
             '%s FROM %s.%s',
             $this->getColumnsForSelect($exportConfig, $connection),
             $connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
-            $connection->quoteIdentifier($exportConfig->getTable()->getName())
+            $connection->quoteIdentifier($exportConfig->getTable()->getName()),
         );
 
         if ($exportConfig->getNoLock()) {
@@ -82,7 +82,7 @@ class MSSQLQueryFactory implements QueryFactory
                     $connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
                     $this->shouldQuoteComparison($this->incrementalFetchingType)
                         ? $connection->quote($this->state['lastFetchedRow'])
-                        : $this->state['lastFetchedRow']
+                        : $this->state['lastFetchedRow'],
                 );
             }
         }
@@ -90,7 +90,7 @@ class MSSQLQueryFactory implements QueryFactory
         if ($exportConfig->hasIncrementalFetchingLimit()) {
             $sql[] = sprintf(
                 'ORDER BY %s',
-                $connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn())
+                $connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
             );
         }
 
@@ -178,12 +178,12 @@ class MSSQLQueryFactory implements QueryFactory
         if ($this->format === self::ESCAPING_TYPE_BCP) {
             return implode(', ', array_map(
                 fn (string $name) => $this->columnToBcpSql($columns->getByName($name), $connection),
-                $columnNames
+                $columnNames,
             ));
         } elseif ($this->format === self::ESCAPING_TYPE_PDO) {
             return implode(', ', array_map(
                 fn (string $name) => $this->columnToPdoSql($columns->getByName($name), $connection),
-                $columnNames
+                $columnNames,
             ));
         }
 
@@ -194,7 +194,7 @@ class MSSQLQueryFactory implements QueryFactory
     {
         if ($type === null) {
             throw new InvalidArgumentException(
-                'Incremental fetching type should be set if calling "shouldQuoteComparison".'
+                'Incremental fetching type should be set if calling "shouldQuoteComparison".',
             );
         }
 

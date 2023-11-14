@@ -11,10 +11,10 @@ use Keboola\DbExtractor\Adapter\ValueObject\ExportResult;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Exception\InvalidArgumentException;
 use Keboola\DbExtractor\Exception\PdoAdapterSkippedException;
-use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
-use Psr\Log\LoggerInterface;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
+use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
+use Psr\Log\LoggerInterface;
 
 class MSSQLPdoExportAdapter extends PdoExportAdapter
 {
@@ -27,7 +27,7 @@ class MSSQLPdoExportAdapter extends PdoExportAdapter
         MSSQLQueryFactory $queryFactory,
         DefaultResultWriter $resultWriter,
         string $dataDir,
-        array $state
+        array $state,
     ) {
         parent::__construct($logger, $connection, $queryFactory, $resultWriter, $dataDir, $state);
     }

@@ -22,11 +22,11 @@ use Keboola\DbExtractor\TraitTests\Tables\SimpleTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\SpecialTableTrait;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\InputTable;
+use PDO;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
-use PDO;
 use Psr\Log\Test\TestLogger;
 
 class MSSQLTest extends TestCase
@@ -71,7 +71,7 @@ class MSSQLTest extends TestCase
         } catch (UserExceptionInterface $e) {
             $this->assertStringContainsString(
                 'Cannot open database "nonExistentDb" requested by the login.',
-                $e->getMessage()
+                $e->getMessage(),
             );
         }
     }
@@ -110,7 +110,7 @@ class MSSQLTest extends TestCase
         $app->execute();
 
         Assert::assertTrue(
-            $this->logger->hasWarning('Query result set is empty. Exported "0" rows to "in.c-main.sales".')
+            $this->logger->hasWarning('Query result set is empty. Exported "0" rows to "in.c-main.sales".'),
         );
 
         $this->assertFileExists($salesManifestFile);
@@ -162,6 +162,7 @@ class MSSQLTest extends TestCase
         $app = $this->createApplication($config);
         ob_start();
         $app->execute();
+        /** @var array $result */
         $result = json_decode((string) ob_get_contents(), true);
         ob_end_clean();
 
@@ -174,7 +175,7 @@ class MSSQLTest extends TestCase
         $this->connection->exec('CREATE TABLE [XML_TEST] ([ID] INT NOT NULL, [XML_COL] XML NULL);');
         $this->connection->exec(
             'INSERT INTO [XML_TEST] ' .
-            "VALUES (1, '<test>some test xml </test>'), (2, null), (3, '<test>some test xml </test>')"
+            "VALUES (1, '<test>some test xml </test>'), (2, null), (3, '<test>some test xml </test>')",
         );
         $config = $this->getConfig();
         unset($config['parameters']['tables'][1]);
@@ -193,13 +194,13 @@ class MSSQLTest extends TestCase
     {
         $this->connection->exec(
             'CREATE TABLE [NULL_TEST] ' .
-            "([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));"
+            "([ID] VARCHAR(5) NULL, [NULL_COL] NVARCHAR(10) DEFAULT '', [col2] VARCHAR(55));",
         );
         $this->connection->exec(
             "INSERT INTO [NULL_TEST] VALUES
             ('', '', 'test with ' + CHAR(0) + ' inside'),
             ('', '', ''),
-            ('3', '', 'test')"
+            ('3', '', 'test')",
         );
         $config = $this->getConfig();
         unset($config['parameters']['tables'][1]);
@@ -211,6 +212,7 @@ class MSSQLTest extends TestCase
 
         $this->createApplication($config)->execute();
 
+        /** @var array<array> $outputData */
         $outputData = iterator_to_array(new CsvReader($this->dataDir . '/out/tables/in.c-main.null_test.csv'));
 
         $this->assertStringNotContainsString(chr(0), $outputData[0][0]);
@@ -244,7 +246,7 @@ class MSSQLTest extends TestCase
         $this->expectException(UserRetriedException::class);
         $this->expectExceptionMessage(
             '[in.c-main.multipleselect_test]: DB query failed: SQLSTATE[IMSSP]: ' .
-            'The active result for the query contains no fields. Tried 5 times.'
+            'The active result for the query contains no fields. Tried 5 times.',
         );
         $this->createApplication($config)->execute();
     }
@@ -293,9 +295,10 @@ class MSSQLTest extends TestCase
             $config['parameters']['outputTable'] :
             $config['parameters']['tables'][0]['outputTable'];
 
+        /** @var array $outputManifest */
         $outputManifest = json_decode(
             (string) file_get_contents($this->dataDir . '/out/tables/' . $importedTable . '.csv.manifest'),
-            true
+            true,
         );
 
         $this->assertArrayHasKey('destination', $outputManifest);
@@ -803,6 +806,7 @@ class MSSQLTest extends TestCase
         $app = $this->createApplication($config);
         ob_start();
         $app->execute();
+        /** @var array $result */
         $result = json_decode((string) ob_get_contents(), true);
         ob_end_clean();
         $tables = array_values(array_filter($result['tables'], fn(array $table) => $table['name'] === 'simple'));
@@ -827,7 +831,7 @@ class MSSQLTest extends TestCase
                         ],
                 ],
             ],
-            $tables
+            $tables,
         );
     }
 
@@ -1081,7 +1085,7 @@ class MSSQLTest extends TestCase
                         'col2',
                     ],
             ],
-            $manifest
+            $manifest,
         );
     }
 
@@ -1095,7 +1099,7 @@ class MSSQLTest extends TestCase
         $salesManifestFile = sprintf(
             '%s/out/tables/%s.csv.manifest',
             $this->dataDir,
-            $config['parameters']['tables'][0]['outputTable']
+            $config['parameters']['tables'][0]['outputTable'],
         );
         $manifest = json_decode((string) file_get_contents($salesManifestFile), true);
         $this->assertEquals(
@@ -1118,7 +1122,7 @@ class MSSQLTest extends TestCase
                         'categorygroup',
                     ],
             ],
-            $manifest
+            $manifest,
         );
         $tableColumnsManifest =
             $this->dataDir . '/out/tables/' . $config['parameters']['tables'][1]['outputTable'] . '.csv.manifest';
@@ -1317,18 +1321,19 @@ class MSSQLTest extends TestCase
                         'zipcode',
                     ],
             ],
-            $manifest
+            $manifest,
         );
 
         $weirdManifest = sprintf(
             '%s/out/tables/%s.csv.manifest',
             $this->dataDir,
-            $config['parameters']['tables'][2]['outputTable']
+            $config['parameters']['tables'][2]['outputTable'],
         );
         $manifest = json_decode((string) file_get_contents($weirdManifest), true);
         // assert the timestamp column has the correct date format
+        /** @var array<array> $outputData */
         $outputData = iterator_to_array(
-            new CsvReader($this->dataDir . '/out/tables/' . $config['parameters']['tables'][2]['outputTable'] . '.csv')
+            new CsvReader($this->dataDir . '/out/tables/' . $config['parameters']['tables'][2]['outputTable'] . '.csv'),
         );
         $this->assertEquals(1, (int) $outputData[0][2]);
         $this->assertEquals('1.10', $outputData[0][3]);
@@ -1657,13 +1662,13 @@ class MSSQLTest extends TestCase
                         'datetime',
                     ],
             ],
-            $manifest
+            $manifest,
         );
 
         $specialManifest = sprintf(
             '%s/out/tables/%s.csv.manifest',
             $this->dataDir,
-            $config['parameters']['tables'][3]['outputTable']
+            $config['parameters']['tables'][3]['outputTable'],
         );
         $manifest = json_decode((string) file_get_contents($specialManifest), true);
         $this->assertEquals(
@@ -1780,7 +1785,7 @@ class MSSQLTest extends TestCase
                         'col2',
                     ],
             ],
-            $manifest
+            $manifest,
         );
     }
 }

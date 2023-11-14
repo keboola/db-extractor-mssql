@@ -31,7 +31,7 @@ trait RemoveAllTablesTrait
                 '%s %s.%s',
                 $statement,
                 $this->quoteIdentifier($table['TABLE_SCHEMA']),
-                $this->quoteIdentifier($table['TABLE_NAME'])
+                $this->quoteIdentifier($table['TABLE_NAME']),
             ));
         }
     }
@@ -48,7 +48,7 @@ trait RemoveAllTablesTrait
                 'ALTER TABLE %s.%s DROP CONSTRAINT %s',
                 $this->quoteIdentifier($table['TABLE_SCHEMA']),
                 $this->quoteIdentifier($table['TABLE_NAME']),
-                $this->quoteIdentifier($table['CONSTRAINT_NAME'])
+                $this->quoteIdentifier($table['CONSTRAINT_NAME']),
             ));
         }
     }

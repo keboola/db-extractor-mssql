@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor\Tests;
 
 use Keboola\DbExtractor\Extractor\MssqlRetryFactory;
 use PDOException;
+use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\Test\TestLogger;
 use RuntimeException;
@@ -69,7 +70,7 @@ class MSSQLRetryTest extends TestCase
                 $realTries++;
                 throw new PDOException(
                     'Client unable to establish connection because ' .
-                    'an error was encountered during handshakes before login.'
+                    'an error was encountered during handshakes before login.',
                 );
             });
             $this->fail('Expected RuntimeException.');

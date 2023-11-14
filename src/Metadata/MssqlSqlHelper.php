@@ -28,11 +28,11 @@ class MssqlSqlHelper
                 'AND TABLE_NAME IN (%s) AND TABLE_SCHEMA IN (%s)',
                 implode(',', array_map(
                     fn (InputTable $table) => $pdo->quote($table->getName()),
-                    $whitelist
+                    $whitelist,
                 )),
                 implode(',', array_map(
                     fn (InputTable $table) => $pdo->quote($table->getSchema()),
-                    $whitelist
+                    $whitelist,
                 )),
             );
         }
@@ -155,12 +155,12 @@ class MssqlSqlHelper
             $sql,
             implode(',', array_map(
                 fn(InputTable $table) => $pdo->quote($table->getName()),
-                $whitelist
+                $whitelist,
             )),
             implode(',', array_map(
                 fn (InputTable $table) => $pdo->quote($table->getSchema()),
-                $whitelist
-            ))
+                $whitelist,
+            )),
         );
     }
 

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Keboola\DbExtractor\FunctionalTests\DatadirTest;
 use Keboola\DbExtractor\FunctionalTests\DatabaseManager;
+use Keboola\DbExtractor\FunctionalTests\DatadirTest;
 
 return function (DatadirTest $test): void {
     $manager = new DatabaseManager($test->getConnection());
@@ -18,6 +18,6 @@ return function (DatadirTest $test): void {
     $manager->insertRows(
         'simple',
         ['int', 'decimal', 'float'],
-        [[1, 123, 987]]
+        [[1, 123, 987]],
     );
 };

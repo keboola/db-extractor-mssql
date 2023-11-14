@@ -18,7 +18,7 @@ class DatatypeMappingTest extends TestCase
     {
         $datatype = new MssqlDataType(
             $testColumn['type'],
-            array_intersect_key($testColumn, array_flip(MssqlDataType::DATATYPE_KEYS))
+            array_intersect_key($testColumn, array_flip(MssqlDataType::DATATYPE_KEYS)),
         );
         $datatypeMetadata = $datatype->toMetadata();
         $this->assertEquals($expectedMetadtata, $datatypeMetadata);

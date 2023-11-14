@@ -9,8 +9,8 @@ use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\MSSQLApplication;
 use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
 use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
+use PDO;
 use PHPUnit\Framework\TestCase;
-use \PDO;
 use Psr\Log\Test\TestLogger;
 
 class PerformanceTest extends TestCase
@@ -69,8 +69,8 @@ class PerformanceTest extends TestCase
                         $tableCount,
                         $columnsSql,
                         $schemaCount,
-                        $tableCount
-                    )
+                        $tableCount,
+                    ),
                 );
             }
         }
@@ -89,7 +89,7 @@ class PerformanceTest extends TestCase
         $jobStartTime = time();
         ob_start();
         $app->execute();
-        $result = json_decode((string) ob_get_contents(), true);
+        $result = (array) json_decode((string) ob_get_contents(), true);
         ob_end_clean();
         $this->assertEquals('success', $result['status']);
         $runTime = time() - $jobStartTime;

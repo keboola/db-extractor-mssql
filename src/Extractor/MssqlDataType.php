@@ -41,7 +41,7 @@ class MssqlDataType extends GenericStorage
         return array_merge(
             MssqlDataType::INTEGER_TYPES,
             MssqlDataType::FLOATING_POINT_TYPES,
-            MssqlDataType::FIXED_NUMERIC_TYPES
+            MssqlDataType::FIXED_NUMERIC_TYPES,
         );
     }
 
@@ -62,8 +62,8 @@ class MssqlDataType extends GenericStorage
         throw new UserException(
             sprintf(
                 'Column "%s" specified for incremental fetching is not numeric or datetime.',
-                $columnName
-            )
+                $columnName,
+            ),
         );
     }
 

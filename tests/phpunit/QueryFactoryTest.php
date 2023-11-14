@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
-use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
@@ -15,6 +14,7 @@ use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\TableBuilder;
 use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
+use LogicException;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 
@@ -29,7 +29,7 @@ class QueryFactoryTest extends TestCase
         array $params,
         ?array $columnsMetadata,
         array $state,
-        string $expected
+        string $expected,
     ): void {
         $params['db'] = PdoTestConnection::getDbConfigArray();
         $params['query'] = $params['query'] ?? null;
@@ -53,7 +53,7 @@ class QueryFactoryTest extends TestCase
 
         $query = $queryFactory->create(
             $exportConfig,
-            $pdo
+            $pdo,
         );
         $this->assertEquals($expected, $query);
     }
@@ -84,7 +84,7 @@ class QueryFactoryTest extends TestCase
         $exportConfig = MssqlExportConfig::fromArray($params);
         $query = $queryFactory->create(
             $exportConfig,
-            $pdo
+            $pdo,
         );
         $this->assertEquals($expected, $query);
     }
@@ -810,8 +810,8 @@ class QueryFactoryTest extends TestCase
             $incFetchingCol = $params['incrementalFetchingColumn'];
             $columns = array_filter($columnsMetadata ?? [], fn(array $data) => $data['name'] === $incFetchingCol);
             if (empty($columns)) {
-                throw new \LogicException(
-                    sprintf('Column "%s" not found in test metadata.', $incFetchingCol)
+                throw new LogicException(
+                    sprintf('Column "%s" not found in test metadata.', $incFetchingCol),
                 );
             }
             $column = array_pop($columns);
@@ -824,7 +824,7 @@ class QueryFactoryTest extends TestCase
     protected function createQueryFactory(
         MSSQLPdoConnection $pdo,
         array $state,
-        ?array $columnsMetadata = null
+        ?array $columnsMetadata = null,
     ): MSSQLQueryFactory {
         if ($columnsMetadata === null) {
             $metadataProvider = new MssqlMetadataProvider($pdo);

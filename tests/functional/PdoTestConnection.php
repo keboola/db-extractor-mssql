@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\FunctionalTests;
 
+use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use PDO;
 use PDOException;
-use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 
 class PdoTestConnection
 {

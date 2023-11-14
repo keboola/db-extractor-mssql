@@ -32,7 +32,7 @@ class ExceptionHandlingTest extends TestCase
 
         $object = new BcpQueryMetadata(
             new MSSQLPdoConnection(new NullLogger(), PdoTestConnection::createDbConfig()),
-            $query
+            $query,
         );
         $method = (new ReflectionClass($object))->getMethod('handleException');
         $method->setAccessible(true);
@@ -41,7 +41,7 @@ class ExceptionHandlingTest extends TestCase
             new PDOException('SQLSTATE[42000]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The ' .
                 "metadata could not be determined because statement 'delete from #ErrFile' in procedure 'IFS_Import" .
                 'Obratovky_All\' uses a temp table.'),
-            $query
+            $query,
         );
     }
 }

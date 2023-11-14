@@ -32,13 +32,13 @@ class MSSQLApplication extends Application
                         null,
                         null,
                         new MssqlSslNode(),
-                        new MssqlTableNodesDecorator()
-                    )
+                        new MssqlTableNodesDecorator(),
+                    ),
                 );
             } else {
                 $this->config = new Config(
                     $config,
-                    new ActionConfigRowDefinition(null, null, new MssqlSslNode())
+                    new ActionConfigRowDefinition(null, null, new MssqlSslNode()),
                 );
             }
         } else {
@@ -48,11 +48,12 @@ class MSSQLApplication extends Application
                     null,
                     null,
                     new MssqlSslNode(),
-                    new MssqlTableNodesDecorator()
-                )
+                    new MssqlTableNodesDecorator(),
+                ),
             );
         }
     }
+
 
     protected function createExportConfig(array $data): ExportConfig
     {
