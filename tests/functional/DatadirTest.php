@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\FunctionalTests;
 
 use Keboola\DatadirTests\DatadirTestCase;
-use Keboola\DatadirTests\Exception\DatadirTestsException;
 use Keboola\DbExtractor\TraitTests\CloseSshTunnelsTrait;
 use Keboola\DbExtractor\TraitTests\RemoveAllTablesTrait;
 use PDO;
@@ -13,7 +12,7 @@ use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
-use \Throwable;
+use Throwable;
 
 class DatadirTest extends DatadirTestCase
 {
@@ -48,6 +47,7 @@ class DatadirTest extends DatadirTestCase
 
     protected function modifyConfigJsonContent(string $content): string
     {
+        /** @var array<array> $config */
         $config = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
 
         if (!empty($config['parameters']['db']['ssl']['ca'])) {
@@ -55,8 +55,8 @@ class DatadirTest extends DatadirTestCase
                 sprintf(
                     '%s/ssl/certs/%s',
                     $this->temp->getTmpFolder(),
-                    $config['parameters']['db']['ssl']['ca']
-                )
+                    $config['parameters']['db']['ssl']['ca'],
+                ),
             );
         }
 
@@ -74,11 +74,12 @@ class DatadirTest extends DatadirTestCase
 
         $configContent = file_get_contents($this->testProjectDir . '/source/data/config.json');
 
+        /** @var array<array> $config */
         $config = json_decode((string) $configContent, true);
         preg_match('/%env\(string:([A-Z_]+)\)%/', $config['parameters']['db']['host'], $hostEnv);
 
         $this->connection = PdoTestConnection::createConnection(
-            (string) getenv($hostEnv[1])
+            (string) getenv($hostEnv[1]),
         );
         $this->removeAllTables();
         $this->closeSshTunnels();
@@ -151,7 +152,7 @@ class DatadirTest extends DatadirTestCase
             $data = preg_replace(
                 '~[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}.[0-9]{3,8}~',
                 'RANDOM_TIMESTAMP',
-                $data
+                $data,
             );
             file_put_contents($stateJsonPath, $data);
         }

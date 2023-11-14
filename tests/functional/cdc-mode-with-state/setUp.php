@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-use Keboola\DbExtractor\FunctionalTests\DatadirTest;
 use Keboola\DbExtractor\FunctionalTests\DatabaseManager;
+use Keboola\DbExtractor\FunctionalTests\DatadirTest;
+use Symfony\Component\Filesystem\Filesystem;
 
 return function (DatadirTest $test): void {
     $manager = new DatabaseManager($test->getConnection());
@@ -29,7 +30,7 @@ SQL;
     $manager->generateAIRows('cdc_test_table');
 
     // write state file
-    $fs = new Symfony\Component\Filesystem\Filesystem();
+    $fs = new Filesystem();
     $fs->mkdir($test->testProjectDir . '/source/data/in/');
 
     sleep(6);
@@ -47,7 +48,7 @@ SQL;
 
         file_put_contents(
             $test->testProjectDir . '/source/data/in/state.json',
-            json_encode(['lastFetchedTime' => $lsnTime])
+            json_encode(['lastFetchedTime' => $lsnTime]),
         );
     }
 

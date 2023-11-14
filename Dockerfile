@@ -1,4 +1,4 @@
-FROM php:7.4-cli-buster
+FROM php:8.2-cli-buster
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -61,12 +61,12 @@ RUN \
 COPY composer.* /code/
 
 # Download dependencies, but don't run scripts or init autoloaders as the app is missing
-RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
+#RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 
 # Copy rest of the app
 COPY . /code/
 
 # Run normal composer - all deps are cached already
-RUN composer install $COMPOSER_FLAGS
+#RUN composer install $COMPOSER_FLAGS
 
 CMD php ./src/run.php

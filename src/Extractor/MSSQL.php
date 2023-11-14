@@ -9,14 +9,14 @@ use Keboola\DbExtractor\Adapter\FallbackExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Extractor\Adapters\BcpExportAdapter;
+use Keboola\DbExtractor\Extractor\Adapters\MSSQLPdoExportAdapter;
 use Keboola\DbExtractor\Manifest\DefaultManifestGenerator;
 use Keboola\DbExtractor\Manifest\ManifestGenerator;
-use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
-use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
-use Keboola\DbExtractor\TableResultFormat\Exception\ColumnNotFoundException;
 use Keboola\DbExtractor\Metadata\MssqlManifestSerializer;
+use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
+use Keboola\DbExtractor\TableResultFormat\Exception\ColumnNotFoundException;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
-use Keboola\DbExtractor\Extractor\Adapters\MSSQLPdoExportAdapter;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -37,7 +37,7 @@ class MSSQL extends BaseExtractor
     {
         return new DefaultManifestGenerator(
             $this->getMetadataProvider(),
-            new MssqlManifestSerializer()
+            new MssqlManifestSerializer(),
         );
     }
 
@@ -46,7 +46,7 @@ class MSSQL extends BaseExtractor
         if (!$this->queryFactory) {
             $this->queryFactory = new MSSQLQueryFactory(
                 $this->state,
-                $this->createMetadataProvider()
+                $this->createMetadataProvider(),
             );
         }
         return $this->queryFactory;
@@ -61,7 +61,7 @@ class MSSQL extends BaseExtractor
             $this->connection,
             $this->createMetadataProvider(),
             $this->getDatabaseConfig(),
-            $this->getQueryFactory()
+            $this->getQueryFactory(),
         );
 
         $adapters[] = new MSSQLPdoExportAdapter(
@@ -70,7 +70,7 @@ class MSSQL extends BaseExtractor
             $this->getQueryFactory(),
             new MSSQLResultWriter($this->state),
             $this->dataDir,
-            $this->state
+            $this->state,
         );
 
         return new FallbackExportAdapter($this->logger, $adapters);
@@ -143,7 +143,7 @@ SQL;
                         '%s FROM %s.%s',
                         $columnsString . ', 0 as KBC__DELETED',
                         $this->connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
-                        $this->connection->quoteIdentifier($exportConfig->getTable()->getName())
+                        $this->connection->quoteIdentifier($exportConfig->getTable()->getName()),
                     );
                     if ($exportConfig->getNoLock()) {
                         $sql[] = 'WITH(NOLOCK)';
@@ -171,7 +171,7 @@ SQL;
             $this->connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
             $this->connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
             $this->connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
-            $this->connection->quoteIdentifier($exportConfig->getTable()->getName())
+            $this->connection->quoteIdentifier($exportConfig->getTable()->getName()),
         ), $exportConfig->getMaxRetries())->fetchAll();
 
         return count($result) > 0 ? $result[0][$exportConfig->getIncrementalFetchingColumn()] : null;
@@ -194,7 +194,7 @@ SQL;
         $this
             ->getQueryFactory()
             ->setIncrementalFetchingType(
-                MssqlDataType::getIncrementalFetchingType($column->getName(), $column->getType())
+                MssqlDataType::getIncrementalFetchingType($column->getName(), $column->getType()),
             )
         ;
     }
@@ -204,7 +204,7 @@ SQL;
         if ($databaseConfig->hasSSLConnection() && $databaseConfig->getSslConnectionConfig()->hasCa()) {
             file_put_contents(
                 '/usr/local/share/ca-certificates/mssql.crt',
-                $databaseConfig->getSslConnectionConfig()->getCa()
+                $databaseConfig->getSslConnectionConfig()->getCa(),
             );
             Process::fromShellCommandline('update-ca-certificates')->mustRun();
         }

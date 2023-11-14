@@ -11,7 +11,7 @@ use Keboola\DbExtractor\TraitTests\Tables\SalesTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\SimpleTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\SpecialTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\TimestampTableTrait;
-use \PDO;
+use PDO;
 
 class DatabaseManager
 {

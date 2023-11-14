@@ -137,8 +137,8 @@ class MssqlMetadataProvider implements MetadataProvider
             $columnBuilder->setDefault(
                 MssqlSqlHelper::getDefaultValue(
                     isset($data['DATA_TYPE']) ? $data['DATA_TYPE'] : 'USER_DEFINED_TYPE',
-                    $data['COLUMN_DEFAULT']
-                )
+                    $data['COLUMN_DEFAULT'],
+                ),
             );
         }
 

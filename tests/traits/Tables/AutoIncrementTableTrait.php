@@ -33,7 +33,7 @@ trait AutoIncrementTableTrait
             $tableName,
             'CHK_ID_CONTSTRAINT',
             'CHECK',
-            '"_Weir%d I-D" > 0 AND "_Weir%d I-D" < 20'
+            '"_Weir%d I-D" > 0 AND "_Weir%d I-D" < 20',
         );
     }
 

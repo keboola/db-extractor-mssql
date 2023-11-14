@@ -8,14 +8,14 @@ use Keboola\DbExtractor\Adapter\Exception\DeadConnectionException;
 use Keboola\DbExtractor\Adapter\PDO\PdoConnection;
 use Keboola\DbExtractor\Adapter\PDO\PdoQueryResult;
 use Keboola\DbExtractor\Adapter\ValueObject\QueryResult;
+use Keboola\DbExtractor\DbRetryProxy;
+use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use PDO;
+use PDOException;
 use PDOStatement;
 use Psr\Log\LoggerInterface;
 use Throwable;
-use Keboola\DbExtractor\DbRetryProxy;
-use Keboola\DbExtractor\Exception\UserException;
-use \PDOException;
 
 class MSSQLPdoConnection extends PdoConnection
 {
@@ -26,7 +26,7 @@ class MSSQLPdoConnection extends PdoConnection
     public function __construct(
         LoggerInterface $logger,
         DatabaseConfig $databaseConfig,
-        int $connectMaxRetries = self::CONNECT_DEFAULT_MAX_RETRIES
+        int $connectMaxRetries = self::CONNECT_DEFAULT_MAX_RETRIES,
     ) {
         $this->logger = $logger;
         $this->databaseConfig = $databaseConfig;
@@ -89,7 +89,7 @@ class MSSQLPdoConnection extends PdoConnection
                 throw new UserException(
                     'Unable to reconnect to the database: ' . $reconnectException->getMessage(),
                     (int) $reconnectException->getCode(),
-                    $reconnectException
+                    $reconnectException,
                 );
             }
         }
@@ -128,7 +128,7 @@ class MSSQLPdoConnection extends PdoConnection
 
         if ($this->databaseConfig->hasSSLConnection()) {
             $status = $this->pdo->query(
-                'SELECT session_id, encrypt_option FROM sys.dm_exec_connections WHERE session_id = @@SPID'
+                'SELECT session_id, encrypt_option FROM sys.dm_exec_connections WHERE session_id = @@SPID',
             )->fetch();
             if ($status['encrypt_option'] === 'FALSE') {
                 throw new UserException(sprintf('Connection is not encrypted'));
@@ -155,7 +155,7 @@ class MSSQLPdoConnection extends PdoConnection
             $maxRetries,
             function () use ($query, $values) {
                 return $this->queryReconnectOnError($query, $values);
-            }
+            },
         );
     }
 

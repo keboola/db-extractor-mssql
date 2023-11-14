@@ -29,7 +29,7 @@ class BcpQueryMetadata implements QueryMetadata
         // This will only work if the server is >= sql server 2012
         $sql = sprintf(
             "EXEC sp_describe_first_result_set N'%s', null, 0;",
-            rtrim(trim(str_replace("'", "''", $this->query)), ';')
+            rtrim(trim(str_replace("'", "''", $this->query)), ';'),
         );
         try {
             $result = $this->connection->query($sql)->fetchAll();
@@ -40,7 +40,7 @@ class BcpQueryMetadata implements QueryMetadata
                     throw new UserException(sprintf(
                         'Cannot retrieve all column metadata via query "%s". Result: %s',
                         $sql,
-                        var_export($result, true)
+                        var_export($result, true),
                     ));
                 }
                 $builder->setName($columnMetadata['name']);
@@ -61,16 +61,16 @@ class BcpQueryMetadata implements QueryMetadata
                 sprintf(
                     'Cannot retrieve column metadata via query "%s". %s',
                     $sql,
-                    $matches[1] ?? $e->getMessage()
+                    $matches[1] ?? $e->getMessage(),
                 ),
                 0,
-                $e
+                $e,
             );
         }
         return new BcpAdapterException(
             sprintf('DB query "%s" failed: %s', $sql, $e->getMessage()),
             0,
-            $e
+            $e,
         );
     }
 }

@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Extractor\Adapters;
 
+use Keboola\Csv\CsvReader;
 use Keboola\DbExtractor\Adapter\ExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Adapter\ValueObject\ExportResult;
+use Keboola\DbExtractor\Configuration\MssqlExportConfig;
+use Keboola\DbExtractor\Exception\ApplicationException;
+use Keboola\DbExtractor\Exception\BcpAdapterException;
 use Keboola\DbExtractor\Exception\BcpAdapterSkippedException;
 use Keboola\DbExtractor\Exception\InvalidArgumentException;
 use Keboola\DbExtractor\Exception\UserException;
+use Keboola\DbExtractor\Extractor\MssqlDataType;
+use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
+use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
+use Psr\Log\LoggerInterface;
 use Retry\BackOff\ExponentialBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
-use Throwable;
-use Psr\Log\LoggerInterface;
-use Keboola\Csv\CsvReader;
-use Keboola\DbExtractor\Configuration\MssqlExportConfig;
-use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
-use Keboola\DbExtractor\Exception\ApplicationException;
-use Keboola\DbExtractor\Exception\BcpAdapterException;
-use Keboola\DbExtractor\Extractor\MssqlDataType;
-use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Symfony\Component\Process\Process;
+use Throwable;
 
 class BcpExportAdapter implements ExportAdapter
 {
@@ -43,7 +43,7 @@ class BcpExportAdapter implements ExportAdapter
         MSSQLPdoConnection $connection,
         MetadataProvider $metadataProvider,
         DatabaseConfig $databaseConfig,
-        MSSQLQueryFactory $queryFactory
+        MSSQLQueryFactory $queryFactory,
     ) {
         $this->logger = $logger;
         $this->connection = $connection;
@@ -69,7 +69,7 @@ class BcpExportAdapter implements ExportAdapter
 
         if ($exportConfig->hasQuery() && $this->connection->getServerVersion() < 11) {
             throw new BcpAdapterSkippedException(
-                'BCP is not supported for advanced queries in sql server 2008 or less.'
+                'BCP is not supported for advanced queries in sql server 2008 or less.',
             );
         }
 
@@ -81,7 +81,7 @@ class BcpExportAdapter implements ExportAdapter
                 return $this->doExport(
                     $exportConfig,
                     $query,
-                    $csvFilePath
+                    $csvFilePath,
                 );
             });
             if ($exportResult->getRowsCount() > 0 && $exportConfig->hasQuery()) {
@@ -141,7 +141,7 @@ class BcpExportAdapter implements ExportAdapter
             $this->connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
             $this->connection->quoteIdentifier($exportConfig->getTable()->getSchema()),
             $this->connection->quoteIdentifier($exportConfig->getTable()->getName()),
-            $whereClause
+            $whereClause,
         );
 
         $result = $this->connection->query($query, $exportConfig->getMaxRetries(), $whereValues)->fetchAll();
@@ -182,7 +182,7 @@ class BcpExportAdapter implements ExportAdapter
             throw new BcpAdapterException(sprintf(
                 "Export process failed. Output: %s. \n\n Error Output: %s.",
                 $process->getOutput(),
-                $process->getErrorOutput()
+                $process->getErrorOutput(),
             ));
         }
 
@@ -194,7 +194,7 @@ class BcpExportAdapter implements ExportAdapter
             throw new BcpAdapterException(
                 'The BCP command produced an invalid csv: ' . $e->getMessage(),
                 0,
-                $e
+                $e,
             );
         }
     }
@@ -214,7 +214,7 @@ class BcpExportAdapter implements ExportAdapter
         $process->run();
         if ($process->getExitCode() !== 0 || !empty($process->getErrorOutput())) {
             throw new ApplicationException(
-                sprintf('Error Stripping Nulls: %s', $process->getErrorOutput())
+                sprintf('Error Stripping Nulls: %s', $process->getErrorOutput()),
             );
         }
     }
@@ -223,7 +223,7 @@ class BcpExportAdapter implements ExportAdapter
         MssqlExportConfig $exportConfig,
         string $filename,
         string $query,
-        Process $process
+        Process $process,
     ): ExportResult {
         $outputFile = new CsvReader($filename);
         $numRows = 0;
@@ -267,7 +267,7 @@ class BcpExportAdapter implements ExportAdapter
             $numRows,
             new BcpQueryMetadata($this->connection, $query),
             false,
-            $lastFetchedRowMaxValue ?? null
+            $lastFetchedRowMaxValue ?? null,
         );
     }
 
@@ -283,19 +283,19 @@ class BcpExportAdapter implements ExportAdapter
             escapeshellarg($serverName),
             escapeshellarg($this->databaseConfig->getUsername()),
             escapeshellarg($this->databaseConfig->getPassword()),
-            escapeshellarg($this->databaseConfig->getDatabase())
+            escapeshellarg($this->databaseConfig->getDatabase()),
         );
 
         $commandForLogger = preg_replace('/-P.*-d/', '-P ***** -d', $cmd);
         $commandForLogger = preg_replace(
             '/queryout.*\/([a-z\-._]+\.csv).*-S/',
             'queryout \'${1}\' -S',
-            (string) $commandForLogger
+            (string) $commandForLogger,
         );
 
         $this->logger->info(sprintf(
             'Executing BCP command: %s',
-            $commandForLogger
+            $commandForLogger,
         ));
         return $cmd;
     }

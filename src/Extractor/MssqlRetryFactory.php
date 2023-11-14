@@ -16,7 +16,7 @@ class MssqlRetryFactory
         LoggerInterface $logger,
         int $maxTries,
         ?int $timeout = null,
-        ?array $expectedExceptions = null
+        ?array $expectedExceptions = null,
     ): RetryProxy {
         $timeout = $timeout ?? 15 * 60 * 1000; // default timeout, 15 min
         $expectedExceptions = $expectedExceptions ?? ['PDOException', 'ErrorException'];

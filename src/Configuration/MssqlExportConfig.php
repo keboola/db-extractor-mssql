@@ -44,7 +44,7 @@ class MssqlExportConfig extends ExportConfig
             $data['disableFallback'] ?? false,
             $data['maxTriesBcp'] ?? 1,
             $data['cdcMode'] ?? false,
-            $data['cdcModeFullLoadFallback'] ?? false
+            $data['cdcModeFullLoadFallback'] ?? false,
         );
     }
 
@@ -64,7 +64,7 @@ class MssqlExportConfig extends ExportConfig
         bool $disableFallback,
         int $maxTriesBcp,
         bool $cdcMode,
-        bool $cdcModeFullLoadFallback
+        bool $cdcModeFullLoadFallback,
     ) {
         parent::__construct(
             $configId,
@@ -76,7 +76,7 @@ class MssqlExportConfig extends ExportConfig
             $columns,
             $outputTable,
             $primaryKey,
-            $maxRetries
+            $maxRetries,
         );
         $this->query = $query;
         $this->noLock = $noLock;
