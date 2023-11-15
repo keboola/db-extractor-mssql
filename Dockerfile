@@ -57,6 +57,12 @@ RUN \
     && sed -i 's/MinProtocol\s*=.*/MinProtocol = TLSv1/g' /etc/ssl/openssl.cnf
 
 ## Composer - deps always cached unless changed
+# First copy only composer files
+COPY composer.* /code/
+COPY patches /code/patches
+
+# Download dependencies, but don't run scripts or init autoloaders as the app is missing
+RUN composer install $COMPOSER_FLAGS --no-scripts --no-autoloader
 
 # Copy rest of the app
 COPY . /code/
