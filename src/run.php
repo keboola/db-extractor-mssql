@@ -14,7 +14,7 @@ try {
     $app->execute();
     exit(0);
 } catch (UserExceptionInterface $e) {
-    $logger->error($e->getMessage());
+    $logger->error(substr($e->getMessage(), 0, 1024));
     exit(1);
 } catch (Throwable $e) {
     $logger->critical(
