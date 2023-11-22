@@ -173,7 +173,7 @@ class BcpExportAdapter implements ExportAdapter
 
     private function doExport(MssqlExportConfig $exportConfig, string $query, string $filename): ExportResult
     {
-        $this->logger->debug(sprintf('BCP: Run query "%s".', $query));
+        //$this->logger->debug(sprintf('BCP: Run query "%s".', $query));
         $process = Process::fromShellCommandline($this->createBcpCommand($filename, $query));
         $process->setTimeout(null);
         $process->run();
@@ -293,10 +293,10 @@ class BcpExportAdapter implements ExportAdapter
             (string) $commandForLogger,
         );
 
-        $this->logger->info(sprintf(
-            'Executing BCP command: %s',
-            $commandForLogger,
-        ));
+        //$this->logger->info(sprintf(
+        //    'Executing BCP command: %s',
+        //    $commandForLogger,
+        //));
         return $cmd;
     }
 
