@@ -8,7 +8,15 @@ use Keboola\DbExtractor\MSSQLApplication;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+$handler = new \Monolog\Handler\StreamHandler('php://stderr', \Monolog\Logger::DEBUG);
+$handler->setFormatter(new \Monolog\Formatter\LineFormatter("%message%\n"));
 $logger = new Logger();
+$logger->setHandlers([$handler]);
+$logger->pushProcessor(function ($record) {
+    $record['message'] = substr($record['message'],0,1024);
+    return $record;
+});
+
 try {
     $app = new MSSQLApplication($logger);
     $app->execute();
