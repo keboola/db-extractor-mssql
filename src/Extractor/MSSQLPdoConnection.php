@@ -103,7 +103,8 @@ class MSSQLPdoConnection extends PdoConnection
     {
         $host = $this->databaseConfig->getHost();
         $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
-        $host .= $this->databaseConfig->hasInstance() ? '\\' . $this->databaseConfig->getInstance() : '';
+        $host .= $this->databaseConfig->hasInstance() ? '\\\\' . $this->databaseConfig->getInstance() : '';
+
         $options['Server'] = $host;
         $options['Database'] = $this->databaseConfig->getDatabase();
         if ($this->databaseConfig->hasSSLConnection()) {

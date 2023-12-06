@@ -39,16 +39,16 @@ class MSSQLApplication extends Application
             } else {
                 $this->config = new Config(
                     $config,
-                    new ActionConfigRowDefinition(null, null, new MssqlSslNode()),
+                    new ActionConfigRowDefinition(new MssqlDbNode(null, new MssqlSslNode())),
                 );
             }
         } else {
             $this->config = new Config(
                 $config,
                 new ConfigDefinition(
+                    new MssqlDbNode(null, new MssqlSslNode()),
                     null,
                     null,
-                    new MssqlSslNode(),
                     new MssqlTableNodesDecorator(),
                 ),
             );
