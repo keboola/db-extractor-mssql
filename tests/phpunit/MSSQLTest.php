@@ -8,6 +8,7 @@ use Keboola\CommonExceptions\UserExceptionInterface;
 use Keboola\Component\JsonHelper;
 use Keboola\Csv\CsvReader;
 use Keboola\DbExtractor\Adapter\Exception\UserRetriedException;
+use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractor\FunctionalTests\PdoTestConnection;
 use Keboola\DbExtractor\Metadata\MssqlManifestSerializer;
@@ -846,7 +847,7 @@ class MSSQLTest extends TestCase
         $this->connection->exec('ALTER TABLE [simple] ADD CONSTRAINT c3 CHECK (LEN([name]) > 1);');
         $this->connection->exec('ALTER TABLE [simple] ADD CONSTRAINT c4 CHECK (LEN([name]) > 2);');
 
-        $dbConfig = DatabaseConfig::fromArray($this->getConfig()['parameters']['db']);
+        $dbConfig = MssqlDatabaseConfig::fromArray($this->getConfig()['parameters']['db']);
         $conn = new MSSQLPdoConnection(new NullLogger(), $dbConfig);
         $metadataProvider = new MssqlMetadataProvider($conn);
         $serializer = new MssqlManifestSerializer();

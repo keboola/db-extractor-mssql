@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\FunctionalTests;
 
-use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
+use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use PDO;
 use PDOException;
 
@@ -21,13 +21,13 @@ class PdoTestConnection
         ];
     }
 
-    public static function createDbConfig(?string $dbHost = null): DatabaseConfig
+    public static function createDbConfig(?string $dbHost = null): MssqlDatabaseConfig
     {
         $dbConfig = self::getDbConfigArray();
         if ($dbHost) {
             $dbConfig['host'] = $dbHost;
         }
-        return DatabaseConfig::fromArray($dbConfig);
+        return MssqlDatabaseConfig::fromArray($dbConfig);
     }
 
     public static function createConnection(?string $dbHost = null): PDO
@@ -69,7 +69,7 @@ class PdoTestConnection
         return $pdo;
     }
 
-    private static function createPdoInstance(DatabaseConfig $dbConfig, array $dsn): PDO
+    private static function createPdoInstance(MssqlDatabaseConfig $dbConfig, array $dsn): PDO
     {
         $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
             return sprintf('%s=%s', $key, $item);

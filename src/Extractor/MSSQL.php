@@ -7,6 +7,7 @@ namespace Keboola\DbExtractor\Extractor;
 use Keboola\DbExtractor\Adapter\ExportAdapter;
 use Keboola\DbExtractor\Adapter\FallbackExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
+use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Extractor\Adapters\BcpExportAdapter;
 use Keboola\DbExtractor\Extractor\Adapters\MSSQLPdoExportAdapter;
@@ -197,6 +198,11 @@ SQL;
                 MssqlDataType::getIncrementalFetchingType($column->getName(), $column->getType()),
             )
         ;
+    }
+
+    protected function createDatabaseConfig(array $data): DatabaseConfig
+    {
+        return MssqlDatabaseConfig::fromArray($data);
     }
 
     private function saveSslCertificate(DatabaseConfig $databaseConfig): void
