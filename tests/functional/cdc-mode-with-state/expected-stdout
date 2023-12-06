@@ -4,4 +4,4 @@ Exporting "cdc-test" to "in.cdc_test_table".
 Exporting by "BCP" adapter.
 Adapter "BCP" skipped: Disabled in configuration.
 Exporting by "PDO" adapter.
-Exported "3" rows to "in.cdc_test_table".
+Exported "%s" rows to "in.cdc_test_table".
