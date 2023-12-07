@@ -20,6 +20,7 @@ GRANT SELECT ON SCHEMA :: [tests] TO tests_mssql_extractor;
         "driver": "mssql",
         "host": "HOST",
         "port": "PORT",
+        "instance": "INSTANCE",
         "database": "DATABASE",
         "user": "USERNAME",
         "password": "PASSWORD",

@@ -8,6 +8,7 @@ use Keboola\DbExtractor\Adapter\Exception\DeadConnectionException;
 use Keboola\DbExtractor\Adapter\PDO\PdoConnection;
 use Keboola\DbExtractor\Adapter\PDO\PdoQueryResult;
 use Keboola\DbExtractor\Adapter\ValueObject\QueryResult;
+use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
@@ -19,7 +20,7 @@ use Throwable;
 
 class MSSQLPdoConnection extends PdoConnection
 {
-    private DatabaseConfig $databaseConfig;
+    private MssqlDatabaseConfig $databaseConfig;
 
     private ?int $serverVersion = null;
 
@@ -28,6 +29,9 @@ class MSSQLPdoConnection extends PdoConnection
         DatabaseConfig $databaseConfig,
         int $connectMaxRetries = self::CONNECT_DEFAULT_MAX_RETRIES,
     ) {
+        if (!($databaseConfig instanceof MssqlDatabaseConfig)) {
+            throw new UserException('DatabaseConfig must be instance of MssqlDatabaseConfig');
+        }
         $this->logger = $logger;
         $this->databaseConfig = $databaseConfig;
 
@@ -99,6 +103,8 @@ class MSSQLPdoConnection extends PdoConnection
     {
         $host = $this->databaseConfig->getHost();
         $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
+        $host .= $this->databaseConfig->hasInstance() ? '\\\\' . $this->databaseConfig->getInstance() : '';
+
         $options['Server'] = $host;
         $options['Database'] = $this->databaseConfig->getDatabase();
         if ($this->databaseConfig->hasSSLConnection()) {

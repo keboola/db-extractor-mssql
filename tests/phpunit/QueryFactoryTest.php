@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Tests;
 
+use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
@@ -13,7 +14,6 @@ use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\TableBuilder;
 use Keboola\DbExtractor\Tests\Traits\ConfigTrait;
-use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use LogicException;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
@@ -41,7 +41,7 @@ class QueryFactoryTest extends TestCase
         $incrementalFetchingType = $this->getIncrementalFetchingType($params, $columnsMetadata);
 
         $logger = new Logger('mssql-extractor-test');
-        $pdo = new MSSQLPdoConnection($logger, DatabaseConfig::fromArray($params['db']));
+        $pdo = new MSSQLPdoConnection($logger, MssqlDatabaseConfig::fromArray($params['db']));
 
         $queryFactory = $this->createQueryFactory($pdo, $state, $columnsMetadata);
         $queryFactory->setFormat(MSSQLQueryFactory::ESCAPING_TYPE_PDO);
@@ -71,7 +71,7 @@ class QueryFactoryTest extends TestCase
         $params['retries'] = 3;
 
         $logger = new Logger('mssql-extractor-test');
-        $pdo = new MSSQLPdoConnection($logger, DatabaseConfig::fromArray($params['db']));
+        $pdo = new MSSQLPdoConnection($logger, MssqlDatabaseConfig::fromArray($params['db']));
 
         $incrementalFetchingType = $this->getIncrementalFetchingType($params, $columnsMetadata);
 
@@ -95,7 +95,7 @@ class QueryFactoryTest extends TestCase
     public function testColumnCasting(array $columnData, array $expectedSql): void
     {
         $logger = new Logger('mssql-extractor-test');
-        $pdo = new MSSQLPdoConnection($logger, DatabaseConfig::fromArray(PdoTestConnection::getDbConfigArray()));
+        $pdo = new MSSQLPdoConnection($logger, MssqlDatabaseConfig::fromArray(PdoTestConnection::getDbConfigArray()));
 
         $queryFactory = $this->createQueryFactory($pdo, []);
 
