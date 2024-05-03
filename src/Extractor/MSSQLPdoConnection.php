@@ -131,6 +131,7 @@ class MSSQLPdoConnection extends PdoConnection
             }
         }
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo->setAttribute(PDO::SQLSRV_ATTR_ENCODING, PDO::SQLSRV_ENCODING_UTF8);
 
         if ($this->databaseConfig->hasSSLConnection()) {
             $status = $this->pdo->query(
