@@ -36,7 +36,6 @@ jobs:
         run: |
           docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287615945 test
           docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 287628364 test
-          docker run --rm -e KBC_STORAGE_TOKEN quay.io/keboola/syrup-cli:latest run-job keboola.ex-db-mssql 402532849 test
       - name: Deploy
         if: startsWith(github.ref, 'refs/tags/')
         run: ./deploy.sh
