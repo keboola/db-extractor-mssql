@@ -23,7 +23,7 @@ jobs:
         run: |
           docker build -t $APP_IMAGE .
           docker-compose run --rm wait
-          docker-compose run --rm app
+#          docker-compose run --rm app
       - name: Push image to ECR
         run: |
           docker pull quay.io/keboola/developer-portal-cli-v2:latest
