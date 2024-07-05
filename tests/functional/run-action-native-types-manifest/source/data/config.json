@@ -1,0 +1,69 @@
+{
+  "parameters": {
+    "tables": [
+      {
+        "id": 1,
+        "name": "sales",
+        "query": "SELECT * FROM sales",
+        "outputTable": "in.c-main.sales",
+        "incremental": false,
+        "primaryKey": null,
+        "enabled": true
+      },
+      {
+        "id": 2,
+        "enabled": true,
+        "name": "tablecolumns",
+        "outputTable": "in.c-main.tablecolumns",
+        "incremental": false,
+        "primaryKey": null,
+        "table": {
+          "schema": "dbo",
+          "tableName": "sales"
+        },
+        "columns": [
+          "usergender",
+          "usercity",
+          "usersentiment",
+          "zipcode"
+        ]
+      },
+      {
+        "id": 3,
+        "enabled": true,
+        "name": "auto-increment-timestamp",
+        "outputTable": "in.c-main.auto-increment-timestamp",
+        "incremental": false,
+        "primaryKey": ["_Weir%d I-D"],
+        "table": {
+          "schema": "dbo",
+          "tableName": "auto Increment Timestamp"
+        }
+      },
+      {
+        "id": 4,
+        "enabled": true,
+        "name": "special",
+        "outputTable": "in.c-main.special",
+        "incremental": false,
+        "primaryKey": null,
+        "table": {
+          "schema": "dbo",
+          "tableName": "special"
+        }
+      }
+    ],
+    "db": {
+      "host": "%env(string:MSSQL_DB_HOST)%",
+      "port": "%env(string:MSSQL_DB_PORT)%",
+      "user": "%env(string:MSSQL_DB_USER)%",
+      "#password": "%env(string:MSSQL_DB_PASSWORD)%",
+      "database": "%env(string:MSSQL_DB_DATABASE)%"
+    }
+  },
+  "storage": {
+    "output": {
+      "data_type_support": "authoritative"
+    }
+  }
+}

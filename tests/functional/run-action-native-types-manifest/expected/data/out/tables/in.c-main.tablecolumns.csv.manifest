@@ -1,0 +1,81 @@
+{
+    "destination": "in.c-main.tablecolumns",
+    "incremental": false,
+    "table_metadata": {
+        "KBC.name": "sales",
+        "KBC.sanitizedName": "sales",
+        "KBC.schema": "dbo",
+        "KBC.catalog": "test",
+        "KBC.type": "BASE TABLE"
+    },
+    "schema": [
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "usergender",
+                "KBC.sanitizedName": "usergender",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 1
+            },
+            "name": "usergender",
+            "data_type": {
+                "base": {
+                    "length": "2147483647",
+                    "type": "STRING"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "usercity",
+                "KBC.sanitizedName": "usercity",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 2
+            },
+            "name": "usercity",
+            "data_type": {
+                "base": {
+                    "length": "2147483647",
+                    "type": "STRING"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "usersentiment",
+                "KBC.sanitizedName": "usersentiment",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 3
+            },
+            "name": "usersentiment",
+            "data_type": {
+                "base": {
+                    "length": "2147483647",
+                    "type": "STRING"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "zipcode",
+                "KBC.sanitizedName": "zipcode",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 4
+            },
+            "name": "zipcode",
+            "data_type": {
+                "base": {
+                    "length": "2147483647",
+                    "type": "STRING"
+                }
+            }
+        }
+    ]
+}

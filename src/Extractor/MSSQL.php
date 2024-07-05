@@ -39,6 +39,7 @@ class MSSQL extends BaseExtractor
         return new DefaultManifestGenerator(
             $this->getMetadataProvider(),
             new MssqlManifestSerializer(),
+            $this->parameters['extractor_class'],
         );
     }
 

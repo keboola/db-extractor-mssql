@@ -23,12 +23,15 @@
             "value": "BASE TABLE"
         }
     ],
+    "columns": [
+        "id",
+        "name",
+        "smalldatetime",
+        "datetime1",
+        "datetime2"
+    ],
     "column_metadata": {
         "id": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "int"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
@@ -54,10 +57,6 @@
                 "value": "id"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -67,10 +66,6 @@
             }
         ],
         "name": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "varchar"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
@@ -96,10 +91,6 @@
                 "value": "name"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -109,10 +100,6 @@
             }
         ],
         "smalldatetime": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "smalldatetime"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
@@ -132,10 +119,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "smalldatetime"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
             },
             {
                 "key": "KBC.uniqueKey",
@@ -148,10 +131,6 @@
         ],
         "datetime1": [
             {
-                "key": "KBC.datatype.type",
-                "value": "datetime"
-            },
-            {
                 "key": "KBC.datatype.nullable",
                 "value": true
             },
@@ -170,10 +149,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "datetime1"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
             },
             {
                 "key": "KBC.uniqueKey",
@@ -186,10 +161,6 @@
         ],
         "datetime2": [
             {
-                "key": "KBC.datatype.type",
-                "value": "datetime"
-            },
-            {
                 "key": "KBC.datatype.nullable",
                 "value": true
             },
@@ -210,10 +181,6 @@
                 "value": "datetime2"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -222,12 +189,5 @@
                 "value": 5
             }
         ]
-    },
-    "columns": [
-        "id",
-        "name",
-        "smalldatetime",
-        "datetime1",
-        "datetime2"
-    ]
+    }
 }

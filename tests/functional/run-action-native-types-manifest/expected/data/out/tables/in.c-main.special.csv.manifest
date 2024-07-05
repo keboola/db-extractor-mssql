@@ -1,0 +1,47 @@
+{
+    "destination": "in.c-main.special",
+    "incremental": false,
+    "table_metadata": {
+        "KBC.name": "special",
+        "KBC.sanitizedName": "special",
+        "KBC.schema": "dbo",
+        "KBC.catalog": "test",
+        "KBC.type": "BASE TABLE"
+    },
+    "schema": [
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "col1",
+                "KBC.sanitizedName": "col1",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 1
+            },
+            "name": "col1",
+            "data_type": {
+                "base": {
+                    "length": "2147483647",
+                    "type": "STRING"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "col2",
+                "KBC.sanitizedName": "col2",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 2
+            },
+            "name": "col2",
+            "data_type": {
+                "base": {
+                    "length": "2147483647",
+                    "type": "STRING"
+                }
+            }
+        }
+    ]
+}

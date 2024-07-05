@@ -23,12 +23,15 @@
             "value": "BASE TABLE"
         }
     ],
+    "columns": [
+        "createdat",
+        "categorygroup",
+        "sku",
+        "zipcode",
+        "userstate"
+    ],
     "column_metadata": {
         "createdat": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "varchar"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": false
@@ -50,10 +53,6 @@
                 "value": "createdat"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": true
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -63,10 +62,6 @@
             }
         ],
         "categorygroup": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "text"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
@@ -86,10 +81,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "categorygroup"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
             },
             {
                 "key": "KBC.uniqueKey",
@@ -102,10 +93,6 @@
         ],
         "sku": [
             {
-                "key": "KBC.datatype.type",
-                "value": "text"
-            },
-            {
                 "key": "KBC.datatype.nullable",
                 "value": true
             },
@@ -124,10 +111,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "sku"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
             },
             {
                 "key": "KBC.uniqueKey",
@@ -140,10 +123,6 @@
         ],
         "zipcode": [
             {
-                "key": "KBC.datatype.type",
-                "value": "text"
-            },
-            {
                 "key": "KBC.datatype.nullable",
                 "value": true
             },
@@ -162,10 +141,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "zipcode"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
             },
             {
                 "key": "KBC.uniqueKey",
@@ -178,10 +153,6 @@
         ],
         "userstate": [
             {
-                "key": "KBC.datatype.type",
-                "value": "text"
-            },
-            {
                 "key": "KBC.datatype.nullable",
                 "value": true
             },
@@ -202,10 +173,6 @@
                 "value": "userstate"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -214,12 +181,5 @@
                 "value": 11
             }
         ]
-    },
-    "columns": [
-        "createdat",
-        "categorygroup",
-        "sku",
-        "zipcode",
-        "userstate"
-    ]
+    }
 }

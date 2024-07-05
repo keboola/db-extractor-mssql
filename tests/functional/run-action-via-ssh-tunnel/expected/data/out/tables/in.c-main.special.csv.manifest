@@ -23,12 +23,12 @@
             "value": "BASE TABLE"
         }
     ],
+    "columns": [
+        "col1",
+        "col2"
+    ],
     "column_metadata": {
         "col1": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "text"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
@@ -48,10 +48,6 @@
             {
                 "key": "KBC.sanitizedName",
                 "value": "col1"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
             },
             {
                 "key": "KBC.uniqueKey",
@@ -64,10 +60,6 @@
         ],
         "col2": [
             {
-                "key": "KBC.datatype.type",
-                "value": "text"
-            },
-            {
                 "key": "KBC.datatype.nullable",
                 "value": true
             },
@@ -88,10 +80,6 @@
                 "value": "col2"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -100,9 +88,5 @@
                 "value": 2
             }
         ]
-    },
-    "columns": [
-        "col1",
-        "col2"
-    ]
+    }
 }

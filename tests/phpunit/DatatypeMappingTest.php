@@ -11,8 +11,6 @@ class DatatypeMappingTest extends TestCase
 {
     /**
      * @dataProvider columnMetadataProvider
-     * @param array $testColumn
-     * @param array $expectedMetadtata
      */
     public function testDatatypeMapping(array $testColumn, array $expectedMetadtata): void
     {

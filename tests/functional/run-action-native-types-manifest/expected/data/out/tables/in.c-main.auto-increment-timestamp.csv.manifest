@@ -1,0 +1,133 @@
+{
+    "destination": "in.c-main.auto-increment-timestamp",
+    "incremental": false,
+    "table_metadata": {
+        "KBC.name": "auto Increment Timestamp",
+        "KBC.sanitizedName": "auto_Increment_Timestamp",
+        "KBC.schema": "dbo",
+        "KBC.catalog": "test",
+        "KBC.type": "BASE TABLE"
+    },
+    "schema": [
+        {
+            "nullable": false,
+            "primary_key": true,
+            "metadata": {
+                "KBC.sourceName": "_Weir%d I-D",
+                "KBC.sanitizedName": "Weir_d_I_D",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 1
+            },
+            "name": "Weir_d_I_D",
+            "data_type": {
+                "base": {
+                    "length": "10",
+                    "type": "INTEGER"
+                }
+            }
+        },
+        {
+            "nullable": false,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "Weir%d Na-me",
+                "KBC.sanitizedName": "Weir_d_Na_me",
+                "KBC.uniqueKey": true,
+                "KBC.ordinalPosition": 2
+            },
+            "name": "Weir_d_Na_me",
+            "data_type": {
+                "base": {
+                    "default": "('mario')",
+                    "length": "55",
+                    "type": "STRING"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "someInteger",
+                "KBC.sanitizedName": "someInteger",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 3
+            },
+            "name": "someInteger",
+            "data_type": {
+                "base": {
+                    "length": "10",
+                    "type": "INTEGER"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "someDecimal",
+                "KBC.sanitizedName": "someDecimal",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 4
+            },
+            "name": "someDecimal",
+            "data_type": {
+                "base": {
+                    "length": "10,2",
+                    "type": "NUMERIC"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "type",
+                "KBC.sanitizedName": "type",
+                "KBC.uniqueKey": true,
+                "KBC.ordinalPosition": 5
+            },
+            "name": "type",
+            "data_type": {
+                "base": {
+                    "length": "55",
+                    "type": "STRING"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "smalldatetime",
+                "KBC.sanitizedName": "smalldatetime",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 6
+            },
+            "name": "smalldatetime",
+            "data_type": {
+                "base": {
+                    "default": "(NULL)",
+                    "type": "TIMESTAMP"
+                }
+            }
+        },
+        {
+            "nullable": false,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "datetime",
+                "KBC.sanitizedName": "datetime",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 7
+            },
+            "name": "datetime",
+            "data_type": {
+                "base": {
+                    "default": "(getdate())",
+                    "type": "TIMESTAMP"
+                }
+            }
+        }
+    ]
+}
