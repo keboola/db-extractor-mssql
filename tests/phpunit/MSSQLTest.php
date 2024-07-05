@@ -312,10 +312,6 @@ class MSSQLTest extends TestCase
         $expectedColumnMetadata = [
             'usergender' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -334,10 +330,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'usergender',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -350,10 +342,6 @@ class MSSQLTest extends TestCase
             ],
             'usercity' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -372,10 +360,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'usercity',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -388,10 +372,6 @@ class MSSQLTest extends TestCase
             ],
             'usersentiment' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -410,10 +390,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'usersentiment',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -426,10 +402,6 @@ class MSSQLTest extends TestCase
             ],
             'zipcode' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -448,10 +420,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'zipcode',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -464,10 +432,6 @@ class MSSQLTest extends TestCase
             ],
             'sku' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -488,10 +452,6 @@ class MSSQLTest extends TestCase
                     'value' => 'sku',
                 ],
                 [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
-                ],
-                [
                     'key' => 'KBC.uniqueKey',
                     'value' => false,
                 ],
@@ -501,10 +461,6 @@ class MSSQLTest extends TestCase
                 ],
             ],
             'createdat' => [
-                [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'varchar',
-                ],
                 [
                     'key' => 'KBC.datatype.nullable',
                     'value' => false,
@@ -524,10 +480,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'createdat',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -560,10 +512,6 @@ class MSSQLTest extends TestCase
             ],
             'category' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -582,10 +530,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'category',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -598,10 +542,6 @@ class MSSQLTest extends TestCase
             ],
             'price' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -620,10 +560,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'price',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -636,10 +572,6 @@ class MSSQLTest extends TestCase
             ],
             'county' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -658,10 +590,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'county',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -674,10 +602,6 @@ class MSSQLTest extends TestCase
             ],
             'countycode' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -696,10 +620,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'countycode',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -712,10 +632,6 @@ class MSSQLTest extends TestCase
             ],
             'userstate' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -734,10 +650,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'userstate',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -750,10 +662,6 @@ class MSSQLTest extends TestCase
             ],
             'categorygroup' => [
                 [
-                    'key' => 'KBC.datatype.type',
-                    'value' => 'text',
-                ],
-                [
                     'key' => 'KBC.datatype.nullable',
                     'value' => true,
                 ],
@@ -772,10 +680,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.sanitizedName',
                     'value' => 'categorygroup',
-                ],
-                [
-                    'key' => 'KBC.primaryKey',
-                    'value' => false,
                 ],
                 [
                     'key' => 'KBC.uniqueKey',
@@ -1001,84 +905,66 @@ class MSSQLTest extends TestCase
                     ],
                 'column_metadata' =>
                     [
-                        'col1' =>
+                        'col1' => [
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'text',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '2147483647',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'col1',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'col1',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => '1',
-                                ],
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
                             ],
-                        'col2' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'text',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '2147483647',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'col2',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'col2',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => '2',
-                                ],
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
                             ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '2147483647',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'col1',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'col1',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 1,
+                            ],
+                        ],
+                        'col2' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '2147483647',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'col2',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'col2',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 2,
+                            ],
+                        ],
                     ],
                 'columns' =>
                     [
@@ -1122,6 +1008,224 @@ class MSSQLTest extends TestCase
                         'userstate',
                         'categorygroup',
                     ],
+                'column_metadata' => [
+                    'usergender' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'usergender',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'usergender',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'usercity' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'usercity',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'usercity',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'usersentiment' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'usersentiment',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'usersentiment',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'zipcode' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'zipcode',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'zipcode',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'sku' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'sku',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'sku',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'createdat' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'createdat',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'createdat',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'category' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'category',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'category',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'price' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'price',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'price',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'county' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'county',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'county',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'countycode' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'countycode',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'countycode',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'userstate' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'userstate',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'userstate',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                    'categorygroup' => [
+                        [
+                            'key' => 'KBC.datatype.nullable',
+                            'value' => true,
+                        ],
+                        [
+                            'key' => 'KBC.sourceName',
+                            'value' => 'categorygroup',
+                        ],
+                        [
+                            'key' => 'KBC.sanitizedName',
+                            'value' => 'categorygroup',
+                        ],
+                        [
+                            'key' => 'KBC.uniqueKey',
+                            'value' => false,
+                        ],
+                    ],
+                ],
             ],
             $manifest,
         );
@@ -1157,162 +1261,126 @@ class MSSQLTest extends TestCase
                     ],
                 'column_metadata' =>
                     [
-                        'usergender' =>
+                        'usergender' => [
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'text',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '2147483647',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'usergender',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'usergender',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 1,
-                                ],
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
                             ],
-                        'usercity' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'text',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '2147483647',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'usercity',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'usercity',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 2,
-                                ],
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
                             ],
-                        'usersentiment' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'text',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '2147483647',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'usersentiment',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'usersentiment',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 3,
-                                ],
+                                'key' => 'KBC.datatype.length',
+                                'value' => '2147483647',
                             ],
-                        'zipcode' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'text',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '2147483647',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'zipcode',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'zipcode',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 4,
-                                ],
+                                'key' => 'KBC.sourceName',
+                                'value' => 'usergender',
                             ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'usergender',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 1,
+                            ],
+                        ],
+                        'usercity' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '2147483647',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'usercity',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'usercity',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 2,
+                            ],
+                        ],
+                        'usersentiment' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '2147483647',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'usersentiment',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'usersentiment',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 3,
+                            ],
+                        ],
+                        'zipcode' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '2147483647',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'zipcode',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'zipcode',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 4,
+                            ],
+                        ],
                     ],
                 'columns' =>
                     [
@@ -1374,283 +1442,220 @@ class MSSQLTest extends TestCase
                     ],
                 'column_metadata' =>
                     [
-                        'Weir_d_I_D' =>
+                        'Weir_d_I_D' => [
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'int',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'INTEGER',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '10',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => '_Weir%d I-D',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'Weir_d_I_D',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 1,
-                                ],
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => false,
                             ],
-                        'Weir_d_Na_me' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'varchar',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '55',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.default',
-                                    'value' => '(\'mario\')',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'Weir%d Na-me',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'Weir_d_Na_me',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 2,
-                                ],
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'INTEGER',
                             ],
-                        'someInteger' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'int',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'INTEGER',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '10',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'someInteger',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'someInteger',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 3,
-                                ],
+                                'key' => 'KBC.datatype.length',
+                                'value' => '10',
                             ],
-                        'someDecimal' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'decimal',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'NUMERIC',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '10,2',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'someDecimal',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'someDecimal',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 4,
-                                ],
+                                'key' => 'KBC.sourceName',
+                                'value' => '_Weir%d I-D',
                             ],
-                        'type' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'varchar',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '55',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'type',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'type',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 5,
-                                ],
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'Weir_d_I_D',
                             ],
-                        'smalldatetime' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'smalldatetime',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'TIMESTAMP',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.default',
-                                    'value' => '(NULL)',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'smalldatetime',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'smalldatetime',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 6,
-                                ],
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
                             ],
-                        'datetime' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'datetime',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'TIMESTAMP',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.default',
-                                    'value' => '(getdate())',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'datetime',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'datetime',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => 7,
-                                ],
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 1,
                             ],
+                        ],
+                        'Weir_d_Na_me' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '55',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.default',
+                                'value' => "('mario')",
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'Weir%d Na-me',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'Weir_d_Na_me',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 2,
+                            ],
+                        ],
+                        'someInteger' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'INTEGER',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '10',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'someInteger',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'someInteger',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 3,
+                            ],
+                        ],
+                        'someDecimal' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'NUMERIC',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '10,2',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'someDecimal',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'someDecimal',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 4,
+                            ],
+                        ],
+                        'type' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '55',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'type',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'type',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 5,
+                            ],
+                        ],
+                        'smalldatetime' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'TIMESTAMP',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.default',
+                                'value' => '(NULL)',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'smalldatetime',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'smalldatetime',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 6,
+                            ],
+                        ],
+                        'datetime' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'TIMESTAMP',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.default',
+                                'value' => '(getdate())',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'datetime',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'datetime',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 7,
+                            ],
+                        ],
                     ],
                 'columns' =>
                     [
@@ -1701,84 +1706,66 @@ class MSSQLTest extends TestCase
                     ],
                 'column_metadata' =>
                     [
-                        'col1' =>
+                        'col1' => [
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'text',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '2147483647',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'col1',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'col1',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => '1',
-                                ],
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
                             ],
-                        'col2' =>
                             [
-                                [
-                                    'key' => 'KBC.datatype.type',
-                                    'value' => 'text',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.nullable',
-                                    'value' => true,
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.basetype',
-                                    'value' => 'STRING',
-                                ],
-                                [
-                                    'key' => 'KBC.datatype.length',
-                                    'value' => '2147483647',
-                                ],
-                                [
-                                    'key' => 'KBC.sourceName',
-                                    'value' => 'col2',
-                                ],
-                                [
-                                    'key' => 'KBC.sanitizedName',
-                                    'value' => 'col2',
-                                ],
-                                [
-                                    'key' => 'KBC.primaryKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.uniqueKey',
-                                    'value' => false,
-                                ],
-                                [
-                                    'key' => 'KBC.ordinalPosition',
-                                    'value' => '2',
-                                ],
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
                             ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '2147483647',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'col1',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'col1',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 1,
+                            ],
+                        ],
+                        'col2' => [
+                            [
+                                'key' => 'KBC.datatype.nullable',
+                                'value' => true,
+                            ],
+                            [
+                                'key' => 'KBC.datatype.basetype',
+                                'value' => 'STRING',
+                            ],
+                            [
+                                'key' => 'KBC.datatype.length',
+                                'value' => '2147483647',
+                            ],
+                            [
+                                'key' => 'KBC.sourceName',
+                                'value' => 'col2',
+                            ],
+                            [
+                                'key' => 'KBC.sanitizedName',
+                                'value' => 'col2',
+                            ],
+                            [
+                                'key' => 'KBC.uniqueKey',
+                                'value' => false,
+                            ],
+                            [
+                                'key' => 'KBC.ordinalPosition',
+                                'value' => 2,
+                            ],
+                        ],
                     ],
                 'columns' =>
                     [

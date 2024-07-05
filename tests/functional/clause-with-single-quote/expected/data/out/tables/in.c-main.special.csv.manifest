@@ -4,5 +4,43 @@
     "columns": [
         "usergender",
         "sku"
-    ]
+    ],
+    "column_metadata": {
+        "usergender": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "usergender"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "usergender"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "sku": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "sku"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "sku"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ]
+    }
 }

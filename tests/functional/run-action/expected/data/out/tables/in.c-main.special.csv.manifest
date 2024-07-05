@@ -1,108 +1,47 @@
 {
     "destination": "in.c-main.special",
     "incremental": false,
-    "metadata": [
-        {
-            "key": "KBC.name",
-            "value": "special"
-        },
-        {
-            "key": "KBC.sanitizedName",
-            "value": "special"
-        },
-        {
-            "key": "KBC.schema",
-            "value": "dbo"
-        },
-        {
-            "key": "KBC.catalog",
-            "value": "test"
-        },
-        {
-            "key": "KBC.type",
-            "value": "BASE TABLE"
-        }
-    ],
-    "column_metadata": {
-        "col1": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "text"
-            },
-            {
-                "key": "KBC.datatype.nullable",
-                "value": true
-            },
-            {
-                "key": "KBC.datatype.basetype",
-                "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
-                "key": "KBC.sourceName",
-                "value": "col1"
-            },
-            {
-                "key": "KBC.sanitizedName",
-                "value": "col1"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
-                "key": "KBC.ordinalPosition",
-                "value": 1
-            }
-        ],
-        "col2": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "text"
-            },
-            {
-                "key": "KBC.datatype.nullable",
-                "value": true
-            },
-            {
-                "key": "KBC.datatype.basetype",
-                "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
-                "key": "KBC.sourceName",
-                "value": "col2"
-            },
-            {
-                "key": "KBC.sanitizedName",
-                "value": "col2"
-            },
-            {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
-                "key": "KBC.uniqueKey",
-                "value": false
-            },
-            {
-                "key": "KBC.ordinalPosition",
-                "value": 2
-            }
-        ]
+    "table_metadata": {
+        "KBC.name": "special",
+        "KBC.sanitizedName": "special",
+        "KBC.schema": "dbo",
+        "KBC.catalog": "test",
+        "KBC.type": "BASE TABLE"
     },
-    "columns": [
-        "col1",
-        "col2"
+    "schema": [
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "col1",
+                "KBC.sanitizedName": "col1",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 1
+            },
+            "name": "col1",
+            "data_type": {
+                "base": {
+                    "length": "2147483647",
+                    "type": "STRING"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "col2",
+                "KBC.sanitizedName": "col2",
+                "KBC.uniqueKey": false,
+                "KBC.ordinalPosition": 2
+            },
+            "name": "col2",
+            "data_type": {
+                "base": {
+                    "length": "2147483647",
+                    "type": "STRING"
+                }
+            }
+        }
     ]
 }

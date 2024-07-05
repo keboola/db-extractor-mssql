@@ -23,12 +23,13 @@
             "value": "BASE TABLE"
         }
     ],
+    "columns": [
+        "int",
+        "decimal",
+        "float"
+    ],
     "column_metadata": {
         "int": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "int"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
@@ -54,10 +55,6 @@
                 "value": "int"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -67,10 +64,6 @@
             }
         ],
         "decimal": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "decimal"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
@@ -96,10 +89,6 @@
                 "value": "decimal"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -109,10 +98,6 @@
             }
         ],
         "float": [
-            {
-                "key": "KBC.datatype.type",
-                "value": "float"
-            },
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
@@ -138,10 +123,6 @@
                 "value": "float"
             },
             {
-                "key": "KBC.primaryKey",
-                "value": false
-            },
-            {
                 "key": "KBC.uniqueKey",
                 "value": false
             },
@@ -150,10 +131,5 @@
                 "value": 3
             }
         ]
-    },
-    "columns": [
-        "int",
-        "decimal",
-        "float"
-    ]
+    }
 }
