@@ -1,81 +1,154 @@
 {
     "destination": "in.c-main.tablecolumns",
     "incremental": false,
-    "table_metadata": {
-        "KBC.name": "sales",
-        "KBC.sanitizedName": "sales",
-        "KBC.schema": "dbo",
-        "KBC.catalog": "test",
-        "KBC.type": "BASE TABLE"
-    },
-    "schema": [
+    "metadata": [
         {
-            "nullable": true,
-            "primary_key": false,
-            "metadata": {
-                "KBC.sourceName": "usergender",
-                "KBC.sanitizedName": "usergender",
-                "KBC.uniqueKey": false,
-                "KBC.ordinalPosition": 1
-            },
-            "name": "usergender",
-            "data_type": {
-                "base": {
-                    "length": "2147483647",
-                    "type": "STRING"
-                }
-            }
+            "key": "KBC.name",
+            "value": "sales"
         },
         {
-            "nullable": true,
-            "primary_key": false,
-            "metadata": {
-                "KBC.sourceName": "usercity",
-                "KBC.sanitizedName": "usercity",
-                "KBC.uniqueKey": false,
-                "KBC.ordinalPosition": 2
-            },
-            "name": "usercity",
-            "data_type": {
-                "base": {
-                    "length": "2147483647",
-                    "type": "STRING"
-                }
-            }
+            "key": "KBC.sanitizedName",
+            "value": "sales"
         },
         {
-            "nullable": true,
-            "primary_key": false,
-            "metadata": {
-                "KBC.sourceName": "usersentiment",
-                "KBC.sanitizedName": "usersentiment",
-                "KBC.uniqueKey": false,
-                "KBC.ordinalPosition": 3
-            },
-            "name": "usersentiment",
-            "data_type": {
-                "base": {
-                    "length": "2147483647",
-                    "type": "STRING"
-                }
-            }
+            "key": "KBC.schema",
+            "value": "dbo"
         },
         {
-            "nullable": true,
-            "primary_key": false,
-            "metadata": {
-                "KBC.sourceName": "zipcode",
-                "KBC.sanitizedName": "zipcode",
-                "KBC.uniqueKey": false,
-                "KBC.ordinalPosition": 4
-            },
-            "name": "zipcode",
-            "data_type": {
-                "base": {
-                    "length": "2147483647",
-                    "type": "STRING"
-                }
-            }
+            "key": "KBC.catalog",
+            "value": "test"
+        },
+        {
+            "key": "KBC.type",
+            "value": "BASE TABLE"
         }
-    ]
+    ],
+    "columns": [
+        "usergender",
+        "usercity",
+        "usersentiment",
+        "zipcode"
+    ],
+    "column_metadata": {
+        "usergender": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "usergender"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "usergender"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 1
+            }
+        ],
+        "usercity": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "usercity"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "usercity"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 2
+            }
+        ],
+        "usersentiment": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "usersentiment"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "usersentiment"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 3
+            }
+        ],
+        "zipcode": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.datatype.length",
+                "value": "2147483647"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "zipcode"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "zipcode"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            },
+            {
+                "key": "KBC.ordinalPosition",
+                "value": 4
+            }
+        ]
+    }
 }

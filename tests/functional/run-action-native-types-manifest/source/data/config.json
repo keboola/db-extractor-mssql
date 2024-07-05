@@ -60,5 +60,10 @@
       "#password": "%env(string:MSSQL_DB_PASSWORD)%",
       "database": "%env(string:MSSQL_DB_DATABASE)%"
     }
+  },
+  "storage": {
+    "output": {
+      "data_type_support": "authoritative"
+    }
   }
 }
