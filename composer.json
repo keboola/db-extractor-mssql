@@ -16,21 +16,19 @@
         "ext-mbstring": "*",
         "keboola/csv": "^3.2",
         "keboola/db-extractor-adapter": "^1.13",
-        "keboola/db-extractor-common": "^16.2",
-        "keboola/db-extractor-config": "^1.14",
+        "keboola/db-extractor-common": "^17.0",
+        "keboola/db-extractor-config": "^1.15",
         "keboola/db-extractor-table-format": "^3.8",
-        "keboola/php-component": "^9.4",
+        "keboola/php-component": "^10.1",
         "keboola/php-datatypes": "^7.2",
         "symfony/config": "^6.3",
         "symfony/process": "^5.4"
     },
     "require-dev": {
-        "cweagans/composer-patches": "^1.7",
         "keboola/coding-standard": "^15.0",
         "keboola/datadir-tests": "^5.6",
         "phpstan/phpstan": "^1.10",
-        "phpunit/phpunit": "^9.0",
-        "symplify/vendor-patches": "^11.2"
+        "phpunit/phpunit": "^9.0"
     },
     "autoload": {
         "psr-4": {
@@ -69,15 +67,7 @@
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true,
-            "cweagans/composer-patches": true
-        }
-    },
-    "extra": {
-        "patches": {
-            "keboola/csv": [
-                "patches/keboola-csv-src-csvreader-php.patch"
-            ]
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     }
 }
