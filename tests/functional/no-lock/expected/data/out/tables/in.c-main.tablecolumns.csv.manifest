@@ -40,10 +40,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "usergender"
             },
@@ -68,10 +64,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",
@@ -100,10 +92,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "usersentiment"
             },
@@ -128,10 +116,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",

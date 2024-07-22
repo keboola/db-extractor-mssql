@@ -48,10 +48,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "usergender"
             },
@@ -76,10 +72,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",
@@ -108,10 +100,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "usersentiment"
             },
@@ -136,10 +124,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",
@@ -168,10 +152,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "sku"
             },
@@ -196,10 +176,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "64"
             },
             {
                 "key": "KBC.sourceName",
@@ -228,10 +204,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "category"
             },
@@ -256,10 +228,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",
@@ -288,10 +256,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "county"
             },
@@ -316,10 +280,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",
@@ -348,10 +308,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "userstate"
             },
@@ -376,10 +332,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",

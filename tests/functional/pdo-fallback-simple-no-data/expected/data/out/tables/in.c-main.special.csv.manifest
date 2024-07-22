@@ -38,10 +38,6 @@
                 "value": "INTEGER"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "10"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "id"
             },
@@ -66,10 +62,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "100"
             },
             {
                 "key": "KBC.sourceName",

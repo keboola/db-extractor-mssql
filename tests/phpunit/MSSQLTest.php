@@ -320,10 +320,6 @@ class MSSQLTest extends TestCase
                     'value' => 'STRING',
                 ],
                 [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
-                ],
-                [
                     'key' => 'KBC.sourceName',
                     'value' => 'usergender',
                 ],
@@ -348,10 +344,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.datatype.basetype',
                     'value' => 'STRING',
-                ],
-                [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
                 ],
                 [
                     'key' => 'KBC.sourceName',
@@ -380,10 +372,6 @@ class MSSQLTest extends TestCase
                     'value' => 'STRING',
                 ],
                 [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
-                ],
-                [
                     'key' => 'KBC.sourceName',
                     'value' => 'usersentiment',
                 ],
@@ -408,10 +396,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.datatype.basetype',
                     'value' => 'STRING',
-                ],
-                [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
                 ],
                 [
                     'key' => 'KBC.sourceName',
@@ -440,10 +424,6 @@ class MSSQLTest extends TestCase
                     'value' => 'STRING',
                 ],
                 [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
-                ],
-                [
                     'key' => 'KBC.sourceName',
                     'value' => 'sku',
                 ],
@@ -468,10 +448,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.datatype.basetype',
                     'value' => 'STRING',
-                ],
-                [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '64',
                 ],
                 [
                     'key' => 'KBC.sourceName',
@@ -520,10 +496,6 @@ class MSSQLTest extends TestCase
                     'value' => 'STRING',
                 ],
                 [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
-                ],
-                [
                     'key' => 'KBC.sourceName',
                     'value' => 'category',
                 ],
@@ -548,10 +520,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.datatype.basetype',
                     'value' => 'STRING',
-                ],
-                [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
                 ],
                 [
                     'key' => 'KBC.sourceName',
@@ -580,10 +548,6 @@ class MSSQLTest extends TestCase
                     'value' => 'STRING',
                 ],
                 [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
-                ],
-                [
                     'key' => 'KBC.sourceName',
                     'value' => 'county',
                 ],
@@ -608,10 +572,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.datatype.basetype',
                     'value' => 'STRING',
-                ],
-                [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
                 ],
                 [
                     'key' => 'KBC.sourceName',
@@ -640,10 +600,6 @@ class MSSQLTest extends TestCase
                     'value' => 'STRING',
                 ],
                 [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
-                ],
-                [
                     'key' => 'KBC.sourceName',
                     'value' => 'userstate',
                 ],
@@ -668,10 +624,6 @@ class MSSQLTest extends TestCase
                 [
                     'key' => 'KBC.datatype.basetype',
                     'value' => 'STRING',
-                ],
-                [
-                    'key' => 'KBC.datatype.length',
-                    'value' => '2147483647',
                 ],
                 [
                     'key' => 'KBC.sourceName',
@@ -915,10 +867,6 @@ class MSSQLTest extends TestCase
                                 'value' => 'STRING',
                             ],
                             [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '2147483647',
-                            ],
-                            [
                                 'key' => 'KBC.sourceName',
                                 'value' => 'col1',
                             ],
@@ -943,10 +891,6 @@ class MSSQLTest extends TestCase
                             [
                                 'key' => 'KBC.datatype.basetype',
                                 'value' => 'STRING',
-                            ],
-                            [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '2147483647',
                             ],
                             [
                                 'key' => 'KBC.sourceName',
@@ -1271,10 +1215,6 @@ class MSSQLTest extends TestCase
                                 'value' => 'STRING',
                             ],
                             [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '2147483647',
-                            ],
-                            [
                                 'key' => 'KBC.sourceName',
                                 'value' => 'usergender',
                             ],
@@ -1299,10 +1239,6 @@ class MSSQLTest extends TestCase
                             [
                                 'key' => 'KBC.datatype.basetype',
                                 'value' => 'STRING',
-                            ],
-                            [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '2147483647',
                             ],
                             [
                                 'key' => 'KBC.sourceName',
@@ -1331,10 +1267,6 @@ class MSSQLTest extends TestCase
                                 'value' => 'STRING',
                             ],
                             [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '2147483647',
-                            ],
-                            [
                                 'key' => 'KBC.sourceName',
                                 'value' => 'usersentiment',
                             ],
@@ -1359,10 +1291,6 @@ class MSSQLTest extends TestCase
                             [
                                 'key' => 'KBC.datatype.basetype',
                                 'value' => 'STRING',
-                            ],
-                            [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '2147483647',
                             ],
                             [
                                 'key' => 'KBC.sourceName',
@@ -1452,10 +1380,6 @@ class MSSQLTest extends TestCase
                                 'value' => 'INTEGER',
                             ],
                             [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '10',
-                            ],
-                            [
                                 'key' => 'KBC.sourceName',
                                 'value' => '_Weir%d I-D',
                             ],
@@ -1480,10 +1404,6 @@ class MSSQLTest extends TestCase
                             [
                                 'key' => 'KBC.datatype.basetype',
                                 'value' => 'STRING',
-                            ],
-                            [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '55',
                             ],
                             [
                                 'key' => 'KBC.datatype.default',
@@ -1516,10 +1436,6 @@ class MSSQLTest extends TestCase
                                 'value' => 'INTEGER',
                             ],
                             [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '10',
-                            ],
-                            [
                                 'key' => 'KBC.sourceName',
                                 'value' => 'someInteger',
                             ],
@@ -1546,10 +1462,6 @@ class MSSQLTest extends TestCase
                                 'value' => 'NUMERIC',
                             ],
                             [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '10,2',
-                            ],
-                            [
                                 'key' => 'KBC.sourceName',
                                 'value' => 'someDecimal',
                             ],
@@ -1574,10 +1486,6 @@ class MSSQLTest extends TestCase
                             [
                                 'key' => 'KBC.datatype.basetype',
                                 'value' => 'STRING',
-                            ],
-                            [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '55',
                             ],
                             [
                                 'key' => 'KBC.sourceName',
@@ -1716,10 +1624,6 @@ class MSSQLTest extends TestCase
                                 'value' => 'STRING',
                             ],
                             [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '2147483647',
-                            ],
-                            [
                                 'key' => 'KBC.sourceName',
                                 'value' => 'col1',
                             ],
@@ -1744,10 +1648,6 @@ class MSSQLTest extends TestCase
                             [
                                 'key' => 'KBC.datatype.basetype',
                                 'value' => 'STRING',
-                            ],
-                            [
-                                'key' => 'KBC.datatype.length',
-                                'value' => '2147483647',
                             ],
                             [
                                 'key' => 'KBC.sourceName',
