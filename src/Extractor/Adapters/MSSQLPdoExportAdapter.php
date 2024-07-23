@@ -35,7 +35,7 @@ class MSSQLPdoExportAdapter extends PdoExportAdapter
     public function export(ExportConfig $exportConfig, string $csvFilePath): ExportResult
     {
         if (!$exportConfig instanceof MssqlExportConfig) {
-            throw new InvalidArgumentException('PgsqlExportConfig expected.');
+            throw new InvalidArgumentException('MssqlExportConfig expected.');
         }
 
         if ($exportConfig->isFallbackDisabled()) {

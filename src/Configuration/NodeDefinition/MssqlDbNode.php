@@ -13,10 +13,16 @@ class MssqlDbNode extends DbNode
     {
         parent::init($builder);
         $this->addInstanceNode($builder);
+        $this->addQueryTimeoutNode($builder);
     }
 
     protected function addInstanceNode(NodeBuilder $builder): void
     {
         $builder->scalarNode('instance');
+    }
+
+    protected function addQueryTimeoutNode(NodeBuilder $builder): void
+    {
+        $builder->integerNode('queryTimeout');
     }
 }

@@ -23,6 +23,7 @@ use Psr\Log\LoggerInterface;
 use Retry\BackOff\ExponentialBackOffPolicy;
 use Retry\Policy\SimpleRetryPolicy;
 use Retry\RetryProxy;
+use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 use Throwable;
 
@@ -175,8 +176,17 @@ class BcpExportAdapter implements ExportAdapter
     {
         $this->logger->debug(sprintf('BCP: Run query "%s".', $query));
         $process = Process::fromShellCommandline($this->createBcpCommand($filename, $query));
-        $process->setTimeout(null);
-        $process->run();
+        $process->setTimeout($exportConfig->getQueryTimeout());
+
+        try {
+            $process->run();
+        } catch (ProcessTimedOutException $e) {
+            throw new BcpAdapterException(
+                sprintf('The BCP command timed out after %d seconds.', $e->getExceededTimeout()),
+                0,
+                $e,
+            );
+        }
 
         if (!$process->isSuccessful()) {
             throw new BcpAdapterException(sprintf(

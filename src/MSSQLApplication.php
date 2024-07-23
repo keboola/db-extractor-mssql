@@ -25,6 +25,11 @@ class MSSQLApplication extends Application
         $config['parameters']['data_dir'] = $this->getDataDir();
         $config['parameters']['extractor_class'] = 'MSSQL';
 
+        // propagate queryTimeout into database config
+        if (isset($config['parameters']['queryTimeout']) && !isset($config['parameters']['db']['queryTimeout'])) {
+            $config['parameters']['db']['queryTimeout'] = $config['parameters']['queryTimeout'];
+        }
+
         if ($this->isRowConfiguration($config)) {
             if ($action === 'run') {
                 $this->config = new Config(
