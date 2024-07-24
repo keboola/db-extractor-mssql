@@ -41,10 +41,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "64"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "createdat"
             },
@@ -69,10 +65,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",
@@ -101,10 +93,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "sku"
             },
@@ -131,10 +119,6 @@
                 "value": "STRING"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
-            },
-            {
                 "key": "KBC.sourceName",
                 "value": "zipcode"
             },
@@ -159,10 +143,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "STRING"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "2147483647"
             },
             {
                 "key": "KBC.sourceName",

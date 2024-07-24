@@ -21,7 +21,6 @@
             "name": "usergender",
             "data_type": {
                 "base": {
-                    "length": "2147483647",
                     "type": "STRING"
                 }
             }
@@ -38,7 +37,6 @@
             "name": "usercity",
             "data_type": {
                 "base": {
-                    "length": "2147483647",
                     "type": "STRING"
                 }
             }
@@ -55,7 +53,6 @@
             "name": "usersentiment",
             "data_type": {
                 "base": {
-                    "length": "2147483647",
                     "type": "STRING"
                 }
             }
@@ -72,7 +69,6 @@
             "name": "zipcode",
             "data_type": {
                 "base": {
-                    "length": "2147483647",
                     "type": "STRING"
                 }
             }

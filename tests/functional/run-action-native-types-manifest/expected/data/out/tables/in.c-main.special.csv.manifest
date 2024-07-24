@@ -21,7 +21,6 @@
             "name": "col1",
             "data_type": {
                 "base": {
-                    "length": "2147483647",
                     "type": "STRING"
                 }
             }
@@ -38,7 +37,6 @@
             "name": "col2",
             "data_type": {
                 "base": {
-                    "length": "2147483647",
                     "type": "STRING"
                 }
             }

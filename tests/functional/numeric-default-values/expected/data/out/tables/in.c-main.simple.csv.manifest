@@ -39,10 +39,6 @@
                 "value": "INTEGER"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "10"
-            },
-            {
                 "key": "KBC.datatype.default",
                 "value": "123"
             },
@@ -73,10 +69,6 @@
                 "value": "NUMERIC"
             },
             {
-                "key": "KBC.datatype.length",
-                "value": "18"
-            },
-            {
                 "key": "KBC.datatype.default",
                 "value": "123.45"
             },
@@ -105,10 +97,6 @@
             {
                 "key": "KBC.datatype.basetype",
                 "value": "FLOAT"
-            },
-            {
-                "key": "KBC.datatype.length",
-                "value": "53"
             },
             {
                 "key": "KBC.datatype.default",

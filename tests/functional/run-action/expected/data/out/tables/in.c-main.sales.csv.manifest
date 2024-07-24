@@ -232,5 +232,8 @@
                 "value": false
             }
         ]
-    }
+    },
+    "primary_key": [
+        "sku"
+    ]
 }
