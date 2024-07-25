@@ -1,0 +1,3 @@
+Export by "BCP" adapter failed: The BCP command timed out after 1 seconds.
+Export by "PDO" adapter failed: [in.c-main.sales]: DB query failed: SQLSTATE[HYT00]: [Microsoft][ODBC Driver 17 for SQL Server]Query timeout expired Tried 2 times.
+[in.c-main.sales]: DB query failed: SQLSTATE[HYT00]: [Microsoft][ODBC Driver 17 for SQL Server]Query timeout expired Tried 2 times.

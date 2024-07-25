@@ -1,0 +1,11 @@
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Exporting "sales" to "in.c-main.sales".
+Exporting by "BCP" adapter.
+Found database server version: 15.0.4375.4
+Executing BCP command: bcp 'WAITFOR DELAY '\''00:00:15'\''; SELECT * FROM "sales";' queryout 'in.c-main.sales.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+The BCP command timed out after 1 seconds.. Retrying... [1x]
+Executing BCP command: bcp 'WAITFOR DELAY '\''00:00:15'\''; SELECT * FROM "sales";' queryout 'in.c-main.sales.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+Exporting by "PDO" adapter.
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+SQLSTATE[HYT00]: [Microsoft][ODBC Driver 17 for SQL Server]Query timeout expired. Retrying... [1x]
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'

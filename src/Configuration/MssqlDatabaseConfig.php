@@ -10,7 +10,11 @@ use Keboola\DbExtractorConfig\Exception\PropertyNotSetException;
 
 class MssqlDatabaseConfig extends DatabaseConfig
 {
+    private const MAX_QUERY_TIMEOUT = 86400; // 24 hours
+
     private ?string $instance;
+
+    private ?int $queryTimeout = null;
 
     public static function fromArray(array $data): self
     {
@@ -26,6 +30,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $data['schema'] ?? null,
             $sslEnabled ? SSLConnectionConfig::fromArray($data['ssl']) : null,
             $data['initQueries'] ?? [],
+            $data['queryTimeout'] ?? null,
         );
     }
 
@@ -39,6 +44,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?string $schema,
         ?SSLConnectionConfig $sslConnectionConfig,
         array $initQueries,
+        ?int $queryTimeout = null,
     ) {
         parent::__construct(
             $host,
@@ -52,6 +58,10 @@ class MssqlDatabaseConfig extends DatabaseConfig
         );
 
         $this->instance = $instance;
+        if ($queryTimeout !== null) {
+            $normalizedQueryTimeout = min(abs($queryTimeout), self::MAX_QUERY_TIMEOUT);
+            $this->queryTimeout = $normalizedQueryTimeout ?: null;
+        }
     }
 
     public function hasInstance(): bool
@@ -65,5 +75,10 @@ class MssqlDatabaseConfig extends DatabaseConfig
             throw new PropertyNotSetException('Instance is not set.');
         }
         return $this->instance;
+    }
+
+    public function getQueryTimeout(): ?int
+    {
+        return $this->queryTimeout;
     }
 }

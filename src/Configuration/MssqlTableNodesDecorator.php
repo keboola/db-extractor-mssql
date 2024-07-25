@@ -14,7 +14,7 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
     {
         $v = parent::validate($v);
         $disableBcp = $v['disableBcp'] ?? false;
-        $disableFallback = $v['disableFallback']  ?? false;
+        $disableFallback = $v['disableFallback'] ?? false;
 
         if ($disableBcp && $disableFallback) {
             throw new InvalidConfigurationException('Can\'t disable both BCP and fallback to PDO');

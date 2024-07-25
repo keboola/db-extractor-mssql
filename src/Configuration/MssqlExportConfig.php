@@ -11,6 +11,8 @@ use Keboola\DbExtractorConfig\Exception\PropertyNotSetException;
 
 class MssqlExportConfig extends ExportConfig
 {
+    private const MAX_QUERY_TIMEOUT = 86400; // 24 hours
+
     private bool $noLock;
 
     private bool $disableBcp;
@@ -24,6 +26,8 @@ class MssqlExportConfig extends ExportConfig
     private bool $cdcModeFullLoadFallback;
 
     private int $maxTriesBcp;
+
+    private ?int $queryTimeout = null;
 
     public static function fromArray(array $data): self
     {
@@ -45,6 +49,7 @@ class MssqlExportConfig extends ExportConfig
             $data['maxTriesBcp'] ?? 1,
             $data['cdcMode'] ?? false,
             $data['cdcModeFullLoadFallback'] ?? false,
+            $data['queryTimeout'] ?? null,
         );
     }
 
@@ -65,6 +70,7 @@ class MssqlExportConfig extends ExportConfig
         int $maxTriesBcp,
         bool $cdcMode,
         bool $cdcModeFullLoadFallback,
+        ?int $queryTimeout,
     ) {
         parent::__construct(
             $configId,
@@ -85,6 +91,10 @@ class MssqlExportConfig extends ExportConfig
         $this->maxTriesBcp = $maxTriesBcp;
         $this->setCdcMode($cdcMode);
         $this->cdcModeFullLoadFallback = $cdcModeFullLoadFallback;
+        if ($queryTimeout !== null) {
+            $normalizedQueryTimeout = min(abs($queryTimeout), self::MAX_QUERY_TIMEOUT);
+            $this->queryTimeout = $normalizedQueryTimeout ?: null;
+        }
     }
 
     public function getNoLock(): bool
@@ -143,5 +153,10 @@ class MssqlExportConfig extends ExportConfig
     public function cdcModeFullLoadFallback(): bool
     {
         return $this->cdcModeFullLoadFallback;
+    }
+
+    public function getQueryTimeout(): ?int
+    {
+        return $this->queryTimeout;
     }
 }

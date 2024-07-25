@@ -1,0 +1,18 @@
+{
+  "parameters": {
+    "name": "sales",
+    "query": "WAITFOR DELAY '00:00:15'; SELECT * FROM \"sales\";",
+    "outputTable": "in.c-main.sales",
+    "primaryKey": null,
+    "maxTriesBcp": 2,
+    "retries": 2,
+    "queryTimeout": 1,
+    "db": {
+      "host": "%env(string:MSSQL_DB_HOST)%",
+      "port": "%env(string:MSSQL_DB_PORT)%",
+      "user": "%env(string:MSSQL_DB_USER)%",
+      "#password": "%env(string:MSSQL_DB_PASSWORD)%",
+      "database": "%env(string:MSSQL_DB_DATABASE)%"
+    }
+  }
+}
