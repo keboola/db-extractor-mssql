@@ -12,6 +12,10 @@
                 "value": true
             },
             {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
                 "key": "KBC.sourceName",
                 "value": "usergender"
             },
@@ -28,6 +32,10 @@
             {
                 "key": "KBC.datatype.nullable",
                 "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
             },
             {
                 "key": "KBC.sourceName",

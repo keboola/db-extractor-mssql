@@ -10,7 +10,12 @@
                 "KBC.sanitizedName": "usergender",
                 "KBC.uniqueKey": false
             },
-            "name": "usergender"
+            "name": "usergender",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -20,7 +25,12 @@
                 "KBC.sanitizedName": "usercity",
                 "KBC.uniqueKey": false
             },
-            "name": "usercity"
+            "name": "usercity",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -30,7 +40,12 @@
                 "KBC.sanitizedName": "usersentiment",
                 "KBC.uniqueKey": false
             },
-            "name": "usersentiment"
+            "name": "usersentiment",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -40,7 +55,12 @@
                 "KBC.sanitizedName": "zipcode",
                 "KBC.uniqueKey": false
             },
-            "name": "zipcode"
+            "name": "zipcode",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -50,7 +70,12 @@
                 "KBC.sanitizedName": "sku",
                 "KBC.uniqueKey": false
             },
-            "name": "sku"
+            "name": "sku",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -60,7 +85,12 @@
                 "KBC.sanitizedName": "createdat",
                 "KBC.uniqueKey": false
             },
-            "name": "createdat"
+            "name": "createdat",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -70,7 +100,12 @@
                 "KBC.sanitizedName": "category",
                 "KBC.uniqueKey": false
             },
-            "name": "category"
+            "name": "category",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -80,7 +115,12 @@
                 "KBC.sanitizedName": "price",
                 "KBC.uniqueKey": false
             },
-            "name": "price"
+            "name": "price",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -90,7 +130,12 @@
                 "KBC.sanitizedName": "county",
                 "KBC.uniqueKey": false
             },
-            "name": "county"
+            "name": "county",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -100,7 +145,12 @@
                 "KBC.sanitizedName": "countycode",
                 "KBC.uniqueKey": false
             },
-            "name": "countycode"
+            "name": "countycode",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -110,7 +160,12 @@
                 "KBC.sanitizedName": "userstate",
                 "KBC.uniqueKey": false
             },
-            "name": "userstate"
+            "name": "userstate",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         },
         {
             "nullable": true,
@@ -120,7 +175,12 @@
                 "KBC.sanitizedName": "categorygroup",
                 "KBC.uniqueKey": false
             },
-            "name": "categorygroup"
+            "name": "categorygroup",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
         }
     ]
 }
