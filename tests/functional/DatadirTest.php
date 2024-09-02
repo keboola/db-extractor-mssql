@@ -77,11 +77,15 @@ class DatadirTest extends DatadirTestCase
         /** @var array<array> $config */
         $config = json_decode((string) $configContent, true);
         preg_match('/%env\(string:([A-Z_]+)\)%/', $config['parameters']['db']['host'], $hostEnv);
+        $host = isset($hostEnv[1]) ? getenv($hostEnv[1]) : null;
 
-        $this->connection = PdoTestConnection::createConnection(
-            (string) getenv($hostEnv[1]),
-        );
-        $this->removeAllTables();
+        if ($host) {
+            $this->connection = PdoTestConnection::createConnection(
+                (string) $host,
+            );
+            $this->removeAllTables();
+        }
+
         $this->closeSshTunnels();
 
         // Load setUp.php file - used to init database state
