@@ -20,6 +20,13 @@ services:
       - mssql
       - mssql-ssl
       - mssql-ssl-invalid-cn
+    depends_on:
+      mssql:
+        condition: service_healthy
+      mssql-ssl:
+        condition: service_healthy
+      mssql-ssl-invalid-cn:
+        condition: service_healthy
 
   dev:
     <<: *app
@@ -33,11 +40,19 @@ services:
     build:
       context: .
       dockerfile: docker/mssql/Dockerfile
+      args:
+        MSSQL_VERSION: ${MSSQL_VERSION}
     ports:
       - "1433:1433"
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: "yourStrong(!)Password"
+    healthcheck:
+      test: [ "CMD", "sqlcmd", "-U", "sa", "-P", "yourStrong(!)Password", "-Q", "SELECT 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   mssql-ssl:
     <<: *mssql
@@ -47,6 +62,8 @@ services:
     build:
       context: .
       dockerfile: docker/mssql-ssl/Dockerfile
+      args:
+        MSSQL_VERSION: ${MSSQL_VERSION}
 
   mssql-ssl-invalid-cn:
     <<: *mssql
@@ -56,6 +73,8 @@ services:
     build:
       context: .
       dockerfile: docker/mssql-ssl-invalid-cn/Dockerfile
+      args:
+        MSSQL_VERSION: ${MSSQL_VERSION}
 
   sshproxy:
     image: keboola/db-component-ssh-proxy:latest
@@ -63,16 +82,6 @@ services:
       - ssh-keys:/root/.ssh
     links:
       - mssql
-
-  wait:
-    image: waisbrot/wait
-    depends_on:
-      - mssql-ssl-invalid-cn
-      - mssql-ssl
-      - mssql
-    environment:
-      - TARGETS=mssql-ssl:1433,mssql:1433,mssql-ssl-invalid-cn:1433
-      - TIMEOUT=200
 
 volumes:
   ssh-keys:

@@ -1,4 +1,6 @@
-FROM mcr.microsoft.com/mssql/server:2019-latest
+ARG MSSQL_VERSION=2022
+
+FROM mcr.microsoft.com/mssql/server:${MSSQL_VERSION}-latest
 
 USER root
 
