@@ -48,11 +48,11 @@ services:
       ACCEPT_EULA: Y
       SA_PASSWORD: "yourStrong(!)Password"
     healthcheck:
-      test: [ "CMD", "sqlcmd", "-U", "sa", "-P", "yourStrong(!)Password", "-Q", "SELECT 1" ]
-      interval: 30s
+      test: ["CMD-SHELL", "nc -z localhost 1433 || exit 1"]
+      interval: 10s
       timeout: 10s
       retries: 3
-      start_period: 30s
+      start_period: 5s
 
   mssql-ssl:
     <<: *mssql
