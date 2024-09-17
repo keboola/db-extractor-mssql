@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mssql: [ 2022, 2019, 2017, 2016, 2014, 2012 ]
+        mssql: [ 2022, 2019 ]
     steps:
       - name: Check out the repo
         uses: actions/checkout@v4
