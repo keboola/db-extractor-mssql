@@ -1,5 +1,14 @@
 # MS SQL DB Extractor
 
+## Supported MS SQL versions
+The component is using Microsoft ODBC Driver for SQL Server in version `18.0.1.1-1` and supports following versions:
+- SQL Server 2012
+- SQL Server 2014
+- SQL Server 2016
+- SQL Server 2017
+- SQL Server 2019
+- SQL Server 2022
+
 ## Configuration
 
 The configuration `config.json` contains following properties in `parameters` key:
