@@ -20,14 +20,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     libxml2-dev \
     gnupg2 \
+    unixodbc \
     unixodbc-dev \
     libgss3 \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
     && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends \
-    msodbcsql17=17.7.1.1-1 \
-    mssql-tools=17.7.1.1-1 \
+    && wget https://packages.microsoft.com/debian/10/prod/pool/main/m/msodbcsql18/msodbcsql18_18.0.1.1-1_amd64.deb \
+    && ACCEPT_EULA=Y dpkg -i msodbcsql18_18.0.1.1-1_amd64.deb \
+    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools \
     && rm -r /var/lib/apt/lists/* \
     && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
     && locale-gen \

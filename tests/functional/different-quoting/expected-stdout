@@ -1,6 +1,6 @@
 Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
 Exporting "special" to "in.c-main.special".
 Exporting by "BCP" adapter.
-Found database server version: 15.%d.%d.%d
+Found database server version: %d.%d.%d.%d
 Executing BCP command: bcp 'SELECT usergender, [sku]  FROM sales WHERE "usergender" LIKE '\''male'\''' queryout 'in.c-main.special.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
 Exported "40" rows to "in.c-main.special".
