@@ -107,7 +107,7 @@
         "sku": [
             {
                 "key": "KBC.datatype.nullable",
-                "value": true
+                "value": false
             },
             {
                 "key": "KBC.datatype.basetype",
