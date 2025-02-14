@@ -76,15 +76,22 @@ class MSSQLQueryFactory implements QueryFactory
         }
 
         if ($exportConfig->isIncrementalFetching() && isset($this->state['lastFetchedRow'])) {
-            if (isset($this->state['lastFetchedRow'])) {
-                $sql[] = sprintf(
-                    'WHERE %s >= %s',
-                    $connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
-                    $this->shouldQuoteComparison($this->incrementalFetchingType)
-                        ? $connection->quote($this->state['lastFetchedRow'])
-                        : $this->state['lastFetchedRow'],
-                );
-            }
+            $sql[] = sprintf(
+                'WHERE %s >= %s',
+                $connection->quoteIdentifier($exportConfig->getIncrementalFetchingColumn()),
+                match ($this->incrementalFetchingType) {
+                    MssqlDataType::INCREMENT_TYPE_NUMERIC,
+                    MssqlDataType::INCREMENT_TYPE_BINARY => $this->state['lastFetchedRow'],
+                    MssqlDataType::INCREMENT_TYPE_QUOTABLE => $connection->quote($this->state['lastFetchedRow']),
+                    MssqlDataType::INCREMENT_TYPE_DATETIME => sprintf(
+                        'CONVERT(DATETIME2, %s, 120)',
+                        $connection->quote($this->state['lastFetchedRow']),
+                    ),
+                    default => throw new InvalidArgumentException(
+                        sprintf('Unknown incremental fetching type "%s"', $this->incrementalFetchingType),
+                    ),
+                },
+            );
         }
 
         if ($exportConfig->hasIncrementalFetchingLimit()) {
@@ -188,19 +195,5 @@ class MSSQLQueryFactory implements QueryFactory
         }
 
         throw new LogicException(sprintf('Unexpected format: "%s"', $this->format));
-    }
-
-    private function shouldQuoteComparison(?string $type): bool
-    {
-        if ($type === null) {
-            throw new InvalidArgumentException(
-                'Incremental fetching type should be set if calling "shouldQuoteComparison".',
-            );
-        }
-
-        if ($type === MssqlDataType::INCREMENT_TYPE_NUMERIC || $type === MssqlDataType::INCREMENT_TYPE_BINARY) {
-            return false;
-        }
-        return true;
     }
 }
