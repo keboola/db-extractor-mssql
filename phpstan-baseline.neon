@@ -66,11 +66,6 @@ parameters:
 			path: src/Extractor/MSSQLPdoConnection.php
 
 		-
-			message: "#^Offset 'lastFetchedRow' on array in isset\\(\\) always exists and is not nullable\\.$#"
-			count: 1
-			path: src/Extractor/MSSQLQueryFactory.php
-
-		-
 			message: "#^Invalid type mixed to throw\\.$#"
 			count: 1
 			path: tests/phpunit/ExceptionHandlingTest.php

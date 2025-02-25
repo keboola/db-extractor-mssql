@@ -342,7 +342,7 @@ class QueryFactoryTest extends TestCase
                 'SELECT TOP 1000 [_Weir%d I-D], [Weir%d Na-me], [someInteger], [someDecimal], [type], ' .
                 '[smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), ' .
                 'CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] ' .
-                "FROM [dbo].[auto Increment Timestamp] WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
+                "FROM [dbo].[auto Increment Timestamp] WHERE [datetime] >= CONVERT(DATETIME2, '2018-10-26 10:52:32', 120) ORDER BY [datetime]",
             ],
             'test simplePDO query datetime column and previos state and limit and NOLOCK' => [
                 [
@@ -362,7 +362,7 @@ class QueryFactoryTest extends TestCase
                 '[smalldatetime], [datetime], CONVERT(NVARCHAR(MAX), ' .
                 'CONVERT(BINARY(8), [timestamp]), 1) AS [timestamp] ' .
                 'FROM [dbo].[auto Increment Timestamp] WITH(NOLOCK) ' .
-                "WHERE [datetime] >= '2018-10-26 10:52:32' ORDER BY [datetime]",
+                "WHERE [datetime] >= CONVERT(DATETIME2, '2018-10-26 10:52:32', 120) ORDER BY [datetime]",
             ],
         ];
         // @codingStandardsIgnoreEnd
