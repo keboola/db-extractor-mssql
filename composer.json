@@ -2,7 +2,7 @@
     "name": "keboola/db-extractor-mssql",
     "license": "MIT",
     "type": "project",
-    "description": "Keboola Microsoft SQL DB Writer",
+    "description": "Keboola Microsoft SQL DB Extractor",
     "authors": [
         {
             "name": "keboola",
