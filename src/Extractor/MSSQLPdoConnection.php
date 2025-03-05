@@ -152,8 +152,8 @@ class MSSQLPdoConnection extends PdoConnection
         }, array_keys($options), $options)));
 
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
-
-        return new PDO($dsn, $this->databaseConfig->getUsername(), $this->databaseConfig->getPassword());
+        $password = str_ireplace('}', '}}', $this->databaseConfig->getPassword());
+        return new PDO($dsn, $this->databaseConfig->getUsername(), $password);
     }
 
     public function query(string $query, int $maxRetries = self::DEFAULT_MAX_RETRIES, array $values = []): QueryResult
