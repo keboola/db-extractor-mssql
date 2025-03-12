@@ -1,6 +1,6 @@
 Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
 Exporting "pdo test" to "in.c-main.pdo_test".
 Exporting by "BCP" adapter.
-Executing BCP command: bcp 'SELECT [ID], char(34) + COALESCE(REPLACE([PROB_COL], char(34), char(34) + char(34)),'\'''\'') + char(34) AS [PROB_COL] FROM [dbo].[PDO_TEST]' queryout 'in.c-main.pdo_test.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
+Executing BCP command: bcp 'SELECT [ID], char(34) + COALESCE(REPLACE([PROB_COL], char(34), char(34) + char(34)),'\'''\'') + char(34) AS [PROB_COL] FROM [dbo].[PDO_TEST]' queryout 'in.c-main.pdo_test.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c%S
 Exporting by "PDO" adapter.
 Exported "2" rows to "in.c-main.pdo_test".
