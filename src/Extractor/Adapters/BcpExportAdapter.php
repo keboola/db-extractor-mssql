@@ -287,7 +287,7 @@ class BcpExportAdapter implements ExportAdapter
         $serverName .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
 
         $cmd = sprintf(
-            'bcp %s queryout %s -S %s -U %s -P %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c',
+            'bcp %s queryout %s -S %s -U %s -P %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c -a 65535',
             escapeshellarg($query),
             escapeshellarg($filename),
             escapeshellarg($serverName),

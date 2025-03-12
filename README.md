@@ -63,8 +63,15 @@ Clone this repository and initialize the workspace with the following commands:
 ```
 git clone https://github.com/keboola/db-extractor-mssql
 cd db-extractor-mssql
+export MSSQL_VERSION="2022"
 docker compose build
 docker compose run --rm dev composer install --no-scripts
+```
+
+### On ARM
+```
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+docker compose build --build-arg TARGETPLATFORM=linux/arm64
 ```
 
 Run the test suite using this command:
