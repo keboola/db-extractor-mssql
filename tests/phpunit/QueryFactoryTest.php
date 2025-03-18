@@ -183,7 +183,7 @@ class QueryFactoryTest extends TestCase
                 ],
                 [
                     'pdo' => '[datetimeCol]',
-                    'bcp' => 'CONVERT(DATETIME2(0),[datetimeCol]) AS [datetimeCol]',
+                    'bcp' => 'CONVERT(DATETIME2(3),[datetimeCol]) AS [datetimeCol]',
                 ],
             ],
             'smalldatetime column' => [
@@ -479,7 +479,7 @@ class QueryFactoryTest extends TestCase
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col2], ' .
-                'CONVERT(DATETIME2(0),[datetime]) AS [datetime] ' .
+                'CONVERT(DATETIME2(3),[datetime]) AS [datetime] ' .
                 'FROM [dbo].[auto Increment Timestamp] ORDER BY [datetime]',
             ],
             'test query with limit and idp column and previos state' => [
@@ -578,7 +578,7 @@ class QueryFactoryTest extends TestCase
                 'char(34) + ' .
                 "COALESCE(REPLACE(CAST([col2] as nvarchar(max)), char(34), char(34) + char(34)),'') " .
                 '+ char(34) AS [col2], ' .
-                'CONVERT(DATETIME2(0),[datetime]) AS [datetime] ' .
+                'CONVERT(DATETIME2(3),[datetime]) AS [datetime] ' .
                 'FROM [dbo].[auto Increment Timestamp]',
             ],
             'test simplePDO query id column and previos state and no limit' => [
