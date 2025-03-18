@@ -131,7 +131,7 @@ class MSSQLQueryFactory implements QueryFactory
         } elseif ($datatype->getBasetype() === 'TIMESTAMP'
             && strtoupper($datatype->getType()) !== 'SMALLDATETIME'
         ) {
-            $colStr = sprintf('CONVERT(DATETIME2(0),%s)', $colStr);
+            $colStr = sprintf('CONVERT(DATETIME2(3),%s)', $colStr);
         }
         if ($colStr !== $escapedColumnName) {
             return $colStr . ' AS ' . $escapedColumnName;
