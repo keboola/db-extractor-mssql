@@ -33,6 +33,7 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
         $this->addMaxTriesBcpNode($builder);
         $this->addCdcModeNode($builder);
         $this->addCdcModeFullLoadFallbackNode($builder);
+        $this->addCsvDelimiterNode($builder);
     }
 
     protected function addAdvancedModeNode(NodeBuilder $builder): void
@@ -69,5 +70,10 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
     private function addCdcModeFullLoadFallbackNode(NodeBuilder $builder): void
     {
         $builder->booleanNode('cdcModeFullLoadFallback')->defaultFalse();
+    }
+
+    private function addCsvDelimiterNode(NodeBuilder $builder): void
+    {
+        $builder->scalarNode('csvDelimiter')->defaultValue(',')->end();
     }
 }

@@ -29,6 +29,8 @@ class MssqlExportConfig extends ExportConfig
 
     private ?int $queryTimeout = null;
 
+    private string $csvDelimiter;
+
     public static function fromArray(array $data): self
     {
         return new self(
@@ -50,6 +52,7 @@ class MssqlExportConfig extends ExportConfig
             $data['cdcMode'] ?? false,
             $data['cdcModeFullLoadFallback'] ?? false,
             $data['queryTimeout'] ?? null,
+            $data['csvDelimiter'] ?? ',',
         );
     }
 
@@ -71,6 +74,7 @@ class MssqlExportConfig extends ExportConfig
         bool $cdcMode,
         bool $cdcModeFullLoadFallback,
         ?int $queryTimeout,
+        string $csvDelimiter,
     ) {
         parent::__construct(
             $configId,
@@ -95,6 +99,7 @@ class MssqlExportConfig extends ExportConfig
             $normalizedQueryTimeout = min(abs($queryTimeout), self::MAX_QUERY_TIMEOUT);
             $this->queryTimeout = $normalizedQueryTimeout ?: null;
         }
+        $this->csvDelimiter = $csvDelimiter ?: ',';
     }
 
     public function getNoLock(): bool
@@ -158,5 +163,10 @@ class MssqlExportConfig extends ExportConfig
     public function getQueryTimeout(): ?int
     {
         return $this->queryTimeout;
+    }
+
+    public function getCsvDelimiter(): string
+    {
+        return $this->csvDelimiter;
     }
 }

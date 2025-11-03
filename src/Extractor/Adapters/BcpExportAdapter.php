@@ -86,7 +86,7 @@ class BcpExportAdapter implements ExportAdapter
                 );
             });
             if ($exportResult->getRowsCount() > 0 && $exportConfig->hasQuery()) {
-                $this->stripNullBytesInEmptyFields($csvFilePath);
+                $this->stripNullBytesInEmptyFields($csvFilePath, $exportConfig->getCsvDelimiter());
             }
             return $exportResult;
         } catch (BcpAdapterException $pdoError) {
@@ -175,7 +175,7 @@ class BcpExportAdapter implements ExportAdapter
     private function doExport(MssqlExportConfig $exportConfig, string $query, string $filename): ExportResult
     {
         $this->logger->debug(sprintf('BCP: Run query "%s".', $query));
-        $process = Process::fromShellCommandline($this->createBcpCommand($filename, $query));
+        $process = Process::fromShellCommandline($this->createBcpCommand($filename, $query, $exportConfig));
         $process->setTimeout($exportConfig->getQueryTimeout());
 
         try {
@@ -209,14 +209,15 @@ class BcpExportAdapter implements ExportAdapter
         }
     }
 
-    private function stripNullBytesInEmptyFields(string $fileName): void
+    private function stripNullBytesInEmptyFields(string $fileName, string $delimiter): void
     {
         // this will replace null byte column values in the file
         // this is here because BCP will output null bytes for empty strings
         // this can occur in advanced queries where the column isn't sanitized
-        $nullAtStart = 's/^\x00,/,/g';
-        $nullAtEnd = 's/,\x00$/,/g';
-        $nullInTheMiddle = 's/,\x00,/,,/g';
+        $escapedDelimiter = preg_quote($delimiter, '/');
+        $nullAtStart = sprintf('s/^\x00%s/%s/g', $escapedDelimiter, $delimiter);
+        $nullAtEnd = sprintf('s/%s\x00$/%s/g', $escapedDelimiter, $delimiter);
+        $nullInTheMiddle = sprintf('s/%s\x00%s/%s%s/g', $escapedDelimiter, $escapedDelimiter, $delimiter, $delimiter);
         $sedCommand = sprintf('sed -e \'%s;%s;%s\' -i %s', $nullAtStart, $nullInTheMiddle, $nullAtEnd, $fileName);
 
         $process = Process::fromShellCommandline($sedCommand);
@@ -281,19 +282,20 @@ class BcpExportAdapter implements ExportAdapter
         );
     }
 
-    private function createBcpCommand(string $filename, string $query): string
+    private function createBcpCommand(string $filename, string $query, MssqlExportConfig $exportConfig): string
     {
         $serverName = $this->databaseConfig->getHost();
         $serverName .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
 
         $cmd = sprintf(
-            'bcp %s queryout %s -S %s -U %s -P %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c',
+            'bcp %s queryout %s -S %s -U %s -P %s -d %s -q -k -b 50000 -m 1 -t %s -r "\n" -c',
             escapeshellarg($query),
             escapeshellarg($filename),
             escapeshellarg($serverName),
             escapeshellarg($this->databaseConfig->getUsername()),
             escapeshellarg($this->databaseConfig->getPassword()),
             escapeshellarg($this->databaseConfig->getDatabase()),
+            escapeshellarg($exportConfig->getCsvDelimiter()),
         );
 
         $commandForLogger = preg_replace('/-P.*-d/', '-P ***** -d', $cmd);
