@@ -16,6 +16,8 @@ class MssqlDatabaseConfig extends DatabaseConfig
 
     private ?int $queryTimeout = null;
 
+    private ?string $applicationIntent = null;
+
     public static function fromArray(array $data): self
     {
         $sslEnabled = !empty($data['ssl']) && !empty($data['ssl']['enabled']);
@@ -31,6 +33,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $sslEnabled ? SSLConnectionConfig::fromArray($data['ssl']) : null,
             $data['initQueries'] ?? [],
             $data['queryTimeout'] ?? null,
+            $data['applicationIntent'] ?? null,
         );
     }
 
@@ -45,6 +48,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?SSLConnectionConfig $sslConnectionConfig,
         array $initQueries,
         ?int $queryTimeout = null,
+        ?string $applicationIntent = null,
     ) {
         parent::__construct(
             $host,
@@ -62,6 +66,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $normalizedQueryTimeout = min(abs($queryTimeout), self::MAX_QUERY_TIMEOUT);
             $this->queryTimeout = $normalizedQueryTimeout ?: null;
         }
+        $this->applicationIntent = $applicationIntent;
     }
 
     public function hasInstance(): bool
@@ -80,5 +85,18 @@ class MssqlDatabaseConfig extends DatabaseConfig
     public function getQueryTimeout(): ?int
     {
         return $this->queryTimeout;
+    }
+
+    public function hasApplicationIntent(): bool
+    {
+        return $this->applicationIntent !== null;
+    }
+
+    public function getApplicationIntent(): string
+    {
+        if ($this->applicationIntent === null) {
+            throw new PropertyNotSetException('ApplicationIntent is not set.');
+        }
+        return $this->applicationIntent;
     }
 }

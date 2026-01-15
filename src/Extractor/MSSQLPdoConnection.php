@@ -112,8 +112,9 @@ class MSSQLPdoConnection extends PdoConnection
             $options['TrustServerCertificate'] =
                 $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
         }
-
-        // ms sql doesn't support options
+        if ($this->databaseConfig->hasApplicationIntent()) {
+            $options['ApplicationIntent'] = $this->databaseConfig->getApplicationIntent();
+        }
         try {
             $this->pdo = $this->createPdoInstance($options);
         } catch (PDOException $e) {

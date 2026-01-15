@@ -8,6 +8,7 @@ use Keboola\Csv\CsvReader;
 use Keboola\DbExtractor\Adapter\ExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Adapter\ValueObject\ExportResult;
+use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
@@ -17,7 +18,6 @@ use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
-use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Psr\Log\LoggerInterface;
 use Retry\BackOff\ExponentialBackOffPolicy;
@@ -35,7 +35,7 @@ class BcpExportAdapter implements ExportAdapter
 
     private MetadataProvider $metadataProvider;
 
-    private DatabaseConfig $databaseConfig;
+    private MssqlDatabaseConfig $databaseConfig;
 
     private LoggerInterface $logger;
 
@@ -43,7 +43,7 @@ class BcpExportAdapter implements ExportAdapter
         LoggerInterface $logger,
         MSSQLPdoConnection $connection,
         MetadataProvider $metadataProvider,
-        DatabaseConfig $databaseConfig,
+        MssqlDatabaseConfig $databaseConfig,
         MSSQLQueryFactory $queryFactory,
     ) {
         $this->logger = $logger;
@@ -51,6 +51,14 @@ class BcpExportAdapter implements ExportAdapter
         $this->metadataProvider = $metadataProvider;
         $this->databaseConfig = $databaseConfig;
         $this->simpleQueryFactory = $queryFactory;
+
+        if ($databaseConfig->hasApplicationIntent()) {
+            $this->logger->warning(
+                'ApplicationIntent is configured but BCP export does not support this parameter. ' .
+                'The connection will be routed by the server without ApplicationIntent. ' .
+                'Consider using "disableBcp": true if you need ApplicationIntent support.',
+            );
+        }
     }
 
     public function getName(): string
