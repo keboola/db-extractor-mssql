@@ -1,1 +1,1 @@
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'

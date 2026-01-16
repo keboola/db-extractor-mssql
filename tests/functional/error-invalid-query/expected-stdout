@@ -1,15 +1,15 @@
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'
 Exporting "special" to "in.c-main.special".
 Exporting by "BCP" adapter.
 Found database server version: %d.%d.%d.%d
 Executing BCP command: bcp 'SELECT SOMETHING INVALID FROM "dbo"."special"' queryout 'in.c-main.special.csv' -S 'mssql,1433' -U 'sa' -P ***** -d 'test' -q -k -b 50000 -m 1 -t "," -r "\n" -c
 Exporting by "PDO" adapter.
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'
 SQLSTATE[42S22]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'SOMETHING'.. Retrying... [1x]
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'
 SQLSTATE[42S22]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'SOMETHING'.. Retrying... [2x]
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'
 SQLSTATE[42S22]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'SOMETHING'.. Retrying... [3x]
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'
 SQLSTATE[42S22]: [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Invalid column name 'SOMETHING'.. Retrying... [4x]
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'

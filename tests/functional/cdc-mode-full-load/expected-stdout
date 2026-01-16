@@ -1,4 +1,4 @@
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'
 Use CDC export.
 Exporting "cdc-test" to "in.cdc_test_table".
 Exporting by "BCP" adapter.

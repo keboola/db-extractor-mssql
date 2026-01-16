@@ -1,4 +1,4 @@
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'
 Exporting "special" to "in.c-main.special".
 Exporting by "BCP" adapter.
 Found database server version: %d.%d.%d.%d

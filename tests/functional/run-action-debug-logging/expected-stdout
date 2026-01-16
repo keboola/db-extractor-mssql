@@ -1,5 +1,5 @@
 [%s] DEBUG: Component initialization completed [] []
-Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'
+Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'
 Exporting "tablecolumns" to "in.c-main.tablecolumns".
 Exporting by "BCP" adapter.
 [%s] DEBUG: BCP: Run query "SELECT char(34) + COALESCE(REPLACE(CAST([usergender] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [usergender], char(34) + COALESCE(REPLACE(CAST([usercity] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [usercity], char(34) + COALESCE(REPLACE(CAST([usersentiment] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [usersentiment], char(34) + COALESCE(REPLACE(CAST([zipcode] as nvarchar(max)), char(34), char(34) + char(34)),'') + char(34) AS [zipcode] FROM [dbo].[sales]". [] []
