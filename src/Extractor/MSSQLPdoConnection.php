@@ -112,8 +112,8 @@ class MSSQLPdoConnection extends PdoConnection
             $options['TrustServerCertificate'] =
                 $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
         } else {
-            // ODBC Driver 18 defaults to Encrypt=yes, which differs from Driver 17.
-            // Explicitly disable encryption when SSL is not configured to maintain backward compatibility.
+            // Explicitly disable encryption when SSL is not configured.
+            // This ensures consistent behavior across ODBC driver versions.
             $options['Encrypt'] = 'false';
         }
         if ($this->databaseConfig->hasApplicationIntent()) {
