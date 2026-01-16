@@ -122,8 +122,7 @@ class MSSQLPdoConnection extends PdoConnection
         try {
             $this->pdo = $this->createPdoInstance($options);
         } catch (PDOException $e) {
-            if (
-                strpos($e->getMessage(), 'certificate verify failed:subject name does not match host name') &&
+            if (strpos($e->getMessage(), 'certificate verify failed:subject name does not match host name') &&
                 $this->databaseConfig->hasSSLConnection() &&
                 $this->databaseConfig->getSslConnectionConfig()->isIgnoreCertificateCn()
             ) {
