@@ -58,11 +58,13 @@ class MSSQL extends BaseExtractor
     {
         $adapters = [];
 
+        /** @var MssqlDatabaseConfig $databaseConfig */
+        $databaseConfig = $this->getDatabaseConfig();
         $adapters[] = new BcpExportAdapter(
             $this->logger,
             $this->connection,
             $this->createMetadataProvider(),
-            $this->getDatabaseConfig(),
+            $databaseConfig,
             $this->getQueryFactory(),
         );
 
