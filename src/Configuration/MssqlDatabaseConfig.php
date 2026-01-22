@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Configuration;
 
+use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\SSLConnectionConfig;
 use Keboola\DbExtractorConfig\Exception\PropertyNotSetException;
@@ -69,7 +70,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         if ($applicationIntent !== null) {
             $validValues = ['ReadOnly', 'ReadWrite'];
             if (!in_array($applicationIntent, $validValues, true)) {
-                throw new \Keboola\DbExtractor\Exception\UserException(
+                throw new UserException(
                     sprintf(
                         'ApplicationIntent must be either "ReadOnly" or "ReadWrite", "%s" given.',
                         $applicationIntent,
