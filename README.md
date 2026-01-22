@@ -14,11 +14,13 @@ This component uses the Microsoft ODBC Driver for SQL Server, version `18.0.1.1-
 The `config.json` file contains the following properties within the `parameters` key:
 
 - `db`
-    - `host` – string
+    - `host` – string (supports both IP addresses and DNS names)
     - `port` _(optional)_ – int (default: `1433`)
+    - `instance` _(optional)_ – string: SQL Server named instance
     - `database` – string
     - `user` – string
     - `#password` – string
+    - `applicationIntent` _(optional)_ – string: Connection routing for Always On Availability Groups. Valid values: `ReadOnly`, `ReadWrite`. Use `ReadOnly` to route connections to secondary replicas for read-only workloads. (default: `ReadWrite`)
     - `ssh` _(optional)_ – object: Settings for the SSH tunnel
         - `enabled` – bool
         - `sshHost` – string: IP address or hostname of the SSH server

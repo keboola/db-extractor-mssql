@@ -16,6 +16,8 @@ class MssqlDatabaseConfig extends DatabaseConfig
 
     private ?int $queryTimeout = null;
 
+    private ?string $applicationIntent = null;
+
     public static function fromArray(array $data): self
     {
         $sslEnabled = !empty($data['ssl']) && !empty($data['ssl']['enabled']);
@@ -31,6 +33,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $sslEnabled ? SSLConnectionConfig::fromArray($data['ssl']) : null,
             $data['initQueries'] ?? [],
             $data['queryTimeout'] ?? null,
+            $data['applicationIntent'] ?? null,
         );
     }
 
@@ -45,6 +48,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?SSLConnectionConfig $sslConnectionConfig,
         array $initQueries,
         ?int $queryTimeout = null,
+        ?string $applicationIntent = null,
     ) {
         parent::__construct(
             $host,
@@ -61,6 +65,18 @@ class MssqlDatabaseConfig extends DatabaseConfig
         if ($queryTimeout !== null) {
             $normalizedQueryTimeout = min(abs($queryTimeout), self::MAX_QUERY_TIMEOUT);
             $this->queryTimeout = $normalizedQueryTimeout ?: null;
+        }
+        if ($applicationIntent !== null) {
+            $validValues = ['ReadOnly', 'ReadWrite'];
+            if (!in_array($applicationIntent, $validValues, true)) {
+                throw new \Keboola\DbExtractor\Exception\UserException(
+                    sprintf(
+                        'ApplicationIntent must be either "ReadOnly" or "ReadWrite", "%s" given.',
+                        $applicationIntent,
+                    ),
+                );
+            }
+            $this->applicationIntent = $applicationIntent;
         }
     }
 
@@ -80,5 +96,18 @@ class MssqlDatabaseConfig extends DatabaseConfig
     public function getQueryTimeout(): ?int
     {
         return $this->queryTimeout;
+    }
+
+    public function hasApplicationIntent(): bool
+    {
+        return $this->applicationIntent !== null;
+    }
+
+    public function getApplicationIntent(): string
+    {
+        if ($this->applicationIntent === null) {
+            throw new PropertyNotSetException('ApplicationIntent is not set.');
+        }
+        return $this->applicationIntent;
     }
 }
