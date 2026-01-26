@@ -41,6 +41,9 @@ class PdoTestConnection
             $dsn['Encrypt'] = 'true';
             $dsn['TrustServerCertificate'] =
                 $dbConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+        } else {
+            // ODBC Driver 18 defaults to Encrypt=yes, so explicitly set to false when SSL not configured
+            $dsn['Encrypt'] = 'false';
         }
 
         // ms sql doesn't support options
