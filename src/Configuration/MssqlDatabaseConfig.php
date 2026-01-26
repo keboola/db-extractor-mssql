@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\Configuration;
 
+use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\SSLConnectionConfig;
 use Keboola\DbExtractorConfig\Exception\PropertyNotSetException;
@@ -15,6 +16,8 @@ class MssqlDatabaseConfig extends DatabaseConfig
     private ?string $instance;
 
     private ?int $queryTimeout = null;
+
+    private ?string $applicationIntent = null;
 
     public static function fromArray(array $data): self
     {
@@ -31,6 +34,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $sslEnabled ? SSLConnectionConfig::fromArray($data['ssl']) : null,
             $data['initQueries'] ?? [],
             $data['queryTimeout'] ?? null,
+            $data['applicationIntent'] ?? null,
         );
     }
 
@@ -45,6 +49,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?SSLConnectionConfig $sslConnectionConfig,
         array $initQueries,
         ?int $queryTimeout = null,
+        ?string $applicationIntent = null,
     ) {
         parent::__construct(
             $host,
@@ -61,6 +66,18 @@ class MssqlDatabaseConfig extends DatabaseConfig
         if ($queryTimeout !== null) {
             $normalizedQueryTimeout = min(abs($queryTimeout), self::MAX_QUERY_TIMEOUT);
             $this->queryTimeout = $normalizedQueryTimeout ?: null;
+        }
+        if ($applicationIntent !== null) {
+            $validValues = ['ReadOnly', 'ReadWrite'];
+            if (!in_array($applicationIntent, $validValues, true)) {
+                throw new UserException(
+                    sprintf(
+                        'ApplicationIntent must be either "ReadOnly" or "ReadWrite", "%s" given.',
+                        $applicationIntent,
+                    ),
+                );
+            }
+            $this->applicationIntent = $applicationIntent;
         }
     }
 
@@ -80,5 +97,18 @@ class MssqlDatabaseConfig extends DatabaseConfig
     public function getQueryTimeout(): ?int
     {
         return $this->queryTimeout;
+    }
+
+    public function hasApplicationIntent(): bool
+    {
+        return $this->applicationIntent !== null;
+    }
+
+    public function getApplicationIntent(): string
+    {
+        if ($this->applicationIntent === null) {
+            throw new PropertyNotSetException('ApplicationIntent is not set.');
+        }
+        return $this->applicationIntent;
     }
 }

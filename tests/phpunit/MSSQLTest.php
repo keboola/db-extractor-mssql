@@ -1724,4 +1724,48 @@ class MSSQLTest extends TestCase
             $manifest,
         );
     }
+
+    public function testApplicationIntentReadOnly(): void
+    {
+        $config = $this->getConfig();
+        $config['parameters']['db']['applicationIntent'] = 'ReadOnly';
+        $config['parameters']['tables'] = [];
+
+        $this->createApplication($config)->execute();
+
+        Assert::assertTrue(
+            $this->logger->hasInfo(
+                "Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;ApplicationIntent=ReadOnly'",
+            ),
+        );
+    }
+
+    public function testApplicationIntentReadWrite(): void
+    {
+        $config = $this->getConfig();
+        $config['parameters']['db']['applicationIntent'] = 'ReadWrite';
+        $config['parameters']['tables'] = [];
+
+        $this->createApplication($config)->execute();
+
+        Assert::assertTrue(
+            $this->logger->hasInfo(
+                "Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;ApplicationIntent=ReadWrite'",
+            ),
+        );
+    }
+
+    public function testApplicationIntentInvalidValue(): void
+    {
+        $config = $this->getConfig();
+        $config['parameters']['db']['applicationIntent'] = 'InvalidValue';
+        $config['parameters']['tables'] = [];
+
+        $this->expectException(UserExceptionInterface::class);
+        $this->expectExceptionMessage(
+            'ApplicationIntent must be either "ReadOnly" or "ReadWrite", "InvalidValue" given.',
+        );
+
+        $this->createApplication($config)->execute();
+    }
 }

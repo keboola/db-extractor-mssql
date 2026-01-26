@@ -107,6 +107,9 @@ class MSSQLPdoConnection extends PdoConnection
 
         $options['Server'] = $host;
         $options['Database'] = $this->databaseConfig->getDatabase();
+        if ($this->databaseConfig->hasApplicationIntent()) {
+            $options['ApplicationIntent'] = $this->databaseConfig->getApplicationIntent();
+        }
         if ($this->databaseConfig->hasSSLConnection()) {
             $options['Encrypt'] = 'true';
             $options['TrustServerCertificate'] =

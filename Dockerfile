@@ -1,4 +1,4 @@
-FROM php:8.2-cli-buster
+FROM php:8.2-cli-bullseye
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -24,9 +24,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unixodbc-dev \
     libgss3 \
     && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/10/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
-    && wget https://packages.microsoft.com/debian/10/prod/pool/main/m/msodbcsql18/msodbcsql18_18.0.1.1-1_amd64.deb \
+    && wget https://packages.microsoft.com/debian/11/prod/pool/main/m/msodbcsql18/msodbcsql18_18.0.1.1-1_amd64.deb \
     && ACCEPT_EULA=Y dpkg -i msodbcsql18_18.0.1.1-1_amd64.deb \
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools \
     && rm -r /var/lib/apt/lists/* \
