@@ -114,6 +114,9 @@ class MSSQLPdoConnection extends PdoConnection
             $options['Encrypt'] = 'true';
             $options['TrustServerCertificate'] =
                 $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+        } else {
+            // ODBC Driver 18 defaults to Encrypt=yes, so explicitly set to false when SSL not configured
+            $options['Encrypt'] = 'false';
         }
 
         // ms sql doesn't support options

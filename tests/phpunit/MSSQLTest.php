@@ -85,7 +85,9 @@ class MSSQLTest extends TestCase
 
         $this->createApplication($config)->execute();
 
-        Assert::assertTrue($this->logger->hasInfo("Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test'"));
+        Assert::assertTrue(
+            $this->logger->hasInfo("Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;Encrypt=false'"),
+        );
 
         Assert::assertCount(1, $this->logger->recordsByLevel[LogLevel::INFO]);
     }
@@ -1735,7 +1737,7 @@ class MSSQLTest extends TestCase
 
         Assert::assertTrue(
             $this->logger->hasInfo(
-                "Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;ApplicationIntent=ReadOnly'",
+                "Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;ApplicationIntent=ReadOnly;Encrypt=false'",
             ),
         );
     }
@@ -1750,7 +1752,7 @@ class MSSQLTest extends TestCase
 
         Assert::assertTrue(
             $this->logger->hasInfo(
-                "Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;ApplicationIntent=ReadWrite'",
+                "Connecting to DSN 'sqlsrv:Server=mssql,1433;Database=test;ApplicationIntent=ReadWrite;Encrypt=false'",
             ),
         );
     }
