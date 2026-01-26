@@ -1,4 +1,4 @@
-FROM php:8.2-cli-bullseye
+FROM php:8.2-cli-trixie
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -19,16 +19,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-transport-https \
     wget \
     libxml2-dev \
+    libicu-dev \
     gnupg2 \
     unixodbc \
     unixodbc-dev \
     libgss3 \
-    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
-    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-prod.gpg] https://packages.microsoft.com/debian/12/prod bookworm main" > /etc/apt/sources.list.d/mssql-release.list \
     && apt-get update \
-    && wget https://packages.microsoft.com/debian/11/prod/pool/main/m/msodbcsql18/msodbcsql18_18.0.1.1-1_amd64.deb \
-    && ACCEPT_EULA=Y dpkg -i msodbcsql18_18.0.1.1-1_amd64.deb \
-    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends mssql-tools \
+    && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 mssql-tools18 \
     && rm -r /var/lib/apt/lists/* \
     && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
     && locale-gen \
@@ -48,7 +47,7 @@ RUN pecl install pdo_sqlsrv-5.10.0 sqlsrv-5.10.0 \
     && docker-php-ext-install xml
 
 # Set path
-ENV PATH $PATH:/opt/mssql-tools/bin
+ENV PATH $PATH:/opt/mssql-tools18/bin
 
 # Fix SSL configuration to be compatible with older servers
 RUN \
