@@ -118,6 +118,9 @@ SELECT $columnsString, IIF(__\$operation = 1, 1, 0) as KBC__DELETED FROM cdc.fn_
 SQL;
                 // @phpcs:enable Generic.Files.LineLength
                 $cdcExportConfig->setQuery($query);
+                // CDC query uses multi-statement T-SQL with PDO-formatted columns,
+                // which is incompatible with BCP's unquoted output format
+                $cdcExportConfig->setDisableBcp(true);
             }
 
             $sqlToLsnTime = <<<SQL
@@ -151,6 +154,7 @@ SQL;
                         $sql[] = 'WITH(NOLOCK)';
                     }
                     $exportConfig->setQuery(implode(' ', $sql));
+                    $exportConfig->setDisableBcp(true);
                     $result = parent::export($exportConfig);
                 } else {
                     throw $e;

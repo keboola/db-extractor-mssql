@@ -131,9 +131,12 @@ class MssqlExportConfig extends ExportConfig
     private function setCdcMode(bool $cdcMode): void
     {
         $this->cdcMode = $cdcMode;
-        if ($cdcMode === true) {
-            $this->disableBcp = true;
-        }
+    }
+
+    public function setDisableBcp(bool $disableBcp): self
+    {
+        $this->disableBcp = $disableBcp;
+        return $this;
     }
 
     public function hasQuery(): bool
