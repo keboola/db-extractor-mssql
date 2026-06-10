@@ -1,7 +1,6 @@
 {
   "parameters": {
     "cdcMode": true,
-    "disableBcp": true,
     "name": "cdc-test",
     "outputTable": "in.cdc_test_table",
     "primaryKey": ["_Weir%d I-D"],

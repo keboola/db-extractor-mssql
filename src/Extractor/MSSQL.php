@@ -101,6 +101,11 @@ class MSSQL extends BaseExtractor
             $columnsString = $this->getQueryFactory()->getColumnsForSelect($exportConfig, $this->connection);
 
             $cdcExportConfig = clone $exportConfig;
+            // CDC always exports via the PDO adapter. Subsequent runs use a multi-statement T-SQL
+            // query (DECLARE/SET ... fn_cdc_get_net_changes) that BCP cannot run; first runs stay on
+            // PDO too so output is consistent across runs and NULLs in typed columns are serialized
+            // correctly by NullAwareCsvWriter (SUPPORT-16443) rather than switching adapters.
+            $cdcExportConfig->setDisableBcp(true);
             if (!empty($this->state['lastFetchedTime'])) {
                 // @phpcs:disable Generic.Files.LineLength
                 $query = <<<SQL
@@ -118,9 +123,6 @@ SELECT $columnsString, IIF(__\$operation = 1, 1, 0) as KBC__DELETED FROM cdc.fn_
 SQL;
                 // @phpcs:enable Generic.Files.LineLength
                 $cdcExportConfig->setQuery($query);
-                // CDC query uses multi-statement T-SQL with PDO-formatted columns,
-                // which is incompatible with BCP's unquoted output format
-                $cdcExportConfig->setDisableBcp(true);
             }
 
             $sqlToLsnTime = <<<SQL
