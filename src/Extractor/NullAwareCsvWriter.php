@@ -13,6 +13,12 @@ use Keboola\Csv\Exception;
  * Snowflake's EMPTY_FIELD_AS_NULL (default TRUE) reliably converts unquoted empty fields
  * to SQL NULL during COPY INTO, regardless of NULL_IF configuration. This ensures correct
  * NULL handling when importing into typed tables with date/timestamp columns.
+ *
+ * Implementation note: rowToStr() re-implements the parent's quote/escape logic because
+ * CsvWriter::rowToStr() coerces null via ($column ?? '') before enclosing, giving us no
+ * hook to emit an unquoted field. The non-NULL branch mirrors CsvWriter ^3.4 internals
+ * (getEnclosure(), getDelimiter()); if those change, this override must be updated.
+ * The line break is hardcoded to "\n" — parent's $lineBreak is private and inaccessible.
  */
 class NullAwareCsvWriter extends CsvWriter
 {
@@ -40,6 +46,8 @@ class NullAwareCsvWriter extends CsvWriter
                     $this->getEnclosure();
             }
         }
+        // Hardcoded "\n": parent's $lineBreak is private; safe because this writer is only
+        // constructed with default options (which use "\n").
         return implode($this->getDelimiter(), $return) . "\n";
     }
 }
