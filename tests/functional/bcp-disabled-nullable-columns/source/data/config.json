@@ -1,0 +1,23 @@
+{
+  "parameters": {
+    "tables": [
+      {
+        "id": 1,
+        "enabled": true,
+        "name": "nullable",
+        "outputTable": "in.c-main.nullable",
+        "incremental": false,
+        "primaryKey": null,
+        "query": "SELECT CAST(id AS VARCHAR(10)) AS id, name FROM \"datetime_with_nulls\" ORDER BY name;",
+        "disableBcp": true
+      }
+    ],
+    "db": {
+      "host": "%env(string:MSSQL_DB_HOST)%",
+      "port": "%env(string:MSSQL_DB_PORT)%",
+      "user": "%env(string:MSSQL_DB_USER)%",
+      "#password": "%env(string:MSSQL_DB_PASSWORD)%",
+      "database": "%env(string:MSSQL_DB_DATABASE)%"
+    }
+  }
+}

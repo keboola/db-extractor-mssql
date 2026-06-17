@@ -1,0 +1,54 @@
+{
+    "destination": "in.c-main.nullable",
+    "incremental": false,
+    "columns": [
+        "id",
+        "name"
+    ],
+    "column_metadata": {
+        "id": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "id"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "id"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "name": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "name"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "name"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ]
+    }
+}
