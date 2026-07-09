@@ -339,14 +339,17 @@ class BcpExportAdapter implements ExportAdapter
      * certificate validation, whereas mssql-tools v17 did not. The `-u` option trusts
      * the server certificate (skips chain validation), allowing export against servers
      * with self-signed / untrusted certificates. This mirrors the PDO connection logic
-     * in MSSQLPdoConnection::buildConnectionOptions(), which sets TrustServerCertificate
-     * from the SSL config's isVerifyServerCert(): trust the certificate unless the user
-     * explicitly enabled SSL with verifyServerCert = true.
+     * in MSSQLPdoConnection: trust the certificate unless the user explicitly enabled SSL
+     * with verifyServerCert = true. The ignoreCertificateCn option is the exception: the
+     * PDO path (MSSQLPdoConnection::connect()) retries with TrustServerCertificate = true
+     * when the certificate CN does not match the host, so bcp must trust the certificate
+     * too - otherwise bcp fails CN validation and the export needlessly falls back to PDO.
      */
     private function getTrustServerCertificateFlag(): string
     {
         if ($this->databaseConfig->hasSSLConnection()
             && $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert()
+            && !$this->databaseConfig->getSslConnectionConfig()->isIgnoreCertificateCn()
         ) {
             return '';
         }
