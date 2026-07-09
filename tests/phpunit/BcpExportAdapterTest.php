@@ -107,7 +107,9 @@ class BcpExportAdapterTest extends TestCase
         $this->assertStringNotContainsString('-U ', $cmd);
 
         // The token file must exist and be UTF-16LE encoded (no BOM).
-        $this->assertSame(1, preg_match('/-P \'([^\']+)\'/', $cmd, $m));
+        if (preg_match('/-P \'([^\']+)\'/', $cmd, $m) !== 1) {
+            self::fail('The bcp command must reference the access-token file via -P.');
+        }
         $tokenFile = $m[1];
         $this->assertFileExists($tokenFile);
         $this->assertSame(
@@ -131,6 +133,11 @@ class BcpExportAdapterTest extends TestCase
         $method = (new ReflectionClass($adapter))->getMethod('createBcpCommand');
         $method->setAccessible(true);
 
-        return (string) $method->invoke($adapter, '/tmp/output.csv', 'SELECT 1');
+        $command = $method->invoke($adapter, '/tmp/output.csv', 'SELECT 1');
+        if (!is_string($command)) {
+            self::fail('createBcpCommand() should return a string.');
+        }
+
+        return $command;
     }
 }
