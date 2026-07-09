@@ -8,6 +8,7 @@ use Keboola\Csv\CsvReader;
 use Keboola\DbExtractor\Adapter\ExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Adapter\ValueObject\ExportResult;
+use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
@@ -17,6 +18,7 @@ use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
+use Keboola\DbExtractor\Extractor\ServicePrincipalTokenProvider;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Psr\Log\LoggerInterface;
@@ -39,18 +41,24 @@ class BcpExportAdapter implements ExportAdapter
 
     private LoggerInterface $logger;
 
+    private ?ServicePrincipalTokenProvider $tokenProvider;
+
+    private ?string $tokenFile = null;
+
     public function __construct(
         LoggerInterface $logger,
         MSSQLPdoConnection $connection,
         MetadataProvider $metadataProvider,
         DatabaseConfig $databaseConfig,
         MSSQLQueryFactory $queryFactory,
+        ?ServicePrincipalTokenProvider $tokenProvider = null,
     ) {
         $this->logger = $logger;
         $this->connection = $connection;
         $this->metadataProvider = $metadataProvider;
         $this->databaseConfig = $databaseConfig;
         $this->simpleQueryFactory = $queryFactory;
+        $this->tokenProvider = $tokenProvider;
     }
 
     public function getName(): string
@@ -92,6 +100,8 @@ class BcpExportAdapter implements ExportAdapter
         } catch (BcpAdapterException $pdoError) {
             @unlink($csvFilePath);
             throw new UserException($pdoError->getMessage());
+        } finally {
+            $this->cleanupTokenFile();
         }
     }
 
@@ -286,13 +296,24 @@ class BcpExportAdapter implements ExportAdapter
         $serverName = $this->databaseConfig->getHost();
         $serverName .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
 
+        if ($this->hasServicePrincipal()) {
+            // bcp cannot use a Service Principal directly, but v17.8+ accepts an Azure AD
+            // access-token file via `-G -P <tokenfile>` (no `-U`).
+            $credentials = sprintf('-G -P %s', escapeshellarg($this->createServicePrincipalTokenFile()));
+        } else {
+            $credentials = sprintf(
+                '-U %s -P %s',
+                escapeshellarg($this->databaseConfig->getUsername()),
+                escapeshellarg($this->databaseConfig->getPassword()),
+            );
+        }
+
         $cmd = sprintf(
-            'bcp %s queryout %s -S %s -U %s -P %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c',
+            'bcp %s queryout %s -S %s %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c',
             escapeshellarg($query),
             escapeshellarg($filename),
             escapeshellarg($serverName),
-            escapeshellarg($this->databaseConfig->getUsername()),
-            escapeshellarg($this->databaseConfig->getPassword()),
+            $credentials,
             escapeshellarg($this->databaseConfig->getDatabase()),
         );
 
@@ -315,5 +336,33 @@ class BcpExportAdapter implements ExportAdapter
         $retryPolicy = new SimpleRetryPolicy($maxTries, [BcpAdapterException::class]);
         $backoffPolicy = new ExponentialBackOffPolicy(1000);
         return new RetryProxy($retryPolicy, $backoffPolicy, $this->logger);
+    }
+
+    private function hasServicePrincipal(): bool
+    {
+        return $this->databaseConfig instanceof MssqlDatabaseConfig
+            && $this->databaseConfig->hasServicePrincipal();
+    }
+
+    private function createServicePrincipalTokenFile(): string
+    {
+        /** @var MssqlDatabaseConfig $config */
+        $config = $this->databaseConfig;
+        $provider = $this->tokenProvider ?? new ServicePrincipalTokenProvider(
+            $config->getTenantId(),
+            $config->getClientId(),
+            $config->getClientSecret(),
+        );
+
+        $this->tokenFile = ServicePrincipalTokenProvider::createTokenFile($provider->getAccessToken());
+        return $this->tokenFile;
+    }
+
+    private function cleanupTokenFile(): void
+    {
+        if ($this->tokenFile !== null) {
+            @unlink($this->tokenFile);
+            $this->tokenFile = null;
+        }
     }
 }

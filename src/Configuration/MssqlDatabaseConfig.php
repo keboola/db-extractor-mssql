@@ -16,6 +16,12 @@ class MssqlDatabaseConfig extends DatabaseConfig
 
     private ?int $queryTimeout = null;
 
+    private ?string $tenantId;
+
+    private ?string $clientId;
+
+    private ?string $clientSecret;
+
     public static function fromArray(array $data): self
     {
         $sslEnabled = !empty($data['ssl']) && !empty($data['ssl']['enabled']);
@@ -24,13 +30,16 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $data['host'],
             $data['instance'] ?? null,
             isset($data['port']) ? (string) $data['port'] : null,
-            $data['user'],
-            $data['#password'],
+            $data['user'] ?? '',
+            $data['#password'] ?? '',
             $data['database'] ?? null,
             $data['schema'] ?? null,
             $sslEnabled ? SSLConnectionConfig::fromArray($data['ssl']) : null,
             $data['initQueries'] ?? [],
             $data['queryTimeout'] ?? null,
+            $data['tenantId'] ?? null,
+            $data['clientId'] ?? null,
+            $data['#clientSecret'] ?? null,
         );
     }
 
@@ -45,6 +54,9 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?SSLConnectionConfig $sslConnectionConfig,
         array $initQueries,
         ?int $queryTimeout = null,
+        ?string $tenantId = null,
+        ?string $clientId = null,
+        ?string $clientSecret = null,
     ) {
         parent::__construct(
             $host,
@@ -62,6 +74,9 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $normalizedQueryTimeout = min(abs($queryTimeout), self::MAX_QUERY_TIMEOUT);
             $this->queryTimeout = $normalizedQueryTimeout ?: null;
         }
+        $this->tenantId = $tenantId ?: null;
+        $this->clientId = $clientId ?: null;
+        $this->clientSecret = $clientSecret ?: null;
     }
 
     public function hasInstance(): bool
@@ -80,5 +95,53 @@ class MssqlDatabaseConfig extends DatabaseConfig
     public function getQueryTimeout(): ?int
     {
         return $this->queryTimeout;
+    }
+
+    /**
+     * Azure AD Service Principal auth is used when all three credentials are present.
+     */
+    public function hasServicePrincipal(): bool
+    {
+        return $this->tenantId !== null && $this->clientId !== null && $this->clientSecret !== null;
+    }
+
+    public function getTenantId(): string
+    {
+        if ($this->tenantId === null) {
+            throw new PropertyNotSetException('Property "tenantId" is not set.');
+        }
+        return $this->tenantId;
+    }
+
+    public function getClientId(): string
+    {
+        if ($this->clientId === null) {
+            throw new PropertyNotSetException('Property "clientId" is not set.');
+        }
+        return $this->clientId;
+    }
+
+    public function getClientSecret(): string
+    {
+        if ($this->clientSecret === null) {
+            throw new PropertyNotSetException('Property "#clientSecret" is not set.');
+        }
+        return $this->clientSecret;
+    }
+
+    /**
+     * Username passed to the PDO/ODBC driver. For Service Principal auth this is the client ID.
+     */
+    public function getConnectionUsername(): string
+    {
+        return $this->hasServicePrincipal() ? $this->getClientId() : $this->getUsername();
+    }
+
+    /**
+     * Password passed to the PDO/ODBC driver. For Service Principal auth this is the client secret.
+     */
+    public function getConnectionPassword(): string
+    {
+        return $this->hasServicePrincipal() ? $this->getClientSecret() : $this->getPassword();
     }
 }
