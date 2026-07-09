@@ -117,6 +117,13 @@ class MSSQLPdoConnection extends PdoConnection
             $options['Encrypt'] = 'true';
             $options['TrustServerCertificate'] =
                 $databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+        } elseif (!$databaseConfig->hasServicePrincipal()) {
+            // ODBC Driver 18 defaults to mandatory TLS encryption with full server certificate
+            // validation. Without an explicit SSL config (and outside Azure AD auth) we still
+            // connect to servers using self-signed certificates, so trust the server certificate
+            // to preserve the previous behaviour. This mirrors the bcp export path in
+            // BcpExportAdapter::getTrustServerCertificateFlag() (the `-u` option).
+            $options['TrustServerCertificate'] = 'true';
         }
 
         if ($databaseConfig->hasServicePrincipal()) {

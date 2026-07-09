@@ -24,6 +24,7 @@ class MSSQLPdoConnectionOptionsTest extends TestCase
 
         $this->assertSame('localhost,1433', $options['Server']);
         $this->assertSame('test', $options['Database']);
+        $this->assertSame('true', $options['TrustServerCertificate']);
         $this->assertArrayNotHasKey('Authentication', $options);
     }
 
