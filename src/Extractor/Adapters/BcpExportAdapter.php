@@ -309,12 +309,13 @@ class BcpExportAdapter implements ExportAdapter
         }
 
         $cmd = sprintf(
-            'bcp %s queryout %s -S %s %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c',
+            'bcp %s queryout %s -S %s %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c%s',
             escapeshellarg($query),
             escapeshellarg($filename),
             escapeshellarg($serverName),
             $credentials,
             escapeshellarg($this->databaseConfig->getDatabase()),
+            $this->getTrustServerCertificateFlag(),
         );
 
         $commandForLogger = preg_replace('/-P.*-d/', '-P ***** -d', $cmd);
@@ -329,6 +330,28 @@ class BcpExportAdapter implements ExportAdapter
             $commandForLogger,
         ));
         return $cmd;
+    }
+
+    /**
+     * Returns the bcp "trust server certificate" flag (`-u`) when appropriate.
+     *
+     * `bcp` in mssql-tools18 defaults to mandatory TLS encryption with full server
+     * certificate validation, whereas mssql-tools v17 did not. The `-u` option trusts
+     * the server certificate (skips chain validation), allowing export against servers
+     * with self-signed / untrusted certificates. This mirrors the PDO connection logic
+     * in MSSQLPdoConnection::buildConnectionOptions(), which sets TrustServerCertificate
+     * from the SSL config's isVerifyServerCert(): trust the certificate unless the user
+     * explicitly enabled SSL with verifyServerCert = true.
+     */
+    private function getTrustServerCertificateFlag(): string
+    {
+        if ($this->databaseConfig->hasSSLConnection()
+            && $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert()
+        ) {
+            return '';
+        }
+
+        return ' -u';
     }
 
     private function createRetryProxy(int $maxTries): RetryProxy

@@ -31,6 +31,61 @@ class BcpExportAdapterTest extends TestCase
         $this->assertStringContainsString('-U ', $cmd);
         $this->assertStringContainsString("'sa'", $cmd);
         $this->assertStringNotContainsString('-G', $cmd);
+        // Without an SSL config, bcp (mssql-tools18) must trust the server certificate.
+        $this->assertStringContainsString(' -u', $cmd);
+    }
+
+    public function testTrustServerCertificateWhenNoSsl(): void
+    {
+        $config = MssqlDatabaseConfig::fromArray([
+            'host' => 'localhost',
+            'port' => '1433',
+            'database' => 'test',
+            'user' => 'sa',
+            '#password' => 'secret',
+        ]);
+
+        $cmd = $this->buildCommand($config, null);
+
+        $this->assertStringContainsString(' -u', $cmd);
+    }
+
+    public function testTrustServerCertificateWhenVerifyServerCertDisabled(): void
+    {
+        $config = MssqlDatabaseConfig::fromArray([
+            'host' => 'localhost',
+            'port' => '1433',
+            'database' => 'test',
+            'user' => 'sa',
+            '#password' => 'secret',
+            'ssl' => [
+                'enabled' => true,
+                'verifyServerCert' => false,
+            ],
+        ]);
+
+        $cmd = $this->buildCommand($config, null);
+
+        $this->assertStringContainsString(' -u', $cmd);
+    }
+
+    public function testNoTrustServerCertificateWhenVerifyServerCertEnabled(): void
+    {
+        $config = MssqlDatabaseConfig::fromArray([
+            'host' => 'localhost',
+            'port' => '1433',
+            'database' => 'test',
+            'user' => 'sa',
+            '#password' => 'secret',
+            'ssl' => [
+                'enabled' => true,
+                'verifyServerCert' => true,
+            ],
+        ]);
+
+        $cmd = $this->buildCommand($config, null);
+
+        $this->assertStringNotContainsString(' -u', $cmd);
     }
 
     public function testServicePrincipalCommand(): void
