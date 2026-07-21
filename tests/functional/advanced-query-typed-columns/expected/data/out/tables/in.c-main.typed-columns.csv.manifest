@@ -1,0 +1,100 @@
+{
+    "destination": "in.c-main.typed-columns",
+    "incremental": false,
+    "columns": [
+        "someInteger",
+        "someDecimal",
+        "smalldatetime",
+        "datetime"
+    ],
+    "column_metadata": {
+        "someInteger": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "INTEGER"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "someInteger"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "someInteger"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "someDecimal": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "NUMERIC"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "someDecimal"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "someDecimal"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "smalldatetime": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "TIMESTAMP"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "smalldatetime"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "smalldatetime"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "datetime": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "TIMESTAMP"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "datetime"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "datetime"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ]
+    }
+}

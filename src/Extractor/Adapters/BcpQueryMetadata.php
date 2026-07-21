@@ -8,6 +8,7 @@ use Keboola\DbExtractor\Adapter\Exception\UserException;
 use Keboola\DbExtractor\Adapter\ValueObject\QueryMetadata;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
+use Keboola\DbExtractor\Metadata\SystemTypeName;
 use Keboola\DbExtractor\TableResultFormat\Metadata\Builder\ColumnBuilder;
 use Keboola\DbExtractor\TableResultFormat\Metadata\ValueObject\ColumnCollection;
 use Throwable;
@@ -44,7 +45,9 @@ class BcpQueryMetadata implements QueryMetadata
                     ));
                 }
                 $builder->setName($columnMetadata['name']);
-                $builder->setType($columnMetadata['system_type_name']);
+                $systemTypeName = SystemTypeName::parse($columnMetadata['system_type_name']);
+                $builder->setType($systemTypeName->getType());
+                $builder->setLength($systemTypeName->getLength());
                 $columns[] = $builder->build();
             }
             return new ColumnCollection($columns);
