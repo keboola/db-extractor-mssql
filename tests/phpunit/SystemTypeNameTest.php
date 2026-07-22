@@ -46,7 +46,7 @@ class SystemTypeNameTest extends TestCase
             'datetime2 low precision' => ['datetime2(0)', 'datetime2', null],
             'datetimeoffset' => ['datetimeoffset(7)', 'datetimeoffset', null],
             'time' => ['time(7)', 'time', null],
-            'uppercase input keeps case' => ['DATETIME2(7)', 'DATETIME2', null],
+            'uppercase input is lowercased' => ['DATETIME2(7)', 'datetime2', null],
             'surrounding whitespace' => [' datetime2(7) ', 'datetime2', null],
             'empty string' => ['', '', null],
         ];

@@ -10,6 +10,8 @@ namespace Keboola\DbExtractor\Metadata;
  *
  * The bare type name and the length are separated, so the type name can be matched
  * by exact-match basetype mapping (GenericStorage::getBasetype).
+ *
+ * The type name is always returned lowercase.
  */
 final class SystemTypeName
 {
@@ -20,10 +22,10 @@ final class SystemTypeName
     public static function parse(string $systemTypeName): self
     {
         if (preg_match('~^(?<type>[^(]+)\((?<qualifier>[^)]+)\)$~', trim($systemTypeName), $matches) !== 1) {
-            return new self(trim($systemTypeName), null);
+            return new self(strtolower(trim($systemTypeName)), null);
         }
 
-        $type = trim($matches['type']);
+        $type = strtolower(trim($matches['type']));
         return new self($type, self::normalizeLength($type, trim($matches['qualifier'])));
     }
 
@@ -34,7 +36,7 @@ final class SystemTypeName
         }
 
         // Consistent with the table export path, see MssqlSqlHelper::getFieldLength()
-        if (in_array(strtolower($type), MssqlSqlHelper::DATE_TIME_TYPES, true)) {
+        if (in_array($type, MssqlSqlHelper::DATE_TIME_TYPES, true)) {
             return null;
         }
 
