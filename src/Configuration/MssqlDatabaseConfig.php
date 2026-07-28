@@ -137,7 +137,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?string $clientSecret,
     ): void {
         if ($authType === self::AUTH_TYPE_AD_SERVICE_PRINCIPAL) {
-            if (empty($clientId) || empty($clientSecret)) {
+            if ($clientId === null || $clientId === '' || $clientSecret === null || $clientSecret === '') {
                 throw new UserException(
                     'The "clientId" and "#clientSecret" parameters are required '
                     . 'for the "ad_service_principal" authentication type.',
@@ -147,7 +147,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         }
 
         // sql and ad_password both authenticate with the user / #password fields
-        if (empty($username) || empty($password)) {
+        if ($username === null || $username === '' || $password === null || $password === '') {
             throw new UserException(
                 'The "user" and "#password" parameters are required '
                 . sprintf('for the "%s" authentication type.', $authType),

@@ -58,14 +58,7 @@ class MSSQL extends BaseExtractor
     {
         $adapters = [];
 
-        // The bcp CLI cannot authenticate with Microsoft Entra ID (it has no service-principal flag),
-        // so Entra auth types export exclusively through the PDO adapter. SQL auth keeps bcp as the
-        // primary fast-export path, unchanged.
-        $databaseConfig = $this->getDatabaseConfig();
-        $bcpSupported = !($databaseConfig instanceof MssqlDatabaseConfig)
-            || $databaseConfig->getAuthType() === MssqlDatabaseConfig::AUTH_TYPE_SQL;
-
-        if ($bcpSupported) {
+        if (self::isBcpSupported($this->getDatabaseConfig())) {
             $adapters[] = new BcpExportAdapter(
                 $this->logger,
                 $this->connection,
@@ -85,6 +78,17 @@ class MSSQL extends BaseExtractor
         );
 
         return new FallbackExportAdapter($this->logger, $adapters);
+    }
+
+    /**
+     * The bcp CLI cannot authenticate with Microsoft Entra ID (it has no service-principal flag), so
+     * Entra auth types must export exclusively through the PDO adapter. SQL auth keeps bcp as the
+     * primary fast-export path, unchanged. Any non-MSSQL config defensively keeps bcp enabled.
+     */
+    public static function isBcpSupported(DatabaseConfig $databaseConfig): bool
+    {
+        return !($databaseConfig instanceof MssqlDatabaseConfig)
+            || $databaseConfig->getAuthType() === MssqlDatabaseConfig::AUTH_TYPE_SQL;
     }
 
     public function createConnection(DatabaseConfig $databaseConfig): void
