@@ -95,6 +95,28 @@ class MSSQLPdoConnectionTest extends TestCase
         self::assertSame(['user@contoso.com', 'Password.1'], MSSQLPdoConnection::resolveCredentials($config));
     }
 
+    public function testCredentialsBraceEscaped(): void
+    {
+        // The sqlsrv driver misparses a bare `}` in the PDO password argument, so both the SQL
+        // #password and the service-principal #clientSecret must have `}` doubled.
+        $sqlConfig = MssqlDatabaseConfig::fromArray([
+            'host' => 'mssql',
+            'user' => 'sa',
+            '#password' => 'pass}word',
+            'database' => 'test',
+        ]);
+        self::assertSame(['sa', 'pass}}word'], MSSQLPdoConnection::resolveCredentials($sqlConfig));
+
+        $spConfig = MssqlDatabaseConfig::fromArray([
+            'host' => 'example.datawarehouse.fabric.microsoft.com',
+            'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
+            'clientId' => 'app-client-id',
+            '#clientSecret' => 'sec}ret',
+            'database' => 'MyWarehouse',
+        ]);
+        self::assertSame(['app-client-id', 'sec}}ret'], MSSQLPdoConnection::resolveCredentials($spConfig));
+    }
+
     public function testServicePrincipalRequiresClientCredentials(): void
     {
         $this->expectException(UserException::class);

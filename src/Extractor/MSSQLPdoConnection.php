@@ -201,7 +201,10 @@ class MSSQLPdoConnection extends PdoConnection
     public static function resolveCredentials(MssqlDatabaseConfig $databaseConfig): array
     {
         if ($databaseConfig->getAuthType() === MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL) {
-            return [$databaseConfig->getClientId(), $databaseConfig->getClientSecret()];
+            // The secret is passed as the PDO password argument, so it needs the same brace-escaping
+            // the legacy #password path applies (the sqlsrv driver misparses a bare `}`).
+            $clientSecret = str_ireplace('}', '}}', $databaseConfig->getClientSecret());
+            return [$databaseConfig->getClientId(), $clientSecret];
         }
 
         $password = str_ireplace('}', '}}', $databaseConfig->getPassword());
