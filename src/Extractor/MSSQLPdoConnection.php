@@ -101,17 +101,7 @@ class MSSQLPdoConnection extends PdoConnection
 
     public function connect(): void
     {
-        $host = $this->databaseConfig->getHost();
-        $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
-        $host .= $this->databaseConfig->hasInstance() ? '\\\\' . $this->databaseConfig->getInstance() : '';
-
-        $options['Server'] = $host;
-        $options['Database'] = $this->databaseConfig->getDatabase();
-        if ($this->databaseConfig->hasSSLConnection()) {
-            $options['Encrypt'] = 'true';
-            $options['TrustServerCertificate'] =
-                $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
-        }
+        $options = self::buildConnectionOptions($this->databaseConfig);
 
         // ms sql doesn't support options
         try {
@@ -147,13 +137,75 @@ class MSSQLPdoConnection extends PdoConnection
 
     private function createPdoInstance(array $options): PDO
     {
-        $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
-            return sprintf('%s=%s', $key, $item);
-        }, array_keys($options), $options)));
+        $dsn = self::buildDsn($options);
 
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
-        $password = str_ireplace('}', '}}', $this->databaseConfig->getPassword());
-        return new PDO($dsn, $this->databaseConfig->getUsername(), $password);
+        [$username, $password] = self::resolveCredentials($this->databaseConfig);
+        return new PDO($dsn, $username, $password);
+    }
+
+    /**
+     * Build the sqlsrv DSN option map. For Microsoft Entra ID auth types the `Authentication=` keyword
+     * (and mandatory encryption) are added; SQL auth keeps exactly the previous option set so existing
+     * configs produce a byte-identical DSN. Credentials are never placed in the DSN — see resolveCredentials().
+     *
+     * @return array<string, string>
+     */
+    public static function buildConnectionOptions(MssqlDatabaseConfig $databaseConfig): array
+    {
+        $host = $databaseConfig->getHost();
+        $host .= $databaseConfig->hasPort() ? ',' . $databaseConfig->getPort() : '';
+        $host .= $databaseConfig->hasInstance() ? '\\\\' . $databaseConfig->getInstance() : '';
+
+        $options = [];
+        $options['Server'] = $host;
+        $options['Database'] = $databaseConfig->getDatabase();
+
+        switch ($databaseConfig->getAuthType()) {
+            case MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL:
+                $options['Authentication'] = 'ActiveDirectoryServicePrincipal';
+                $options['Encrypt'] = 'true';
+                break;
+            case MssqlDatabaseConfig::AUTH_TYPE_AD_PASSWORD:
+                $options['Authentication'] = 'ActiveDirectoryPassword';
+                $options['Encrypt'] = 'true';
+                break;
+        }
+
+        if ($databaseConfig->hasSSLConnection()) {
+            $options['Encrypt'] = 'true';
+            $options['TrustServerCertificate'] =
+                $databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+        }
+
+        return $options;
+    }
+
+    /**
+     * @param array<string, string> $options
+     */
+    public static function buildDsn(array $options): string
+    {
+        return sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
+            return sprintf('%s=%s', $key, $item);
+        }, array_keys($options), $options)));
+    }
+
+    /**
+     * Resolve the PDO username/password positional arguments for the configured auth type. Service
+     * principal uses the application (client) id and secret; SQL and Entra-password auth use the
+     * user / #password fields (with the legacy brace-escaping preserved for the password).
+     *
+     * @return array{0: string, 1: string}
+     */
+    public static function resolveCredentials(MssqlDatabaseConfig $databaseConfig): array
+    {
+        if ($databaseConfig->getAuthType() === MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL) {
+            return [$databaseConfig->getClientId(), $databaseConfig->getClientSecret()];
+        }
+
+        $password = str_ireplace('}', '}}', $databaseConfig->getPassword());
+        return [$databaseConfig->getUsername(), $password];
     }
 
     public function query(string $query, int $maxRetries = self::DEFAULT_MAX_RETRIES, array $values = []): QueryResult
