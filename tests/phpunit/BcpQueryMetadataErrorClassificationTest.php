@@ -27,16 +27,21 @@ use Throwable;
  */
 class BcpQueryMetadataErrorClassificationTest extends TestCase
 {
+    private const QUERY = "EXEC sp_describe_first_result_set N'SELECT [id], [name] FROM [dbo].[items]', null, 0;";
+
     /**
-     * The connection layer retries transient DB errors (PDOException) with exponential
-     * backoff and, once the retries are exhausted, reports them as UserRetriedException.
-     * Such an already user-classified failure must stay a user error, otherwise the job
-     * ends with an opaque "internal error" (exit code 2) instead of an actionable
-     * message (exit code 1).
+     * A PDOException raised by the connection->query() call never reaches handleException()
+     * as-is: BaseDbConnection::callWithRetry() retries it with exponential backoff and, once
+     * the retries are exhausted, converts it to a UserRetriedException, which already
+     * implements UserExceptionInterface.
+     *
+     * Such an already user-classified failure must stay a user error, otherwise the job ends
+     * with an opaque "internal error" (exit code 2) instead of an actionable message (exit
+     * code 1).
      */
     public function testRetriedTransientDbErrorStaysUserException(): void
     {
-        $exception = $this->handleException(new UserRetriedException(
+        $exception = $this->classify(new UserRetriedException(
             5,
             'SQLSTATE[HYT00]: [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired',
         ));
@@ -47,12 +52,13 @@ class BcpQueryMetadataErrorClassificationTest extends TestCase
     }
 
     /**
-     * The same holds for the UserException that getColumns() itself raises when the
-     * metadata result is incomplete - its message is written for the user.
+     * The same holds for the UserException that getColumns() itself raises when the metadata
+     * result is incomplete - its message is written for the user, so it must not be reported
+     * as an internal error either.
      */
     public function testUserExceptionIsNotDowngraded(): void
     {
-        $exception = $this->handleException(new UserException('Cannot retrieve all column metadata'));
+        $exception = $this->classify(new UserException('Cannot retrieve all column metadata'));
 
         $this->assertInstanceOf(UserExceptionInterface::class, $exception);
         $this->assertNotInstanceOf(ApplicationExceptionInterface::class, $exception);
@@ -60,12 +66,12 @@ class BcpQueryMetadataErrorClassificationTest extends TestCase
     }
 
     /**
-     * Unchanged behaviour: anything that is not already user-classified is still wrapped
-     * in a BcpAdapterException (an ApplicationException).
+     * Unchanged behaviour: anything that is not already user-classified is still wrapped in a
+     * BcpAdapterException (an ApplicationException).
      */
     public function testUnexpectedErrorStillBecomesApplicationException(): void
     {
-        $exception = $this->handleException(new RuntimeException('Something unexpected'));
+        $exception = $this->classify(new RuntimeException('Something unexpected'));
 
         $this->assertInstanceOf(BcpAdapterException::class, $exception);
         $this->assertInstanceOf(ApplicationExceptionInterface::class, $exception);
@@ -74,12 +80,13 @@ class BcpQueryMetadataErrorClassificationTest extends TestCase
     }
 
     /**
-     * Unchanged behaviour: a raw PDOException (not retried by the connection layer) is
-     * still reported as a BcpAdapterException.
+     * Unchanged behaviour, and a reachable path rather than a dead guard: getColumns() calls
+     * fetchAll() on the result *outside* callWithRetry(), so a fetch-time PDOException arrives
+     * here un-wrapped and is still reported as a BcpAdapterException.
      */
-    public function testPdoExceptionStillBecomesApplicationException(): void
+    public function testRawPdoExceptionStillBecomesApplicationException(): void
     {
-        $exception = $this->handleException(new PDOException('SQLSTATE[42S02]: Base table not found'));
+        $exception = $this->classify(new PDOException('SQLSTATE[42S02]: Base table not found'));
 
         $this->assertInstanceOf(BcpAdapterException::class, $exception);
         $this->assertInstanceOf(ApplicationExceptionInterface::class, $exception);
@@ -87,14 +94,14 @@ class BcpQueryMetadataErrorClassificationTest extends TestCase
     }
 
     /**
-     * Unchanged behaviour: the "uses a temp table" branch keeps its own dedicated
-     * message and still takes precedence over the generic handling.
+     * Unchanged behaviour: the "uses a temp table" branch is evaluated first, so it keeps its
+     * own dedicated message and still takes precedence over the generic handling.
      */
     public function testTempTableErrorKeepsDedicatedMessage(): void
     {
-        $exception = $this->handleException(new PDOException(
+        $exception = $this->classify(new PDOException(
             '[Microsoft][ODBC Driver 17 for SQL Server][SQL Server]The metadata could not be determined '
-            . "because statement 'delete from #ErrFile' uses a temp table.",
+            . "because statement 'delete from #tmp' uses a temp table.",
         ));
 
         $this->assertInstanceOf(UserException::class, $exception);
@@ -102,14 +109,13 @@ class BcpQueryMetadataErrorClassificationTest extends TestCase
         $this->assertStringContainsString('uses a temp table.', $exception->getMessage());
     }
 
-    private function handleException(Throwable $exception): Throwable
+    private function classify(Throwable $exception): Throwable
     {
-        $query = 'SELECT 1';
-        $object = new BcpQueryMetadata($this->createMock(MSSQLPdoConnection::class), $query);
+        $object = new BcpQueryMetadata($this->createMock(MSSQLPdoConnection::class), self::QUERY);
 
         $method = (new ReflectionClass($object))->getMethod('handleException');
         $method->setAccessible(true);
-        $result = $method->invoke($object, $exception, $query);
+        $result = $method->invoke($object, $exception, self::QUERY);
 
         $this->assertInstanceOf(Throwable::class, $result);
 

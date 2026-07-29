@@ -71,6 +71,7 @@ class BcpQueryMetadata implements QueryMetadata
                 $e,
             );
         }
+
         // The connection layer already retries transient DB errors (PDOException) with
         // exponential backoff and, once the retries are exhausted, reports them as a user
         // exception - e.g. UserRetriedException for "Login timeout expired". Re-wrapping an
