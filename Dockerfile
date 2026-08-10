@@ -1,4 +1,4 @@
-FROM php:8.2-cli-bullseye
+FROM php:8.3-cli-bullseye
 
 ARG COMPOSER_FLAGS="--prefer-dist --no-interaction"
 ARG DEBIAN_FRONTEND=noninteractive
@@ -41,7 +41,9 @@ ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
 # PDO mssql
-RUN pecl install pdo_sqlsrv-5.10.0 sqlsrv-5.10.0 \
+# 5.13.x is the first release that fixes the "segfault when connecting to Fabric" on the
+# Microsoft Entra service-principal auth path (msphpsql 5.13.0). It requires PHP >= 8.3.
+RUN pecl install pdo_sqlsrv-5.13.3 sqlsrv-5.13.3 \
     && docker-php-ext-enable sqlsrv pdo_sqlsrv \
     && docker-php-ext-install xml
 
