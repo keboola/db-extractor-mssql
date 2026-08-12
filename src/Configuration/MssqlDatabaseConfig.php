@@ -23,6 +23,8 @@ class MssqlDatabaseConfig extends DatabaseConfig
 
     private ?string $clientSecret;
 
+    private ?string $tenantId;
+
     private ?string $instance;
 
     private ?int $queryTimeout = null;
@@ -41,6 +43,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $data['#password'] ?? null,
             $data['clientId'] ?? null,
             $data['#clientSecret'] ?? null,
+            $data['tenantId'] ?? null,
             $data['database'] ?? null,
             $data['schema'] ?? null,
             $sslEnabled ? SSLConnectionConfig::fromArray($data['ssl']) : null,
@@ -58,6 +61,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?string $password,
         ?string $clientId,
         ?string $clientSecret,
+        ?string $tenantId,
         ?string $database,
         ?string $schema,
         ?SSLConnectionConfig $sslConnectionConfig,
@@ -67,7 +71,8 @@ class MssqlDatabaseConfig extends DatabaseConfig
         $this->authType = $authType;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
-        $this->validateCredentials($authType, $username, $password, $clientId, $clientSecret);
+        $this->tenantId = $tenantId;
+        $this->validateCredentials($authType, $username, $password, $clientId, $clientSecret, $tenantId);
 
         // Service principal auth uses the client id / secret as the connection credentials, so the
         // legacy user/#password fields are absent. The parent value object types them as non-null
@@ -111,6 +116,19 @@ class MssqlDatabaseConfig extends DatabaseConfig
         return $this->clientSecret;
     }
 
+    public function hasTenantId(): bool
+    {
+        return $this->tenantId !== null && $this->tenantId !== '';
+    }
+
+    public function getTenantId(): string
+    {
+        if ($this->tenantId === null) {
+            throw new PropertyNotSetException('Property "tenantId" is not set.');
+        }
+        return $this->tenantId;
+    }
+
     public function hasInstance(): bool
     {
         return $this->instance !== null;
@@ -135,11 +153,14 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?string $password,
         ?string $clientId,
         ?string $clientSecret,
+        ?string $tenantId,
     ): void {
         if ($authType === self::AUTH_TYPE_AD_SERVICE_PRINCIPAL) {
-            if ($clientId === null || $clientId === '' || $clientSecret === null || $clientSecret === '') {
+            if ($clientId === null || $clientId === '' || $clientSecret === null || $clientSecret === ''
+                || $tenantId === null || $tenantId === ''
+            ) {
                 throw new UserException(
-                    'The "clientId" and "#clientSecret" parameters are required '
+                    'The "clientId", "#clientSecret" and "tenantId" parameters are required '
                     . 'for the "ad_service_principal" authentication type.',
                 );
             }

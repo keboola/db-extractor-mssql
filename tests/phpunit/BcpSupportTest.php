@@ -34,6 +34,7 @@ class BcpSupportTest extends TestCase
             'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
             'clientId' => 'app-client-id',
             '#clientSecret' => 'the-secret',
+            'tenantId' => 'the-tenant',
             'database' => 'MyWarehouse',
         ]);
 

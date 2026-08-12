@@ -117,6 +117,7 @@ class MSSQLPdoConnection extends PdoConnection
 
                 $this->pdo = $this->createPdoInstance($options);
             } else {
+                $this->logConnectionError($e);
                 throw new UserException($e->getMessage(), 0, $e);
             }
         }
@@ -133,6 +134,22 @@ class MSSQLPdoConnection extends PdoConnection
                 $this->logger->info('Using SSL connection');
             }
         }
+    }
+
+    /**
+     * Log whatever detail the driver exposed about a failed connection. The Microsoft ODBC driver can
+     * return an opaque, diagnostic-less error on the Entra auth paths (SQLSTATE IMSSP), so capturing the
+     * SQLSTATE and the raw errorInfo alongside the auth type makes a repeat failure debuggable from the
+     * job log instead of a bare "The ODBC operation failed" message.
+     */
+    private function logConnectionError(PDOException $e): void
+    {
+        $this->logger->error(sprintf(
+            'MSSQL connection failed (authType "%s"): SQLSTATE "%s", errorInfo: %s',
+            $this->databaseConfig->getAuthType(),
+            (string) $e->getCode(),
+            (string) json_encode($e->errorInfo ?? [], JSON_UNESCAPED_SLASHES),
+        ));
     }
 
     private function createPdoInstance(array $options): PDO
@@ -165,10 +182,16 @@ class MSSQLPdoConnection extends PdoConnection
             case MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL:
                 $options['Authentication'] = 'ActiveDirectoryServicePrincipal';
                 $options['Encrypt'] = 'true';
+                // Microsoft Fabric needs the tenant explicitly in the connection string — without it the
+                // driver can't resolve the Entra authority and fails with an opaque, diagnostic-less error
+                // — and Fabric does not support MARS. See microsoft/msphpsql#1535.
+                $options['TenantId'] = $databaseConfig->getTenantId();
+                $options['MultipleActiveResultSets'] = 'false';
                 break;
             case MssqlDatabaseConfig::AUTH_TYPE_AD_PASSWORD:
                 $options['Authentication'] = 'ActiveDirectoryPassword';
                 $options['Encrypt'] = 'true';
+                $options['MultipleActiveResultSets'] = 'false';
                 break;
         }
 

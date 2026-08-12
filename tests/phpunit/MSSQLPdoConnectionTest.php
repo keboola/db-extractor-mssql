@@ -61,6 +61,7 @@ class MSSQLPdoConnectionTest extends TestCase
             'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
             'clientId' => 'app-client-id',
             '#clientSecret' => 'the-secret',
+            'tenantId' => 'the-tenant',
             'database' => 'MyWarehouse',
         ]);
 
@@ -68,14 +69,17 @@ class MSSQLPdoConnectionTest extends TestCase
 
         self::assertSame('ActiveDirectoryServicePrincipal', $options['Authentication']);
         self::assertSame('true', $options['Encrypt']);
+        self::assertSame('the-tenant', $options['TenantId']);
+        // Fabric requires the tenant in the connection string and does not support MARS.
+        self::assertSame('false', $options['MultipleActiveResultSets']);
         self::assertArrayNotHasKey('TrustServerCertificate', $options);
-        self::assertStringContainsString(
-            'Authentication=ActiveDirectoryServicePrincipal',
-            MSSQLPdoConnection::buildDsn($options),
-        );
+        $dsn = MSSQLPdoConnection::buildDsn($options);
+        self::assertStringContainsString('Authentication=ActiveDirectoryServicePrincipal', $dsn);
+        self::assertStringContainsString('TenantId=the-tenant', $dsn);
+        self::assertStringContainsString('MultipleActiveResultSets=false', $dsn);
         // client id / secret become the PDO UID / PWD; they are never placed in the DSN string.
         self::assertSame(['app-client-id', 'the-secret'], MSSQLPdoConnection::resolveCredentials($config));
-        self::assertStringNotContainsString('the-secret', MSSQLPdoConnection::buildDsn($options));
+        self::assertStringNotContainsString('the-secret', $dsn);
     }
 
     public function testActiveDirectoryPasswordOptionsAndCredentials(): void
@@ -92,6 +96,7 @@ class MSSQLPdoConnectionTest extends TestCase
 
         self::assertSame('ActiveDirectoryPassword', $options['Authentication']);
         self::assertSame('true', $options['Encrypt']);
+        self::assertSame('false', $options['MultipleActiveResultSets']);
         self::assertSame(['user@contoso.com', 'Password.1'], MSSQLPdoConnection::resolveCredentials($config));
     }
 
@@ -112,6 +117,7 @@ class MSSQLPdoConnectionTest extends TestCase
             'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
             'clientId' => 'app-client-id',
             '#clientSecret' => 'sec}ret',
+            'tenantId' => 'the-tenant',
             'database' => 'MyWarehouse',
         ]);
         self::assertSame(['app-client-id', 'sec}}ret'], MSSQLPdoConnection::resolveCredentials($spConfig));
@@ -120,11 +126,25 @@ class MSSQLPdoConnectionTest extends TestCase
     public function testServicePrincipalRequiresClientCredentials(): void
     {
         $this->expectException(UserException::class);
-        $this->expectExceptionMessage('"clientId" and "#clientSecret"');
+        $this->expectExceptionMessage('"clientId", "#clientSecret" and "tenantId"');
 
         MssqlDatabaseConfig::fromArray([
             'host' => 'server',
             'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
+            'database' => 'test',
+        ]);
+    }
+
+    public function testServicePrincipalRequiresTenantId(): void
+    {
+        $this->expectException(UserException::class);
+        $this->expectExceptionMessage('"tenantId"');
+
+        MssqlDatabaseConfig::fromArray([
+            'host' => 'server',
+            'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
+            'clientId' => 'app-client-id',
+            '#clientSecret' => 'the-secret',
             'database' => 'test',
         ]);
     }
