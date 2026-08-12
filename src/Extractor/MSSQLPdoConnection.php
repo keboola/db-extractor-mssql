@@ -144,6 +144,13 @@ class MSSQLPdoConnection extends PdoConnection
      */
     private function logConnectionError(PDOException $e): void
     {
+        // Only for the Entra auth paths — those are where the driver returns opaque, diagnostic-less
+        // errors. The SQL-auth failure output is asserted verbatim by existing datadir fixtures, so it
+        // must stay byte-identical; adding a line there would (and did) break them.
+        if ($this->databaseConfig->getAuthType() === MssqlDatabaseConfig::AUTH_TYPE_SQL) {
+            return;
+        }
+
         $this->logger->error(sprintf(
             'MSSQL connection failed (authType "%s"): SQLSTATE "%s", errorInfo: %s',
             $this->databaseConfig->getAuthType(),
