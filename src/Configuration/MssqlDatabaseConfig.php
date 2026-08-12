@@ -72,7 +72,7 @@ class MssqlDatabaseConfig extends DatabaseConfig
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->tenantId = $tenantId;
-        $this->validateCredentials($authType, $username, $password, $clientId, $clientSecret, $tenantId);
+        $this->validateCredentials($authType, $username, $password, $clientId, $clientSecret);
 
         // Service principal auth uses the client id / secret as the connection credentials, so the
         // legacy user/#password fields are absent. The parent value object types them as non-null
@@ -153,14 +153,14 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?string $password,
         ?string $clientId,
         ?string $clientSecret,
-        ?string $tenantId,
     ): void {
         if ($authType === self::AUTH_TYPE_AD_SERVICE_PRINCIPAL) {
-            if ($clientId === null || $clientId === '' || $clientSecret === null || $clientSecret === ''
-                || $tenantId === null || $tenantId === ''
-            ) {
+            // Only the application (client) id and secret are required — they become the PDO
+            // credentials. The Entra tenant is resolved from the server's login challenge and is not a
+            // connection keyword for this driver, so tenantId is accepted but optional.
+            if ($clientId === null || $clientId === '' || $clientSecret === null || $clientSecret === '') {
                 throw new UserException(
-                    'The "clientId", "#clientSecret" and "tenantId" parameters are required '
+                    'The "clientId" and "#clientSecret" parameters are required '
                     . 'for the "ad_service_principal" authentication type.',
                 );
             }

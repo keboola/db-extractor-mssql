@@ -189,10 +189,13 @@ class MSSQLPdoConnection extends PdoConnection
             case MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL:
                 $options['Authentication'] = 'ActiveDirectoryServicePrincipal';
                 $options['Encrypt'] = 'true';
-                // Microsoft Fabric needs the tenant explicitly in the connection string — without it the
-                // driver can't resolve the Entra authority and fails with an opaque, diagnostic-less error
-                // — and Fabric does not support MARS. See microsoft/msphpsql#1535.
-                $options['TenantId'] = $databaseConfig->getTenantId();
+                // Fabric does not support MARS and rejects a connection that requests it; the PHP driver
+                // enables MARS by default, so it must be turned off explicitly. The tenant is NOT a
+                // connection keyword for this driver (see the Connection Options reference) — it is
+                // resolved from the server's login challenge, and the plain client id / secret are passed
+                // as the PDO credentials (see resolveCredentials). Refs:
+                //   https://learn.microsoft.com/sql/connect/php/azure-active-directory (SP example)
+                //   https://learn.microsoft.com/fabric/data-warehouse/connectivity (MARS unsupported)
                 $options['MultipleActiveResultSets'] = 'false';
                 break;
             case MssqlDatabaseConfig::AUTH_TYPE_AD_PASSWORD:
