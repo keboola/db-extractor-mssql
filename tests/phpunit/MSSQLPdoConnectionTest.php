@@ -61,7 +61,6 @@ class MSSQLPdoConnectionTest extends TestCase
             'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
             'clientId' => 'app-client-id',
             '#clientSecret' => 'the-secret',
-            'tenantId' => 'the-tenant',
             'database' => 'MyWarehouse',
         ]);
 
@@ -70,7 +69,7 @@ class MSSQLPdoConnectionTest extends TestCase
         self::assertSame('ActiveDirectoryServicePrincipal', $options['Authentication']);
         self::assertSame('true', $options['Encrypt']);
         // Fabric does not support MARS, so it is turned off. The tenant is not a connection keyword
-        // for this driver — it must not appear in the options even when a tenantId is configured.
+        // for this driver and must never appear in the options — it is resolved from the server.
         self::assertSame('false', $options['MultipleActiveResultSets']);
         self::assertArrayNotHasKey('TenantId', $options);
         self::assertArrayNotHasKey('TrustServerCertificate', $options);
@@ -118,7 +117,6 @@ class MSSQLPdoConnectionTest extends TestCase
             'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
             'clientId' => 'app-client-id',
             '#clientSecret' => 'sec}ret',
-            'tenantId' => 'the-tenant',
             'database' => 'MyWarehouse',
         ]);
         self::assertSame(['app-client-id', 'sec}}ret'], MSSQLPdoConnection::resolveCredentials($spConfig));
@@ -134,26 +132,6 @@ class MSSQLPdoConnectionTest extends TestCase
             'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
             'database' => 'test',
         ]);
-    }
-
-    public function testServicePrincipalWithoutTenantIdIsValid(): void
-    {
-        // tenantId is optional: the driver resolves the tenant from the server's login challenge, so a
-        // service-principal config with only clientId + #clientSecret must be accepted and must not add
-        // a TenantId keyword to the connection.
-        $config = MssqlDatabaseConfig::fromArray([
-            'host' => 'example.datawarehouse.fabric.microsoft.com',
-            'authType' => MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL,
-            'clientId' => 'app-client-id',
-            '#clientSecret' => 'the-secret',
-            'database' => 'MyWarehouse',
-        ]);
-
-        $options = MSSQLPdoConnection::buildConnectionOptions($config);
-
-        self::assertSame('ActiveDirectoryServicePrincipal', $options['Authentication']);
-        self::assertArrayNotHasKey('TenantId', $options);
-        self::assertSame(['app-client-id', 'the-secret'], MSSQLPdoConnection::resolveCredentials($config));
     }
 
     public function testSqlAuthRequiresUserAndPassword(): void

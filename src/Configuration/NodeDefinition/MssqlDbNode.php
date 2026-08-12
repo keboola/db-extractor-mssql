@@ -59,6 +59,5 @@ class MssqlDbNode extends DbNode
     {
         $builder->scalarNode('clientId');
         $builder->scalarNode('#clientSecret');
-        $builder->scalarNode('tenantId');
     }
 }

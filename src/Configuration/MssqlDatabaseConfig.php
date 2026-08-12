@@ -23,8 +23,6 @@ class MssqlDatabaseConfig extends DatabaseConfig
 
     private ?string $clientSecret;
 
-    private ?string $tenantId;
-
     private ?string $instance;
 
     private ?int $queryTimeout = null;
@@ -43,7 +41,6 @@ class MssqlDatabaseConfig extends DatabaseConfig
             $data['#password'] ?? null,
             $data['clientId'] ?? null,
             $data['#clientSecret'] ?? null,
-            $data['tenantId'] ?? null,
             $data['database'] ?? null,
             $data['schema'] ?? null,
             $sslEnabled ? SSLConnectionConfig::fromArray($data['ssl']) : null,
@@ -61,7 +58,6 @@ class MssqlDatabaseConfig extends DatabaseConfig
         ?string $password,
         ?string $clientId,
         ?string $clientSecret,
-        ?string $tenantId,
         ?string $database,
         ?string $schema,
         ?SSLConnectionConfig $sslConnectionConfig,
@@ -71,7 +67,6 @@ class MssqlDatabaseConfig extends DatabaseConfig
         $this->authType = $authType;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
-        $this->tenantId = $tenantId;
         $this->validateCredentials($authType, $username, $password, $clientId, $clientSecret);
 
         // Service principal auth uses the client id / secret as the connection credentials, so the
@@ -116,19 +111,6 @@ class MssqlDatabaseConfig extends DatabaseConfig
         return $this->clientSecret;
     }
 
-    public function hasTenantId(): bool
-    {
-        return $this->tenantId !== null && $this->tenantId !== '';
-    }
-
-    public function getTenantId(): string
-    {
-        if ($this->tenantId === null) {
-            throw new PropertyNotSetException('Property "tenantId" is not set.');
-        }
-        return $this->tenantId;
-    }
-
     public function hasInstance(): bool
     {
         return $this->instance !== null;
@@ -156,8 +138,8 @@ class MssqlDatabaseConfig extends DatabaseConfig
     ): void {
         if ($authType === self::AUTH_TYPE_AD_SERVICE_PRINCIPAL) {
             // Only the application (client) id and secret are required — they become the PDO
-            // credentials. The Entra tenant is resolved from the server's login challenge and is not a
-            // connection keyword for this driver, so tenantId is accepted but optional.
+            // credentials. The Entra tenant is not configured: it is not a connection keyword for this
+            // driver and is resolved automatically from the server's login challenge.
             if ($clientId === null || $clientId === '' || $clientSecret === null || $clientSecret === '') {
                 throw new UserException(
                     'The "clientId" and "#clientSecret" parameters are required '
