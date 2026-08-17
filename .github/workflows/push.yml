@@ -9,7 +9,7 @@ env:
   DOCKERHUB_USER: "keboolabot"
   DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
   KBC_TEST_PROJECT_URL: "https://connection.keboola.com/admin/projects/2703/dashboard"
-  KBC_TEST_PROJECT_CONFIGS: "287615945 287628364"
+  KBC_TEST_PROJECT_CONFIGS: "287615945 287628364 01m07jpv56spd3s7teyrwdcms5"
   KBC_STORAGE_TOKEN: ${{ secrets.KBC_STORAGE_TOKEN }}
 jobs:
   build:
