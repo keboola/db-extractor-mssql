@@ -17,8 +17,11 @@ The `config.json` file contains the following properties within the `parameters`
     - `host` – string
     - `port` _(optional)_ – int (default: `1433`)
     - `database` – string
-    - `user` – string
-    - `#password` – string
+    - `user` _(required for SQL login)_ – string
+    - `#password` _(required for SQL login)_ – string
+    - `tenantId` _(required for Service Principal)_ – string: Azure AD tenant (directory) ID
+    - `clientId` _(required for Service Principal)_ – string: Azure AD application (client) ID
+    - `#clientSecret` _(required for Service Principal)_ – string: Azure AD client secret
     - `ssh` _(optional)_ – object: Settings for the SSH tunnel
         - `enabled` – bool
         - `sshHost` – string: IP address or hostname of the SSH server
@@ -55,6 +58,27 @@ The `config.json` file contains the following properties within the `parameters`
 - `cdcMode` _(optional)_ – bool (default `false`)
 - `cdcModeFullLoadFallback` _(optional)_ – bool (default `false`)
 - `queryTimeout` _(optional)_ – int: Number of seconds before BCP and PDO exports time out (default: `null`)
+
+### Authentication
+
+Two authentication modes are supported:
+
+1. **SQL login** (default) – set `user` and `#password`.
+2. **Azure AD Service Principal** – set `tenantId`, `clientId` and `#clientSecret` (and omit `user`/`#password`).
+   The PDO connection uses the `ActiveDirectoryServicePrincipal` ODBC authentication keyword; the BCP bulk
+   export mints an Azure AD access token and passes it to `bcp` via a token file.
+
+Example Service Principal `db` config:
+
+```json
+{
+    "host": "my-server.database.windows.net",
+    "database": "my-database",
+    "tenantId": "00000000-0000-0000-0000-000000000000",
+    "clientId": "11111111-1111-1111-1111-111111111111",
+    "#clientSecret": "the-client-secret"
+}
+```
 
 ## Development
 

@@ -41,6 +41,11 @@ class PdoTestConnection
             $dsn['Encrypt'] = 'true';
             $dsn['TrustServerCertificate'] =
                 $dbConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+        } else {
+            // ODBC Driver 18 defaults to mandatory TLS with full certificate validation; the
+            // test servers use self-signed certificates, so trust the server certificate by
+            // default. Mirrors MSSQLPdoConnection::buildConnectionOptions().
+            $dsn['TrustServerCertificate'] = 'true';
         }
 
         // ms sql doesn't support options
