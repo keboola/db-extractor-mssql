@@ -9,6 +9,8 @@ use Keboola\DbExtractorConfig\Configuration\ValueObject\InputTable;
 
 class MssqlSqlHelper
 {
+    public const DATE_TIME_TYPES = ['datetimeoffset', 'datetime2', 'datetime', 'time', 'smalldatetime', 'date'];
+
     /**
      * @param array|InputTable[] $whitelist
      */
@@ -166,8 +168,7 @@ class MssqlSqlHelper
 
     public static function getFieldLength(array $data): ?string
     {
-        $dateTimeTypes = ['datetimeoffset', 'datetime2', 'datetime', 'time', 'smalldatetime', 'date'];
-        if (in_array($data['DATA_TYPE'], $dateTimeTypes)) {
+        if (in_array($data['DATA_TYPE'], self::DATE_TIME_TYPES)) {
             return null;
         }
 
