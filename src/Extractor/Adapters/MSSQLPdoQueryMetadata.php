@@ -43,8 +43,8 @@ class MSSQLPdoQueryMetadata extends PdoQueryMetadata
         } catch (InvalidArgumentException $e) {
             throw new UserException(
                 sprintf(
-                    'Cannot retrieve column metadata of query "%s". %s Make sure every column of the '
-                    . 'query result has a name, eg. by adding an alias to computed columns.',
+                    'Cannot retrieve column metadata via query "%s". %s Make sure every column of the '
+                    . 'query result has a name, e.g. by adding an alias to computed columns.',
                     $this->query,
                     $e->getMessage(),
                 ),
