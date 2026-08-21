@@ -25,6 +25,17 @@ use PDOStatement;
  * The user can fix this by naming the column, so keep the same failure but report it as a
  * user error (exit code 1) with the query in the message - the same treatment
  * BcpQueryMetadata gives its own metadata failures.
+ *
+ * The catch is on the exception class rather than on the message on purpose, and it is not
+ * wider than the empty name in practice: the only things the parent runs are ColumnBuilder
+ * and the ColumnCollection constructor, and setName() is their only reachable source of an
+ * InvalidArgumentException here. build() reports a missing property as a
+ * PropertyNotFound/PropertyNotSetException (they extend ApplicationException directly, not
+ * InvalidArgumentException, so they are not caught), setType() does not validate, and both
+ * InvalidArgumentException branches of the ColumnCollection constructor are unreachable
+ * from this builder usage - the elements are always Column, and no ordinal position is
+ * ever set. Matching on the message text instead would only add a way for the fix to stop
+ * working silently when the message is reworded upstream.
  */
 class MSSQLPdoQueryMetadata extends PdoQueryMetadata
 {
