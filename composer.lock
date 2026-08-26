@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ec57c95cf2c96ba0d87d4817b72013c4",
+    "content-hash": "886ff383a465fed79474070c4627977d",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -171,23 +171,23 @@
         },
         {
             "name": "keboola/db-extractor-adapter",
-            "version": "1.15.0",
+            "version": "1.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-adapter.git",
-                "reference": "de0cf9da24739f46d5f7a6ede301cf1dd5a464df"
+                "reference": "9780400ac4bcf3933474a6f46ba79f6f065a9500"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-adapter/zipball/de0cf9da24739f46d5f7a6ede301cf1dd5a464df",
-                "reference": "de0cf9da24739f46d5f7a6ede301cf1dd5a464df",
+                "url": "https://api.github.com/repos/keboola/db-extractor-adapter/zipball/9780400ac4bcf3933474a6f46ba79f6f065a9500",
+                "reference": "9780400ac4bcf3933474a6f46ba79f6f065a9500",
                 "shasum": ""
             },
             "require": {
                 "ext-iconv": "*",
                 "keboola/common-exceptions": "^1.0",
                 "keboola/csv": "^3.2",
-                "keboola/db-extractor-config": "^1.15",
+                "keboola/db-extractor-config": "^1.17",
                 "keboola/db-extractor-table-format": "^3.7",
                 "keboola/retry": "^0.5",
                 "keboola/ssh-tunnel": "^2.2",
@@ -222,24 +222,24 @@
                     "email": "devel@keboola.com"
                 }
             ],
-            "description": "Set of connection adapters for DB extractors",
+            "description": "Set of connection adapters for DB extractors.",
             "support": {
-                "source": "https://github.com/keboola/db-extractor-adapter/tree/1.15.0"
+                "source": "https://github.com/keboola/db-extractor-adapter/tree/1.17.0"
             },
-            "time": "2024-11-19T08:23:44+00:00"
+            "time": "2026-08-25T15:09:21+00:00"
         },
         {
             "name": "keboola/db-extractor-common",
-            "version": "17.1.2",
+            "version": "17.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-common.git",
-                "reference": "ed1ec87c1af2afe278d977a16e903c73057ce5f5"
+                "reference": "ba1c35e3077419f056bdb763db04f110a1e95272"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/ed1ec87c1af2afe278d977a16e903c73057ce5f5",
-                "reference": "ed1ec87c1af2afe278d977a16e903c73057ce5f5",
+                "url": "https://api.github.com/repos/keboola/db-extractor-common/zipball/ba1c35e3077419f056bdb763db04f110a1e95272",
+                "reference": "ba1c35e3077419f056bdb763db04f110a1e95272",
                 "shasum": ""
             },
             "require": {
@@ -247,8 +247,8 @@
                 "ext-pdo": "*",
                 "keboola/common-exceptions": "^1.1",
                 "keboola/csv": "^3.2",
-                "keboola/db-extractor-adapter": "^1.14",
-                "keboola/db-extractor-config": "^1.15",
+                "keboola/db-extractor-adapter": "^1.15.1",
+                "keboola/db-extractor-config": "^1.17",
                 "keboola/db-extractor-ssh-tunnel": "^1.3.0",
                 "keboola/db-extractor-table-format": "^3.8",
                 "keboola/php-component": "^10.0",
@@ -298,24 +298,24 @@
                     "email": "devel@keboola.com"
                 }
             ],
-            "description": "Common library from Keboola database extractors",
+            "description": "Common library from Keboola Database Extractors",
             "support": {
-                "source": "https://github.com/keboola/db-extractor-common/tree/17.1.2"
+                "source": "https://github.com/keboola/db-extractor-common/tree/17.3.0"
             },
-            "time": "2024-12-03T20:07:25+00:00"
+            "time": "2026-08-25T15:12:00+00:00"
         },
         {
             "name": "keboola/db-extractor-config",
-            "version": "1.16.0",
+            "version": "1.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-config.git",
-                "reference": "3056dee63987e4deca1246b0ace80c2a4be93f30"
+                "reference": "0507832096e1035c7ba8f172e7717e2d0ac7623f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-config/zipball/3056dee63987e4deca1246b0ace80c2a4be93f30",
-                "reference": "3056dee63987e4deca1246b0ace80c2a4be93f30",
+                "url": "https://api.github.com/repos/keboola/db-extractor-config/zipball/0507832096e1035c7ba8f172e7717e2d0ac7623f",
+                "reference": "0507832096e1035c7ba8f172e7717e2d0ac7623f",
                 "shasum": ""
             },
             "require": {
@@ -340,11 +340,11 @@
             "license": [
                 "MIT"
             ],
-            "description": "Configuration definition for the database extractor",
+            "description": "Config definition for database extractor",
             "support": {
-                "source": "https://github.com/keboola/db-extractor-config/tree/1.16.0"
+                "source": "https://github.com/keboola/db-extractor-config/tree/1.17.0"
             },
-            "time": "2024-09-17T10:53:59+00:00"
+            "time": "2026-08-24T08:53:24+00:00"
         },
         {
             "name": "keboola/db-extractor-ssh-tunnel",
@@ -4468,5 +4468,5 @@
         "ext-mbstring": "*"
     },
     "platform-dev": {},
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }

@@ -45,6 +45,10 @@ The `config.json` file contains the following properties within the `parameters`
 - `incremental` _(optional)_ – bool (default: `false`)
 - `incrementalFetchingColumn` _(optional)_ – string
 - `incrementalFetchingLimit` _(optional)_ – int
+- `incrementalFetchingMode` _(optional)_ – string: `watermark` (default) or `window` (see [Incremental fetching modes](#incremental-fetching-modes))
+- `incrementalFetchingLookback` _(optional)_ – string: watermark mode only; re-fetch this far behind the last value
+- `incrementalFetchingStart` _(optional)_ – string: window mode only; lower bound of the range
+- `incrementalFetchingEnd` _(optional)_ – string: window mode only; upper bound of the range
 - `primaryKey` _(optional)_ – array of strings
 - `retries` _(optional)_ – int: Number of PDO (fallback) retries if an error occurs (default: `5`)
 - `maxTriesBcp` _(optional)_ – int: Number of BCP retries if an error occurs (default: `1`)
@@ -55,6 +59,18 @@ The `config.json` file contains the following properties within the `parameters`
 - `cdcMode` _(optional)_ – bool (default `false`)
 - `cdcModeFullLoadFallback` _(optional)_ – bool (default `false`)
 - `queryTimeout` _(optional)_ – int: Number of seconds before BCP and PDO exports time out (default: `null`)
+
+### Incremental fetching modes
+
+When `incrementalFetchingColumn` is set, the extractor supports two modes selected by `incrementalFetchingMode`:
+
+- **`watermark`** (default) – resumes from the stored watermark (`column >= lastFetchedRow`). Optionally set `incrementalFetchingLookback` to also re-scan a margin *behind* the last value, so a row that was committed late (assigned a value below the watermark but only visible after the watermark had already advanced past it) is still picked up. The lookback is a duration for datetime columns (e.g. `"20 minutes"`) or a number for numeric columns (e.g. `"100"`); it is subtracted from the watermark.
+- **`window`** – fetches a fixed range, `column >= incrementalFetchingStart [AND column <= incrementalFetchingEnd]`, **ignoring** the stored watermark. Bounds may be relative (e.g. `"2 days ago"`) or absolute (e.g. `"2024-01-01"`) for datetime columns, or numbers for numeric columns. Either bound may be omitted.
+
+Notes:
+- The two modes are mutually exclusive: `incrementalFetchingLookback` is read only in `watermark` mode, and `incrementalFetchingStart`/`incrementalFetchingEnd` only in `window` mode. Leftover keys from the other mode are ignored. Omitting `incrementalFetchingMode` (and `incrementalFetchingLookback`) keeps the classic watermark behavior unchanged.
+- A `rowversion`/`timestamp` (binary) incremental column supports plain `watermark` fetching only — a lookback or window fails with a clear "not supported" error, because a monotonic binary token has no meaningful lower bound.
+- A lookback, or a `window` `start`, re-fetches rows that may already be in Storage. With incremental *loading* enabled, set `primaryKey` so those rows are deduplicated. An absolute window `end` caps the fetched range and logs a warning (rows committed after it are never picked up by later runs) — expected for a one-off/segmented backfill, not for ongoing sync.
 
 ## Development
 
