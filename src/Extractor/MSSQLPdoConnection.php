@@ -7,10 +7,12 @@ namespace Keboola\DbExtractor\Extractor;
 use Keboola\DbExtractor\Adapter\Exception\DeadConnectionException;
 use Keboola\DbExtractor\Adapter\PDO\PdoConnection;
 use Keboola\DbExtractor\Adapter\PDO\PdoQueryResult;
+use Keboola\DbExtractor\Adapter\ValueObject\QueryMetadata;
 use Keboola\DbExtractor\Adapter\ValueObject\QueryResult;
 use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\DbRetryProxy;
 use Keboola\DbExtractor\Exception\UserException;
+use Keboola\DbExtractor\Extractor\Adapters\MSSQLPdoQueryMetadata;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use PDO;
 use PDOException;
@@ -187,5 +189,15 @@ class MSSQLPdoConnection extends PdoConnection
         $stmt->execute($values);
         $queryMetadata = $this->getQueryMetadata($query, $stmt);
         return new PdoQueryResult($query, $queryMetadata, $stmt);
+    }
+
+    /**
+     * The columns are the same as the parent's; only a failure to build them is classified.
+     *
+     * @see MSSQLPdoQueryMetadata
+     */
+    protected function getQueryMetadata(string $query, PDOStatement $stmt): QueryMetadata
+    {
+        return new MSSQLPdoQueryMetadata($stmt, $query);
     }
 }
