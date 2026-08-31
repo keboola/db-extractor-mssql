@@ -22,12 +22,16 @@ class MssqlMetadataProvider implements MetadataProvider
 
     private MSSQLPdoConnection $pdo;
 
+    /** If false, the MS_Description extended properties are not read and no descriptions are propagated */
+    private bool $propagateDescriptions;
+
     /** @var TableCollection[] */
     private array $cache = [];
 
-    public function __construct(MSSQLPdoConnection $pdo)
+    public function __construct(MSSQLPdoConnection $pdo, bool $propagateDescriptions = true)
     {
         $this->pdo = $pdo;
+        $this->propagateDescriptions = $propagateDescriptions;
     }
 
     public function getTable(InputTable $table): Table
@@ -59,6 +63,9 @@ class MssqlMetadataProvider implements MetadataProvider
         /** @var ColumnBuilder[] $columnBuilders */
         $columnBuilders = [];
 
+        // MS_Description extended properties of the tables listed below and of their columns
+        $descriptions = $this->loadDescriptions($whitelist, $loadColumns);
+
         $builder = MetadataBuilder::create();
         $tablesSql = MssqlSqlHelper::getTablesSql($whitelist, $this->pdo);
         $tables = $this->pdo->query($tablesSql, self::MAX_RETRIES)->fetchAll();
@@ -66,6 +73,11 @@ class MssqlMetadataProvider implements MetadataProvider
             $tableId = $data['TABLE_SCHEMA'] . '.' . $data['TABLE_NAME'];
             $tableBuilder = $this->processTable($data, $builder);
             $tableBuilders[$tableId] = $tableBuilder;
+
+            $tableDescription = $descriptions[$tableId]['table'] ?? null;
+            if ($tableDescription !== null) {
+                $tableBuilder->setDescription($tableDescription);
+            }
 
             if (!$loadColumns) {
                 $tableBuilder->setColumnsNotExpected();
@@ -94,10 +106,58 @@ class MssqlMetadataProvider implements MetadataProvider
                 }
 
                 $this->processColumn($data, $columnBuilder);
+
+                // Set after processColumn() so that a column repeated by the constraint joins
+                // above only assigns the same value again -- setDescription() is idempotent
+                $columnDescription = $descriptions[$tableId]['columns'][$data['COLUMN_NAME']] ?? null;
+                if ($columnDescription !== null) {
+                    $columnBuilder->setDescription($columnDescription);
+                }
             }
         }
 
         return $builder->build();
+    }
+
+    /**
+     * Reads the MS_Description extended property of the whitelisted tables and of their columns.
+     *
+     * Returns an empty map when the propagation is turned off, so that no description reaches the
+     * built metadata and no extra query is sent.
+     *
+     * @param array|InputTable[] $whitelist
+     * @return array<string, array{table: string|null, columns: array<string, string>}>
+     */
+    private function loadDescriptions(array $whitelist, bool $loadColumns): array
+    {
+        if (!$this->propagateDescriptions) {
+            return [];
+        }
+
+        $sql = MssqlSqlHelper::getDescriptionsSql($whitelist, $this->pdo, $loadColumns);
+
+        $descriptions = [];
+        foreach ($this->pdo->query($sql, self::MAX_RETRIES)->fetchAll() as $row) {
+            $tableId = $row['TABLE_SCHEMA'] . '.' . $row['TABLE_NAME'];
+            if (!isset($descriptions[$tableId])) {
+                $descriptions[$tableId] = ['table' => null, 'columns' => []];
+            }
+
+            $description = $row['DESCRIPTION'];
+            if (!is_string($description)) {
+                continue;
+            }
+
+            // The query only returns a row without a column name for minor_id 0, ie. the object itself
+            $columnName = $row['COLUMN_NAME'] ?? null;
+            if (is_string($columnName)) {
+                $descriptions[$tableId]['columns'][$columnName] = $description;
+            } else {
+                $descriptions[$tableId]['table'] = $description;
+            }
+        }
+
+        return $descriptions;
     }
 
     private function processTable(array $data, MetadataBuilder $builder): TableBuilder
