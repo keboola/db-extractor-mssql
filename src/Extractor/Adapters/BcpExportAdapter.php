@@ -8,6 +8,7 @@ use Keboola\Csv\CsvReader;
 use Keboola\DbExtractor\Adapter\ExportAdapter;
 use Keboola\DbExtractor\Adapter\Metadata\MetadataProvider;
 use Keboola\DbExtractor\Adapter\ValueObject\ExportResult;
+use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Exception\ApplicationException;
 use Keboola\DbExtractor\Exception\BcpAdapterException;
@@ -17,6 +18,7 @@ use Keboola\DbExtractor\Exception\UserException;
 use Keboola\DbExtractor\Extractor\MssqlDataType;
 use Keboola\DbExtractor\Extractor\MSSQLPdoConnection;
 use Keboola\DbExtractor\Extractor\MSSQLQueryFactory;
+use Keboola\DbExtractor\Extractor\ServicePrincipalTokenProvider;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Psr\Log\LoggerInterface;
@@ -39,18 +41,24 @@ class BcpExportAdapter implements ExportAdapter
 
     private LoggerInterface $logger;
 
+    private ?ServicePrincipalTokenProvider $tokenProvider;
+
+    private ?string $tokenFile = null;
+
     public function __construct(
         LoggerInterface $logger,
         MSSQLPdoConnection $connection,
         MetadataProvider $metadataProvider,
         DatabaseConfig $databaseConfig,
         MSSQLQueryFactory $queryFactory,
+        ?ServicePrincipalTokenProvider $tokenProvider = null,
     ) {
         $this->logger = $logger;
         $this->connection = $connection;
         $this->metadataProvider = $metadataProvider;
         $this->databaseConfig = $databaseConfig;
         $this->simpleQueryFactory = $queryFactory;
+        $this->tokenProvider = $tokenProvider;
     }
 
     public function getName(): string
@@ -92,6 +100,8 @@ class BcpExportAdapter implements ExportAdapter
         } catch (BcpAdapterException $pdoError) {
             @unlink($csvFilePath);
             throw new UserException($pdoError->getMessage());
+        } finally {
+            $this->cleanupTokenFile();
         }
     }
 
@@ -286,14 +296,26 @@ class BcpExportAdapter implements ExportAdapter
         $serverName = $this->databaseConfig->getHost();
         $serverName .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
 
+        if ($this->hasServicePrincipal()) {
+            // bcp cannot use a Service Principal directly, but v17.8+ accepts an Azure AD
+            // access-token file via `-G -P <tokenfile>` (no `-U`).
+            $credentials = sprintf('-G -P %s', escapeshellarg($this->createServicePrincipalTokenFile()));
+        } else {
+            $credentials = sprintf(
+                '-U %s -P %s',
+                escapeshellarg($this->databaseConfig->getUsername()),
+                escapeshellarg($this->databaseConfig->getPassword()),
+            );
+        }
+
         $cmd = sprintf(
-            'bcp %s queryout %s -S %s -U %s -P %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c',
+            'bcp %s queryout %s -S %s %s -d %s -q -k -b 50000 -m 1 -t "," -r "\n" -c%s',
             escapeshellarg($query),
             escapeshellarg($filename),
             escapeshellarg($serverName),
-            escapeshellarg($this->databaseConfig->getUsername()),
-            escapeshellarg($this->databaseConfig->getPassword()),
+            $credentials,
             escapeshellarg($this->databaseConfig->getDatabase()),
+            $this->getTrustServerCertificateFlag(),
         );
 
         $commandForLogger = preg_replace('/-P.*-d/', '-P ***** -d', $cmd);
@@ -310,10 +332,63 @@ class BcpExportAdapter implements ExportAdapter
         return $cmd;
     }
 
+    /**
+     * Returns the bcp "trust server certificate" flag (`-u`) when appropriate.
+     *
+     * `bcp` in mssql-tools18 defaults to mandatory TLS encryption with full server
+     * certificate validation, whereas mssql-tools v17 did not. The `-u` option trusts
+     * the server certificate (skips chain validation), allowing export against servers
+     * with self-signed / untrusted certificates. This mirrors the PDO connection logic
+     * in MSSQLPdoConnection: trust the certificate unless the user explicitly enabled SSL
+     * with verifyServerCert = true. The ignoreCertificateCn option is the exception: the
+     * PDO path (MSSQLPdoConnection::connect()) retries with TrustServerCertificate = true
+     * when the certificate CN does not match the host, so bcp must trust the certificate
+     * too - otherwise bcp fails CN validation and the export needlessly falls back to PDO.
+     */
+    private function getTrustServerCertificateFlag(): string
+    {
+        if ($this->databaseConfig->hasSSLConnection()
+            && $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert()
+            && !$this->databaseConfig->getSslConnectionConfig()->isIgnoreCertificateCn()
+        ) {
+            return '';
+        }
+
+        return ' -u';
+    }
+
     private function createRetryProxy(int $maxTries): RetryProxy
     {
         $retryPolicy = new SimpleRetryPolicy($maxTries, [BcpAdapterException::class]);
         $backoffPolicy = new ExponentialBackOffPolicy(1000);
         return new RetryProxy($retryPolicy, $backoffPolicy, $this->logger);
+    }
+
+    private function hasServicePrincipal(): bool
+    {
+        return $this->databaseConfig instanceof MssqlDatabaseConfig
+            && $this->databaseConfig->hasServicePrincipal();
+    }
+
+    private function createServicePrincipalTokenFile(): string
+    {
+        /** @var MssqlDatabaseConfig $config */
+        $config = $this->databaseConfig;
+        $provider = $this->tokenProvider ?? new ServicePrincipalTokenProvider(
+            $config->getTenantId(),
+            $config->getClientId(),
+            $config->getClientSecret(),
+        );
+
+        $this->tokenFile = ServicePrincipalTokenProvider::createTokenFile($provider->getAccessToken());
+        return $this->tokenFile;
+    }
+
+    private function cleanupTokenFile(): void
+    {
+        if ($this->tokenFile !== null) {
+            @unlink($this->tokenFile);
+            $this->tokenFile = null;
+        }
     }
 }

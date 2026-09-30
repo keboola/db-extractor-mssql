@@ -17,8 +17,11 @@ The `config.json` file contains the following properties within the `parameters`
     - `host` – string
     - `port` _(optional)_ – int (default: `1433`)
     - `database` – string
-    - `user` – string
-    - `#password` – string
+    - `user` _(required for SQL login)_ – string
+    - `#password` _(required for SQL login)_ – string
+    - `tenantId` _(required for Service Principal)_ – string: Azure AD tenant (directory) ID
+    - `clientId` _(required for Service Principal)_ – string: Azure AD application (client) ID
+    - `#clientSecret` _(required for Service Principal)_ – string: Azure AD client secret
     - `ssh` _(optional)_ – object: Settings for the SSH tunnel
         - `enabled` – bool
         - `sshHost` – string: IP address or hostname of the SSH server
@@ -89,6 +92,27 @@ Notes:
 - The two modes are mutually exclusive: `incrementalFetchingLookback` is read only in `watermark` mode, and `incrementalFetchingStart`/`incrementalFetchingEnd` only in `window` mode. Leftover keys from the other mode are ignored. Omitting `incrementalFetchingMode` (and `incrementalFetchingLookback`) keeps the classic watermark behavior unchanged.
 - A `rowversion`/`timestamp` (binary) incremental column supports plain `watermark` fetching only — a lookback or window fails with a clear "not supported" error, because a monotonic binary token has no meaningful lower bound.
 - A lookback, or a `window` `start`, re-fetches rows that may already be in Storage. With incremental *loading* enabled, set `primaryKey` so those rows are deduplicated. An absolute window `end` caps the fetched range and logs a warning (rows committed after it are never picked up by later runs) — expected for a one-off/segmented backfill, not for ongoing sync.
+
+### Authentication
+
+Two authentication modes are supported:
+
+1. **SQL login** (default) – set `user` and `#password`.
+2. **Azure AD Service Principal** – set `tenantId`, `clientId` and `#clientSecret` (and omit `user`/`#password`).
+   The PDO connection uses the `ActiveDirectoryServicePrincipal` ODBC authentication keyword; the BCP bulk
+   export mints an Azure AD access token and passes it to `bcp` via a token file.
+
+Example Service Principal `db` config:
+
+```json
+{
+    "host": "my-server.database.windows.net",
+    "database": "my-database",
+    "tenantId": "00000000-0000-0000-0000-000000000000",
+    "clientId": "11111111-1111-1111-1111-111111111111",
+    "#clientSecret": "the-client-secret"
+}
+```
 
 ## Development
 

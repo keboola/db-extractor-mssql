@@ -99,19 +99,46 @@ class MSSQLPdoConnection extends PdoConnection
         }
     }
 
-    public function connect(): void
+    /**
+     * Builds the sqlsrv DSN options map from the config (pure, no side effects).
+     *
+     * @return array<string, string>
+     */
+    public static function buildConnectionOptions(MssqlDatabaseConfig $databaseConfig): array
     {
-        $host = $this->databaseConfig->getHost();
-        $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
-        $host .= $this->databaseConfig->hasInstance() ? '\\\\' . $this->databaseConfig->getInstance() : '';
+        $host = $databaseConfig->getHost();
+        $host .= $databaseConfig->hasPort() ? ',' . $databaseConfig->getPort() : '';
+        $host .= $databaseConfig->hasInstance() ? '\\\\' . $databaseConfig->getInstance() : '';
 
+        $options = [];
         $options['Server'] = $host;
-        $options['Database'] = $this->databaseConfig->getDatabase();
-        if ($this->databaseConfig->hasSSLConnection()) {
+        $options['Database'] = $databaseConfig->getDatabase();
+        if ($databaseConfig->hasSSLConnection()) {
             $options['Encrypt'] = 'true';
             $options['TrustServerCertificate'] =
-                $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+                $databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+        } elseif (!$databaseConfig->hasServicePrincipal()) {
+            // ODBC Driver 18 defaults to mandatory TLS encryption with full server certificate
+            // validation. Without an explicit SSL config (and outside Azure AD auth) we still
+            // connect to servers using self-signed certificates, so trust the server certificate
+            // to preserve the previous behaviour. This mirrors the bcp export path in
+            // BcpExportAdapter::getTrustServerCertificateFlag() (the `-u` option).
+            $options['TrustServerCertificate'] = 'true';
         }
+
+        if ($databaseConfig->hasServicePrincipal()) {
+            // Azure AD Service Principal: the driver reads UID/PWD as client id/secret.
+            // The tenant is inferred from the server, so tenantId is not needed here.
+            $options['Authentication'] = 'ActiveDirectoryServicePrincipal';
+            $options['Encrypt'] = 'true';
+        }
+
+        return $options;
+    }
+
+    public function connect(): void
+    {
+        $options = self::buildConnectionOptions($this->databaseConfig);
 
         // ms sql doesn't support options
         try {
@@ -152,8 +179,8 @@ class MSSQLPdoConnection extends PdoConnection
         }, array_keys($options), $options)));
 
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
-        $password = str_ireplace('}', '}}', $this->databaseConfig->getPassword());
-        return new PDO($dsn, $this->databaseConfig->getUsername(), $password);
+        $password = str_ireplace('}', '}}', $this->databaseConfig->getConnectionPassword());
+        return new PDO($dsn, $this->databaseConfig->getConnectionUsername(), $password);
     }
 
     public function query(string $query, int $maxRetries = self::DEFAULT_MAX_RETRIES, array $values = []): QueryResult
