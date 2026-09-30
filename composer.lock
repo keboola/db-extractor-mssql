@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8aa4880d01f7b0d43eedccb93d5f3281",
+    "content-hash": "90b72b97be1b6dc030851ba381a44b84",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -348,16 +348,16 @@
         },
         {
             "name": "keboola/db-extractor-ssh-tunnel",
-            "version": "1.3.0",
+            "version": "1.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/db-extractor-ssh-tunnel.git",
-                "reference": "15c276a32057cd35bd9675992edb4438b97a5639"
+                "reference": "70f6f1db76dcdc0809915b94e508fd4f8de506ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/db-extractor-ssh-tunnel/zipball/15c276a32057cd35bd9675992edb4438b97a5639",
-                "reference": "15c276a32057cd35bd9675992edb4438b97a5639",
+                "url": "https://api.github.com/repos/keboola/db-extractor-ssh-tunnel/zipball/70f6f1db76dcdc0809915b94e508fd4f8de506ea",
+                "reference": "70f6f1db76dcdc0809915b94e508fd4f8de506ea",
                 "shasum": ""
             },
             "require": {
@@ -382,12 +382,12 @@
             "license": [
                 "MIT"
             ],
-            "description": "Create an SSH tunnel for DB extractors",
+            "description": "Create SSH tunnel for DB Extractors",
             "support": {
                 "issues": "https://github.com/keboola/db-extractor-ssh-tunnel/issues",
-                "source": "https://github.com/keboola/db-extractor-ssh-tunnel/tree/1.3.0"
+                "source": "https://github.com/keboola/db-extractor-ssh-tunnel/tree/1.3.2"
             },
-            "time": "2024-09-12T09:24:43+00:00"
+            "time": "2026-01-23T15:24:19+00:00"
         },
         {
             "name": "keboola/db-extractor-table-format",
@@ -719,25 +719,26 @@
         },
         {
             "name": "keboola/ssh-tunnel",
-            "version": "2.2.0",
+            "version": "2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/keboola/ssh-tunnel.git",
-                "reference": "201593d79fd62acb171f7ab61f6bb2763af19bce"
+                "reference": "d97761af6bac33c67a2437339bbe0a4fb73ebef9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/keboola/ssh-tunnel/zipball/201593d79fd62acb171f7ab61f6bb2763af19bce",
-                "reference": "201593d79fd62acb171f7ab61f6bb2763af19bce",
+                "url": "https://api.github.com/repos/keboola/ssh-tunnel/zipball/d97761af6bac33c67a2437339bbe0a4fb73ebef9",
+                "reference": "d97761af6bac33c67a2437339bbe0a4fb73ebef9",
                 "shasum": ""
             },
             "require": {
-                "symfony/process": "^4.2|^5.0"
+                "php": ">=8.0",
+                "symfony/process": "^4.2|^5.0|^6.0|^7.0"
             },
             "require-dev": {
                 "keboola/coding-standard": ">=9.0.0",
-                "phpstan/phpstan": "^0.12.14",
-                "phpunit/phpunit": "^7.0"
+                "phpstan/phpstan": "^1.0",
+                "phpunit/phpunit": "^9.0"
             },
             "type": "library",
             "autoload": {
@@ -758,9 +759,9 @@
             "description": "Simple library for SSH tunneling",
             "support": {
                 "issues": "https://github.com/keboola/ssh-tunnel/issues",
-                "source": "https://github.com/keboola/ssh-tunnel/tree/2.2.0"
+                "source": "https://github.com/keboola/ssh-tunnel/tree/2.3.0"
             },
-            "time": "2024-09-30T13:45:15+00:00"
+            "time": "2026-03-30T12:31:28+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -926,46 +927,51 @@
         },
         {
             "name": "nette/utils",
-            "version": "v3.2.10",
+            "version": "v4.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nette/utils.git",
-                "reference": "a4175c62652f2300c8017fb7e640f9ccb11648d2"
+                "reference": "b043439dbdf954e6c28b5ea7e34b0100f83165e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nette/utils/zipball/a4175c62652f2300c8017fb7e640f9ccb11648d2",
-                "reference": "a4175c62652f2300c8017fb7e640f9ccb11648d2",
+                "url": "https://api.github.com/repos/nette/utils/zipball/b043439dbdf954e6c28b5ea7e34b0100f83165e0",
+                "reference": "b043439dbdf954e6c28b5ea7e34b0100f83165e0",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2 <8.4"
+                "php": "8.2 - 8.5"
             },
             "conflict": {
-                "nette/di": "<3.0.6"
+                "nette/finder": "<3",
+                "nette/schema": "<1.2.2"
             },
             "require-dev": {
-                "jetbrains/phpstorm-attributes": "dev-master",
-                "nette/tester": "~2.0",
-                "phpstan/phpstan": "^1.0",
-                "tracy/tracy": "^2.3"
+                "jetbrains/phpstorm-attributes": "^1.2",
+                "nette/phpstan-rules": "^1.0",
+                "nette/tester": "^2.5",
+                "phpstan/extension-installer": "^1.4@stable",
+                "phpstan/phpstan": "^2.1@stable",
+                "tracy/tracy": "^2.9"
             },
             "suggest": {
                 "ext-gd": "to use Image",
-                "ext-iconv": "to use Strings::webalize(), toAscii(), chr() and reverse()",
+                "ext-iconv": "to use Strings::chr(), ord() and reverse()",
                 "ext-intl": "to use Strings::webalize(), toAscii(), normalize() and compare()",
                 "ext-json": "to use Nette\\Utils\\Json",
                 "ext-mbstring": "to use Strings::lower() etc...",
-                "ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()",
-                "ext-xml": "to use Strings::length() etc. when mbstring is not available"
+                "ext-tokenizer": "to use Nette\\Utils\\Reflection::getUseStatements()"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.2-dev"
+                    "dev-master": "4.1-dev"
                 }
             },
             "autoload": {
+                "psr-4": {
+                    "Nette\\": "src"
+                },
                 "classmap": [
                     "src/"
                 ]
@@ -986,7 +992,7 @@
                     "homepage": "https://nette.org/contributors"
                 }
             ],
-            "description": "🛠  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating, etc.",
+            "description": "🛠  Nette Utils: lightweight utilities for string & array manipulation, image handling, safe JSON encoding/decoding, validation, slug or strong password generating etc.",
             "homepage": "https://nette.org",
             "keywords": [
                 "array",
@@ -1006,9 +1012,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nette/utils/issues",
-                "source": "https://github.com/nette/utils/tree/v3.2.10"
+                "source": "https://github.com/nette/utils/tree/v4.1.5"
             },
-            "time": "2023-07-30T15:38:18+00:00"
+            "time": "2026-07-17T23:02:45+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -4462,11 +4468,14 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.2",
+        "php": "^8.5",
         "ext-pdo": "*",
         "ext-json": "*",
         "ext-mbstring": "*"
     },
     "platform-dev": {},
+    "platform-overrides": {
+        "php": "8.5"
+    },
     "plugin-api-version": "2.9.0"
 }
