@@ -32,7 +32,12 @@ class MSSQL extends BaseExtractor
 
     public function createMetadataProvider(): MssqlMetadataProvider
     {
-        return new MssqlMetadataProvider($this->connection);
+        return new MssqlMetadataProvider(
+            $this->connection,
+            // Not declared for sync actions and legacy configs, both of which keep
+            // unknown keys, so reading it straight from parameters is safe
+            (bool) ($this->parameters['propagateDescriptions'] ?? true),
+        );
     }
 
     protected function createManifestGenerator(): ManifestGenerator

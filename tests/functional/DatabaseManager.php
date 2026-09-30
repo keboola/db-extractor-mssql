@@ -6,6 +6,7 @@ namespace Keboola\DbExtractor\FunctionalTests;
 
 use Keboola\DbExtractor\TraitTests\CreateViewTrait;
 use Keboola\DbExtractor\TraitTests\Tables\AutoIncrementTableTrait;
+use Keboola\DbExtractor\TraitTests\Tables\DescriptionsTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\NullableTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\SalesTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\SimpleTableTrait;
@@ -17,6 +18,7 @@ class DatabaseManager
 {
     use CreateViewTrait;
     use SimpleTableTrait;
+    use DescriptionsTableTrait;
     use AutoIncrementTableTrait;
     use SalesTableTrait;
     use SpecialTableTrait;

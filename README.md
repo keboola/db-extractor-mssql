@@ -59,6 +59,24 @@ The `config.json` file contains the following properties within the `parameters`
 - `cdcMode` _(optional)_ – bool (default `false`)
 - `cdcModeFullLoadFallback` _(optional)_ – bool (default `false`)
 - `queryTimeout` _(optional)_ – int: Number of seconds before BCP and PDO exports time out (default: `null`)
+- `propagateDescriptions` _(optional)_ – bool: Propagate table and column descriptions to Storage metadata (default: `true`, see [Table and column descriptions](#table-and-column-descriptions))
+
+### Table and column descriptions
+
+On every run the extractor reads the `MS_Description` extended property of the source table and of its
+columns — the value written by `sp_addextendedproperty` or by the **Description** field in SSMS — and
+writes it to the description of the matching Storage table and column.
+
+Set `propagateDescriptions` to `false` to turn this off; nothing is then written to Storage and the
+extended properties are not even read.
+
+Notes:
+- Descriptions are propagated in **table mode only**. An advanced `query` builds its column list from
+  the query result metadata, which carries no extended properties.
+- A description edited by hand in Storage is marked as user-authored, which stops the extractor from
+  overwriting **any** description on that table on later runs.
+- Removing a description in the source database does not clear the one already in Storage. With no
+  extended property the extractor omits the value, and Storage leaves the previous one in place.
 
 ### Incremental fetching modes
 
