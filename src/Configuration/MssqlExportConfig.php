@@ -29,8 +29,6 @@ class MssqlExportConfig extends ExportConfig
 
     private ?int $queryTimeout = null;
 
-    private bool $queryNativeTypes;
-
     public static function fromArray(array $data): self
     {
         return new self(
@@ -52,7 +50,6 @@ class MssqlExportConfig extends ExportConfig
             $data['cdcMode'] ?? false,
             $data['cdcModeFullLoadFallback'] ?? false,
             $data['queryTimeout'] ?? null,
-            $data['queryNativeTypes'] ?? false,
         );
     }
 
@@ -74,7 +71,6 @@ class MssqlExportConfig extends ExportConfig
         bool $cdcMode,
         bool $cdcModeFullLoadFallback,
         ?int $queryTimeout,
-        bool $queryNativeTypes = false,
     ) {
         parent::__construct(
             $configId,
@@ -95,7 +91,6 @@ class MssqlExportConfig extends ExportConfig
         $this->maxTriesBcp = $maxTriesBcp;
         $this->setCdcMode($cdcMode);
         $this->cdcModeFullLoadFallback = $cdcModeFullLoadFallback;
-        $this->queryNativeTypes = $queryNativeTypes;
         if ($queryTimeout !== null) {
             $normalizedQueryTimeout = min(abs($queryTimeout), self::MAX_QUERY_TIMEOUT);
             $this->queryTimeout = $normalizedQueryTimeout ?: null;
@@ -166,10 +161,5 @@ class MssqlExportConfig extends ExportConfig
     public function getQueryTimeout(): ?int
     {
         return $this->queryTimeout;
-    }
-
-    public function hasQueryNativeTypes(): bool
-    {
-        return $this->queryNativeTypes;
     }
 }

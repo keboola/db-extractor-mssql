@@ -33,7 +33,6 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
         $this->addMaxTriesBcpNode($builder);
         $this->addCdcModeNode($builder);
         $this->addCdcModeFullLoadFallbackNode($builder);
-        $this->addQueryNativeTypesNode($builder);
     }
 
     protected function addAdvancedModeNode(NodeBuilder $builder): void
@@ -70,10 +69,5 @@ class MssqlTableNodesDecorator extends TableNodesDecorator
     private function addCdcModeFullLoadFallbackNode(NodeBuilder $builder): void
     {
         $builder->booleanNode('cdcModeFullLoadFallback')->defaultFalse();
-    }
-
-    private function addQueryNativeTypesNode(NodeBuilder $builder): void
-    {
-        $builder->booleanNode('queryNativeTypes')->defaultFalse();
     }
 }

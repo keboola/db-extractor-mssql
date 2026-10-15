@@ -190,11 +190,6 @@ class MSSQLPdoConnection extends PdoConnection
         return new PdoQueryResult($query, $queryMetadata, $stmt);
     }
 
-    /**
-     * The pdo_sqlsrv driver reports "string" in "native_type" for every type, so the default
-     * PdoQueryMetadata cannot type a custom query. MssqlPdoQueryMetadata also reads the declared
-     * type. It keeps getColumns() unchanged, so this override does not change any existing output.
-     */
     protected function getQueryMetadata(string $query, PDOStatement $stmt): QueryMetadata
     {
         return new MssqlPdoQueryMetadata($stmt);

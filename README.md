@@ -60,23 +60,19 @@ The `config.json` file contains the following properties within the `parameters`
 - `cdcModeFullLoadFallback` _(optional)_ – bool (default `false`)
 - `queryTimeout` _(optional)_ – int: Number of seconds before BCP and PDO exports time out (default: `null`)
 - `propagateDescriptions` _(optional)_ – bool: Propagate table and column descriptions to Storage metadata (default: `true`, see [Table and column descriptions](#table-and-column-descriptions))
-- `queryNativeTypes` _(optional)_ – bool: Custom queries only. Report the real column types on the PDO export path instead of `STRING` (default: `false`, see [Native types in custom queries](#native-types-in-custom-queries))
 
-### Native types in custom queries
+### Column types in custom queries
 
 A custom query (`query`) is exported by BCP when BCP is available, and by PDO otherwise. PDO is used
 when `disableBcp` is set, in CDC mode, on SQL Server below 2012, and after any BCP failure.
 
-The BCP path reports real column types. The PDO path cannot: the `pdo_sqlsrv` driver reports the
-type of every column as `string`, so every column of the output table gets the base type `STRING`.
-With Native Data Types enabled this creates `STRING` columns, and a load into an existing table with
-`INTEGER` or `NUMERIC` columns fails.
+Both paths report the real base type of every column (`INTEGER`, `NUMERIC`, `TIMESTAMP`, …). With
+Native Data Types enabled, the output table gets typed columns. Without it, the types are only
+written to the column metadata.
 
-Set `queryNativeTypes` to `true` to make the PDO path report the same base types as the BCP path.
-
-The option is off by default, because an output table that an earlier run created has `STRING`
-columns. A row that turns the option on must write to a NEW output table. Table mode and the BCP
-path are not affected by this option.
+Earlier versions reported every column of the PDO path as `STRING`. An output table that such a run
+created keeps its `STRING` columns. To get typed columns, drop the output table and run the
+extraction again.
 
 ### Table and column descriptions
 
