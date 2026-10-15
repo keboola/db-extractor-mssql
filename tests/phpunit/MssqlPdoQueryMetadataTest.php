@@ -23,7 +23,7 @@ class MssqlPdoQueryMetadataTest extends TestCase
             "IF OBJECT_ID('dbo.pdo_type_normalization', 'U') IS NOT NULL DROP TABLE dbo.pdo_type_normalization",
         );
         $this->pdo->exec('CREATE TABLE dbo.pdo_type_normalization (
-            [id] int IDENTITY(1,1) NOT NULL,
+            [id] int NOT NULL,
             [big] bigint NULL,
             [small] smallint NULL,
             [tiny] tinyint NULL,
@@ -42,7 +42,7 @@ class MssqlPdoQueryMetadataTest extends TestCase
         )');
     }
 
-    public function testColumnTypesAreReadFromTheDeclaredType(): void
+    public function testDeclaredTypesAreReadFromTheDriver(): void
     {
         $expected = [
             'id' => 'int',
@@ -64,11 +64,26 @@ class MssqlPdoQueryMetadataTest extends TestCase
         ];
 
         $actual = [];
-        foreach ($this->createMetadata()->getColumns() as $column) {
+        foreach ($this->createMetadata()->getDeclaredTypeColumns() as $column) {
             $actual[$column->getName()] = $column->getType();
         }
 
         self::assertSame($expected, $actual);
+    }
+
+    /**
+     * Guards the backwards compatibility of every existing configuration: getColumns() must keep
+     * returning the "native_type" value, which pdo_sqlsrv reports as "string" for every type.
+     */
+    public function testGetColumnsKeepsTheDriverNativeType(): void
+    {
+        $types = [];
+        foreach ($this->createMetadata()->getColumns() as $column) {
+            $types[] = $column->getType();
+        }
+
+        self::assertNotEmpty($types);
+        self::assertSame(['string'], array_values(array_unique($types)));
     }
 
     private function createMetadata(): MssqlPdoQueryMetadata

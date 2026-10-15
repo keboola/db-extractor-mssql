@@ -13,21 +13,30 @@ use Keboola\DbExtractor\TableResultFormat\Metadata\ValueObject\ColumnCollection;
  * Query metadata for the PDO export path.
  *
  * The pdo_sqlsrv driver reports the literal string "string" in "native_type" for every SQL Server
- * type, so the default PdoQueryMetadata declares every column of a custom query as STRING. The
- * declared type name is in the driver specific "sqlsrv:decl_type" key instead. Reading it gives the
- * PDO path the same base types as the BCP path, which gets them from sp_describe_first_result_set.
+ * type. The default PdoQueryMetadata reads that key, so a custom query exported through the PDO
+ * adapter declares every column as STRING in the manifest. The declared type name is available in
+ * the driver specific "sqlsrv:decl_type" key instead.
+ *
+ * getDeclaredTypeColumns() reads that key, so the PDO path can report the same base types as the
+ * BCP path, which gets real type names from sp_describe_first_result_set.
+ *
+ * getColumns() is deliberately NOT changed. It stays the behaviour of every existing configuration.
+ * The declared types are opt-in through the "queryNativeTypes" row option and are read only by
+ * MssqlManifestGenerator.
  */
 class MssqlPdoQueryMetadata extends PdoQueryMetadata
 {
     public const DECLARED_TYPE_KEY = 'sqlsrv:decl_type';
 
-    public function getColumns(): ColumnCollection
+    private ?ColumnCollection $declaredTypeColumns = null;
+
+    public function getDeclaredTypeColumns(): ColumnCollection
     {
-        if ($this->columns === null) {
-            $this->columns = $this->doGetDeclaredTypeColumns();
+        if ($this->declaredTypeColumns === null) {
+            $this->declaredTypeColumns = $this->doGetDeclaredTypeColumns();
         }
 
-        return $this->columns;
+        return $this->declaredTypeColumns;
     }
 
     private function doGetDeclaredTypeColumns(): ColumnCollection
@@ -56,11 +65,11 @@ class MssqlPdoQueryMetadata extends PdoQueryMetadata
     {
         $declaredType = $columnMetadata[self::DECLARED_TYPE_KEY] ?? null;
         if (is_string($declaredType) && $declaredType !== '') {
-            // The ODBC driver reports an identity column as e.g. "int identity".
-            return (string) preg_replace('~\s+identity$~i', '', trim($declaredType));
+            return $declaredType;
         }
 
         // Another PDO driver, or a column the driver cannot describe (for example sql_variant).
+        // Keep the default behaviour, which is what this column got before this class existed.
         $nativeType = $columnMetadata['native_type'] ?? null;
         return is_string($nativeType) && $nativeType !== '' ? $nativeType : 'string';
     }
