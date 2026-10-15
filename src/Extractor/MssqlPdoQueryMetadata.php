@@ -45,14 +45,13 @@ class MssqlPdoQueryMetadata extends PdoQueryMetadata
         $columns = [];
         for ($i = 0; $i < $columnsCount; $i++) {
             $columnMetadata = $this->stmt->getColumnMeta($i);
-            $name = is_array($columnMetadata) ? ($columnMetadata['name'] ?? null) : null;
-            if (!is_string($name)) {
-                throw new InvalidStateException('Missing key "name" in PDO query column\'s metadata.');
+            if ($columnMetadata === false) {
+                throw new InvalidStateException(sprintf('Cannot read metadata of PDO query column %d.', $i));
             }
 
             $builder = ColumnBuilder::create();
-            $builder->setName($name);
-            $builder->setType(self::resolveType(is_array($columnMetadata) ? $columnMetadata : []));
+            $builder->setName($columnMetadata['name']);
+            $builder->setType(self::resolveType($columnMetadata));
             $columns[] = $builder->build();
         }
 
