@@ -11,7 +11,6 @@ use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\Configuration\MssqlExportConfig;
 use Keboola\DbExtractor\Extractor\Adapters\BcpExportAdapter;
 use Keboola\DbExtractor\Extractor\Adapters\MSSQLPdoExportAdapter;
-use Keboola\DbExtractor\Manifest\DefaultManifestGenerator;
 use Keboola\DbExtractor\Manifest\ManifestGenerator;
 use Keboola\DbExtractor\Metadata\MssqlManifestSerializer;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
@@ -42,7 +41,7 @@ class MSSQL extends BaseExtractor
 
     protected function createManifestGenerator(): ManifestGenerator
     {
-        return new DefaultManifestGenerator(
+        return new MssqlManifestGenerator(
             $this->getMetadataProvider(),
             new MssqlManifestSerializer(),
             $this->parameters['extractor_class'],
