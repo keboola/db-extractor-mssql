@@ -61,6 +61,26 @@ The `config.json` file contains the following properties within the `parameters`
 - `queryTimeout` _(optional)_ – int: Number of seconds before BCP and PDO exports time out (default: `null`)
 - `propagateDescriptions` _(optional)_ – bool: Propagate table and column descriptions to Storage metadata (default: `true`, see [Table and column descriptions](#table-and-column-descriptions))
 
+### CDC mode
+
+With `cdcMode` enabled, the first run exports the whole table and stores a `lastFetchedTime`
+watermark. Every later run reads only the net changes between that watermark and the current
+maximum LSN, and adds a `KBC__DELETED` column.
+
+The change window is read from `cdc.lsn_time_mapping`, so it can be unavailable — for example when
+the CDC capture job is not running, when the capture instance is missing or unreadable, or when the
+stored watermark is older than the CDC retention window. The extractor checks both LSN bounds before
+it queries the change table and then fails with an explicit message:
+
+```
+The CDC LSN range is not available for capture instance <schema>_<table>. ...
+```
+
+Set `cdcModeFullLoadFallback` to `true` to export the full table instead of failing in that case.
+
+> The capture instance name is derived as `<schema>_<table>`, which is the SQL Server default. A
+> capture instance created with a custom `@capture_instance` name is not supported.
+
 ### Table and column descriptions
 
 On every run the extractor reads the `MS_Description` extended property of the source table and of its
