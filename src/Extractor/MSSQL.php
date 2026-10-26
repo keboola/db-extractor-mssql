@@ -112,31 +112,16 @@ class MSSQL extends BaseExtractor
             // PDO too so output is consistent across runs and NULLs in typed columns are serialized
             // correctly by NullAwareCsvWriter (SUPPORT-16443) rather than switching adapters.
             $cdcExportConfig->setDisableBcp(true);
+            $cdcQueryFactory = new MssqlCdcQueryFactory();
             if (!empty($this->state['lastFetchedTime'])) {
-                // @phpcs:disable Generic.Files.LineLength
-                $query = <<<SQL
-DECLARE @begin_time datetime, @end_time datetime, @from_lsn binary(10), @to_lsn binary(10);
-SET @begin_time = CONVERT(DATETIME, '{$this->state['lastFetchedTime']}');
-SET @end_time = GETDATE();
-SET @from_lsn = sys.fn_cdc_map_time_to_lsn('smallest greater than or equal', @begin_time);
-SET @from_lsn = ISNULL(sys.fn_cdc_map_time_to_lsn('smallest greater than or equal', @begin_time), [sys].[fn_cdc_get_min_lsn]('$cdcName'));
-SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time);
-IF @to_lsn < @from_lsn
-BEGIN
-RAISERROR('The end LSN is less than the start LSN.', 16, 1);
-END
-SELECT $columnsString, IIF(__\$operation = 1, 1, 0) as KBC__DELETED FROM cdc.fn_cdc_get_net_changes_$cdcName(@from_lsn, @to_lsn, 'all');
-SQL;
-                // @phpcs:enable Generic.Files.LineLength
-                $cdcExportConfig->setQuery($query);
+                $cdcExportConfig->setQuery($cdcQueryFactory->getNetChangesQuery(
+                    $cdcName,
+                    $columnsString,
+                    (string) $this->state['lastFetchedTime'],
+                ));
             }
 
-            $sqlToLsnTime = <<<SQL
-DECLARE @to_lsn binary(10);
-SET @to_lsn = [sys].[fn_cdc_get_max_lsn]();
-SELECT sys.fn_cdc_map_lsn_to_time(@to_lsn) as last_fetched_time;
-SQL;
-            $sqlToLsnTime = $this->connection->query($sqlToLsnTime);
+            $sqlToLsnTime = $this->connection->query($cdcQueryFactory->getLastFetchedTimeQuery());
             $lsnTimeResponse = $sqlToLsnTime->fetchAll();
             assert(count($lsnTimeResponse) === 1, 'Expected one row');
             $lsnTime = $lsnTimeResponse[0]['last_fetched_time'];
@@ -144,7 +129,7 @@ SQL;
             try {
                 $result = parent::export($cdcExportConfig);
             } catch (Throwable $e) {
-                if (strpos($e->getMessage(), 'The end LSN is less than the start LSN') !== false &&
+                if (MssqlCdcQueryFactory::isRecoverableLsnError($e->getMessage()) &&
                     $exportConfig->cdcModeFullLoadFallback()) {
                     $this->logger->info('CDC export failed, trying to export full table', [
                         'exception' => $e,
