@@ -166,6 +166,81 @@ class MssqlSqlHelper
         );
     }
 
+    /**
+     * Reads the `MS_Description` extended property of tables/views and of their columns.
+     *
+     * SQL Server has no COMMENT statement -- a description is an extended property stored in
+     * `sys.extended_properties`, written by `sp_addextendedproperty` or by the "Description"
+     * field in SSMS, both of which use the name `MS_Description`. Class 1 covers the object and
+     * its columns at once: `minor_id` 0 is the object itself, a higher one is the column of that
+     * `column_id`.
+     *
+     * Deliberately a query of its own rather than a join into the existing metadata queries.
+     * getTablesSql() joins INFORMATION_SCHEMA.TABLES to sys.objects on the table NAME alone, and
+     * getColumnsSqlComplex() joins its constraint subqueries on table and column NAME alone, so
+     * both already return duplicate rows for a name living in several schemas, which the provider
+     * collapses -- a description joined in there could end up on the wrong table. Keyed on
+     * (schema, table) here, the existing queries stay byte-identical whether the propagation is
+     * on or off, which MssqlMetadataProviderTest::testTheExistingQueriesAreUntouched() pins down.
+     *
+     * @param array|InputTable[] $whitelist
+     */
+    public static function getDescriptionsSql(array $whitelist, MSSQLPdoConnection $pdo, bool $loadColumns): string
+    {
+        $select = [
+            '[s].[name] AS [TABLE_SCHEMA]',
+            '[o].[name] AS [TABLE_NAME]',
+            // The value is sql_variant, capped at 7500 bytes, so nvarchar(4000) cannot truncate it
+            'CAST([ep].[value] AS NVARCHAR(4000)) AS [DESCRIPTION]',
+        ];
+
+        $from = [];
+        $from[] = 'FROM [sys].[extended_properties] AS [ep]';
+        $from[] = 'INNER JOIN [sys].[objects] AS [o] ON [o].[object_id] = [ep].[major_id]';
+        $from[] = 'INNER JOIN [sys].[schemas] AS [s] ON [s].[schema_id] = [o].[schema_id]';
+
+        $where = [];
+        $where[] = "[ep].[class] = 1 AND [ep].[name] = 'MS_Description'";
+        // Same object filter as getTablesSql(): user tables and views only
+        $where[] = "([o].[type]='U' OR [o].[type]='V') AND [o].[is_ms_shipped] = 0";
+
+        if ($loadColumns) {
+            $select[] = '[c].[name] AS [COLUMN_NAME]';
+            $from[] = 'LEFT JOIN [sys].[columns] AS [c] '
+                . 'ON [c].[object_id] = [ep].[major_id] AND [c].[column_id] = [ep].[minor_id]';
+
+            // Keeps minor_id 0 (the object itself) while dropping a property pointing at a
+            // column that no longer exists, which would otherwise read as a table description
+            $where[] = '([ep].[minor_id] = 0 OR [c].[name] IS NOT NULL)';
+        } else {
+            $where[] = '[ep].[minor_id] = 0';
+        }
+
+        if (!empty($whitelist)) {
+            $where[] = sprintf(
+                '[o].[name] IN (%s) AND [s].[name] IN (%s)',
+                implode(',', array_map(
+                    fn (InputTable $table) => $pdo->quote($table->getName()),
+                    $whitelist,
+                )),
+                implode(',', array_map(
+                    fn (InputTable $table) => $pdo->quote($table->getSchema()),
+                    $whitelist,
+                )),
+            );
+        }
+
+        $sql = [];
+        $sql[] = sprintf('SELECT %s', implode(', ', $select));
+        $sql = array_merge($sql, $from);
+        $sql[] = sprintf('WHERE %s', implode(' AND ', $where));
+        // The table description (minor_id 0) sorts ahead of its columns, which only helps reading
+        // a query log -- the provider builds a map, so the order does not matter to it
+        $sql[] = 'ORDER BY [s].[name], [o].[name], [ep].[minor_id]';
+
+        return implode(' ', $sql);
+    }
+
     public static function getFieldLength(array $data): ?string
     {
         if (in_array($data['DATA_TYPE'], self::DATE_TIME_TYPES)) {

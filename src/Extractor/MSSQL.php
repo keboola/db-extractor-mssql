@@ -16,6 +16,7 @@ use Keboola\DbExtractor\Manifest\ManifestGenerator;
 use Keboola\DbExtractor\Metadata\MssqlManifestSerializer;
 use Keboola\DbExtractor\Metadata\MssqlMetadataProvider;
 use Keboola\DbExtractor\TableResultFormat\Exception\ColumnNotFoundException;
+use Keboola\DbExtractor\TableResultFormat\Metadata\ValueObject\Column;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\DatabaseConfig;
 use Keboola\DbExtractorConfig\Configuration\ValueObject\ExportConfig;
 use Symfony\Component\Process\Process;
@@ -31,7 +32,12 @@ class MSSQL extends BaseExtractor
 
     public function createMetadataProvider(): MssqlMetadataProvider
     {
-        return new MssqlMetadataProvider($this->connection);
+        return new MssqlMetadataProvider(
+            $this->connection,
+            // Not declared for sync actions and legacy configs, both of which keep
+            // unknown keys, so reading it straight from parameters is safe
+            (bool) ($this->parameters['propagateDescriptions'] ?? true),
+        );
     }
 
     protected function createManifestGenerator(): ManifestGenerator
@@ -200,8 +206,42 @@ SQL;
 
     public function validateIncrementalFetching(ExportConfig $exportConfig): void
     {
+        $column = $this->getIncrementalFetchingColumnMetadata($exportConfig);
+
+        $this
+            ->getQueryFactory()
+            ->setIncrementalFetchingType(
+                MssqlDataType::getIncrementalFetchingType($column->getName(), $column->getType()),
+            )
+        ;
+    }
+
+    /**
+     * Maps the incremental fetching column onto the resolver basetype used by the incremental fetching
+     * WINDOW/LOOKBACK feature. Overrides the default-null hook in db-extractor-common's BaseExtractor,
+     * which threads the returned type into the query via ExportConfig::withIncrementalColumnType().
+     *
+     * Returns null for a binary/rowversion ("timestamp") column: a monotonic binary token has no
+     * meaningful "minus N", so a lookback/window cannot be computed for it. The common guard then reports
+     * "window/lookback is not supported by this extractor", while plain watermark fetching keeps working.
+     */
+    public function getIncrementalFetchingColumnType(ExportConfig $exportConfig): ?string
+    {
+        $column = $this->getIncrementalFetchingColumnMetadata($exportConfig);
+
+        return match (MssqlDataType::getIncrementalFetchingType($column->getName(), $column->getType())) {
+            MssqlDataType::INCREMENT_TYPE_DATETIME,
+            MssqlDataType::INCREMENT_TYPE_QUOTABLE => 'TIMESTAMP',
+            MssqlDataType::INCREMENT_TYPE_NUMERIC => (new MssqlDataType($column->getType()))->getBasetype(),
+            // INCREMENT_TYPE_BINARY (rowversion / "timestamp"): unsupported for window/lookback.
+            default => null,
+        };
+    }
+
+    private function getIncrementalFetchingColumnMetadata(ExportConfig $exportConfig): Column
+    {
         try {
-            $column = $this->createMetadataProvider()
+            return $this->createMetadataProvider()
                ->getTable($exportConfig->getTable())
                ->getColumns()
                ->getByName($exportConfig->getIncrementalFetchingColumn());
@@ -211,13 +251,6 @@ SQL;
                 $exportConfig->getIncrementalFetchingColumn(),
             ), 0, $e);
         }
-
-        $this
-            ->getQueryFactory()
-            ->setIncrementalFetchingType(
-                MssqlDataType::getIncrementalFetchingType($column->getName(), $column->getType()),
-            )
-        ;
     }
 
     protected function createDatabaseConfig(array $data): DatabaseConfig
