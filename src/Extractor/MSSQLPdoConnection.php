@@ -101,17 +101,7 @@ class MSSQLPdoConnection extends PdoConnection
 
     public function connect(): void
     {
-        $host = $this->databaseConfig->getHost();
-        $host .= $this->databaseConfig->hasPort() ? ',' . $this->databaseConfig->getPort() : '';
-        $host .= $this->databaseConfig->hasInstance() ? '\\\\' . $this->databaseConfig->getInstance() : '';
-
-        $options['Server'] = $host;
-        $options['Database'] = $this->databaseConfig->getDatabase();
-        if ($this->databaseConfig->hasSSLConnection()) {
-            $options['Encrypt'] = 'true';
-            $options['TrustServerCertificate'] =
-                $this->databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
-        }
+        $options = self::buildConnectionOptions($this->databaseConfig);
 
         // ms sql doesn't support options
         try {
@@ -127,6 +117,7 @@ class MSSQLPdoConnection extends PdoConnection
 
                 $this->pdo = $this->createPdoInstance($options);
             } else {
+                $this->logConnectionError($e);
                 throw new UserException($e->getMessage(), 0, $e);
             }
         }
@@ -145,15 +136,112 @@ class MSSQLPdoConnection extends PdoConnection
         }
     }
 
+    /**
+     * Log whatever detail the driver exposed about a failed connection. The Microsoft ODBC driver can
+     * return an opaque, diagnostic-less error on the Entra auth paths (SQLSTATE IMSSP), so capturing the
+     * SQLSTATE and the raw errorInfo alongside the auth type makes a repeat failure debuggable from the
+     * job log instead of a bare "The ODBC operation failed" message.
+     */
+    private function logConnectionError(PDOException $e): void
+    {
+        // Only for the Entra auth paths — those are where the driver returns opaque, diagnostic-less
+        // errors. The SQL-auth failure output is asserted verbatim by existing datadir fixtures, so it
+        // must stay byte-identical; adding a line there would (and did) break them.
+        if ($this->databaseConfig->getAuthType() === MssqlDatabaseConfig::AUTH_TYPE_SQL) {
+            return;
+        }
+
+        $this->logger->error(sprintf(
+            'MSSQL connection failed (authType "%s"): SQLSTATE "%s", errorInfo: %s',
+            $this->databaseConfig->getAuthType(),
+            (string) $e->getCode(),
+            (string) json_encode($e->errorInfo ?? [], JSON_UNESCAPED_SLASHES),
+        ));
+    }
+
     private function createPdoInstance(array $options): PDO
     {
-        $dsn = sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
-            return sprintf('%s=%s', $key, $item);
-        }, array_keys($options), $options)));
+        $dsn = self::buildDsn($options);
 
         $this->logger->info("Connecting to DSN '" . $dsn . "'");
-        $password = str_ireplace('}', '}}', $this->databaseConfig->getPassword());
-        return new PDO($dsn, $this->databaseConfig->getUsername(), $password);
+        [$username, $password] = self::resolveCredentials($this->databaseConfig);
+        return new PDO($dsn, $username, $password);
+    }
+
+    /**
+     * Build the sqlsrv DSN option map. For Microsoft Entra ID auth types the `Authentication=` keyword
+     * (and mandatory encryption) are added; SQL auth keeps exactly the previous option set so existing
+     * configs produce a byte-identical DSN. Credentials are never placed in the DSN — see resolveCredentials().
+     *
+     * @return array<string, string>
+     */
+    public static function buildConnectionOptions(MssqlDatabaseConfig $databaseConfig): array
+    {
+        $host = $databaseConfig->getHost();
+        $host .= $databaseConfig->hasPort() ? ',' . $databaseConfig->getPort() : '';
+        $host .= $databaseConfig->hasInstance() ? '\\\\' . $databaseConfig->getInstance() : '';
+
+        $options = [];
+        $options['Server'] = $host;
+        $options['Database'] = $databaseConfig->getDatabase();
+
+        switch ($databaseConfig->getAuthType()) {
+            case MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL:
+                $options['Authentication'] = 'ActiveDirectoryServicePrincipal';
+                $options['Encrypt'] = 'true';
+                // Fabric does not support MARS and rejects a connection that requests it; the PHP driver
+                // enables MARS by default, so it must be turned off explicitly. The tenant is NOT a
+                // connection keyword for this driver (see the Connection Options reference) — it is
+                // resolved from the server's login challenge, and the plain client id / secret are passed
+                // as the PDO credentials (see resolveCredentials). Refs:
+                //   https://learn.microsoft.com/sql/connect/php/azure-active-directory (SP example)
+                //   https://learn.microsoft.com/fabric/data-warehouse/connectivity (MARS unsupported)
+                $options['MultipleActiveResultSets'] = 'false';
+                break;
+            case MssqlDatabaseConfig::AUTH_TYPE_AD_PASSWORD:
+                $options['Authentication'] = 'ActiveDirectoryPassword';
+                $options['Encrypt'] = 'true';
+                $options['MultipleActiveResultSets'] = 'false';
+                break;
+        }
+
+        if ($databaseConfig->hasSSLConnection()) {
+            $options['Encrypt'] = 'true';
+            $options['TrustServerCertificate'] =
+                $databaseConfig->getSslConnectionConfig()->isVerifyServerCert() ? 'false' : 'true';
+        }
+
+        return $options;
+    }
+
+    /**
+     * @param array<string, string> $options
+     */
+    public static function buildDsn(array $options): string
+    {
+        return sprintf('sqlsrv:%s', implode(';', array_map(function ($key, $item) {
+            return sprintf('%s=%s', $key, $item);
+        }, array_keys($options), $options)));
+    }
+
+    /**
+     * Resolve the PDO username/password positional arguments for the configured auth type. Service
+     * principal uses the application (client) id and secret; SQL and Entra-password auth use the
+     * user / #password fields (with the legacy brace-escaping preserved for the password).
+     *
+     * @return array{0: string, 1: string}
+     */
+    public static function resolveCredentials(MssqlDatabaseConfig $databaseConfig): array
+    {
+        if ($databaseConfig->getAuthType() === MssqlDatabaseConfig::AUTH_TYPE_AD_SERVICE_PRINCIPAL) {
+            // The secret is passed as the PDO password argument, so it needs the same brace-escaping
+            // the legacy #password path applies (the sqlsrv driver misparses a bare `}`).
+            $clientSecret = str_ireplace('}', '}}', $databaseConfig->getClientSecret());
+            return [$databaseConfig->getClientId(), $clientSecret];
+        }
+
+        $password = str_ireplace('}', '}}', $databaseConfig->getPassword());
+        return [$databaseConfig->getUsername(), $password];
     }
 
     public function query(string $query, int $maxRetries = self::DEFAULT_MAX_RETRIES, array $values = []): QueryResult
