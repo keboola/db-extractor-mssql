@@ -34,7 +34,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get update \
     # mssql-tools stays on the 17.x line (17.11.1.1, the same build the bullseye image installed): the
     # 18.x bcp and sqlcmd default to mandatory encryption, which would change how every export connects
-
     && ACCEPT_EULA=Y apt-get install -y --no-install-recommends msodbcsql18 mssql-tools \
     && rm -r /var/lib/apt/lists/* \
     && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
