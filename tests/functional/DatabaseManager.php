@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Keboola\DbExtractor\FunctionalTests;
 
+use Keboola\DbExtractor\TraitTests\CdcTrait;
 use Keboola\DbExtractor\TraitTests\CreateViewTrait;
 use Keboola\DbExtractor\TraitTests\Tables\AutoIncrementTableTrait;
 use Keboola\DbExtractor\TraitTests\Tables\DescriptionsTableTrait;
@@ -16,6 +17,7 @@ use PDO;
 
 class DatabaseManager
 {
+    use CdcTrait;
     use CreateViewTrait;
     use SimpleTableTrait;
     use DescriptionsTableTrait;
