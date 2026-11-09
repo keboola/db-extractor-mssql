@@ -22,7 +22,7 @@
             },
             {
                 "key": "KBC.datatype.basetype",
-                "value": "INTEGER"
+                "value": "STRING"
             },
             {
                 "key": "KBC.sourceName",
@@ -66,7 +66,7 @@
             },
             {
                 "key": "KBC.datatype.basetype",
-                "value": "INTEGER"
+                "value": "STRING"
             },
             {
                 "key": "KBC.sourceName",
@@ -88,7 +88,7 @@
             },
             {
                 "key": "KBC.datatype.basetype",
-                "value": "NUMERIC"
+                "value": "STRING"
             },
             {
                 "key": "KBC.sourceName",
@@ -132,7 +132,7 @@
             },
             {
                 "key": "KBC.datatype.basetype",
-                "value": "TIMESTAMP"
+                "value": "STRING"
             },
             {
                 "key": "KBC.sourceName",
@@ -154,7 +154,7 @@
             },
             {
                 "key": "KBC.datatype.basetype",
-                "value": "TIMESTAMP"
+                "value": "STRING"
             },
             {
                 "key": "KBC.sourceName",
@@ -176,7 +176,7 @@
             },
             {
                 "key": "KBC.datatype.basetype",
-                "value": "INTEGER"
+                "value": "STRING"
             },
             {
                 "key": "KBC.sourceName",

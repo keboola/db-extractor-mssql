@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Keboola\DbExtractor\TraitTests;
 
 use PDO;
+use PDOException;
 use RuntimeException;
 
 trait CdcTrait
@@ -34,6 +35,20 @@ trait CdcTrait
             "EXEC sys.sp_cdc_disable_table @source_schema = 'dbo', @source_name = '%s', @capture_instance = 'all';",
             $tableName,
         ));
+    }
+
+    public function removeCdcCaptureJob(): void
+    {
+        try {
+            $this->connection->exec("EXEC sys.sp_cdc_stop_job @job_type = N'capture';");
+        } catch (PDOException $e) {
+            // sp_cdc_enable_table starts the capture job asynchronously, so it may not be running yet
+            if (!str_contains($e->getMessage(), 'not currently running')) {
+                throw $e;
+            }
+        }
+        // A stopped job that has not started yet would still start later, a dropped one cannot
+        $this->connection->exec("EXEC sys.sp_cdc_drop_job @job_type = N'capture';");
     }
 
     /**

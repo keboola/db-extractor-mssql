@@ -17,7 +17,7 @@ return function (DatadirTest $test): void {
     $manager->enableCdcOnTable('cdc_test_table');
 
     // Without a capture run there is no LSN to map a time to, as when the capture job has never run
-    $connection->exec("EXEC sys.sp_cdc_stop_job @job_type = N'capture';");
+    $manager->removeCdcCaptureJob();
     sleep(2);
     $connection->exec('DELETE FROM [cdc].[lsn_time_mapping];');
 
