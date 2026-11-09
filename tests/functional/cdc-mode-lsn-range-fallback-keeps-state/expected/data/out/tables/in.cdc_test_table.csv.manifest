@@ -1,0 +1,195 @@
+{
+    "destination": "in.cdc_test_table",
+    "incremental": false,
+    "columns": [
+        "Weir_d_I_D",
+        "Weir_d_Na_me",
+        "someInteger",
+        "someDecimal",
+        "type",
+        "smalldatetime",
+        "datetime",
+        "KBC__DELETED"
+    ],
+    "primary_key": [
+        "Weir_d_I_D"
+    ],
+    "column_metadata": {
+        "Weir_d_I_D": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": false
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "_Weir%d I-D"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "Weir_d_I_D"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "Weir_d_Na_me": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "Weir%d Na-me"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "Weir_d_Na_me"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "someInteger": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "someInteger"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "someInteger"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "someDecimal": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "someDecimal"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "someDecimal"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "type": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "type"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "type"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "smalldatetime": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "smalldatetime"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "smalldatetime"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "datetime": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "datetime"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "datetime"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
+        "KBC__DELETED": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "STRING"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "KBC__DELETED"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "KBC__DELETED"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ]
+    }
+}

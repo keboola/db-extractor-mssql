@@ -153,6 +153,21 @@ class MSSQL extends BaseExtractor
                     throw $e;
                 }
             }
+            if ($lsnTime === null) {
+                // sys.fn_cdc_get_max_lsn() is NULL while cdc.lsn_time_mapping is empty, so no watermark
+                // can be resolved. Storing NULL would turn the next run into a first run, which exports
+                // the table without the KBC__DELETED column that the fallback full load has already
+                // added to the Storage table, and Storage then rejects every following import. Keep the
+                // previous watermark instead: the fallback full load already covers everything up to
+                // now, and the next successful CDC read continues from where CDC last worked.
+                $lsnTime = $this->state['lastFetchedTime'] ?? null;
+                $this->logger->warning(sprintf(
+                    'The CDC watermark could not be resolved, cdc.lsn_time_mapping holds no LSN. %s',
+                    $lsnTime === null
+                        ? 'The next run exports the whole table again.'
+                        : 'Keeping the previous "lastFetchedTime" state.',
+                ));
+            }
             $result['state']['lastFetchedTime'] = $lsnTime;
         } else {
             $result = parent::export($exportConfig);

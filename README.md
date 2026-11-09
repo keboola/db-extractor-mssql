@@ -78,6 +78,10 @@ The CDC LSN range is not available for capture instance <schema>_<table>. ...
 
 Set `cdcModeFullLoadFallback` to `true` to export the full table instead of failing in that case.
 
+When `cdc.lsn_time_mapping` holds no LSN at all, no new watermark can be resolved. The extractor then
+keeps the previous `lastFetchedTime` and logs a warning, so the next run continues with CDC from the
+last point where it worked instead of starting over as a first run.
+
 > The capture instance name is derived as `<schema>_<table>`, which is the SQL Server default. A
 > capture instance created with a custom `@capture_instance` name is not supported.
 

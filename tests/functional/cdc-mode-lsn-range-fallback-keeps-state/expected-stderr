@@ -1,0 +1,2 @@
+%AThe CDC LSN range is not available for capture instance dbo_cdc_test_table.%A
+%AThe CDC watermark could not be resolved, cdc.lsn_time_mapping holds no LSN. Keeping the previous "lastFetchedTime" state.%A
