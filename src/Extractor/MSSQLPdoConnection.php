@@ -7,6 +7,7 @@ namespace Keboola\DbExtractor\Extractor;
 use Keboola\DbExtractor\Adapter\Exception\DeadConnectionException;
 use Keboola\DbExtractor\Adapter\PDO\PdoConnection;
 use Keboola\DbExtractor\Adapter\PDO\PdoQueryResult;
+use Keboola\DbExtractor\Adapter\ValueObject\QueryMetadata;
 use Keboola\DbExtractor\Adapter\ValueObject\QueryResult;
 use Keboola\DbExtractor\Configuration\MssqlDatabaseConfig;
 use Keboola\DbExtractor\DbRetryProxy;
@@ -187,5 +188,15 @@ class MSSQLPdoConnection extends PdoConnection
         $stmt->execute($values);
         $queryMetadata = $this->getQueryMetadata($query, $stmt);
         return new PdoQueryResult($query, $queryMetadata, $stmt);
+    }
+
+    /**
+     * The pdo_sqlsrv driver reports "string" in "native_type" for every type, so the default
+     * PdoQueryMetadata cannot type a custom query. MssqlPdoQueryMetadata also reads the declared
+     * type. It keeps getColumns() unchanged, so this override does not change any existing output.
+     */
+    protected function getQueryMetadata(string $query, PDOStatement $stmt): QueryMetadata
+    {
+        return new MssqlPdoQueryMetadata($stmt);
     }
 }

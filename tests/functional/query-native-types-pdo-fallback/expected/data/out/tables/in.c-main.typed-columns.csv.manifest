@@ -1,0 +1,81 @@
+{
+    "destination": "in.c-main.typed-columns",
+    "incremental": false,
+    "schema": [
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "_Weir%d I-D",
+                "KBC.sanitizedName": "Weir_d_I_D",
+                "KBC.uniqueKey": false
+            },
+            "name": "Weir_d_I_D",
+            "data_type": {
+                "base": {
+                    "type": "INTEGER"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "someInteger",
+                "KBC.sanitizedName": "someInteger",
+                "KBC.uniqueKey": false
+            },
+            "name": "someInteger",
+            "data_type": {
+                "base": {
+                    "type": "INTEGER"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "someDecimal",
+                "KBC.sanitizedName": "someDecimal",
+                "KBC.uniqueKey": false
+            },
+            "name": "someDecimal",
+            "data_type": {
+                "base": {
+                    "type": "NUMERIC"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "datetime",
+                "KBC.sanitizedName": "datetime",
+                "KBC.uniqueKey": false
+            },
+            "name": "datetime",
+            "data_type": {
+                "base": {
+                    "type": "TIMESTAMP"
+                }
+            }
+        },
+        {
+            "nullable": true,
+            "primary_key": false,
+            "metadata": {
+                "KBC.sourceName": "note",
+                "KBC.sanitizedName": "note",
+                "KBC.uniqueKey": false
+            },
+            "name": "note",
+            "data_type": {
+                "base": {
+                    "type": "STRING"
+                }
+            }
+        }
+    ]
+}
