@@ -82,10 +82,19 @@ class MssqlCdcQueryFactoryTest extends TestCase
             'min_lsn is the empty lsn' => ['@min_lsn = ' . MssqlCdcQueryFactory::EMPTY_LSN],
             // Endpoints outside the validity interval, eg. state older than CDC retention.
             'from_lsn below validity interval' => ['@from_lsn < @min_lsn'],
-            'to_lsn above validity interval' => ['@to_lsn > @max_lsn'],
             // The pre-existing inverted-window guard must survive.
             'inverted window' => ['@to_lsn < @from_lsn'],
         ];
+    }
+
+    /**
+     * @to_lsn is read from cdc.lsn_time_mapping one statement after @max_lsn. Comparing the two
+     * can only fail when the capture job inserts a mapping row in between, so such a check would
+     * fail runs at random on a busy server even though the window is perfectly readable.
+     */
+    public function testToLsnIsNotComparedToAnEarlierMaxLsn(): void
+    {
+        $this->assertStringNotContainsString('@to_lsn > @max_lsn', $this->getQuery());
     }
 
     /**
