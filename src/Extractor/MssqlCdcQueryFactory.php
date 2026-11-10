@@ -66,12 +66,12 @@ class MssqlCdcQueryFactory
         // work today keep working. The "end LSN is less than the start LSN" text is kept stable
         // because MSSQL::export() matches on it to decide whether to fall back to a full load.
         //
-        // There is deliberately no "@to_lsn > @max_lsn" check. @to_lsn comes from
-        // cdc.lsn_time_mapping, so it can never exceed the maximum LSN at the moment it is read;
-        // it can only exceed a @max_lsn read one statement earlier when the capture job inserts a
-        // mapping row in between. On a busy server that happens often enough to fail runs at
-        // random with a message that blames the capture job. @max_lsn is kept only as the NULL
-        // fallback for @to_lsn and for the IS NULL check.
+        // @max_lsn is read only after @to_lsn, on purpose. Both come from cdc.lsn_time_mapping and
+        // the maximum can only grow between two reads, so a @to_lsn taken from the table is never
+        // above a @max_lsn read afterwards. Read the other way round, the "@to_lsn > @max_lsn"
+        // guard fired whenever the capture job inserted a mapping row between the two statements
+        // and failed a perfectly readable run with a message that blamed the capture job - the
+        // busier the source database, the more often.
         $emptyLsn = self::EMPTY_LSN;
         $rangeError = sprintf(
             '%s for capture instance %s. The CDC capture job may not have run yet, the capture '
@@ -89,10 +89,11 @@ DECLARE @begin_time datetime, @end_time datetime, @from_lsn binary(10), @to_lsn 
 SET @begin_time = CONVERT(DATETIME, '$sinceTime');
 SET @end_time = GETDATE();
 SET @min_lsn = [sys].[fn_cdc_get_min_lsn]('$cdcName');
-SET @max_lsn = [sys].[fn_cdc_get_max_lsn]();
 SET @from_lsn = ISNULL(sys.fn_cdc_map_time_to_lsn('smallest greater than or equal', @begin_time), @min_lsn);
-SET @to_lsn = ISNULL(sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time), @max_lsn);
-IF @min_lsn IS NULL OR @max_lsn IS NULL OR @min_lsn = $emptyLsn OR @from_lsn IS NULL OR @to_lsn IS NULL OR @from_lsn < @min_lsn
+SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time);
+SET @max_lsn = [sys].[fn_cdc_get_max_lsn]();
+SET @to_lsn = ISNULL(@to_lsn, @max_lsn);
+IF @min_lsn IS NULL OR @max_lsn IS NULL OR @min_lsn = $emptyLsn OR @from_lsn IS NULL OR @to_lsn IS NULL OR @from_lsn < @min_lsn OR @to_lsn > @max_lsn
 BEGIN
 RAISERROR('$rangeError', 16, 1);
 END

@@ -39,8 +39,16 @@ class MssqlCdcQueryFactoryTest extends TestCase
     {
         // Before the fix @to_lsn was assigned the bare fn_cdc_map_time_to_lsn() result, which is
         // NULL whenever cdc.lsn_time_mapping holds no matching row (capture job not running).
-        $this->assertStringContainsString(
-            "SET @to_lsn = ISNULL(sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time), @max_lsn);",
+        // @max_lsn is read only after @to_lsn on purpose: both come from cdc.lsn_time_mapping and
+        // the maximum can only grow between the two reads, so the "@to_lsn > @max_lsn" guard
+        // cannot fire just because the capture job inserted a row in between.
+        $this->assertMatchesRegularExpression(
+            '~' . preg_quote(
+                "SET @to_lsn = sys.fn_cdc_map_time_to_lsn('largest less than or equal', @end_time);\n"
+                . "SET @max_lsn = [sys].[fn_cdc_get_max_lsn]();\n"
+                . 'SET @to_lsn = ISNULL(@to_lsn, @max_lsn);',
+                '~',
+            ) . '~',
             $this->getQuery(),
         );
     }
@@ -82,19 +90,10 @@ class MssqlCdcQueryFactoryTest extends TestCase
             'min_lsn is the empty lsn' => ['@min_lsn = ' . MssqlCdcQueryFactory::EMPTY_LSN],
             // Endpoints outside the validity interval, eg. state older than CDC retention.
             'from_lsn below validity interval' => ['@from_lsn < @min_lsn'],
+            'to_lsn above validity interval' => ['@to_lsn > @max_lsn'],
             // The pre-existing inverted-window guard must survive.
             'inverted window' => ['@to_lsn < @from_lsn'],
         ];
-    }
-
-    /**
-     * @to_lsn is read from cdc.lsn_time_mapping one statement after @max_lsn. Comparing the two
-     * can only fail when the capture job inserts a mapping row in between, so such a check would
-     * fail runs at random on a busy server even though the window is perfectly readable.
-     */
-    public function testToLsnIsNotComparedToAnEarlierMaxLsn(): void
-    {
-        $this->assertStringNotContainsString('@to_lsn > @max_lsn', $this->getQuery());
     }
 
     /**
