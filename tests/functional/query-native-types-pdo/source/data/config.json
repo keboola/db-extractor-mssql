@@ -2,7 +2,7 @@
   "parameters": {
     "name": "typed-columns",
     "outputTable": "in.c-main.typed-columns",
-    "query": "SELECT [someInteger], [someDecimal], [smalldatetime], [datetime] FROM [auto Increment Timestamp] WHERE 1 = 0",
+    "query": "SELECT [_Weir%d I-D], [someInteger], [someDecimal], [smalldatetime], [datetime] FROM [auto Increment Timestamp] WHERE 1 = 0",
     "disableBcp": true,
     "queryNativeTypes": true,
     "db": {

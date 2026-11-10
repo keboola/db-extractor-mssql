@@ -2,12 +2,35 @@
     "destination": "in.c-main.typed-columns",
     "incremental": false,
     "columns": [
+        "Weir_d_I_D",
         "someInteger",
         "someDecimal",
         "smalldatetime",
         "datetime"
     ],
     "column_metadata": {
+        "Weir_d_I_D": [
+            {
+                "key": "KBC.datatype.nullable",
+                "value": true
+            },
+            {
+                "key": "KBC.datatype.basetype",
+                "value": "INTEGER"
+            },
+            {
+                "key": "KBC.sourceName",
+                "value": "_Weir%d I-D"
+            },
+            {
+                "key": "KBC.sanitizedName",
+                "value": "Weir_d_I_D"
+            },
+            {
+                "key": "KBC.uniqueKey",
+                "value": false
+            }
+        ],
         "someInteger": [
             {
                 "key": "KBC.datatype.nullable",

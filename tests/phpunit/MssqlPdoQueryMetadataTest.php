@@ -72,6 +72,38 @@ class MssqlPdoQueryMetadataTest extends TestCase
     }
 
     /**
+     * @dataProvider identityColumnProvider
+     */
+    public function testIdentityColumnIsReportedAsItsBaseType(string $columnType, string $expectedType): void
+    {
+        $this->pdo->exec('DROP TABLE IF EXISTS dbo.pdo_identity_normalization');
+        $this->pdo->exec(sprintf(
+            'CREATE TABLE dbo.pdo_identity_normalization ([id] %s IDENTITY(1,1) NOT NULL, [name] nvarchar(255) NULL)',
+            $columnType,
+        ));
+
+        $actual = [];
+        $metadata = $this->createMetadata('SELECT [id], [name] FROM dbo.pdo_identity_normalization');
+        foreach ($metadata->getDeclaredTypeColumns() as $column) {
+            $actual[$column->getName()] = $column->getType();
+        }
+
+        self::assertSame(['id' => $expectedType, 'name' => 'nvarchar'], $actual);
+    }
+
+    public function identityColumnProvider(): array
+    {
+        return [
+            'int' => ['int', 'int'],
+            'bigint' => ['bigint', 'bigint'],
+            'smallint' => ['smallint', 'smallint'],
+            'tinyint' => ['tinyint', 'tinyint'],
+            'decimal' => ['decimal(18,0)', 'decimal'],
+            'numeric' => ['numeric(10,0)', 'numeric'],
+        ];
+    }
+
+    /**
      * Guards the backwards compatibility of every existing configuration: getColumns() must keep
      * returning the "native_type" value, which pdo_sqlsrv reports as "string" for every type.
      */
@@ -86,10 +118,10 @@ class MssqlPdoQueryMetadataTest extends TestCase
         self::assertSame(['string'], array_values(array_unique($types)));
     }
 
-    private function createMetadata(): MssqlPdoQueryMetadata
+    private function createMetadata(string $query = self::QUERY): MssqlPdoQueryMetadata
     {
         /** @var PDOStatement $stmt */
-        $stmt = $this->pdo->prepare(self::QUERY);
+        $stmt = $this->pdo->prepare($query);
         $stmt->execute();
 
         return new MssqlPdoQueryMetadata($stmt);

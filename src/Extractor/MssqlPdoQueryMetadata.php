@@ -65,12 +65,24 @@ class MssqlPdoQueryMetadata extends PdoQueryMetadata
     {
         $declaredType = $columnMetadata[self::DECLARED_TYPE_KEY] ?? null;
         if (is_string($declaredType) && $declaredType !== '') {
-            return $declaredType;
+            return self::stripIdentitySuffix($declaredType);
         }
 
         // Another PDO driver, or a column the driver cannot describe (for example sql_variant).
         // Keep the default behaviour, which is what this column got before this class existed.
         $nativeType = $columnMetadata['native_type'] ?? null;
         return is_string($nativeType) && $nativeType !== '' ? $nativeType : 'string';
+    }
+
+    /**
+     * The ODBC driver names an identity column "int identity" or "numeric() identity". Storage
+     * matches type names exactly, so the suffix would make the column STRING, while the BCP path
+     * reports the same column as "int".
+     */
+    private static function stripIdentitySuffix(string $declaredType): string
+    {
+        $baseType = preg_replace('/(\(\))?\s+identity$/i', '', $declaredType);
+
+        return is_string($baseType) && $baseType !== '' ? $baseType : $declaredType;
     }
 }
